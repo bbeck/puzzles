@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+DEBUG=0
+
+LAST=$(ls -d1 cmd/*/[0-9][0-9]-[12] | tail -n1)
+[[ ${DEBUG} == 1 ]] && echo "LAST: $LAST"
+
+YEAR=$(echo "${LAST}" | cut -f2 -d"/")
+DAY=$(echo "${LAST}" | cut -f3 -d"/" | cut -f1 -d"-" | sed "s/^0//g")
+PART=$(echo "${LAST}" | cut -f3 -d"/" | cut -f2 -d"-")
+[[ ${DEBUG} == 1 ]] && echo "YEAR: $YEAR"
+[[ ${DEBUG} == 1 ]] && echo "DAY: $DAY"
+[[ ${DEBUG} == 1 ]] && echo "PART: $PART"
+
+if [[ "${PART}" == "1" ]]; then
+  PART="2"
+  COPY_FROM_LAST=1
+else
+  DAY=$((${DAY} + 1))
+  PART="1"
+  COPY_FROM_LAST=0
+fi
+
+if [[ "${DAY}" == "26" ]]; then
+  YEAR=$((${YEAR} + 1))
+  DAY="1"
+  PART="1"
+  COPY_FROM_LAST=0
+fi
+
+NEXT="$(printf "cmd/%4d/%02d-%d" ${YEAR} ${DAY} ${PART})"
+
+[[ ${DEBUG} == 1 ]] && echo "NEXT: $NEXT"
+[[ ${DEBUG} == 1 ]] && echo "COPY_FROM_LAST: $COPY_FROM_LAST"
+
+mkdir -p "${NEXT}"
+if [[ ${COPY_FROM_LAST} -eq 1 ]]; then
+  cp -P ${LAST}/*.go ${NEXT}/ 2>/dev/null
+else
+  cat - >${NEXT}/main.go <<EOF
+package main
+
+import (
+  "fmt"
+
+  "github.com/bbeck/advent-of-code/aoc"
+)
+
+func main() {
+  for _, line := range aoc.InputToLines(${YEAR}, ${DAY}) {
+    fmt.Println(line)
+  }
+}
+EOF
+  touch ${NEXT}/input.txt
+fi

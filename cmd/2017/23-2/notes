@@ -1,0 +1,45 @@
+  b = 106700
+  c = b + 170000
+
+L2:
+  f = 1
+  d = 2
+
+L5:
+  e = 2
+
+L4:
+  g = d*e - b
+  if g == 0 {
+    f = 0
+  }
+
+  e++
+  g = e - b
+
+  if g != 0 {
+    goto L4
+  }
+
+  d += 1
+  g = d - b
+
+  if g != 0 {
+    goto L5
+  }
+
+  if f == 0 {
+    h++
+  }
+
+  g = b - c
+  if g == 0 {
+    goto L7
+  }
+  goto END
+
+L7:
+  b += 17
+  goto L2
+
+END:
