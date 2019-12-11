@@ -3,6 +3,7 @@ package aoc
 import (
 	"fmt"
 	"math"
+	"math/big"
 )
 
 type Point2D struct {
@@ -53,6 +54,21 @@ func (p Point2D) ManhattanDistance(q Point2D) int {
 	}
 
 	return dx + dy
+}
+
+// Slope computes the slope of the line between two points.  The slope is
+// returned as two integers, the rise (dy) and the run (dx).  The returned
+// slope will be reduced so there are no common factors between the rise and the
+// run other than 1.
+func (p Point2D) Slope(q Point2D) (int, int) {
+	dx := int64(q.X - p.X)
+	if dx == 0 {
+		return 1, 0
+	}
+
+	dy := int64(q.Y - p.Y)
+	slope := big.NewRat(dy, dx)
+	return int(slope.Num().Int64()), int(slope.Denom().Int64())
 }
 
 func (p Point2D) String() string {
