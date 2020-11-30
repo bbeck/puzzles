@@ -43,9 +43,9 @@ func (l Layer) String() string {
 		for x := 0; x < Width; x++ {
 			switch l[y*Width+x] {
 			case 0:
-				builder.WriteString("█")
-			case 1:
 				builder.WriteString(" ")
+			case 1:
+				builder.WriteString("█")
 			case 2:
 				builder.WriteString("!")
 			}
