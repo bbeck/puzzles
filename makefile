@@ -24,6 +24,7 @@ clear:
 
 .PHONY: run
 run:
+	@echo -n '$(shell date +'%I:%M:%S %p'):  '
 	go run cmd/$(YEAR)/$(DAY)-$(PART)/main.go
 
 .PHONY: next
@@ -61,4 +62,5 @@ next:
    	   echo '    fmt.Println(line)'                                      >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo '  }'                                                        >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo '}'                                                          >> cmd/$(year)/$(day)-$(part)/main.go; \
+   	   echo                                                              >> cmd/$(year)/$(day)-$(part)/main.go; \
 	fi;
