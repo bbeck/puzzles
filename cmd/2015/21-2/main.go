@@ -102,7 +102,7 @@ func InputToCharacter(year, day int) Character {
 			continue
 		}
 
-		if _, err := fmt.Sscanf(line, "ComputeDamage: %d", &damage); err == nil {
+		if _, err := fmt.Sscanf(line, "Damage: %d", &damage); err == nil {
 			continue
 		}
 
