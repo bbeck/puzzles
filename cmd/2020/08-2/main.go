@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
-	program := aoc.InputToHandheldProgram(2020, 8)
+	program := cpus.InputToHandheldProgram(2020, 8)
 
 	// Loop through each instruction of the program considering what happens if it
 	// were changed from a jmp -> nop or nop -> jmp.
@@ -38,10 +38,10 @@ func main() {
 	fmt.Println(acc)
 }
 
-func IsInfiniteLoop(program []aoc.HandheldInstruction) (bool, int) {
+func IsInfiniteLoop(program []cpus.HandheldInstruction) (bool, int) {
 	seen := make(map[int]bool)
 
-	var cpu aoc.HandheldCPU
+	var cpu cpus.HandheldCPU
 	for !cpu.Halted {
 		if seen[cpu.IP] {
 			return true, 0

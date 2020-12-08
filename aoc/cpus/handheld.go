@@ -1,8 +1,10 @@
-package aoc
+package cpus
 
 import (
 	"fmt"
 	"log"
+
+	"github.com/bbeck/advent-of-code/aoc"
 )
 
 type HandheldCPU struct {
@@ -42,7 +44,7 @@ type HandheldInstruction struct {
 
 func InputToHandheldProgram(year, day int) []HandheldInstruction {
 	var instructions []HandheldInstruction
-	for _, line := range InputToLines(year, day) {
+	for _, line := range aoc.InputToLines(year, day) {
 		var op string
 		var argument int
 
