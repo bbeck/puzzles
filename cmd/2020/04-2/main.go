@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var count int
-	for _, passport := range InputToPassports(2020, 04) {
+	for _, passport := range InputToPassports(2020, 4) {
 		if IsValid(passport) {
 			count++
 		}

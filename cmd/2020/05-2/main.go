@@ -14,7 +14,7 @@ func main() {
 	replacer := strings.NewReplacer("F", "0", "B", "1", "L", "0", "R", "1")
 
 	var ids []int
-	for _, line := range aoc.InputToLines(2020, 05) {
+	for _, line := range aoc.InputToLines(2020, 5) {
 		ids = append(ids, ParseBinary(replacer.Replace(line)))
 	}
 

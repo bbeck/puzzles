@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var count int
-	for _, group := range InputToGroups(2020, 06) {
+	for _, group := range InputToGroups(2020, 6) {
 		union := aoc.NewSet()
 		for _, answers := range group {
 			union = union.Union(answers)

@@ -40,9 +40,11 @@ next:
 		$(eval part=1)
     else
 		$(eval year=$(shell printf "%02d" $(shell expr $(YEAR) + 1)))
-		$(eval day=1)
+		$(eval day=01)
 		$(eval part=1)
     endif
+
+	$(eval dnz=$(shell echo $(day) | sed 's/^0//g'))
 
 	@mkdir cmd/$(year)/$(day)-$(part)
 	@if [ $(copy) ]; then                                                                                       \
@@ -58,7 +60,7 @@ next:
    	   echo ')'                                                          >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo                                                              >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo 'func main() {'                                              >> cmd/$(year)/$(day)-$(part)/main.go; \
-   	   echo '  for _, line := range aoc.InputToLines($(year), $(day)) {' >> cmd/$(year)/$(day)-$(part)/main.go; \
+   	   echo '  for _, line := range aoc.InputToLines($(year), $(dnz)) {' >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo '    fmt.Println(line)'                                      >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo '  }'                                                        >> cmd/$(year)/$(day)-$(part)/main.go; \
    	   echo '}'                                                          >> cmd/$(year)/$(day)-$(part)/main.go; \

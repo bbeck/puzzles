@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	m, width, height := InputToMap(2020, 03)
+	m, width, height := InputToMap(2020, 3)
 
 	p := aoc.Point2D{}
 	dx := 3

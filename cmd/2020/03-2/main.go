@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	m, width, height := InputToMap(2020, 03)
+	m, width, height := InputToMap(2020, 3)
 
 	product := CountTrees(m, width, height, 1, 1) *
 		CountTrees(m, width, height, 3, 1) *

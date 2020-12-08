@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var count int
-	for _, group := range InputToGroups(2020, 06) {
+	for _, group := range InputToGroups(2020, 6) {
 		intersection := group[0]
 		for _, answers := range group {
 			intersection = intersection.Intersect(answers)
