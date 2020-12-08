@@ -25,7 +25,7 @@ clear:
 .PHONY: run
 run:
 	@echo -n '$(shell date +'%I:%M:%S %p'):  '
-	go run cmd/$(YEAR)/$(DAY)-$(PART)/main.go
+	go run cmd/$(YEAR)/$(DAY)-$(PART)/*.go
 
 .PHONY: next
 next:
