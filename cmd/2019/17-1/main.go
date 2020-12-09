@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 var grid map[aoc.Point2D]bool
@@ -26,9 +27,9 @@ func main() {
 		}
 	}
 
-	cpu := &CPU{
-		memory: InputToMemory(2019, 17),
-		output: output,
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 17),
+		Output: output,
 	}
 	cpu.Execute()
 

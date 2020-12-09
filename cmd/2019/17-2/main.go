@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 type Grid map[aoc.Point2D]bool
@@ -45,18 +46,18 @@ func main() {
 	inputs = append(inputs, 'n') // do we want a live feed?
 	inputs = append(inputs, '\n')
 
-	memory := InputToMemory(2019, 17)
+	memory := cpus.InputToIntcodeMemory(2019, 17)
 	memory[0] = 2
 
 	var output int
-	cpu := &CPU{
-		memory: memory,
-		input: func(addr int) int {
+	cpu := cpus.IntcodeCPU{
+		Memory: memory,
+		Input: func(addr int) int {
 			i := inputs[0]
 			inputs = inputs[1:]
 			return i
 		},
-		output: func(value int) {
+		Output: func(value int) {
 			output = value
 		},
 	}
@@ -237,9 +238,9 @@ func ReadGrid() (Grid, Turtle) {
 		}
 	}
 
-	cpu := &CPU{
-		memory: InputToMemory(2019, 17),
-		output: output,
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 17),
+		Output: output,
 	}
 	cpu.Execute()
 

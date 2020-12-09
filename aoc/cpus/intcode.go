@@ -1,4 +1,4 @@
-package main
+package cpus
 
 import (
 	"log"
@@ -9,13 +9,13 @@ import (
 
 type Memory map[int]int
 
-type CPU struct {
-	memory  Memory
+type IntcodeCPU struct {
+	Memory  Memory
 	ip      int
 	bp      int
-	input   func(addr int) int
-	output  func(value int)
-	halt    func()
+	Input   func(addr int) int
+	Output  func(value int)
+	Halt    func()
 	stopped bool
 }
 
@@ -32,7 +32,7 @@ const (
 	OpcodeHLT = 99
 )
 
-func (cpu *CPU) Execute() {
+func (cpu *IntcodeCPU) Execute() {
 	for {
 		cpu.Step()
 		if cpu.stopped {
@@ -41,12 +41,12 @@ func (cpu *CPU) Execute() {
 	}
 }
 
-func (cpu *CPU) Stop() {
+func (cpu *IntcodeCPU) Stop() {
 	cpu.stopped = true
 }
 
-func (cpu *CPU) Step() {
-	instruction := cpu.memory[cpu.ip]
+func (cpu *IntcodeCPU) Step() {
+	instruction := cpu.Memory[cpu.ip]
 	op := instruction % 100
 	aMode := (instruction / 100) % 10
 	bMode := (instruction / 1000) % 10
@@ -56,11 +56,11 @@ func (cpu *CPU) Step() {
 	get := func(addr int, mode int) int {
 		switch mode {
 		case 0: // position mode
-			return cpu.memory[addr]
+			return cpu.Memory[addr]
 		case 1: // immediate mode
 			return addr
 		case 2: // relative mode
-			return cpu.memory[cpu.bp+addr]
+			return cpu.Memory[cpu.bp+addr]
 		}
 
 		log.Fatalf("don't know how to get addr: %d, in mode: %d\addr", addr, mode)
@@ -71,9 +71,9 @@ func (cpu *CPU) Step() {
 	set := func(addr int, value int, mode int) {
 		switch mode {
 		case 0: // position mode
-			cpu.memory[addr] = value
+			cpu.Memory[addr] = value
 		case 2: // relative mode
-			cpu.memory[cpu.bp+addr] = value
+			cpu.Memory[cpu.bp+addr] = value
 		default:
 			log.Fatalf("don't know how to set addr: %d, in mode: %d\addr", addr, mode)
 		}
@@ -81,32 +81,32 @@ func (cpu *CPU) Step() {
 
 	switch op {
 	case OpcodeAdd:
-		a := cpu.memory[cpu.ip+1]
-		b := cpu.memory[cpu.ip+2]
-		c := cpu.memory[cpu.ip+3]
+		a := cpu.Memory[cpu.ip+1]
+		b := cpu.Memory[cpu.ip+2]
+		c := cpu.Memory[cpu.ip+3]
 		set(c, get(a, aMode)+get(b, bMode), cMode)
 		cpu.ip += 4
 
 	case OpcodeMul:
-		a := cpu.memory[cpu.ip+1]
-		b := cpu.memory[cpu.ip+2]
-		c := cpu.memory[cpu.ip+3]
+		a := cpu.Memory[cpu.ip+1]
+		b := cpu.Memory[cpu.ip+2]
+		c := cpu.Memory[cpu.ip+3]
 		set(c, get(a, aMode)*get(b, bMode), cMode)
 		cpu.ip += 4
 
 	case OpcodeIn:
-		a := cpu.memory[cpu.ip+1]
-		set(a, cpu.input(a), aMode)
+		a := cpu.Memory[cpu.ip+1]
+		set(a, cpu.Input(a), aMode)
 		cpu.ip += 2
 
 	case OpcodeOut:
-		a := cpu.memory[cpu.ip+1]
-		cpu.output(get(a, aMode))
+		a := cpu.Memory[cpu.ip+1]
+		cpu.Output(get(a, aMode))
 		cpu.ip += 2
 
 	case OpcodeJIT: // jump-if-true
-		a := cpu.memory[cpu.ip+1]
-		b := cpu.memory[cpu.ip+2]
+		a := cpu.Memory[cpu.ip+1]
+		b := cpu.Memory[cpu.ip+2]
 		if get(a, aMode) != 0 {
 			cpu.ip = get(b, bMode)
 		} else {
@@ -114,8 +114,8 @@ func (cpu *CPU) Step() {
 		}
 
 	case OpcodeJIF: // jump-if-false
-		a := cpu.memory[cpu.ip+1]
-		b := cpu.memory[cpu.ip+2]
+		a := cpu.Memory[cpu.ip+1]
+		b := cpu.Memory[cpu.ip+2]
 		if get(a, aMode) == 0 {
 			cpu.ip = get(b, bMode)
 		} else {
@@ -123,9 +123,9 @@ func (cpu *CPU) Step() {
 		}
 
 	case OpcodeLT: // less than
-		a := cpu.memory[cpu.ip+1]
-		b := cpu.memory[cpu.ip+2]
-		c := cpu.memory[cpu.ip+3]
+		a := cpu.Memory[cpu.ip+1]
+		b := cpu.Memory[cpu.ip+2]
+		c := cpu.Memory[cpu.ip+3]
 		if get(a, aMode) < get(b, bMode) {
 			set(c, 1, cMode)
 		} else {
@@ -134,9 +134,9 @@ func (cpu *CPU) Step() {
 		cpu.ip += 4
 
 	case OpcodeEQ: // equals
-		a := cpu.memory[cpu.ip+1]
-		b := cpu.memory[cpu.ip+2]
-		c := cpu.memory[cpu.ip+3]
+		a := cpu.Memory[cpu.ip+1]
+		b := cpu.Memory[cpu.ip+2]
+		c := cpu.Memory[cpu.ip+3]
 		if get(a, aMode) == get(b, bMode) {
 			set(c, 1, cMode)
 		} else {
@@ -145,22 +145,22 @@ func (cpu *CPU) Step() {
 		cpu.ip += 4
 
 	case OpcodeARB: // adjust relative base
-		a := cpu.memory[cpu.ip+1]
+		a := cpu.Memory[cpu.ip+1]
 		cpu.bp += get(a, aMode)
 		cpu.ip += 2
 
-	case OpcodeHLT: // halt
-		if cpu.halt != nil {
-			cpu.halt()
+	case OpcodeHLT: // Halt
+		if cpu.Halt != nil {
+			cpu.Halt()
 		}
 		cpu.stopped = true
 
 	default:
-		log.Fatalf("unrecognized opcode: %d", op)
+		log.Fatalf("unrecognized opcode: %d, instruction:%d, ip:%d", op, instruction, cpu.ip)
 	}
 }
 
-func InputToMemory(year, day int) Memory {
+func InputToIntcodeMemory(year, day int) Memory {
 	opcodes := make(Memory)
 	for addr, s := range strings.Split(aoc.InputToString(year, day), ",") {
 		opcodes[addr] = aoc.ParseInt(s)

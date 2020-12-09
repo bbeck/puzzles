@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
@@ -43,10 +45,10 @@ func main() {
 	}
 	close(inputs)
 
-	cpu := &CPU{
-		memory: InputToMemory(2019, 21),
-		input:  func(addr int) int { return <-inputs },
-		output: func(value int) {
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 21),
+		Input:  func(addr int) int { return <-inputs },
+		Output: func(value int) {
 			if value <= 255 {
 				fmt.Printf("%c", value)
 			} else {
@@ -54,7 +56,6 @@ func main() {
 				fmt.Printf("output: %d\n", value)
 			}
 		},
-		halt: nil,
 	}
 	cpu.Execute()
 }

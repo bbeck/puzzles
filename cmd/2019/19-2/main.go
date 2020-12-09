@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
@@ -118,10 +119,10 @@ func Affected(x, y int) bool {
 	close(inputs)
 
 	var output int
-	cpu := &CPU{
-		memory: InputToMemory(2019, 19),
-		input:  func(addr int) int { return <-inputs },
-		output: func(value int) { output = value },
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 19),
+		Input:  func(addr int) int { return <-inputs },
+		Output: func(value int) { output = value },
 	}
 	cpu.Execute()
 

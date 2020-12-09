@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+
+	aoc "github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
 	c := make(chan int)
 
-	var cpus []*CPU
+	var cpus []*aoc.IntcodeCPU
 	var inputs []chan int
 	for i := 0; i < 50; i++ {
 		input := make(chan int, 1024)
@@ -16,9 +18,9 @@ func main() {
 
 		var buffer []int
 
-		cpu := &CPU{
-			memory: InputToMemory(2019, 23),
-			input: func(addr int) int {
+		cpu := aoc.IntcodeCPU{
+			Memory: aoc.InputToIntcodeMemory(2019, 23),
+			Input: func(addr int) int {
 				select {
 				case value := <-input:
 					return value
@@ -26,7 +28,7 @@ func main() {
 					return -1
 				}
 			},
-			output: func(value int) {
+			Output: func(value int) {
 				buffer = append(buffer, value)
 				if len(buffer) == 3 {
 					destination, x, y := buffer[0], buffer[1], buffer[2]
@@ -43,9 +45,9 @@ func main() {
 				}
 			},
 		}
-		cpus = append(cpus, cpu)
+		cpus = append(cpus, &cpu)
 	}
-	for i := 0; i < 50; i++ {
+	for i := 0; i < len(cpus); i++ {
 		go cpus[i].Execute()
 	}
 

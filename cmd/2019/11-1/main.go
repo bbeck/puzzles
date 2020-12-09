@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
@@ -17,12 +18,12 @@ func main() {
 	hull := make(map[aoc.Point2D]int)
 	painted := make(map[aoc.Point2D]bool)
 
-	cpu := &CPU{
-		memory: InputToMemory(2019, 11),
-		input: func(addr int) int {
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 11),
+		Input: func(addr int) int {
 			return hull[robot.location]
 		},
-		output: func(value int) {
+		Output: func(value int) {
 			// Check if we already have the color to paint, if not then this is the
 			// color and we need to wait until the next output call for the direction.
 			if color == -1 {

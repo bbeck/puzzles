@@ -6,6 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 const (
@@ -104,11 +105,11 @@ func Explore(steps int) map[aoc.Point2D]int {
 	// if our move succeeds.
 	var location, next aoc.Point2D
 
-	cpu := &CPU{
-		memory: InputToMemory(2019, 15),
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 15),
 	}
 
-	cpu.input = func(int) int {
+	cpu.Input = func(int) int {
 		dir := rand.Intn(4) + 1
 		switch dir {
 		case 1:
@@ -126,7 +127,7 @@ func Explore(steps int) map[aoc.Point2D]int {
 		return dir
 	}
 
-	cpu.output = func(value int) {
+	cpu.Output = func(value int) {
 		switch value {
 		case 0:
 			grid[next] = Wall

@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
-	memory := InputToMemory(2019, 13)
+	memory := cpus.InputToIntcodeMemory(2019, 13)
 	memory[0] = 2
 
 	// All we care about is the ball, the paddle, and the score.  To keep the
@@ -48,10 +49,10 @@ func main() {
 		return move
 	}
 
-	cpu := &CPU{
-		memory: memory,
-		input:  func(addr int) int { return input() },
-		output: func(value int) { output(value) },
+	cpu := cpus.IntcodeCPU{
+		Memory: memory,
+		Input:  func(addr int) int { return input() },
+		Output: func(value int) { output(value) },
 	}
 	cpu.Execute()
 	fmt.Printf("score: %d\n", score)

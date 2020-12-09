@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
 func main() {
 	sequence := make(chan int)
-	cpu := &CPU{
-		memory: InputToMemory(2019, 13),
-		output: func(value int) { sequence <- value },
-		halt:   func() { close(sequence) },
+	cpu := cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 13),
+		Output: func(value int) { sequence <- value },
+		Halt:   func() { close(sequence) },
 	}
 
 	go cpu.Execute()
@@ -25,7 +26,7 @@ func main() {
 
 		y := <-sequence
 		id := <-sequence
-		screen[aoc.Point2D{x, y}] = id
+		screen[aoc.Point2D{X: x, Y: y}] = id
 	}
 
 	var count int
