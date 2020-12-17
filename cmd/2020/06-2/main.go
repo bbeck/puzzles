@@ -14,13 +14,13 @@ func main() {
 			intersection = intersection.Intersect(answers)
 		}
 
-		count += len(*intersection)
+		count += intersection.Size()
 	}
 
 	fmt.Println(count)
 }
 
-type Group []*aoc.Set
+type Group []aoc.Set
 
 func InputToGroups(year, day int) []Group {
 	var groups []Group

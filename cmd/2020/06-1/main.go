@@ -14,13 +14,12 @@ func main() {
 			union = union.Union(answers)
 		}
 
-		count += len(*union)
+		count += union.Size()
 	}
 	fmt.Println(count)
 }
 
-type Answers *aoc.Set
-type Group []Answers
+type Group []aoc.Set
 
 func InputToGroups(year, day int) []Group {
 	var groups []Group
