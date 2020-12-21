@@ -15,7 +15,7 @@ help:
 
 .PHONY: watch
 watch:
-	@fswatch -d -e'.*~' -o aoc/ cmd/$(YEAR)/$(DAY)-$(PART) | \
+	@fswatch -d -e'.*~' -o aoc/ cmd/$(YEAR)/$(DAY)-$(PART) cmd/$(YEAR)/$(DAY)-*/input.txt | \
      xargs -n1 -I{} $(MAKE) clear run
 
 .PHONY: clear
