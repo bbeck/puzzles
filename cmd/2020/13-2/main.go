@@ -26,7 +26,7 @@ func main() {
 		ns = append(ns, bus)
 	}
 
-	// Now apply the chinese remainder theory to solve the system
+	// Now apply the chinese remainder theorem to solve the system
 	fmt.Println(ChineseRemainderTheorem(as, ns))
 }
 
