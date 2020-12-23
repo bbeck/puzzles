@@ -3,25 +3,42 @@ package aoc
 import (
 	"container/list"
 	"fmt"
+	"log"
 	"strings"
 )
 
 // A Ring is a circular buffer of elements along with a reference to a current
 // element.
+//
+// Additionally it stores a lookup table to make it possible to jump to a
+// specific entry in the ring.  This lookup only works when the values in the
+// ring are distinct from one another.
 type Ring struct {
 	list    *list.List
 	current *list.Element
+	lookup  map[interface{}]*list.Element
 }
 
 func NewRing() *Ring {
 	return &Ring{
 		list:    list.New(),
 		current: nil,
+		lookup:  make(map[interface{}]*list.Element),
 	}
 }
 
 func (r *Ring) Current() interface{} {
 	return r.current.Value
+}
+
+func (r *Ring) JumpTo(value interface{}) {
+	elem, found := r.lookup[value]
+	if !found {
+		log.Fatalf("unable to find value %v in lookup table", value)
+		return
+	}
+
+	r.current = elem
 }
 
 func (r *Ring) InsertAfter(value interface{}) {
@@ -30,6 +47,7 @@ func (r *Ring) InsertAfter(value interface{}) {
 	} else {
 		r.current = r.list.InsertAfter(value, r.current)
 	}
+	r.lookup[value] = r.current
 }
 
 func (r *Ring) InsertBefore(value interface{}) {
@@ -38,6 +56,7 @@ func (r *Ring) InsertBefore(value interface{}) {
 	} else {
 		r.current = r.list.InsertBefore(value, r.current)
 	}
+	r.lookup[value] = r.current
 }
 
 func (r *Ring) Next() interface{} {
@@ -93,7 +112,9 @@ func (r *Ring) Remove() interface{} {
 	remove := r.current
 	r.Next()
 
-	return r.list.Remove(remove)
+	value := r.list.Remove(remove)
+	delete(r.lookup, value)
+	return value
 }
 
 func (r *Ring) String() string {
