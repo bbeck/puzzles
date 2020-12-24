@@ -7,21 +7,25 @@ import (
 )
 
 func main() {
-	s := aoc.InputToString(2015, 10)
-	for i := 0; i < 40; i++ {
-		s = LookAndSay(s)
+	var digits []int
+	for _, c := range aoc.InputToString(2015, 10) {
+		digits = append(digits, aoc.ParseInt(string(c)))
 	}
 
-	fmt.Printf("length: %d\n", len(s))
+	for i := 0; i < 40; i++ {
+		digits = LookAndSay(digits)
+	}
+
+	fmt.Printf("length: %d\n", len(digits))
 }
 
-func LookAndSay(s string) string {
-	output := ""
+func LookAndSay(s []int) []int {
+	var output []int
 
 	last, count := s[0], 1
 	for i := 1; i < len(s); i++ {
 		if s[i] != last {
-			output = output + fmt.Sprintf("%d%c", count, last)
+			output = append(output, []int{count, last}...)
 			last = s[i]
 			count = 1
 			continue
@@ -30,6 +34,6 @@ func LookAndSay(s string) string {
 		count++
 	}
 
-	output = output + fmt.Sprintf("%d%c", count, last)
+	output = append(output, []int{count, last}...)
 	return output
 }
