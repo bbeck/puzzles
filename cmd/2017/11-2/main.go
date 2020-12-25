@@ -67,14 +67,14 @@ func (c Cell) ID() string {
 	return fmt.Sprintf("(%d, %d, %d)", c.x, c.y, c.z)
 }
 
-func (c Cell) Children() map[aoc.Node]int {
-	return map[aoc.Node]int{
-		c.NorthWest(): 1,
-		c.North():     1,
-		c.NorthEast(): 1,
-		c.SouthWest(): 1,
-		c.South():     1,
-		c.SouthEast(): 1,
+func (c Cell) Children() []aoc.Node {
+	return []aoc.Node{
+		c.NorthWest(),
+		c.North(),
+		c.NorthEast(),
+		c.SouthWest(),
+		c.South(),
+		c.SouthEast(),
 	}
 }
 
