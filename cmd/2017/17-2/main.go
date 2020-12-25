@@ -9,16 +9,20 @@ import (
 func main() {
 	stride := aoc.InputToInt(2017, 17)
 
-	ring := aoc.NewRing()
-	ring.InsertAfter(0)
+	// Remember the value after the 0
+	var after int
 
+	index := 1
 	for n := 1; n <= 50_000_000; n++ {
-		ring.NextN(stride)
-		ring.InsertAfter(n)
+		// Calculate the index to insert at.
+		index = (index+stride)%n + 1
+
+		// If we're inserting into index 1, then we're inserting right after the 0,
+		// remember the value being inserted.
+		if index == 1 {
+			after = n
+		}
 	}
 
-	// Find the element after 0
-	for current := ring.Current(); current.(int) != 0; current = ring.Next() {
-	}
-	fmt.Printf("value: %+v\n", ring.Next())
+	fmt.Printf("value: %d\n", after)
 }
