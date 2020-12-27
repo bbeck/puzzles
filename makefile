@@ -29,7 +29,12 @@ run:
 
 .PHONY: next
 next:
-    ifeq ($(PART),1)
+    ifeq ($(DAY)-$(PART),25-1)
+    	# Special case the last day where there is no part 2
+		$(eval year=$(shell printf "%02d" $(shell expr $(YEAR) + 1)))
+		$(eval day=01)
+		$(eval part=1)
+    else ifeq ($(PART),1)
 		$(eval year=$(YEAR))
 		$(eval day=$(DAY))
 		$(eval part=2)
@@ -38,15 +43,11 @@ next:
 		$(eval year=$(YEAR))
 		$(eval day=$(shell printf "%02d" $(shell expr $(DAY) + 1)))
 		$(eval part=1)
-    else
-		$(eval year=$(shell printf "%02d" $(shell expr $(YEAR) + 1)))
-		$(eval day=01)
-		$(eval part=1)
     endif
 
 	$(eval dnz=$(shell echo $(day) | sed 's/^0//g'))
 
-	@mkdir cmd/$(year)/$(day)-$(part)
+	@mkdir -p cmd/$(year)/$(day)-$(part)
 	@if [ $(copy) ]; then                                                                                       \
 	   cp -P cmd/$(YEAR)/$(DAY)-$(PART)/*.go cmd/$(year)/$(day)-$(part)/;                                       \
 	else                                                                                                        \
