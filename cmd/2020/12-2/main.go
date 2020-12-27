@@ -13,16 +13,16 @@ func main() {
 	for _, instruction := range InputToInstructions(2020, 12) {
 		switch instruction.action {
 		case "N":
-			waypoint = aoc.Point2D{X: waypoint.X, Y: waypoint.Y - instruction.value}
+			waypoint.Y -= instruction.value
 
 		case "S":
-			waypoint = aoc.Point2D{X: waypoint.X, Y: waypoint.Y + instruction.value}
+			waypoint.Y += instruction.value
 
 		case "E":
-			waypoint = aoc.Point2D{X: waypoint.X + instruction.value, Y: waypoint.Y}
+			waypoint.X += instruction.value
 
 		case "W":
-			waypoint = aoc.Point2D{X: waypoint.X - instruction.value, Y: waypoint.Y}
+			waypoint.X -= instruction.value
 
 		case "L":
 			waypoint = RotateClockwise(waypoint, ship, 360-instruction.value)
@@ -33,8 +33,10 @@ func main() {
 		case "F":
 			dx := waypoint.X - ship.X
 			dy := waypoint.Y - ship.Y
-			ship = aoc.Point2D{X: ship.X + instruction.value*dx, Y: ship.Y + instruction.value*dy}
-			waypoint = aoc.Point2D{X: ship.X + dx, Y: ship.Y + dy}
+			ship.X += dx * instruction.value
+			ship.Y += dy * instruction.value
+			waypoint.X = ship.X + dx
+			waypoint.Y = ship.Y + dy
 		}
 	}
 

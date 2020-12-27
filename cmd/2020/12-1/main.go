@@ -31,10 +31,8 @@ func main() {
 			direction = RotateClockwise(direction, instruction.value)
 
 		case instruction.action == "F":
-			location = aoc.Point2D{
-				X: location.X + direction.X*instruction.value,
-				Y: location.Y + direction.Y*instruction.value,
-			}
+			location.X += direction.X * instruction.value
+			location.Y += direction.Y * instruction.value
 		}
 	}
 
