@@ -10,16 +10,15 @@ const N = 1000000
 const MOVES = 10000000
 
 func main() {
-	var digits []int
-	for n := aoc.InputToInt(2020, 23); n > 0; n /= 10 {
-		digits = append(digits, n%10)
-	}
-
 	cups := aoc.NewRing()
-	for i := len(digits) - 1; i >= 0; i-- {
-		cups.InsertAfter(digits[i])
+
+	var size int
+	for _, c := range aoc.InputToString(2020, 23) {
+		digit := aoc.ParseInt(string(c))
+		cups.InsertAfter(digit)
+		size++
 	}
-	for n := len(digits) + 1; n <= N; n++ {
+	for n := size + 1; n <= N; n++ {
 		cups.InsertAfter(n)
 	}
 

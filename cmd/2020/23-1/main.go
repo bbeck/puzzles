@@ -10,14 +10,10 @@ const N = 9 // The largest cup value
 const MOVES = 100
 
 func main() {
-	var digits []int
-	for n := aoc.InputToInt(2020, 23); n > 0; n /= 10 {
-		digits = append(digits, n%10)
-	}
-
 	cups := aoc.NewRing()
-	for i := len(digits) - 1; i >= 0; i-- {
-		cups.InsertAfter(digits[i])
+	for _, c := range aoc.InputToString(2020, 23) {
+		digit := aoc.ParseInt(string(c))
+		cups.InsertAfter(digit)
 	}
 
 	// Move back to the beginning of the ring
