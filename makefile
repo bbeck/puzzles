@@ -50,20 +50,22 @@ run: cmd/$(YEAR)/$(DAY)-1/input.txt
 
 # Download the input file for a particular day
 cmd/$(YEAR)/$(DAY)-1/input.txt:
-	@curl                                                       \
-	  --silent                                                  \
-	  --cookie "session=$(SESSION)"                             \
-	  https://adventofcode.com/$(YEAR)/day/$(DAY_NO_ZERO)/input \
-	> cmd/$(YEAR)/$(DAY)-1/input.txt;
+	@curl                                                          \
+      --fail                                                       \
+	  --silent                                                     \
+	  --cookie "session=$(SESSION)"                                \
+	  --output cmd/$(YEAR)/$(DAY)-1/input.txt                      \
+	  https://adventofcode.com/$(YEAR)/day/$(DAY_NO_ZERO)/input || \
+	(echo "input.text file not available" >&2; false)
 
 ## watch for changes and rerun the solution for the specified YEAR/DAY/PART
 .PHONY: watch
 watch:
-	@find                                                       \
-	    aoc                                                     \
-	    cmd/$(YEAR)/$(DAY)-$(PART)                              \
-	    cmd/$(YEAR)/$(DAY)-1/input.txt                          \
-	  -type f                                                 | \
+	@find                                                          \
+	    aoc                                                        \
+	    cmd/$(YEAR)/$(DAY)-$(PART)                                 \
+	    cmd/$(YEAR)/$(DAY)-1/input.txt                             \
+	  -type f                                                    | \
 	 entr -c make -s run YEAR=$(YEAR) DAY=$(DAY) PART=$(PART)
 
 ## create the solution template for the next DAY/PART
