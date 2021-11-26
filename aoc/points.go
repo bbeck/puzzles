@@ -10,38 +10,57 @@ type Point2D struct {
 	X, Y int
 }
 
+// Up returns the point above the current one when the points are from a
+// screen based coordinate system with the origin in the top left.
 func (p Point2D) Up() Point2D {
 	return Point2D{X: p.X, Y: p.Y - 1}
 }
 
+// Down returns the point below the current one when the points are from
+// a screen based coordinate system with the origin in the top left.
 func (p Point2D) Down() Point2D {
 	return Point2D{X: p.X, Y: p.Y + 1}
 }
 
+// Left returns the point to the left of the current one when the points
+// are from a screen based coordinate system with the origin in the top
+// left.
 func (p Point2D) Left() Point2D {
 	return Point2D{p.X - 1, p.Y}
 }
 
+// Right returns the point to the right of the current one when the points
+// are from a screen based coordinate system with the origin in the top left.
 func (p Point2D) Right() Point2D {
 	return Point2D{p.X + 1, p.Y}
 }
 
+// South returns the point below the current one when the points are from a
+// cartesian coordinate system with the origin in the bottom left.
 func (p Point2D) South() Point2D {
 	return Point2D{p.X, p.Y - 1}
 }
 
+// West returns the point to the left of the current one when the points are
+// from a cartesian coordinate system with the origin in the bottom left.
 func (p Point2D) West() Point2D {
 	return Point2D{p.X - 1, p.Y}
 }
 
+// North returns the point above the current one when the points are from a
+// cartesian coordinate system with the origin in the bottom left.
 func (p Point2D) North() Point2D {
 	return Point2D{p.X, p.Y + 1}
 }
 
+// East returns the point to the right of the current one when the points are
+// from a cartesian coordinate system with the origin in the bottom left.
 func (p Point2D) East() Point2D {
 	return Point2D{p.X + 1, p.Y}
 }
 
+// ManhattanDistance computes the distance between the current point and the
+// provided point when traveling along a rectilinear path between the points.
 func (p Point2D) ManhattanDistance(q Point2D) int {
 	dx := p.X - q.X
 	if dx < 0 {
@@ -75,6 +94,10 @@ func (p Point2D) String() string {
 	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
 }
 
+// GetBounds determines the minimum and maximum X and Y values of a slice of
+// points.  The returned values are minX, minY, maxX, and maxY.  Note the
+// returned values are the extremes of the points, (minX, minY) and (maxX, maxY)
+// are not necessarily one of the points from the inputted slice.
 func GetBounds(points []Point2D) (int, int, int, int) {
 	minX := math.MaxInt64
 	maxX := 0

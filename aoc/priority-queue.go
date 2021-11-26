@@ -5,6 +5,7 @@ type PriorityQueue struct {
 	priorities []int
 }
 
+// NewPriorityQueue creates a new, empty priority queue.
 func NewPriorityQueue() *PriorityQueue {
 	return &PriorityQueue{
 		nodes:      make([]interface{}, 0),
@@ -12,16 +13,19 @@ func NewPriorityQueue() *PriorityQueue {
 	}
 }
 
+// Empty returns true if the priority queue is empty.
 func (q *PriorityQueue) Empty() bool {
 	return len(q.nodes) == 0
 }
 
+// Push adds a new value into the priority queue with the specified priority.
 func (q *PriorityQueue) Push(node interface{}, priority int) {
 	q.nodes = append(q.nodes, node)
 	q.priorities = append(q.priorities, priority)
 	q.up(len(q.nodes) - 1)
 }
 
+// Pop returns the value in the priority queue with the minimum priority.
 func (q *PriorityQueue) Pop() interface{} {
 	index := len(q.nodes) - 1
 	q.swap(0, index)

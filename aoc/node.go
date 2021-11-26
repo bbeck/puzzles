@@ -16,14 +16,14 @@ type GoalFunc func(node Node) bool
 
 // BreadthFirstSearch performs a search starting at the provided root node and
 // calls the visit function the first time each node is encountered.  The visit
-// function determines whether or not the search should continue or not.  If the
-// visit function returns true then the goal has been found and the search
-// should terminate.  If it returns false then the search will continue on as
-// long as there are remaining children present.
+// function determines whether the search should continue or not.  If the visit
+// function returns true then the goal has been found and the search should
+// terminate.  If it returns false then the search will continue on as long as
+// there are remaining children present.
 //
 // The BreadthFirstSearch function returns two values.  The first is the path
 // from the root node to the goal.  The second is a boolean indicating whether
-// or not a path was found.
+// a path was found.
 func BreadthFirstSearch(root Node, isGoal GoalFunc) ([]Node, bool) {
 	queue := []Node{root}
 	parents := make(map[string]Node)
@@ -66,7 +66,7 @@ type HeuristicFunc func(node Node) int
 //
 // The AStarSearch function returns three values.  The first is the path from
 // the start node to the goal node.  The second is the cost of that path, and
-// the third is a boolean indicating whether or not a path was found.
+// the third is a boolean indicating whether a path was found.
 func AStarSearch(start Node, isGoal GoalFunc, c CostFunc, h HeuristicFunc) ([]Node, int, bool) {
 	frontier := NewPriorityQueue()
 	frontier.Push(start, 0)

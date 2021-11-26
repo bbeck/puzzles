@@ -10,7 +10,7 @@ import (
 // A Ring is a circular buffer of elements along with a reference to a current
 // element.
 //
-// Additionally it stores a lookup table to make it possible to jump to a
+// Additionally, it stores a lookup table to make it possible to jump to a
 // specific entry in the ring.  This lookup only works when the values in the
 // ring are distinct from one another.
 type Ring struct {
@@ -27,10 +27,13 @@ func NewRing() *Ring {
 	}
 }
 
+// Current returns the element that is currently being reference in the ring.
 func (r *Ring) Current() interface{} {
 	return r.current.Value
 }
 
+// JumpTo changes the current element in the ring to the specified one.  If the
+// specified value isn't found in the ring then the process will exit.
 func (r *Ring) JumpTo(value interface{}) {
 	elem, found := r.lookup[value]
 	if !found {
@@ -41,6 +44,8 @@ func (r *Ring) JumpTo(value interface{}) {
 	r.current = elem
 }
 
+// InsertAfter inserts a new value in the ring after the current one.  The
+// currently referenced element is changed to be the newly inserted one.
 func (r *Ring) InsertAfter(value interface{}) {
 	if r.current == nil {
 		r.current = r.list.PushBack(value)
@@ -50,6 +55,8 @@ func (r *Ring) InsertAfter(value interface{}) {
 	r.lookup[value] = r.current
 }
 
+// InsertBefore inserts a new value in the ring before the current one.  The
+// currently referenced element is changed to be the newly inserted one.
 func (r *Ring) InsertBefore(value interface{}) {
 	if r.current == nil {
 		r.current = r.list.PushFront(value)
@@ -59,6 +66,7 @@ func (r *Ring) InsertBefore(value interface{}) {
 	r.lookup[value] = r.current
 }
 
+// Next moves the currently referenced element to the next one.
 func (r *Ring) Next() interface{} {
 	if r.current == nil {
 		r.current = r.list.Front()
@@ -72,6 +80,8 @@ func (r *Ring) Next() interface{} {
 	return r.current.Value
 }
 
+// NextN moves the currently referenced element to the element n steps
+// after the currently referenced element.
 func (r *Ring) NextN(n int) interface{} {
 	var value interface{}
 	for i := 0; i < n; i++ {
@@ -81,6 +91,7 @@ func (r *Ring) NextN(n int) interface{} {
 	return value
 }
 
+// Prev moves the currently referenced element to the previous one.
 func (r *Ring) Prev() interface{} {
 	if r.current == nil {
 		r.current = r.list.Back()
@@ -94,6 +105,8 @@ func (r *Ring) Prev() interface{} {
 	return r.current.Value
 }
 
+// PrevN moves the currently referenced element to the element n steps
+// before the currently referenced element.
 func (r *Ring) PrevN(n int) interface{} {
 	var value interface{}
 	for i := 0; i < n; i++ {
@@ -117,6 +130,7 @@ func (r *Ring) Remove() interface{} {
 	return value
 }
 
+// String converts the ring to a string.
 func (r *Ring) String() string {
 	var builder strings.Builder
 	for elem := r.list.Front(); elem != nil; elem = elem.Next() {

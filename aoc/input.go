@@ -50,7 +50,7 @@ func InputToLines(year, day int) []string {
 	return lines
 }
 
-// InputToInts reads the input file into a single integer.
+// InputToInt reads the input file into a single integer.
 func InputToInt(year, day int) int {
 	for _, line := range InputToLines(year, day) {
 		i, err := strconv.Atoi(line)
