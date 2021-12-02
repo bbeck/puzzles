@@ -1,5 +1,8 @@
 .DEFAULT_GOAL := help
 
+# What editor to open a new file in.
+EDITOR := goland
+
 # Retrieve our session cookie so that we can automatically download inputs.
 SESSION := $(file < .session)
 
@@ -89,7 +92,8 @@ next:
 	  echo '  }'                                                                          >> cmd/$(NEXT_YEAR)/$(NEXT_DAY)-$(NEXT_PART)/main.go; \
 	  echo '}'                                                                            >> cmd/$(NEXT_YEAR)/$(NEXT_DAY)-$(NEXT_PART)/main.go; \
 	  echo                                                                                >> cmd/$(NEXT_YEAR)/$(NEXT_DAY)-$(NEXT_PART)/main.go; \
-	fi;
+	fi
+	@$(EDITOR) cmd/$(NEXT_YEAR)/$(NEXT_DAY)-$(NEXT_PART)/main.go >/dev/null 2>&1
 
 ## display this help message
 .PHONY: help
