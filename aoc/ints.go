@@ -5,14 +5,18 @@ import (
 	"strconv"
 )
 
+// ParseIntWithBase parses a string as an integer value in a specific base.
+func ParseIntWithBase(s string, base int) int {
+	n, err := strconv.ParseInt(s, base, 64)
+	if err != nil {
+		log.Fatalf("unable to parse integer (base %d): '%s'", base, s)
+	}
+	return int(n)
+}
+
 // ParseInt parses a string as an integer value.
 func ParseInt(s string) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatalf("unable to parse integer: '%s'", s)
-	}
-
-	return n
+	return ParseIntWithBase(s, 10)
 }
 
 // MinInt determines the minimum integer of a set of integers passed as
