@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -11,87 +10,79 @@ import (
 const N = 5
 
 func main() {
-	numbers, cards := InputToBingo()
+	numbers, cards := InputToBingoGame()
+	finished := make([]bool, len(cards))
 
-outer:
+	var scores []int
 	for _, n := range numbers {
-		for _, c := range cards {
-			if c.Check(n) {
-				// Compute the score, sum of all unmarked numbers times number just called
-				var score int
-				for y := 0; y < N; y++ {
-					for x := 0; x < N; x++ {
-						if !c.covered[y][x] {
-							score += c.numbers[y][x]
-						}
-					}
-				}
-				score *= n
-				fmt.Println(score)
-				break outer
+		for i, c := range cards {
+			if !finished[i] && c.Cover(n) {
+				scores = append(scores, c.Score()*n)
+				finished[i] = true
 			}
 		}
 	}
 
+	fmt.Println(scores[0])
 }
 
 type Card struct {
-	numbers [][]int
-	covered [][]bool
+	numbers [N][N]int
+	covered [N][N]bool
+
+	// counts of how many numbers are covered in each row/column.
+	rows [N]int
+	cols [N]int
 }
 
-func (c *Card) Check(n int) bool {
-	var covered bool
-	for y := 0; y < N; y++ {
-		for x := 0; x < N; x++ {
-			if c.numbers[y][x] == n {
-				c.covered[y][x] = true
-				covered = true
+func (c *Card) Cover(n int) bool {
+	for row := 0; row < N; row++ {
+		for col := 0; col < N; col++ {
+			if c.numbers[row][col] == n {
+				c.covered[row][col] = true
+				c.rows[row]++
+				c.cols[col]++
+
+				return c.rows[row] == N || c.cols[col] == N
 			}
-		}
-	}
-
-	if !covered {
-		return false
-	}
-
-	// We covered a number, check for a victory
-	for i := 0; i < N; i++ {
-		if c.covered[i][0] && c.covered[i][1] && c.covered[i][2] && c.covered[i][3] && c.covered[i][4] {
-			return true
-		}
-		if c.covered[0][i] && c.covered[1][i] && c.covered[2][i] && c.covered[3][i] && c.covered[4][i] {
-			return true
 		}
 	}
 
 	return false
 }
 
-func InputToBingo() ([]int, []Card) {
+func (c *Card) Score() int {
+	var score int
+	for row := 0; row < N; row++ {
+		for col := 0; col < N; col++ {
+			if !c.covered[row][col] {
+				score += c.numbers[row][col]
+			}
+		}
+	}
+
+	return score
+}
+
+func InputToBingoGame() ([]int, []*Card) {
 	lines := aoc.InputToLines(2021, 4)
 
+	// First line is a comma separated list of the numbers that are going to be called.
 	var numbers []int
 	for _, s := range strings.Split(lines[0], ",") {
 		numbers = append(numbers, aoc.ParseInt(s))
 	}
 
-	var cards []Card
+	// Remaining lines are the cards, each card is 5 lines followed by a blank line.
+	var cards []*Card
 	for i := 2; i < len(lines); i += N + 1 {
-		cards = append(cards, Card{
-			numbers: [][]int{
-				Row(lines[i]),
-				Row(lines[i+1]),
-				Row(lines[i+2]),
-				Row(lines[i+3]),
-				Row(lines[i+4]),
-			},
-			covered: [][]bool{
-				make([]bool, N),
-				make([]bool, N),
-				make([]bool, N),
-				make([]bool, N),
-				make([]bool, N),
+		cards = append(cards, &Card{
+			numbers: [N][N]int{
+				ParseRow(lines[i]),
+				ParseRow(lines[i+1]),
+				ParseRow(lines[i+2]),
+				ParseRow(lines[i+3]),
+				ParseRow(lines[i+4]),
 			},
 		})
 	}
@@ -99,11 +90,13 @@ func InputToBingo() ([]int, []Card) {
 	return numbers, cards
 }
 
-func Row(s string) []int {
-	var n1, n2, n3, n4, n5 int
-	if _, err := fmt.Sscanf(s, "%d %d %d %d %d", &n1, &n2, &n3, &n4, &n5); err != nil {
-		log.Fatal(err)
-	}
+func ParseRow(s string) [5]int {
+	// Single digit numbers are padded with a space
+	s = strings.ReplaceAll(strings.TrimSpace(s), "  ", " ")
 
-	return []int{n1, n2, n3, n4, n5}
+	var ns [5]int
+	for i, s := range strings.Split(s, " ") {
+		ns[i] = aoc.ParseInt(s)
+	}
+	return ns
 }
