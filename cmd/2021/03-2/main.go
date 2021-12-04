@@ -3,61 +3,85 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
+	"sort"
 )
 
 func main() {
-	ns := aoc.InputToLines(2021, 3)
-	L := len(ns[0])
+	ns := InputToInts()
 
-	oxygen := append([]string{}, ns...)
-	for bit := 0; len(oxygen) > 1 && bit < L; bit++ {
-		zeroes, ones := counts(oxygen, bit)
+	// Determine how many bits are in the input.  Since the numbers are now sorted it's the
+	// number of bits required to store the largest number.
+	B := int(math.Ceil(math.Log2(float64(ns[len(ns)-1]))))
 
-		var keep uint8
-		if zeroes > ones {
-			keep = '0'
-		} else {
-			keep = '1'
+	// Oxygen rating wants to build a new number using the most common bit value of all
+	// numbers that share the current prefix.
+	prefix := 0
+	for b := B - 1; len(ns) > 1 && b >= 0; b-- {
+		zeroes, ones := count(ns, b)
+
+		var bit int
+		if ones >= zeroes {
+			bit = 1
 		}
 
-		oxygen = filter(oxygen, func(n string) bool { return n[bit] != keep })
+		prefix |= bit << b
+		ns = filter(ns, func(n int) bool { return n&(1<<b)>>b != bit })
 	}
+	oxygen := ns[0]
 
-	co2 := append([]string{}, ns...)
-	for bit := 0; len(co2) > 1 && bit < L; bit++ {
-		zeroes, ones := counts(co2, bit)
+	// CO2 rating wants to build a new number using the least common bit value of all
+	// numbers that share the current prefix.
+	ns = InputToInts()
 
-		var keep uint8
-		if zeroes > ones {
-			keep = '1'
-		} else {
-			keep = '0'
+	prefix = 0
+	for b := B - 1; len(ns) > 1 && b >= 0; b-- {
+		zeroes, ones := count(ns, b)
+
+		var bit int
+		if ones < zeroes {
+			bit = 1
 		}
 
-		co2 = filter(co2, func(n string) bool { return n[bit] != keep })
+		prefix |= bit << b
+		ns = filter(ns, func(n int) bool { return n&(1<<b)>>b != bit })
 	}
+	co2 := ns[0]
 
-	fmt.Println(aoc.ParseIntWithBase(oxygen[0], 2) * aoc.ParseIntWithBase(co2[0], 2))
+	fmt.Println(oxygen * co2)
 }
 
-func counts(ns []string, bit int) (int, int) {
+func InputToInts() []int {
+	var ns []int
+	for _, line := range aoc.InputToLines(2021, 3) {
+		n := aoc.ParseIntWithBase(line, 2)
+		ns = append(ns, n)
+	}
+
+	sort.Ints(ns)
+	return ns
+}
+
+func count(ns []int, bit int) (int, int) {
+	mask := 1 << bit
+
 	var zeroes, ones int
 	for _, n := range ns {
-		if n[bit] == '0' {
-			zeroes++
-		} else {
+		if n&mask != 0 {
 			ones++
+		} else {
+			zeroes++
 		}
 	}
 	return zeroes, ones
 }
 
-func filter(ns []string, fn func(string) bool) []string {
-	var r []string
+func filter(ns []int, fn func(n int) bool) []int {
+	f := make([]int, 0, len(ns))
 	for _, n := range ns {
 		if !fn(n) {
-			r = append(r, n)
+			f = append(f, n)
 		}
 	}
-	return r
+	return f
 }
