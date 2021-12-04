@@ -59,7 +59,7 @@ cmd/$(YEAR)/$(DAY)-1/input.txt:
 	  --cookie "session=$(SESSION)"                                \
 	  --output cmd/$(YEAR)/$(DAY)-1/input.txt                      \
 	  https://adventofcode.com/$(YEAR)/day/$(DAY_NO_ZERO)/input || \
-	(echo "input.text file not available" >&2; false)
+	(echo "input.txt file not available" >&2; false)
 
 ## watch for changes and rerun the solution for the specified YEAR/DAY/PART
 .PHONY: watch
