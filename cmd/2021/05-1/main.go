@@ -8,20 +8,18 @@ import (
 )
 
 func main() {
-	segments := InputToSegments()
 	counts := make(map[aoc.Point2D]int)
+	for _, s := range InputToSegments() {
+		dx, dy := Slope(s.Start, s.End)
+		if dx != 0 && dy != 0 {
+			continue
+		}
 
-	for _, s := range segments {
-		if s.start.X == s.end.X {
-			for y := aoc.MinInt(s.start.Y, s.end.Y); y <= aoc.MaxInt(s.start.Y, s.end.Y); y++ {
-				counts[aoc.Point2D{X: s.start.X, Y: y}]++
-			}
+		for p := s.Start; p != s.End; {
+			counts[p]++
+			p = aoc.Point2D{X: p.X + dx, Y: p.Y + dy}
 		}
-		if s.start.Y == s.end.Y {
-			for x := aoc.MinInt(s.start.X, s.end.X); x <= aoc.MaxInt(s.start.X, s.end.X); x++ {
-				counts[aoc.Point2D{X: x, Y: s.start.Y}]++
-			}
-		}
+		counts[s.End]++
 	}
 
 	var count int
@@ -34,7 +32,8 @@ func main() {
 }
 
 type Segment struct {
-	start, end aoc.Point2D
+	Start aoc.Point2D
+	End   aoc.Point2D
 }
 
 func InputToSegments() []Segment {
@@ -46,10 +45,27 @@ func InputToSegments() []Segment {
 		}
 
 		segments = append(segments, Segment{
-			start: aoc.Point2D{X: a, Y: b},
-			end:   aoc.Point2D{X: c, Y: d},
+			Start: aoc.Point2D{X: a, Y: b},
+			End:   aoc.Point2D{X: c, Y: d},
 		})
 	}
 
 	return segments
+}
+
+func Slope(p, q aoc.Point2D) (int, int) {
+	var dx, dy int
+	if p.X < q.X {
+		dx = 1
+	} else if p.X > q.X {
+		dx = -1
+	}
+
+	if p.Y < q.Y {
+		dy = 1
+	} else if p.Y > q.Y {
+		dy = -1
+	}
+
+	return dx, dy
 }
