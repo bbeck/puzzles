@@ -14,7 +14,7 @@ func main() {
 		for i := 0; i < N; i++ {
 			if fish[i] == 0 {
 				fish[i] = 6
-				fish = append(fish, Fish(8))
+				fish = append(fish, 8)
 				continue
 			}
 
@@ -25,15 +25,12 @@ func main() {
 	fmt.Println(len(fish))
 }
 
-type Fish int
-
-func InputToFish() []Fish {
+func InputToFish() []int {
 	line := aoc.InputToString(2021, 6)
 
-	var fs []Fish
+	var fs []int
 	for _, s := range strings.Split(strings.TrimSpace(line), ",") {
-		n := aoc.ParseInt(s)
-		fs = append(fs, Fish(n))
+		fs = append(fs, aoc.ParseInt(s))
 	}
 	return fs
 }

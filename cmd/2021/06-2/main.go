@@ -7,13 +7,14 @@ import (
 )
 
 func main() {
-	fish := make(map[Fish]int)
+	// mapping of fish timer to the count of fish with that timer
+	fish := make(map[int]int)
 	for _, f := range InputToFish() {
 		fish[f]++
 	}
 
 	for day := 1; day <= 256; day++ {
-		next := make(map[Fish]int)
+		next := make(map[int]int)
 		for f, count := range fish {
 			if f == 0 {
 				next[6] += count
@@ -34,15 +35,12 @@ func main() {
 	fmt.Println(count)
 }
 
-type Fish int
-
-func InputToFish() []Fish {
+func InputToFish() []int {
 	line := aoc.InputToString(2021, 6)
 
-	var fs []Fish
+	var fs []int
 	for _, s := range strings.Split(strings.TrimSpace(line), ",") {
-		n := aoc.ParseInt(s)
-		fs = append(fs, Fish(n))
+		fs = append(fs, aoc.ParseInt(s))
 	}
 	return fs
 }
