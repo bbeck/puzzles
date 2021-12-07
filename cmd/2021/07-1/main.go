@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -15,26 +16,17 @@ func main() {
 		choices[position] = nil
 	}
 
-	var best int
+	best := math.MaxInt
 	for choice := range choices {
 		var cost int
 		for _, position := range positions {
-			cost += Abs(choice - position)
+			cost += aoc.AbsInt(choice - position)
 		}
 
-		if best == 0 || cost < best {
-			best = cost
-		}
+		best = aoc.MinInt(best, cost)
 	}
 
 	fmt.Println(best)
-}
-
-func Abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }
 
 func InputToPositions() []int {
