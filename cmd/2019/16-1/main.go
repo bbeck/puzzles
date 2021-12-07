@@ -30,7 +30,7 @@ func RunPhase(inputs []int) []int {
 		for i := 0; i < len(inputs); i++ {
 			output += inputs[i] * pattern[i]
 		}
-		outputs = append(outputs, Abs(output)%10)
+		outputs = append(outputs, aoc.AbsInt(output)%10)
 	}
 
 	return outputs
@@ -49,13 +49,6 @@ func Pattern(length int, digit int) []int {
 	}
 
 	return pattern[1 : length+1]
-}
-
-func Abs(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
 }
 
 func InputToDigits(year, day int) []int {
