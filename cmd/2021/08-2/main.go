@@ -1,120 +1,124 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"log"
 	"sort"
 	"strings"
 )
 
-var digits = map[int]string{
-	0: "ABCEFG",  // 6
-	1: "CF",      // 2
-	2: "ACDEG",   // 5
-	3: "ACDFG",   // 5
-	4: "BCDF",    // 4
-	5: "ABDFG",   // 5
-	6: "ABDEFG",  // 6
-	7: "ACF",     // 3
-	8: "ABCDEFG", // 7
-	9: "ABCDFG",  // 6
+var Letters = []rune{'a', 'b', 'c', 'd', 'e', 'f', 'g'}
+
+type Mapping map[string]int
+
+var StandardMapping = Mapping{
+	"abcefg":  0,
+	"cf":      1,
+	"acdeg":   2,
+	"acdfg":   3,
+	"bcdf":    4,
+	"abdfg":   5,
+	"abdefg":  6,
+	"acf":     7,
+	"abcdefg": 8,
+	"abcdfg":  9,
 }
 
 func main() {
-	entries := InputToEntries()
+	// We're going to brute force this by trying all possible mappings because there are only
+	// 7! == 5040 possibilities.  We'll precompute all the mappings and then figure out which
+	// should be used for each entry.
+	var mappings []Mapping
+	aoc.EnumeratePermutations(len(Letters), func(perm []int) {
+		mapper := NewMapper(perm)
 
+		mapping := make(Mapping)
+		for s, n := range StandardMapping {
+			mapping[Canonicalize(strings.Map(mapper, s))] = n
+		}
+		mappings = append(mappings, mapping)
+	})
+
+	// Now process each entry, summing the outputs
 	var sum int
-	for _, entry := range entries {
-		mapping := Solve(entry)
+	for _, entry := range InputToEntries() {
+		mapping := FindMapping(mappings, entry)
 
 		var n int
 		for _, output := range entry.Outputs {
-			d, _ := Eval(output, mapping)
-			n = n*10 + d
+			n = n*10 + mapping[output]
 		}
-
 		sum += n
 	}
 	fmt.Println(sum)
 }
 
-var alphabet = []string{"A", "B", "C", "D", "E", "F", "G"}
+func NewMapper(perm []int) func(rune) rune {
+	mapping := make(map[rune]rune)
+	for from, to := range perm {
+		mapping[Letters[from]] = Letters[to]
+	}
 
-func Solve(entry Entry) map[string]string {
-	var solution map[string]string
-	aoc.EnumeratePermutations(7, func(perm []int) {
-		mapping := map[string]string{
-			"a": alphabet[perm[0]],
-			"b": alphabet[perm[1]],
-			"c": alphabet[perm[2]],
-			"d": alphabet[perm[3]],
-			"e": alphabet[perm[4]],
-			"f": alphabet[perm[5]],
-			"g": alphabet[perm[6]],
-		}
-
-		if Works(entry, mapping) {
-			solution = mapping
-		}
-	})
-
-	return solution
+	return func(r rune) rune {
+		return mapping[r]
+	}
 }
 
-func Works(entry Entry, mapping map[string]string) bool {
-	var numbers []string
-	numbers = append(numbers, entry.Signals...)
-	numbers = append(numbers, entry.Outputs...)
+func FindMapping(mappings []Mapping, entry Entry) Mapping {
+	for _, mapping := range mappings {
+		works := true
+		for _, digit := range entry.Digits {
+			if _, ok := mapping[digit]; !ok {
+				works = false
+				break
+			}
+		}
 
-	for _, number := range numbers {
-		_, err := Eval(number, mapping)
-		if err != nil {
-			return false
+		if works {
+			return mapping
 		}
 	}
 
-	return true
-}
-
-func Eval(s string, mapping map[string]string) (int, error) {
-	var segments []string
-	for _, c := range s {
-		segments = append(segments, mapping[string(c)])
-	}
-	sort.Strings(segments)
-
-	key := strings.Join(segments, "")
-	for n := 0; n < 10; n++ {
-		if digits[n] == key {
-			return n, nil
-		}
-	}
-
-	return -1, errors.New("mapping doesn't work")
+	return nil
 }
 
 type Entry struct {
-	Signals []string
-	Outputs []string
+	Digits  []string // All digits, both inputs and outputs
+	Outputs []string // Only the outputs
 }
 
 func InputToEntries() []Entry {
 	var entries []Entry
 	for _, line := range aoc.InputToLines(2021, 8) {
-		var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9 string
-		var o0, o1, o2, o3 string
-		_, err := fmt.Sscanf(line, "%s %s %s %s %s %s %s %s %s %s | %s %s %s %s",
-			&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &s8, &s9, &o0, &o1, &o2, &o3)
-		if err != nil {
-			log.Fatal(err)
+		fields := strings.Split(line, " | ")
+
+		var inputs []string
+		for _, s := range strings.Split(fields[0], " ") {
+			inputs = append(inputs, Canonicalize(s))
+		}
+
+		var outputs []string
+		for _, s := range strings.Split(fields[1], " ") {
+			outputs = append(outputs, Canonicalize(s))
 		}
 
 		entries = append(entries, Entry{
-			Signals: []string{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9},
-			Outputs: []string{o0, o1, o2, o3},
+			Digits:  append(inputs, outputs...),
+			Outputs: outputs,
 		})
 	}
 	return entries
+}
+
+func Canonicalize(s string) string {
+	var letters []rune
+	for _, r := range s {
+		letters = append(letters, r)
+	}
+
+	sort.Slice(letters, func(i, j int) bool {
+		return letters[i] < letters[j]
+	})
+
+	return string(letters)
 }
