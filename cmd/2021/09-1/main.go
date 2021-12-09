@@ -8,21 +8,22 @@ import (
 func main() {
 	m := InputToHeightMap()
 
+	isLowPoint := func(p aoc.Point2D) bool {
+		neighbors := []aoc.Point2D{p.Up(), p.Right(), p.Down(), p.Left()}
+		for _, n := range neighbors {
+			if nh, ok := m[n]; ok && nh <= m[p] {
+				return false
+			}
+		}
+
+		return true
+	}
+
 	var risk int
-	for p, n := range m {
-		if u, ok := m[p.Up()]; ok && n >= u {
-			continue
+	for p := range m {
+		if isLowPoint(p) {
+			risk += m[p] + 1
 		}
-		if u, ok := m[p.Down()]; ok && n >= u {
-			continue
-		}
-		if u, ok := m[p.Left()]; ok && n >= u {
-			continue
-		}
-		if u, ok := m[p.Right()]; ok && n >= u {
-			continue
-		}
-		risk += n + 1
 	}
 
 	fmt.Println(risk)

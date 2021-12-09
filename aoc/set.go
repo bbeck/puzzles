@@ -18,14 +18,18 @@ func NewSet() Set {
 	}
 }
 
-// Add adds a new element to the set.
-func (s *Set) Add(elem interface{}) {
+// Add adds a new element to the set.  Returns true if the set was modified.
+func (s *Set) Add(elem interface{}) bool {
+	present := s.Contains(elem)
 	s.entries[elem] = exists
+	return !present
 }
 
-// Remove removes the provided element from the set.
-func (s *Set) Remove(elem interface{}) {
+// Remove removes the provided element from the set.  Returns true if the set was modified.
+func (s *Set) Remove(elem interface{}) bool {
+	present := s.Contains(elem)
 	delete(s.entries, elem)
+	return present
 }
 
 // Contains returns true if the set contains the provided element.

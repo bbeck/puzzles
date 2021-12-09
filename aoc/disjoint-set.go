@@ -2,13 +2,13 @@ package aoc
 
 type DisjointSet struct {
 	parent *DisjointSet
-	rank   int
 	Data   interface{}
+	Size   int
 }
 
 // NewDisjointSet creates a new disjoint set that contains a single element.
 func NewDisjointSet(data interface{}) *DisjointSet {
-	set := &DisjointSet{Data: data}
+	set := &DisjointSet{Data: data, Size: 1}
 	set.parent = set
 	return set
 }
@@ -39,17 +39,11 @@ func (e *DisjointSet) Union(a *DisjointSet) {
 		return
 	}
 
-	// Attempt to keep a shallow tree by unioning by rank.  This keeps the tree
-	// short so that find operations are quick.
-	switch {
-	case u.rank < v.rank:
-		u.parent = v
-
-	case u.rank > v.rank:
-		v.parent = u
-
-	default:
-		u.rank++
-		v.parent = u
+	// The set that contains the most children will be the parent
+	if u.Size < v.Size {
+		u, v = v, u
 	}
+
+	v.parent = u
+	u.Size += v.Size
 }
