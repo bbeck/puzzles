@@ -6,7 +6,7 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-var SCORES = map[int32]int{
+var Points = map[int32]int{
 	')': 3,
 	']': 57,
 	'}': 1197,
@@ -16,34 +16,30 @@ var SCORES = map[int32]int{
 func main() {
 	var score int
 	for _, line := range aoc.InputToLines(2021, 10) {
-		ok, c := Validate(line)
-		if !ok {
-			score += SCORES[c]
+		if ok, c := Validate(line); !ok {
+			score += Points[c]
 		}
 	}
 
 	fmt.Println(score)
 }
 
+var Closing = map[int32]int32{
+	'(': ')',
+	'[': ']',
+	'{': '}',
+	'<': '>',
+}
+
 func Validate(s string) (bool, int32) {
 	stack := aoc.NewStack()
 	for _, c := range s {
-		if c == '(' || c == '[' || c == '{' || c == '<' {
-			stack.Push(c)
+		if closing, ok := Closing[c]; ok {
+			stack.Push(closing)
 			continue
 		}
 
-		top := stack.Pop().(int32)
-		if c == ')' && top != '(' {
-			return false, c
-		}
-		if c == ']' && top != '[' {
-			return false, c
-		}
-		if c == '}' && top != '{' {
-			return false, c
-		}
-		if c == '>' && top != '<' {
+		if top := stack.Pop().(int32); c != top {
 			return false, c
 		}
 	}
