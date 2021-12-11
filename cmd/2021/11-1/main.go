@@ -18,7 +18,7 @@ func main() {
 			if o.Flashed {
 				flashes++
 			}
-			o.Flashed = false
+			o.Reset()
 		}
 	}
 
@@ -26,23 +26,23 @@ func main() {
 }
 
 type Octopus struct {
-	Location  aoc.Point2D
 	Energy    int
 	Neighbors []*Octopus
 	Flashed   bool
 }
 
 func (o *Octopus) Add() {
+	// If this octopus has already flashed this step then it can't flash again
 	if o.Flashed {
 		return
 	}
 
 	o.Energy++
-	if o.Energy >= 10 {
-		o.Energy = 0
-
+	if o.Energy > 9 {
 		if !o.Flashed {
 			o.Flashed = true
+
+			// Propagate to neighbors
 			for _, n := range o.Neighbors {
 				n.Add()
 			}
@@ -50,45 +50,47 @@ func (o *Octopus) Add() {
 	}
 }
 
-func InputToOctopus() []*Octopus {
+func (o *Octopus) Reset() {
+	if o.Flashed {
+		o.Energy = 0
+		o.Flashed = false
+	}
+}
+
+func InputToOctopus() map[aoc.Point2D]*Octopus {
 	os := make(map[aoc.Point2D]*Octopus)
 	for y, line := range aoc.InputToLines(2021, 11) {
 		for x, c := range line {
-			os[aoc.Point2D{X: x, Y: y}] = &Octopus{Location: aoc.Point2D{x, y}, Energy: aoc.ParseInt(string(c))}
+			p := aoc.Point2D{X: x, Y: y}
+			os[p] = &Octopus{Energy: aoc.ParseInt(string(c))}
 		}
 	}
 
-	var octs []*Octopus
 	for p, o := range os {
-		var neighbors []*Octopus
-		if _, ok := os[p.Up()]; ok {
-			neighbors = append(neighbors, os[p.Up()])
-		}
-		if _, ok := os[p.Down()]; ok {
-			neighbors = append(neighbors, os[p.Down()])
-		}
-		if _, ok := os[p.Left()]; ok {
-			neighbors = append(neighbors, os[p.Left()])
-		}
-		if _, ok := os[p.Right()]; ok {
-			neighbors = append(neighbors, os[p.Right()])
-		}
-		if _, ok := os[p.Up().Right()]; ok {
-			neighbors = append(neighbors, os[p.Up().Right()])
-		}
-		if _, ok := os[p.Up().Left()]; ok {
-			neighbors = append(neighbors, os[p.Up().Left()])
-		}
-		if _, ok := os[p.Down().Right()]; ok {
-			neighbors = append(neighbors, os[p.Down().Right()])
-		}
-		if _, ok := os[p.Down().Left()]; ok {
-			neighbors = append(neighbors, os[p.Down().Left()])
-		}
-		o.Neighbors = neighbors
-
-		octs = append(octs, o)
+		o.Neighbors = Neighbors(p, os)
 	}
 
-	return octs
+	return os
+}
+
+func Neighbors(p aoc.Point2D, os map[aoc.Point2D]*Octopus) []*Octopus {
+	candidates := []aoc.Point2D{
+		p.Up(),
+		p.Up().Right(),
+		p.Right(),
+		p.Right().Down(),
+		p.Down(),
+		p.Down().Left(),
+		p.Left(),
+		p.Left().Up(),
+	}
+
+	var neighbors []*Octopus
+	for _, c := range candidates {
+		if o, ok := os[c]; ok {
+			neighbors = append(neighbors, o)
+		}
+	}
+
+	return neighbors
 }
