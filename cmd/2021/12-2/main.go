@@ -10,66 +10,31 @@ import (
 func main() {
 	caves := InputToCaves()
 
-	paths := aoc.NewSet()
-	FindPaths(
+	count := CountPaths(
 		caves["start"],
 		caves["end"],
-		&Path{
-			names: []string{"start"},
-			used:  map[string]int{"start": 1},
-		},
-		func(p *Path) {
-			paths.Add(fmt.Sprintf("%s", p.names))
-		},
+		aoc.NewSingletonSet("start"),
+		true,
 	)
-
-	fmt.Println(paths.Size())
+	fmt.Println(count)
 }
 
-func FindPaths(current *Cave, goal *Cave, path *Path, fn func(*Path)) {
+func CountPaths(current *Cave, goal *Cave, seen aoc.Set, allow bool) int {
 	if current == goal {
-		fn(path)
-		return
+		return 1
 	}
 
+	var count int
 	for _, neighbor := range current.Neighbors {
-		if path.used[neighbor.Name] > 0 && path.used["twice"] > 0 {
-			continue
-		}
-
-		FindPaths(neighbor, goal, path.extend(neighbor), fn)
-	}
-}
-
-type Path struct {
-	names []string
-	used  map[string]int
-}
-
-func (p *Path) extend(c *Cave) *Path {
-	name := c.Name
-	names := append(append([]string{}, p.names...), name)
-
-	if !c.IsSmall {
-		return &Path{
-			names: names,
-			used:  p.used,
+		if !neighbor.IsSmall {
+			count += CountPaths(neighbor, goal, seen, allow)
+		} else if !seen.Contains(neighbor.Name) {
+			count += CountPaths(neighbor, goal, seen.Union(aoc.NewSingletonSet(neighbor.Name)), allow)
+		} else if allow && neighbor.Name != "start" {
+			count += CountPaths(neighbor, goal, seen, false)
 		}
 	}
-
-	used := make(map[string]int)
-	for n, c := range p.used {
-		used[n] = c
-		if n == name {
-			used["twice"] = 1
-		}
-	}
-	used[name] = 1
-
-	return &Path{
-		names: names,
-		used:  used,
-	}
+	return count
 }
 
 type Cave struct {
@@ -99,12 +64,8 @@ func InputToCaves() map[string]*Cave {
 		lhs := get(parts[0])
 		rhs := get(parts[1])
 
-		if rhs.Name != "start" {
-			lhs.Neighbors = append(lhs.Neighbors, rhs)
-		}
-		if lhs.Name != "start" {
-			rhs.Neighbors = append(rhs.Neighbors, lhs)
-		}
+		lhs.Neighbors = append(lhs.Neighbors, rhs)
+		rhs.Neighbors = append(rhs.Neighbors, lhs)
 	}
 
 	return caves

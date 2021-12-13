@@ -10,7 +10,11 @@ import (
 func main() {
 	caves := InputToCaves()
 
-	count := CountPaths(caves["start"], caves["end"], aoc.NewSingletonSet("start"))
+	count := CountPaths(
+		caves["start"],
+		caves["end"],
+		aoc.NewSingletonSet("start"),
+	)
 	fmt.Println(count)
 }
 
@@ -25,12 +29,11 @@ func CountPaths(current *Cave, goal *Cave, seen aoc.Set) int {
 			continue
 		}
 
-		var extra aoc.Set
-		if neighbor.IsSmall {
-			extra = aoc.NewSingletonSet(neighbor.Name)
+		if !neighbor.IsSmall {
+			count += CountPaths(neighbor, goal, seen)
+		} else {
+			count += CountPaths(neighbor, goal, seen.Union(aoc.NewSingletonSet(neighbor.Name)))
 		}
-
-		count += CountPaths(neighbor, goal, seen.Union(extra))
 	}
 	return count
 }
