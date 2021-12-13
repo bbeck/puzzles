@@ -2,6 +2,7 @@ package aoc
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -15,6 +16,15 @@ type Set struct {
 func NewSet() Set {
 	return Set{
 		entries: make(map[interface{}]struct{}),
+	}
+}
+
+// NewSingletonSet creates a new set with a single element.
+func NewSingletonSet(elem interface{}) Set {
+	return Set{
+		entries: map[interface{}]struct{}{
+			elem: exists,
+		},
 	}
 }
 
@@ -53,12 +63,13 @@ func (s Set) Entries() []interface{} {
 	return entries
 }
 
-// String returns a human readable string of the set.
+// String returns a human-readable string of the set.
 func (s Set) String() string {
 	var keys []string
 	for key := range s.entries {
 		keys = append(keys, fmt.Sprintf("%s", key))
 	}
+	sort.Strings(keys)
 
 	var sb strings.Builder
 	sb.WriteRune('{')
@@ -67,8 +78,8 @@ func (s Set) String() string {
 	return sb.String()
 }
 
-// Union returns a new set that contains all of the elements of the current set
-// as well as all of the elements from the provided set.
+// Union returns a new set that contains all the elements of the current set
+// as well as all the elements from the provided set.
 func (s Set) Union(other Set) Set {
 	union := NewSet()
 	for elem := range s.entries {

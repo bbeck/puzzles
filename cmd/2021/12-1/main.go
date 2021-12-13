@@ -9,50 +9,58 @@ import (
 
 func main() {
 	caves := InputToCaves()
-	count := Count(caves["start"], caves["end"], aoc.NewSet())
+
+	count := CountPaths(caves["start"], caves["end"], aoc.NewSingletonSet("start"))
 	fmt.Println(count)
 }
 
-func Count(current, end *Cave, seen aoc.Set) int {
-	if seen.Contains(current.Name) {
-		return 0
-	}
-
-	if current.Name == end.Name {
+func CountPaths(current *Cave, goal *Cave, seen aoc.Set) int {
+	if current == goal {
 		return 1
 	}
 
-	if current.Name[0] >= 'a' && current.Name[0] <= 'z' {
-		seen.Add(current.Name)
-	}
-
-	var ways int
+	var count int
 	for _, neighbor := range current.Neighbors {
-		ways += Count(neighbor, end, seen.Union(aoc.NewSet()))
+		if seen.Contains(neighbor.Name) {
+			continue
+		}
+
+		var extra aoc.Set
+		if neighbor.IsSmall {
+			extra = aoc.NewSingletonSet(neighbor.Name)
+		}
+
+		count += CountPaths(neighbor, goal, seen.Union(extra))
 	}
-	return ways
+	return count
 }
 
 type Cave struct {
 	Name      string
+	IsSmall   bool
 	Neighbors []*Cave
 }
 
 func InputToCaves() map[string]*Cave {
 	caves := make(map[string]*Cave)
-	for _, line := range aoc.InputToLines(2021, 12) {
-		parts := strings.Split(line, "-")
-		lhs := caves[parts[0]]
-		if lhs == nil {
-			lhs = &Cave{Name: parts[0]}
-			caves[parts[0]] = lhs
+
+	get := func(name string) *Cave {
+		cave := caves[name]
+		if cave == nil {
+			cave = &Cave{
+				Name:    name,
+				IsSmall: strings.ToLower(name) == name,
+			}
+			caves[name] = cave
 		}
 
-		rhs := caves[parts[1]]
-		if rhs == nil {
-			rhs = &Cave{Name: parts[1]}
-			caves[parts[1]] = rhs
-		}
+		return cave
+	}
+
+	for _, line := range aoc.InputToLines(2021, 12) {
+		parts := strings.Split(line, "-")
+		lhs := get(parts[0])
+		rhs := get(parts[1])
 
 		lhs.Neighbors = append(lhs.Neighbors, rhs)
 		rhs.Neighbors = append(rhs.Neighbors, lhs)

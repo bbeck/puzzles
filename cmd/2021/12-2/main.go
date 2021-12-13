@@ -11,70 +11,100 @@ func main() {
 	caves := InputToCaves()
 
 	paths := aoc.NewSet()
-	Count(caves["start"], caves["end"], aoc.NewSet(), "", nil, paths)
-	for name := range caves {
-		if name == "start" || name == "end" || !IsLower(name) {
-			continue
-		}
+	FindPaths(
+		caves["start"],
+		caves["end"],
+		&Path{
+			names: []string{"start"},
+			used:  map[string]int{"start": 1},
+		},
+		func(p *Path) {
+			paths.Add(fmt.Sprintf("%s", p.names))
+		},
+	)
 
-		Count(caves["start"], caves["end"], aoc.NewSet(), name, nil, paths)
-	}
 	fmt.Println(paths.Size())
 }
 
-func Count(current, end *Cave, seen aoc.Set, twice string, path []string, paths aoc.Set) int {
-	if current.Name != twice && seen.Contains(current.Name) {
-		return 0
+func FindPaths(current *Cave, goal *Cave, path *Path, fn func(*Path)) {
+	if current == goal {
+		fn(path)
+		return
 	}
 
-	if current.Name == twice && seen.Contains("used") {
-		return 0
-	}
-
-	if current.Name == end.Name {
-		s := fmt.Sprintf("%v", path)
-		paths.Add(s)
-		return 1
-	}
-
-	if IsLower(current.Name) && !seen.Add(current.Name) {
-		seen.Add("used")
-	}
-
-	var ways int
 	for _, neighbor := range current.Neighbors {
-		ways += Count(neighbor, end, seen.Union(aoc.NewSet()), twice, append(path, neighbor.Name), paths)
+		if path.used[neighbor.Name] > 0 && path.used["twice"] > 0 {
+			continue
+		}
+
+		FindPaths(neighbor, goal, path.extend(neighbor), fn)
 	}
-	return ways
 }
 
-func IsLower(s string) bool {
-	return s[0] >= 'a' && s[0] <= 'z'
+type Path struct {
+	names []string
+	used  map[string]int
+}
+
+func (p *Path) extend(c *Cave) *Path {
+	name := c.Name
+	names := append(append([]string{}, p.names...), name)
+
+	if !c.IsSmall {
+		return &Path{
+			names: names,
+			used:  p.used,
+		}
+	}
+
+	used := make(map[string]int)
+	for n, c := range p.used {
+		used[n] = c
+		if n == name {
+			used["twice"] = 1
+		}
+	}
+	used[name] = 1
+
+	return &Path{
+		names: names,
+		used:  used,
+	}
 }
 
 type Cave struct {
 	Name      string
+	IsSmall   bool
 	Neighbors []*Cave
 }
 
 func InputToCaves() map[string]*Cave {
 	caves := make(map[string]*Cave)
+
+	get := func(name string) *Cave {
+		cave := caves[name]
+		if cave == nil {
+			cave = &Cave{
+				Name:    name,
+				IsSmall: strings.ToLower(name) == name,
+			}
+			caves[name] = cave
+		}
+
+		return cave
+	}
+
 	for _, line := range aoc.InputToLines(2021, 12) {
 		parts := strings.Split(line, "-")
-		lhs := caves[parts[0]]
-		if lhs == nil {
-			lhs = &Cave{Name: parts[0]}
-			caves[parts[0]] = lhs
-		}
+		lhs := get(parts[0])
+		rhs := get(parts[1])
 
-		rhs := caves[parts[1]]
-		if rhs == nil {
-			rhs = &Cave{Name: parts[1]}
-			caves[parts[1]] = rhs
+		if rhs.Name != "start" {
+			lhs.Neighbors = append(lhs.Neighbors, rhs)
 		}
-
-		lhs.Neighbors = append(lhs.Neighbors, rhs)
-		rhs.Neighbors = append(rhs.Neighbors, lhs)
+		if lhs.Name != "start" {
+			rhs.Neighbors = append(rhs.Neighbors, lhs)
+		}
 	}
 
 	return caves
