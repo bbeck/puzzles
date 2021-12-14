@@ -15,23 +15,33 @@ func main() {
 	for step := 0; step < 10; step++ {
 		var sb strings.Builder
 
+		// Take the characters from the template in pairs, looking up the character
+		// to insert between them from the rules.  When emitting the new string it's
+		// important to not emit the RHS of the pair.  If we emitted it then we'd
+		// be duplicating that character since it's about to be the LHS of the next
+		// pair that's processed.
 		for i := 0; i < len(template)-1; i++ {
-			replacement := rules[template[i:i+2]]
-			sb.WriteByte(template[i])
-			sb.WriteString(replacement)
+			lhs, rhs := string(template[i]), string(template[i+1])
+			insertion := rules[lhs+rhs]
+
+			sb.WriteString(lhs)
+			sb.WriteString(insertion)
 		}
+
+		// The very last character of the template never appears as an LHS, because
+		// of this it was lost from the template.  This fixes that and adds it back.
 		sb.WriteByte(template[len(template)-1])
 
 		template = sb.String()
 	}
 
-	counts := make(map[int32]int)
+	counts := make(map[string]int)
 	for _, c := range template {
-		counts[c]++
+		s := string(c)
+		counts[s]++
 	}
 
-	var min = math.MaxInt
-	var max = 0
+	min, max := math.MaxInt, math.MinInt
 	for _, count := range counts {
 		min = aoc.MinInt(min, count)
 		max = aoc.MaxInt(max, count)
