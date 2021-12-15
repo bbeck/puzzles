@@ -10,13 +10,13 @@ type Node interface {
 }
 
 // GoalFunc is a function that is called the first time each node is
-// visited.  Its return value is interpreted as whether or not the search has
-// reached the goal or not.  If the search reaches the goal it will terminate.
+// visited.  Its return value is interpreted as whether the search has reached
+// the goal or not.  If the search reaches the goal it will terminate.
 type GoalFunc func(node Node) bool
 
 // BreadthFirstSearch performs a search starting at the provided root node and
-// calls the visit function the first time each node is encountered.  The visit
-// function determines whether the search should continue or not.  If the visit
+// calls the isGoal function the first time each node is encountered.  The goal
+// function determines whether the search should continue or not.  If the goal
 // function returns true then the goal has been found and the search should
 // terminate.  If it returns false then the search will continue on as long as
 // there are remaining children present.
@@ -62,7 +62,11 @@ type HeuristicFunc func(node Node) int
 
 // AStarSearch utilizes the A* algorithm to find the shortest path from the
 // start node to the goal node in a graph.  The search utilizes a heuristic
-// function to aid in making the search run faster.
+// function to aid in making the search run faster.  The heuristic function
+// may underestimate the cost to reach the goal node at the expense of
+// exploring more of the search space, but it should NOT overestimate the
+// cost.  If the heuristic overestimates the cost to the goal, the search
+// may not find the shortest path.
 //
 // The AStarSearch function returns three values.  The first is the path from
 // the start node to the goal node.  The second is the cost of that path, and
