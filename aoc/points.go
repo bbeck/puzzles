@@ -59,6 +59,17 @@ func (p Point2D) East() Point2D {
 	return Point2D{p.X + 1, p.Y}
 }
 
+// OrthogonalNeighbors returns a slice of neighbors that are orthogonal to
+// the current point.
+func (p Point2D) OrthogonalNeighbors() []Point2D {
+	return []Point2D{
+		p.Down(),
+		p.Left(),
+		p.Right(),
+		p.Up(),
+	}
+}
+
 // ManhattanDistance computes the distance between the current point and the
 // provided point when traveling along a rectilinear path between the points.
 func (p Point2D) ManhattanDistance(q Point2D) int {

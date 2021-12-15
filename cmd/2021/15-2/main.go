@@ -6,100 +6,84 @@ import (
 )
 
 func main() {
-	m := InputToCave()
+	cave, width, height := InputToCave()
 
-	var maxX, maxY int
-	for p := range m {
-		maxX = aoc.MaxInt(maxX, p.X)
-		maxY = aoc.MaxInt(maxY, p.Y)
+	start := State{position: aoc.Point2D{}, cave: cave}
+	goal := aoc.Point2D{X: width - 1, Y: height - 1}
+
+	isGoal := func(node aoc.Node) bool {
+		return node.(State).position == goal
 	}
 
-	start := Position{Point2D: aoc.Point2D{X: 0, Y: 0}, m: m}
-	goal := aoc.Point2D{X: maxX, Y: maxY}
-
-	visit := func(node aoc.Node) bool {
-		return node.(Position).Point2D == goal
-	}
 	cost := func(from, to aoc.Node) int {
-		b := to.(Position)
-		cost := b.m[b.Point2D]
-
-		return cost
+		state := to.(State)
+		return cave[state.position]
 	}
 
 	heuristic := func(node aoc.Node) int {
-		return 1
+		return node.(State).position.ManhattanDistance(goal)
 	}
 
-	_, distance, _ := aoc.AStarSearch(start, visit, cost, heuristic)
-	fmt.Println(distance)
+	_, distance, found := aoc.AStarSearch(start, isGoal, cost, heuristic)
+	if found {
+		fmt.Println(distance)
+	}
 }
 
-type Position struct {
-	aoc.Point2D
-	m map[aoc.Point2D]int
+type State struct {
+	position aoc.Point2D
+	cave     map[aoc.Point2D]int
 }
 
-func (p Position) ID() string {
-	return p.String()
+func (s State) ID() string {
+	return s.position.String()
 }
 
-func (p Position) Children() []aoc.Node {
-	candidates := []aoc.Point2D{p.Up(), p.Right(), p.Down(), p.Left()}
-
+func (s State) Children() []aoc.Node {
 	var children []aoc.Node
-	for _, c := range candidates {
-		if _, ok := p.m[c]; ok {
-			children = append(children, Position{
-				Point2D: c,
-				m:       p.m,
-			})
+	for _, neighbor := range s.position.OrthogonalNeighbors() {
+		if _, ok := s.cave[neighbor]; !ok {
+			continue
 		}
+
+		children = append(children, State{
+			position: neighbor,
+			cave:     s.cave,
+		})
 	}
+
 	return children
 }
 
-func InputToCave() map[aoc.Point2D]int {
-	m := make(map[aoc.Point2D]int)
-
+func InputToCave() (map[aoc.Point2D]int, int, int) {
+	var cave = make(map[aoc.Point2D]int)
 	var width, height int
+
+	// First, read the cave definition from the input file.
 	for y, line := range aoc.InputToLines(2021, 15) {
-		width = y + 1
 		for x, c := range line {
-			m[aoc.Point2D{X: x, Y: y}] = aoc.ParseInt(string(c))
-			height = x + 1
+			cave[aoc.Point2D{X: x, Y: y}] = aoc.ParseInt(string(c))
+			width = x + 1
 		}
+		height = y + 1
 	}
 
-	var get func(x, y int) int
-	get = func(x, y int) int {
-		p := aoc.Point2D{X: x, Y: y}
-		if x < width && y < height {
-			return m[p]
-		}
-
-		var n int
-		for x >= width {
-			x -= width
-			n++
-		}
-		for y >= height {
-			y -= height
-			n++
-		}
-
-		v := m[aoc.Point2D{X: x, Y: y}] + n
-		if v > 9 {
-			v -= 9
-		}
-		return v
-	}
-
+	// Now, tile the existing cave definition 5 times in each
+	// direction, incrementing the values by 1 each step.
 	for y := 0; y < 5*height; y++ {
 		for x := 0; x < 5*width; x++ {
-			m[aoc.Point2D{X: x, Y: y}] = get(x, y)
+			by := y % height
+			bx := x % width
+			offset := y/height + x/width
+
+			value := cave[aoc.Point2D{X: bx, Y: by}] + offset
+			for value > 9 {
+				value -= 9
+			}
+
+			cave[aoc.Point2D{X: x, Y: y}] = value
 		}
 	}
 
-	return m
+	return cave, 5 * width, 5 * height
 }
