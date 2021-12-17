@@ -36,6 +36,7 @@ func InputToLines(year, day int) []string {
 	if err != nil {
 		log.Fatalf("unable to open input.txt: %+v", err)
 	}
+	defer file.Close()
 
 	lines := make([]string, 0)
 
