@@ -3,72 +3,74 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"sort"
+	"log"
 )
+
+//
+// If we focus on the y-coordinate of the probe we can derive a closed form solution for
+// it by looking through a table of values.  For example when y(0)=0 and vy(0)=3 we have:
+//
+//    t | vy |  y
+//   ---+----+----
+//    0 |  3 |  0
+//    1 |  2 |  3
+//    2 |  1 |  5
+//    3 |  0 |  6
+//    4 | -1 |  6
+//    5 | -2 |  5
+//    6 | -3 |  3
+//    7 | -4 |  0
+//    8 | -5 | -4
+//    9 | -6 | -9
+//
+// From this we can see that it takes vy(0) seconds for the y-coordinate to reach its
+// maximum value, and once it does, vy becomes zero.  Thus, the maximum height achieved
+// becomes the sum of the integers from 1 to vy(0).
+//
+//   y_max = y(0) + [vy(0) * (vy(0) + 1]/2
+//
 
 func main() {
 	minX, maxX, minY, maxY := InputToTargetArea()
 
-	var solutions []Solution
-	for vx := -1000; vx <= 1000; vx++ {
-		for vy := -1000; vy <= 1000; vy++ {
-			ok, highest := Simulate(vx, vy, minX, maxX, minY, maxY)
-			if ok {
-				solutions = append(solutions, Solution{vx, vy, highest})
+	// Brute force a solution.  The x-velocity should be between 1 and maxX, anything
+	// larger will skip over the target area entirely in the first second.  The y-velocity
+	// is a bit trickier to bound, so we just use a hardcoded range.
+	var solutions []aoc.Point2D
+	for vx0 := 1; vx0 <= maxX; vx0++ {
+		for vy0 := -500; vy0 < 500; vy0++ {
+			p := aoc.Point2D{X: 0, Y: 0}
+			v := aoc.Point2D{X: vx0, Y: vy0}
+
+			// Keep simulating as long as the probe hasn't moved beyond the target in one axis,
+			// keeping in mind that the y-coordinate is falling, so we compare to minY.
+			for p.X <= maxX && p.Y >= minY {
+				p = aoc.Point2D{X: p.X + v.X, Y: p.Y + v.Y}
+				v = aoc.Point2D{X: aoc.MaxInt(v.X-1, 0), Y: v.Y - 1}
+
+				if minX <= p.X && p.X <= maxX && minY <= p.Y && p.Y <= maxY {
+					solutions = append(solutions, aoc.Point2D{X: vx0, Y: vy0})
+					break
+				}
 			}
 		}
 	}
 
-	sort.Slice(solutions, func(i, j int) bool {
-		return solutions[i].hy < solutions[j].hy
-	})
-
-	fmt.Println(solutions[len(solutions)-1])
-}
-
-func Simulate(vx, vy, minX, maxX, minY, maxY int) (bool, int) {
-	hit := func(p Probe) bool {
-		return minX <= p.x && p.x <= maxX && minY <= p.y && p.y <= maxY
+	var max int
+	for _, solution := range solutions {
+		height := (solution.Y + solution.Y*solution.Y) / 2
+		max = aoc.MaxInt(max, height)
 	}
-
-	p := Probe{
-		vx: vx,
-		vy: vy,
-	}
-
-	var highest int
-	for p.y >= minY {
-		highest = aoc.MaxInt(highest, p.y)
-		if hit(p) {
-			return true, highest
-		}
-
-		p.Step()
-	}
-
-	return false, 0
-}
-
-type Solution struct {
-	vx, vy, hy int
-}
-
-type Probe struct {
-	x, y, vx, vy int
-}
-
-func (p *Probe) Step() {
-	p.x += p.vx
-	p.y += p.vy
-
-	if p.vx > 0 {
-		p.vx--
-	} else if p.vx < 0 {
-		p.vx++
-	}
-	p.vy--
+	fmt.Println(max)
 }
 
 func InputToTargetArea() (int, int, int, int) {
-	return 25, 67, -260, -200
+	s := aoc.InputToString(2021, 17)
+
+	var minX, maxX, minY, maxY int
+	if _, err := fmt.Sscanf(s, "target area: x=%d..%d, y=%d..%d", &minX, &maxX, &minY, &maxY); err != nil {
+		log.Fatal(err)
+	}
+
+	return minX, maxX, minY, maxY
 }
