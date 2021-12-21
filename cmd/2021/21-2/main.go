@@ -7,74 +7,80 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
+var (
+	LENGTH = 10
+	SCORES = map[int]int{0: 10, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9}
+)
+
 func main() {
 	positions := InputToStartingPositions()
-	a, b := CountWins(positions[0], positions[1], 0, 0, 0)
-	fmt.Println(aoc.MaxInt(a, b))
+
+	wins1, wins2 := CountWins(positions)
+	fmt.Println(aoc.MaxInt(wins1, wins2))
 }
 
-type Key struct {
-	position1, position2, score1, score2, turn int
-}
-type Pair struct {
-	w, l int
-}
-
-var seen = make(map[Key]Pair)
-
-func CountWins(position1, position2 int, score1, score2 int, turn int) (int, int) {
-	key := Key{position1, position2, score1, score2, turn}
-	if p, ok := seen[key]; ok {
-		return p.w, p.l
+func CountWins(positions [2]int) (int, int) {
+	type State struct {
+		positions [2]int
+		scores    [2]int
+		player    int
 	}
+	type Wins [2]int
 
-	if score1 >= 21 {
-		return 1, 0
-	}
-	if score2 >= 21 {
-		return 0, 1
-	}
+	memo := make(map[State]Wins)
 
-	var w, l int
-	if turn == 0 {
-		for d1 := 1; d1 <= 3; d1++ {
-			for d2 := 1; d2 <= 3; d2++ {
-				for d3 := 1; d3 <= 3; d3++ {
-					position := Normalize(position1 + d1 + d2 + d3)
-					a, b := CountWins(position, position2, score1+position, score2, 1)
-					w += a
-					l += b
+	var helper func(position0, position1, score0, score1, player int) Wins
+	helper = func(position0, position1, score0, score1, player int) Wins {
+		state := State{
+			positions: [2]int{position0, position1},
+			scores:    [2]int{score0, score1},
+			player:    player,
+		}
+
+		if wins, ok := memo[state]; ok {
+			return wins
+		}
+
+		if state.scores[0] >= 21 {
+			return Wins{1, 0}
+		}
+		if state.scores[1] >= 21 {
+			return Wins{0, 1}
+		}
+
+		var wins0, wins1 int
+		for die1 := 1; die1 <= 3; die1++ {
+			for die2 := 1; die2 <= 3; die2++ {
+				for die3 := 1; die3 <= 3; die3++ {
+					var wins Wins
+					if player == 0 {
+						position := (position0 + die1 + die2 + die3) % LENGTH
+						score := SCORES[position]
+						wins = helper(position, position1, score0+score, score1, 1)
+					} else {
+						position := (position1 + die1 + die2 + die3) % LENGTH
+						score := SCORES[position]
+						wins = helper(position0, position, score0, score1+score, 0)
+					}
+
+					wins0 += wins[0]
+					wins1 += wins[1]
 				}
 			}
 		}
-	} else {
-		for d1 := 1; d1 <= 3; d1++ {
-			for d2 := 1; d2 <= 3; d2++ {
-				for d3 := 1; d3 <= 3; d3++ {
-					position := Normalize(position2 + d1 + d2 + d3)
-					a, b := CountWins(position1, position, score1, score2+position, 0)
-					w += a
-					l += b
-				}
-			}
-		}
+
+		memo[state] = Wins{wins0, wins1}
+		return memo[state]
 	}
 
-	seen[key] = Pair{w, l}
-	return w, l
+	wins := helper(positions[0], positions[1], 0, 0, 0)
+	return wins[0], wins[1]
 }
 
-func Normalize(p int) int {
-	for p > 10 {
-		p -= 10
-	}
-	return p
-}
-
-func InputToStartingPositions() []int {
+func InputToStartingPositions() [2]int {
 	lines := aoc.InputToLines(2021, 21)
 
-	return []int{
+	return [2]int{
 		aoc.ParseInt(strings.Split(lines[0], ": ")[1]),
 		aoc.ParseInt(strings.Split(lines[1], ": ")[1]),
 	}

@@ -7,42 +7,36 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
+var (
+	LENGTH = 10
+	SIDES  = 1000
+	SCORES = map[int]int{0: 10, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9}
+)
+
 func main() {
 	positions := InputToStartingPositions()
 	scores := []int{0, 0}
+	die := 0 // 1000 sided die, from 0 to 999
 
-	var die = Die{value: 1}
-	var rolls int
-	for player := 0; ; player = (player + 1) % 2 {
-		position := positions[player]
-		distance := die.Roll() + die.Roll() + die.Roll()
-		rolls += 3
+	var turn int
+	for turn = 0; scores[0] < 1000 && scores[1] < 1000; turn++ {
+		player := turn % 2
 
-		position += distance
-		for position > 10 {
-			position -= 10
-		}
-		scores[player] += position
+		// Determine how far this player is going to travel by rolling the die 3 times.  Keep
+		// in mind that the die ranges from 0 to 999 instead of 1 to 1000, so we have to add
+		// 3 to compensate.
+		distance := 3 + die + (die + 1) + (die + 2)
+		die = (die + 3) % SIDES
 
-		positions[player] = position
-		if scores[player] >= 1000 {
-			break
-		}
+		// Calculate the player's new position on the track.
+		positions[player] = (positions[player] + distance) % LENGTH
+
+		// The player's score is equal to their position on the track, but keep in mind that
+		// our track ranges from 0 to 9 whereas the real track ranges from 1 to 10.
+		scores[player] += SCORES[positions[player]]
 	}
-	fmt.Println(aoc.MinInt(scores[0], scores[1]) * rolls)
-}
 
-type Die struct {
-	value int
-}
-
-func (d *Die) Roll() int {
-	value := d.value
-	d.value++
-	if d.value > 100 {
-		d.value = 1
-	}
-	return value
+	fmt.Println(aoc.MinInt(scores[0], scores[1]) * turn * 3)
 }
 
 func InputToStartingPositions() []int {
