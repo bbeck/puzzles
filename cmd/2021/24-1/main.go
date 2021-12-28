@@ -8,9 +8,9 @@ import (
 
 func main() {
 	// The input is a sequence of assembly language instructions performing some complex
-	// calculation on an 14-digit input number and returning a.  The goal is to determine
-	// which inputs will cause the value returned to be zero and to find the largest such
-	// input.
+	// calculation on an 14-digit input number and returning a number.  The goal is to
+	// determine which inputs will cause the value returned to be zero and to find the
+	// largest such input.
 	//
 	// Analyzing the assembly by hand shows that it has a regular structure to it.  There
 	// are 14 copies of the same block of code, parameterized differently.  Each block
@@ -29,8 +29,8 @@ func main() {
 	//
 	// Analyzing the 14 different copies of this block shows that parameter B only ever
 	// takes on values 1 and 26 and each value occurs in exactly half of the blocks.
-	// Using this information as well as analyzing line 5 help to provide insight into
-	// what the algorithm is doing.
+	// Using this information as well as analyzing lines 4 and 5 help to provide insight
+	// into what the algorithm is doing.
 	//
 	// When A=26, line 4 will remove some of the least significant bits of the previous
 	// block's z.
