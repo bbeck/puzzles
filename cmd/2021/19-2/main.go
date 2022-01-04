@@ -123,14 +123,8 @@ func BuildTransform(a, b []Point3D, aBeacon, bBeacon Point3D) Transform {
 		}
 
 		if count >= 12 {
-			// We have a match, return a function that converts from a's to b's.
-			return func(p Point3D) Point3D {
-				p = transform(p)
-				p.X += dx
-				p.Y += dy
-				p.Z += dz
-				return p
-			}
+			// We have a match.
+			return convert
 		}
 	}
 
