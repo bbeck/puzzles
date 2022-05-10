@@ -15,7 +15,7 @@ func main() {
 		}
 	}
 
-	fmt.Printf("count: %d\n", count)
+	fmt.Println(count)
 }
 
 func IsNice(s string) bool {
@@ -24,8 +24,7 @@ func IsNice(s string) bool {
 
 func ContainsRepeatPair(s string) bool {
 	for i := 0; i < len(s)-3; i++ {
-		substr := s[i : i+2]
-		if strings.Contains(s[i+2:], substr) {
+		if strings.Contains(s[i+2:], s[i:i+2]) {
 			return true
 		}
 	}

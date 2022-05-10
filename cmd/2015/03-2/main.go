@@ -2,53 +2,42 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	santa := aoc.Point2D{0, 0}
-	robot := aoc.Point2D{0, 0}
+	var seen aoc.Set[aoc.Point2D]
+	seen.Add(aoc.Origin2D)
 
-	seen := map[aoc.Point2D]int{
-		santa: 1,
-	}
-
-	bs := aoc.InputToBytes(2015, 3)
-	for i := 0; i < len(bs); i += 2 {
-		switch bs[i] {
-		case '^':
-			santa = santa.North()
-		case '<':
-			santa = santa.West()
-		case '>':
-			santa = santa.East()
-		case 'v':
-			santa = santa.South()
-		default:
-			log.Fatalf("unrecognized location: %s", string(bs[i]))
+	var santa, robot aoc.Point2D
+	for i, dir := range InputToDirections() {
+		if i%2 == 0 {
+			santa = aoc.Point2D{X: santa.X + dir.X, Y: santa.Y + dir.Y}
+		} else {
+			robot = aoc.Point2D{X: robot.X + dir.X, Y: robot.Y + dir.Y}
 		}
-
-		seen[santa]++
+		seen.Add(santa, robot)
 	}
 
-	for i := 1; i < len(bs); i += 2 {
-		switch bs[i] {
+	fmt.Println(len(seen))
+}
+
+func InputToDirections() []aoc.Point2D {
+	origin := aoc.Origin2D
+
+	var directions []aoc.Point2D
+	for _, b := range aoc.InputToBytes(2015, 3) {
+		switch b {
 		case '^':
-			robot = robot.North()
+			directions = append(directions, origin.Up())
 		case '<':
-			robot = robot.West()
+			directions = append(directions, origin.Left())
 		case '>':
-			robot = robot.East()
+			directions = append(directions, origin.Right())
 		case 'v':
-			robot = robot.South()
-		default:
-			log.Fatalf("unrecognized location: %s", string(bs[i]))
+			directions = append(directions, origin.Down())
 		}
-
-		seen[robot]++
 	}
 
-	fmt.Printf("number of locations: %d\n", len(seen))
+	return directions
 }

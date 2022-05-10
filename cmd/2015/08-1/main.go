@@ -2,18 +2,16 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	var sum int
+	var difference int
 	for _, line := range aoc.InputToLines(2015, 8) {
-		sum += len(line) - DecodeLength(line)
+		difference += len(line) - DecodeLength(line)
 	}
 
-	fmt.Printf("size: %d\n", sum)
+	fmt.Println(difference)
 }
 
 func DecodeLength(s string) int {
@@ -33,8 +31,6 @@ func DecodeLength(s string) int {
 				i += 3
 				continue
 			}
-
-			log.Fatalf("unrecognized escape sequence at position %d of %s", i, s)
 		}
 
 		if s[i] == '"' {

@@ -2,100 +2,103 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"sort"
+	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	people, weights := InputToGraph(2015, 13)
+	graph := InputToGraph()
+	people := graph.Vertices()
 
-	// Add myself to the set of people with all weights of 0
-	people = append(people, "Me")
-	weights = append(weights, make([]int, len(people)))
-	for i := 0; i < len(people)-1; i++ {
-		weights[i] = append(weights[i], 0)
+	// Insert myself as a person as well
+	for _, person := range people {
+		graph.AddEdge("Me", person, 0)
+		graph.AddEdge(person, "Me", 0)
 	}
+	people = graph.Vertices()
 
-	best := math.MinInt64
+	best := math.MinInt
 	aoc.EnumeratePermutations(len(people), func(perm []int) {
-		cost := Cost(perm, weights)
-		if cost > best {
-			best = cost
-		}
+		best = aoc.Max(best, Happiness(graph, perm))
 	})
 
-	fmt.Printf("best: %d\n", best)
+	fmt.Println(best)
 }
 
-func InputToGraph(year, day int) ([]string, [][]int) {
-	type entry struct {
-		p1, p2    string
-		happiness int
-	}
+func Happiness(graph Graph, perm []int) int {
+	people := graph.Vertices()
+	N := len(people)
 
-	// Parse the lines into entries so that we can make multiple passes over them.
-	entries := make([]entry, 0)
-	for _, line := range aoc.InputToLines(year, day) {
-		var p1, p2, dir string
-		var happiness int
-		if _, err := fmt.Sscanf(line[:len(line)-1], "%s would %s %d happiness units by sitting next to %s", &p1, &dir, &happiness, &p2); err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
+	var happiness int
+	for i := 0; i < len(perm); i++ {
+		person := people[perm[i]]
+		left := people[perm[(i-1+N)%N]]
+		right := people[perm[(i+1)%N]]
 
-		if dir == "lose" {
-			happiness = -happiness
-		}
-
-		entries = append(entries, entry{p1, p2, happiness})
-	}
-
-	// Determine the unique set of people and the index for each one
-	indices := make(map[string]int)
-	for _, entry := range entries {
-		if p1Index, ok := indices[entry.p1]; !ok {
-			p1Index = len(indices)
-			indices[entry.p1] = p1Index
-		}
-
-		if p2Index, ok := indices[entry.p2]; !ok {
-			p2Index = len(indices)
-			indices[entry.p2] = p2Index
-		}
-	}
-
-	// Determine the people ordered by their id.
-	people := make([]string, 0)
-	for person := range indices {
-		people = append(people, person)
-	}
-	sort.Slice(people, func(i, j int) bool {
-		return indices[people[i]] < indices[people[j]]
-	})
-
-	// Now build the square matrix of weights
-	weights := make([][]int, len(indices))
-	for i := 0; i < len(indices); i++ {
-		weights[i] = make([]int, len(indices))
-	}
-	for _, entry := range entries {
-		weights[indices[entry.p1]][indices[entry.p2]] = entry.happiness
-	}
-
-	return people, weights
-}
-
-func Cost(perm []int, weights [][]int) int {
-	N := len(perm)
-	happiness := 0
-	for i := 0; i < N; i++ {
-		me := perm[i]
-		left := perm[((i - 1 + N) % N)]
-		right := perm[((i + 1) % N)]
-		happiness += weights[me][left] + weights[me][right]
+		happiness += graph.Edge(person, left)
+		happiness += graph.Edge(person, right)
 	}
 
 	return happiness
+}
+
+type Graph struct {
+	vertices  aoc.Set[string]
+	distances map[string]map[string]int
+}
+
+func (g *Graph) AddEdge(from, to string, distance int) {
+	g.vertices.Add(from, to)
+
+	if g.distances == nil {
+		g.distances = make(map[string]map[string]int)
+	}
+
+	if g.distances[from] == nil {
+		g.distances[from] = make(map[string]int)
+	}
+	g.distances[from][to] = distance
+}
+
+func (g *Graph) Vertices() []string {
+	entries := g.vertices.Entries()
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i] < entries[j]
+	})
+	return entries
+}
+
+func (g *Graph) Edge(from, to string) int {
+	var edge int
+	if g.distances == nil || g.distances[from] == nil {
+		return edge
+	}
+
+	return g.distances[from][to]
+}
+
+func InputToGraph() Graph {
+	var g Graph
+	for _, line := range aoc.InputToLines(2015, 13) {
+		// Transform the line to remove filler words to make it easier to parse by Sscanf.
+		line = strings.ReplaceAll(line, " would ", " ")
+		line = strings.ReplaceAll(line, " happiness units by sitting next to ", " ")
+		line = strings.ReplaceAll(line, ".", "")
+
+		var from, to string
+		var gainlose string
+		var amount int
+
+		if _, err := fmt.Sscanf(line, "%s %s %d %s", &from, &gainlose, &amount, &to); err == nil {
+			if gainlose == "lose" {
+				amount = -amount
+			}
+			g.AddEdge(from, to, amount)
+		}
+	}
+
+	return g
 }

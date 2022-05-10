@@ -7,25 +7,31 @@ import (
 )
 
 func main() {
-	var sum int
+	var difference int
 	for _, line := range aoc.InputToLines(2015, 8) {
-		sum += EncodeLength(line) - len(line)
+		difference += EncodeLength(line) - len(line)
 	}
 
-	fmt.Printf("size: %d\n", sum)
+	fmt.Println(difference)
 }
 
 func EncodeLength(s string) int {
-	length := 2 // open and close "
+	var length int
 
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\\' || s[i] == '"' {
+	// Starting quote
+	length++
+
+	for _, c := range s {
+		if c == '"' || c == '\\' {
 			length += 2
 			continue
 		}
 
 		length++
 	}
+
+	// Ending quote
+	length++
 
 	return length
 }

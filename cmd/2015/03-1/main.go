@@ -2,33 +2,38 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	location := aoc.Point2D{0, 0}
-	seen := map[aoc.Point2D]int{
-		location: 1,
+	var seen aoc.Set[aoc.Point2D]
+	seen.Add(aoc.Origin2D)
+
+	var location aoc.Point2D
+	for _, dir := range InputToDirections() {
+		location = aoc.Point2D{X: location.X + dir.X, Y: location.Y + dir.Y}
+		seen.Add(location)
 	}
 
+	fmt.Println(len(seen))
+}
+
+func InputToDirections() []aoc.Point2D {
+	origin := aoc.Origin2D
+
+	var directions []aoc.Point2D
 	for _, b := range aoc.InputToBytes(2015, 3) {
 		switch b {
 		case '^':
-			location = location.North()
+			directions = append(directions, origin.Up())
 		case '<':
-			location = location.West()
+			directions = append(directions, origin.Left())
 		case '>':
-			location = location.East()
+			directions = append(directions, origin.Right())
 		case 'v':
-			location = location.South()
-		default:
-			log.Fatalf("unrecognized location: %s", string(b))
+			directions = append(directions, origin.Down())
 		}
-
-		seen[location]++
 	}
 
-	fmt.Printf("number of locations: %d\n", len(seen))
+	return directions
 }

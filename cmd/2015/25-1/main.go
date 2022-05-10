@@ -2,57 +2,59 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	goal := InputToCoordinate(2015, 25)
-	indices := GenerateIndices(goal.Y, goal.X)
+	row, col := InputToCoordinate()
+
+	// We first have to figure out which element of the sequence our coordinate
+	// corresponds to.
+	//
+	//    | 1   2   3   4   5   6   7   8   9
+	// ---+---+---+---+---+---+---+---+---+---+
+	// 1 |  1   3   6  10  15  21  28  36  45
+	// 2 |  2   5   9  14  20  27  35  44
+	// 3 |  4   8  13  19  26  34  43
+	// 4 |  7  12  18  25  33  42
+	// 5 | 11  17  34  32  41
+	// 6 | 16  23  31  40
+	// 7 | 22  30  39
+	// 8 | 29  38
+	// 9 | 37
+	//
+	// To do this start by determining the value in column 1 of the desired row.
+	//
+	// f(row, 1) = 1 + 1+...+row-1 = 1 + (row-1)*row/2
+	//
+	// Next, we determine the value in the column our coordinate corresponds to.
+	// To do this start at the value in the first column and add to it the value
+	// of our row then row+1, and so on.
+	//
+	// f(row, col) = f(row, 1) + (row+1) + (row+2) + ... + (row+col-1)
+	//             = [1 + 1+...+(row-1)] + [(row+1)+...(row+col-1)]
+	//             = [1 + 1+...+(row-1)] + row + [(row+1)+...(row+col-1)] - row
+	//             = (1-row) + (row+col-1)*(row+col)/2
+	index := (1 - row) + (row+col-1)*(row+col)/2
 
 	code := 20151125
-	for n := 1; n < indices[goal]; n++ {
+	for i := 1; i < index; i++ {
 		code = (code * 252533) % 33554393
 	}
-
-	fmt.Printf("code: %d\n", code)
+	fmt.Println(code)
 }
 
-func InputToCoordinate(year, day int) aoc.Point2D {
-	s := aoc.InputToString(year, day)
+func InputToCoordinate() (int, int) {
+	p := aoc.InputLinesTo(2015, 25, func(line string) (aoc.Point2D, error) {
+		line = strings.ReplaceAll(line, "To continue, please consult the code grid in the manual.", "")
+		line = strings.TrimSpace(line)
 
-	var row, col int
-	_, err := fmt.Sscanf(s, "To continue, please consult the code grid in the manual.  Enter the code at row %d, column %d.", &row, &col)
-	if err != nil {
-		log.Fatalf("unable to parse input: %+v", err)
-	}
+		var p aoc.Point2D
+		_, err := fmt.Sscanf(line, "Enter the code at row %d, column %d.", &p.X, &p.Y)
+		return p, err
+	})[0]
 
-	return aoc.Point2D{X: col, Y: row}
-}
-
-func GenerateIndices(row, col int) map[aoc.Point2D]int {
-	indices := make(map[aoc.Point2D]int)
-	current := aoc.Point2D{X: 1, Y: 1}
-	maxY := 1
-
-	for index := 1; ; index++ {
-		indices[current] = index
-		if current.X == col && current.Y == row {
-			break
-		}
-
-		if current.Y <= 1 {
-			maxY++
-
-			current.X = 1
-			current.Y = maxY
-			continue
-		}
-
-		current.X++
-		current.Y--
-	}
-
-	return indices
+	return p.X, p.Y
 }

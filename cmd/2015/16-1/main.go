@@ -2,77 +2,73 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strconv"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type Sue struct {
-	id     int
-	fields map[string]int
+var Target = map[string]int{
+	"children":    3,
+	"cats":        7,
+	"samoyeds":    2,
+	"pomeranians": 3,
+	"akitas":      0,
+	"vizslas":     0,
+	"goldfish":    5,
+	"trees":       3,
+	"cars":        2,
+	"perfumes":    1,
 }
 
 func main() {
-	target := map[string]int{
-		"children":    3,
-		"cats":        7,
-		"samoyeds":    2,
-		"pomeranians": 3,
-		"akitas":      0,
-		"vizslas":     0,
-		"goldfish":    5,
-		"trees":       3,
-		"cars":        2,
-		"perfumes":    1,
-	}
-
-	sues := InputToSues(2015, 16)
-	for _, sue := range sues {
-		if Matches(sue, target) {
-			fmt.Println(sue.id)
+	for _, aunt := range InputToAunts() {
+		if Matches(aunt, Target) {
+			fmt.Println(aunt.Id)
 		}
 	}
 }
 
-func Matches(sue Sue, target map[string]int) bool {
-	for field, expected := range target {
-		if actual, ok := sue.fields[field]; ok {
-			if expected != actual {
-				return false
-			}
+func Matches(aunt Aunt, target map[string]int) bool {
+	for field, actual := range aunt.Fields {
+		if target[field] != actual {
+			return false
 		}
 	}
 
 	return true
 }
 
-func InputToSues(year, day int) []Sue {
-	var sues []Sue
-	for _, line := range aoc.InputToLines(2015, 16) {
-		parts := strings.SplitN(line, ": ", 2)
+type Aunt struct {
+	Id     string
+	Fields map[string]int
+}
 
-		id, err := strconv.Atoi(strings.Replace(parts[0], "Sue ", "", 1))
+func InputToAunts() []Aunt {
+	return aoc.InputLinesTo(2015, 16, func(line string) (Aunt, error) {
+		line = strings.ReplaceAll(line, ":", "")
+		line = strings.ReplaceAll(line, ",", "")
+
+		var id, compound1, compound2, compound3 string
+		var value1, value2, value3 int
+		_, err := fmt.Sscanf(
+			line,
+			"Sue %s %s %d %s %d %s %d",
+			&id,
+			&compound1, &value1,
+			&compound2, &value2,
+			&compound3, &value3,
+		)
 		if err != nil {
-			log.Fatalf("unable to parse id: %s", parts[0])
+			return Aunt{}, err
 		}
 
-		fields := make(map[string]int)
-		for _, field := range strings.Split(parts[1], ", ") {
-			tokens := strings.SplitN(field, ": ", 2)
-
-			name := tokens[0]
-			count, err := strconv.Atoi(tokens[1])
-			if err != nil {
-				log.Fatalf("unable to parse field (id=%s): %s: %+v", id, field, err)
-			}
-
-			fields[name] = count
-		}
-
-		sues = append(sues, Sue{id, fields})
-	}
-
-	return sues
+		return Aunt{
+			Id: id,
+			Fields: map[string]int{
+				compound1: value1,
+				compound2: value2,
+				compound3: value3,
+			},
+		}, nil
+	})
 }

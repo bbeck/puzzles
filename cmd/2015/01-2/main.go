@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
@@ -18,8 +16,6 @@ func main() {
 			floor++
 		case ')':
 			floor--
-		default:
-			log.Fatalf("unrecognized character: %s", string(c))
 		}
 
 		if floor == -1 {
@@ -27,5 +23,5 @@ func main() {
 		}
 	}
 
-	fmt.Printf("enters basement at position: %d\n", position)
+	fmt.Println(position)
 }

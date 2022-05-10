@@ -2,6 +2,7 @@ package aoc
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -21,7 +22,7 @@ func InputToBytes(year, day int) []byte {
 		log.Fatalf("unable to read input.txt: %+v", err)
 	}
 
-	return bs
+	return bytes.TrimSpace(bs)
 }
 
 // InputToString reads the entire input file into a string.
@@ -51,32 +52,29 @@ func InputToLines(year, day int) []string {
 	return lines
 }
 
-// InputToInt reads the input file into a single integer.
-func InputToInt(year, day int) int {
+// InputLinesTo transforms each line of the input file into an instance
+// returned by a transform function.  The instances are returned in a
+// slice in the same order as they appear in the file.
+func InputLinesTo[T any](year, day int, parse func(string) (T, error)) []T {
+	var ts []T
 	for _, line := range InputToLines(year, day) {
-		i, err := strconv.Atoi(line)
+		t, err := parse(line)
 		if err != nil {
-			log.Fatalf("unable to parse integer: %s", line)
+			log.Fatalf("unable to parse line '%s': %+v", line, err)
 		}
 
-		return i
+		ts = append(ts, t)
 	}
 
-	log.Fatal("unable to find integer in input file")
-	return -1
+	return ts
+}
+
+// InputToInt reads the input file into a single integer.
+func InputToInt(year, day int) int {
+	return InputToInts(year, day)[0]
 }
 
 // InputToInts reads the input file into a slice of integers.
 func InputToInts(year, day int) []int {
-	ints := make([]int, 0)
-	for _, line := range InputToLines(year, day) {
-		i, err := strconv.Atoi(line)
-		if err != nil {
-			log.Fatalf("unable to parse integer: %s", line)
-		}
-
-		ints = append(ints, i)
-	}
-
-	return ints
+	return InputLinesTo(year, day, strconv.Atoi)
 }

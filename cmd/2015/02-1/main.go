@@ -2,51 +2,38 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type Prism struct {
-	l, w, h uint
+type Box struct {
+	l, w, h int
 }
 
-func (p Prism) Area() uint {
-	s1 := p.l * p.w
-	s2 := p.l * p.h
-	s3 := p.w * p.h
-
-	var smallest uint
-	if s1 <= s2 && s1 <= s3 {
-		smallest = s1
-	} else if s2 <= s1 && s2 <= s3 {
-		smallest = s2
-	} else {
-		smallest = s3
+func (b Box) Area() int {
+	var sides = []int{
+		b.l * b.w,
+		b.w * b.h,
+		b.h * b.l,
 	}
 
-	return 2*s1 + 2*s2 + 2*s3 + smallest
+	return 2*aoc.Sum(sides...) + aoc.Min(sides...)
 }
 
 func main() {
-	total := uint(0)
-	for _, prism := range InputToPrisms() {
-		total += prism.Area()
+	area := 0
+	for _, box := range InputToBoxes() {
+		area += box.Area()
 	}
-
-	fmt.Printf("total: %d\n", total)
+	fmt.Println(area)
 }
 
-func InputToPrisms() []Prism {
-	prisms := make([]Prism, 0)
-	for _, line := range aoc.InputToLines(2015, 2) {
-		var l, w, h uint
-		if _, err := fmt.Sscanf(line, "%dx%dx%d", &l, &w, &h); err != nil {
-			log.Fatalf("unable to parse line '%s': %+v", line, err)
+func InputToBoxes() []Box {
+	parser := func(line string) (Box, error) {
+		var box Box
+		if _, err := fmt.Sscanf(line, "%dx%dx%d", &box.l, &box.w, &box.h); err != nil {
+			return box, err
 		}
-
-		prisms = append(prisms, Prism{l, w, h})
+		return box, nil
 	}
-
-	return prisms
+	return aoc.InputLinesTo(2015, 2, parser)
 }

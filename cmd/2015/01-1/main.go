@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
@@ -15,10 +13,8 @@ func main() {
 			floor++
 		case ')':
 			floor--
-		default:
-			log.Fatalf("unrecognized character: %s", string(c))
 		}
 	}
 
-	fmt.Printf("floor: %d\n", floor)
+	fmt.Println(floor)
 }

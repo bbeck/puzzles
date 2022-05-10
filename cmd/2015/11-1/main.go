@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	password := aoc.InputToString(2015, 11)
+	password := aoc.InputToBytes(2015, 11)
 
 	for {
 		password = NextPassword(password)
@@ -16,44 +16,38 @@ func main() {
 		}
 	}
 
-	fmt.Printf("new password: %s\n", password)
+	fmt.Println(string(password))
 }
 
-func NextPassword(password string) string {
-	bs := []byte(password)
-	for i := len(bs) - 1; i >= 0; i-- {
-		bs[i]++
-		if bs[i] <= 'z' {
+func NextPassword(password []byte) []byte {
+	for i := len(password) - 1; i >= 0; i-- {
+		password[i]++
+		if password[i] <= 'z' {
 			break
 		}
 
-		bs[i] = 'a'
+		password[i] = 'a'
 	}
 
-	return string(bs)
+	return password
 }
 
-func IsValid(password string) bool {
+func IsValid(password []byte) bool {
 	return HasStraight(password) && HasValidLetters(password) && HasPairs(password)
 }
 
-func HasStraight(s string) bool {
-	for i := 0; i < len(s)-3; i++ {
-		if s[i+1] == s[i]+1 && s[i+2] == s[i+1]+1 {
+func HasStraight(bs []byte) bool {
+	for i := 0; i < len(bs)-3; i++ {
+		if bs[i+1] == bs[i]+1 && bs[i+2] == bs[i+1]+1 {
 			return true
 		}
 	}
 	return false
 }
 
-func HasValidLetters(s string) bool {
-	for i := 0; i < len(s); i++ {
-		switch s[i] {
-		case 'i':
-			return false
-		case 'o':
-			return false
-		case 'l':
+func HasValidLetters(bs []byte) bool {
+	for _, b := range bs {
+		if b == 'i' || b == 'o' || b == 'l' {
 			return false
 		}
 	}
@@ -61,15 +55,15 @@ func HasValidLetters(s string) bool {
 	return true
 }
 
-func HasPairs(s string) bool {
+func HasPairs(bs []byte) bool {
 	var seen byte
-	for i := 0; i < len(s)-1; i++ {
-		if s[i] == s[i+1] {
-			if seen != 0 && s[i] != seen {
+	for i := 0; i < len(bs)-1; i++ {
+		if bs[i] == bs[i+1] {
+			if seen != 0 && bs[i] != seen {
 				return true
 			}
 
-			seen = s[i]
+			seen = bs[i]
 			i++
 		}
 	}

@@ -1,50 +1,41 @@
 package aoc
 
-type PriorityQueue struct {
-	nodes      []interface{}
+type PriorityQueue[T any] struct {
+	values     []T
 	priorities []int
 }
 
-// NewPriorityQueue creates a new, empty priority queue.
-func NewPriorityQueue() *PriorityQueue {
-	return &PriorityQueue{
-		nodes:      make([]interface{}, 0),
-		priorities: make([]int, 0),
-	}
-}
-
 // Empty returns true if the priority queue is empty.
-func (q *PriorityQueue) Empty() bool {
-	return len(q.nodes) == 0
+func (q *PriorityQueue[T]) Empty() bool {
+	return len(q.values) == 0
 }
 
 // Push adds a new value into the priority queue with the specified priority.
-func (q *PriorityQueue) Push(node interface{}, priority int) {
-	q.nodes = append(q.nodes, node)
+func (q *PriorityQueue[T]) Push(value T, priority int) {
+	q.values = append(q.values, value)
 	q.priorities = append(q.priorities, priority)
-	q.up(len(q.nodes) - 1)
+	q.up(len(q.values) - 1)
 }
 
 // Pop returns the value in the priority queue with the minimum priority.
-func (q *PriorityQueue) Pop() interface{} {
-	index := len(q.nodes) - 1
+func (q *PriorityQueue[T]) Pop() T {
+	index := len(q.values) - 1
 	q.swap(0, index)
 	q.down(0, index)
 
-	node := q.nodes[index]
-	q.nodes[index] = nil
-	q.nodes = q.nodes[:index]
+	value := q.values[index]
+	q.values = q.values[:index]
 	q.priorities = q.priorities[:index]
 
-	return node
+	return value
 }
 
-func (q *PriorityQueue) swap(i, j int) {
-	q.nodes[i], q.nodes[j] = q.nodes[j], q.nodes[i]
+func (q *PriorityQueue[T]) swap(i, j int) {
+	q.values[i], q.values[j] = q.values[j], q.values[i]
 	q.priorities[i], q.priorities[j] = q.priorities[j], q.priorities[i]
 }
 
-func (q *PriorityQueue) up(index int) {
+func (q *PriorityQueue[T]) up(index int) {
 	for {
 		parent := (index - 1) / 2 // parent
 		if parent == index || q.priorities[index] > q.priorities[parent] {
@@ -56,7 +47,7 @@ func (q *PriorityQueue) up(index int) {
 	}
 }
 
-func (q *PriorityQueue) down(i0, n int) {
+func (q *PriorityQueue[T]) down(i0, n int) {
 	index := i0
 	for {
 		left := 2*index + 1

@@ -9,26 +9,21 @@ import (
 func main() {
 	desired := aoc.InputToInt(2015, 20)
 
-	maxHome := desired
-	homes := make(map[int]int)
-	for elf := 1; elf < maxHome; elf++ {
-		for count := 0; count < 50; count++ {
-			home := elf * (count + 1)
-			if home > maxHome {
-				break
-			}
-
-			homes[home] += elf * 11
-			if homes[home] >= desired {
-				maxHome = home
+	houses := make([]int, desired+1)
+	for elf := 1; elf <= desired; elf++ {
+		for i := 1; i <= 50; i++ {
+			house := elf * i
+			if house <= desired {
+				houses[house] += 11 * elf
 			}
 		}
 	}
 
-	for home := 1; ; home++ {
-		if homes[home] >= desired {
-			fmt.Printf("home: %d\n", home)
+	var house int
+	for house = 1; house <= desired; house++ {
+		if houses[house] >= desired {
 			break
 		}
 	}
+	fmt.Println(house)
 }

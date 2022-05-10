@@ -17,16 +17,13 @@ func main() {
 	}
 
 	sum := Sum(tree)
-	fmt.Printf("sum: %d\n", sum)
+	fmt.Println(sum)
 }
 
 func Sum(root interface{}) int {
 	switch elem := root.(type) {
 	case float64:
 		return int(elem)
-
-	case string:
-		return 0
 
 	case []interface{}:
 		var sum int
@@ -41,9 +38,6 @@ func Sum(root interface{}) int {
 			sum += Sum(v)
 		}
 		return sum
-
-	default:
-		log.Fatalf("unsupported type: %T", elem)
 	}
 
 	return 0

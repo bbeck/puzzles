@@ -2,105 +2,95 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"github.com/bbeck/advent-of-code/aoc"
 	"strconv"
 	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type Expression func(c *Circuit) uint16
-
-type Circuit struct {
-	state       map[string]uint16
-	expressions map[string]Expression
-}
-
 func main() {
-	circuit := InputToCircuit(2015, 7)
-	fmt.Printf("a: %d\n", circuit.Read("a"))
+	circuit := InputToCircuit()
+	a := Evaluate(circuit, "a", make(map[string]uint16))
+	fmt.Println(a)
 }
 
-func InputToCircuit(year, day int) *Circuit {
-	expressions := make(map[string]Expression)
-	for _, line := range aoc.InputToLines(year, day) {
-		sides := strings.Split(line, " -> ")
-		if len(sides) != 2 {
-			log.Fatalf("unable to parse line: %s into sides", line)
-		}
-
-		expressions[sides[1]] = ParseExpression(sides[0])
-	}
-
-	return &Circuit{
-		state:       make(map[string]uint16),
-		expressions: expressions,
-	}
-}
-
-func (c *Circuit) Read(wire string) uint16 {
-	// Sometimes we ask to read a constant value.
-	if n, err := strconv.Atoi(wire); err == nil {
-		return uint16(n)
-	}
-
-	if value, ok := c.state[wire]; ok {
+func Evaluate(circuit Circuit, variable string, memory map[string]uint16) uint16 {
+	if value, found := memory[variable]; found {
 		return value
 	}
 
-	expr := c.expressions[wire]
-	value := expr(c)
-	c.state[wire] = value
+	// Sometimes we're asked to evaluate a numeric constant.
+	if n, err := strconv.Atoi(variable); err == nil {
+		return uint16(n)
+	}
+
+	var value uint16
+	switch expr := circuit[variable]; expr.Kind {
+	case "nullary":
+		value = Evaluate(circuit, expr.RHS, memory)
+
+	case "urnary":
+		switch expr.Op {
+		case "NOT":
+			value = ^Evaluate(circuit, expr.RHS, memory)
+		}
+
+	case "binary":
+		lhs, rhs := Evaluate(circuit, expr.LHS, memory), Evaluate(circuit, expr.RHS, memory)
+		switch expr.Op {
+		case "AND":
+			value = lhs & rhs
+		case "OR":
+			value = lhs | rhs
+		case "LSHIFT":
+			value = lhs << rhs
+		case "RSHIFT":
+			value = lhs >> rhs
+		}
+	}
+
+	memory[variable] = value
 	return value
 }
 
-func ParseExpression(lhs string) Expression {
-	terms := strings.Split(lhs, " ")
+type Circuit map[string]Expression
 
-	if len(terms) == 3 {
-		if terms[1] == "AND" {
-			return func(c *Circuit) uint16 {
-				lhs := c.Read(terms[0])
-				rhs := c.Read(terms[2])
-				return lhs & rhs
-			}
-		}
+func InputToCircuit() Circuit {
+	circuit := make(Circuit)
+	for _, line := range aoc.InputToLines(2015, 7) {
+		parts := strings.Split(line, " -> ")
+		circuit[parts[1]] = ParseExpression(parts[0])
+	}
 
-		if terms[1] == "OR" {
-			return func(c *Circuit) uint16 {
-				lhs := c.Read(terms[0])
-				rhs := c.Read(terms[2])
-				return lhs | rhs
-			}
-		}
+	return circuit
+}
 
-		if terms[1] == "LSHIFT" {
-			return func(c *Circuit) uint16 {
-				lhs := c.Read(terms[0])
-				rhs := c.Read(terms[2])
-				return lhs << rhs
-			}
-		}
+type Expression struct {
+	Kind         string
+	LHS, Op, RHS string
+}
 
-		if terms[1] == "RSHIFT" {
-			return func(c *Circuit) uint16 {
-				lhs := c.Read(terms[0])
-				rhs := c.Read(terms[2])
-				return lhs >> rhs
-			}
+func ParseExpression(s string) Expression {
+	terms := strings.Fields(s)
+
+	if len(terms) == 1 {
+		return Expression{
+			Kind: "nullary",
+			RHS:  terms[0],
 		}
 	}
 
 	if len(terms) == 2 {
-		if terms[0] == "NOT" {
-			return func(c *Circuit) uint16 {
-				rhs := c.Read(terms[1])
-				return ^rhs
-			}
+		return Expression{
+			Kind: "urnary",
+			Op:   terms[0],
+			RHS:  terms[1],
 		}
 	}
 
-	return func(c *Circuit) uint16 {
-		return c.Read(terms[0])
+	return Expression{
+		Kind: "binary",
+		LHS:  terms[0],
+		Op:   terms[1],
+		RHS:  terms[2],
 	}
 }

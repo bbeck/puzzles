@@ -2,12 +2,53 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type Reindeer struct {
+type State struct {
+	Name      string
+	Remaining int
+	Traveled  int
+}
+
+func main() {
+	reindeer := InputToReindeer()
+
+	states := make(map[string]*State)
+	for _, reindeer := range reindeer {
+		states[reindeer.Name] = &State{Name: "fly", Remaining: reindeer.Fly}
+	}
+
+	for tm := 0; tm < 2503; tm++ {
+		for _, reindeer := range reindeer {
+			state := states[reindeer.Name]
+
+			if state.Name == "fly" {
+				state.Traveled += reindeer.Speed
+			}
+
+			// Check for a state transition
+			state.Remaining--
+			if state.Remaining == 0 && state.Name == "fly" {
+				state.Name = "rest"
+				state.Remaining = reindeer.Rest
+			} else if state.Remaining == 0 && state.Name == "rest" {
+				state.Name = "fly"
+				state.Remaining = reindeer.Fly
+			}
+		}
+	}
+
+	var best int
+	for _, state := range states {
+		best = aoc.Max(best, state.Traveled)
+	}
+	fmt.Println(best)
+}
+
+type ReindeerOld struct {
 	name                  string
 	speed, duration, rest int
 
@@ -16,56 +57,22 @@ type Reindeer struct {
 	tmToNextTransition int
 }
 
-func main() {
-	reindeer := InputToReindeer(2015, 14)
-	for tm := 0; tm < 2503; tm++ {
-		for i := 0; i < len(reindeer); i++ {
-			if !reindeer[i].resting {
-				reindeer[i].traveled += reindeer[i].speed
-			}
-
-			reindeer[i].tmToNextTransition--
-			if reindeer[i].tmToNextTransition == 0 {
-				// Time to switch states
-				if reindeer[i].resting {
-					reindeer[i].resting = false
-					reindeer[i].tmToNextTransition = reindeer[i].duration
-				} else {
-					reindeer[i].resting = true
-					reindeer[i].tmToNextTransition = reindeer[i].rest
-				}
-			}
-		}
-	}
-
-	var best int
-	for _, r := range reindeer {
-		if r.traveled > best {
-			best = r.traveled
-		}
-	}
-
-	fmt.Printf("best distance: %d\n", best)
+type Reindeer struct {
+	Name  string
+	Speed int
+	Fly   int
+	Rest  int
 }
 
-func InputToReindeer(year, day int) []Reindeer {
-	var reindeer []Reindeer
-	for _, line := range aoc.InputToLines(year, day) {
-		var name string
-		var speed, duration, rest int
-		if _, err := fmt.Sscanf(line[:len(line)-1], "%s can fly %d km/s for %d seconds, but then must rest for %d seconds", &name, &speed, &duration, &rest); err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
+func InputToReindeer() []Reindeer {
+	return aoc.InputLinesTo(2015, 14, func(line string) (Reindeer, error) {
+		line = strings.ReplaceAll(line, " can fly ", " ")
+		line = strings.ReplaceAll(line, " km/s for ", " ")
+		line = strings.ReplaceAll(line, " seconds, but then must rest for ", " ")
+		line = strings.ReplaceAll(line, " seconds.", "")
 
-		reindeer = append(reindeer, Reindeer{
-			name:               name,
-			speed:              speed,
-			duration:           duration,
-			rest:               rest,
-			resting:            false,
-			tmToNextTransition: duration,
-		})
-	}
-
-	return reindeer
+		var reindeer Reindeer
+		_, err := fmt.Sscanf(line, "%s %d %d %d", &reindeer.Name, &reindeer.Speed, &reindeer.Fly, &reindeer.Rest)
+		return reindeer, err
+	})
 }

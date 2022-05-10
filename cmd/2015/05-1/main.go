@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
@@ -14,11 +15,11 @@ func main() {
 		}
 	}
 
-	fmt.Printf("count: %d\n", count)
+	fmt.Println(count)
 }
 
 func IsNice(s string) bool {
-	return ContainsThreeVowels(s) && ContainsDoubleLetter(s) && !ContainsBadString(s)
+	return ContainsThreeVowels(s) && ContainsDoubleLetter(s) && ContainsNoBadStrings(s)
 }
 
 func ContainsThreeVowels(s string) bool {
@@ -29,7 +30,7 @@ func ContainsThreeVowels(s string) bool {
 		}
 	}
 
-	return count > 2
+	return count >= 3
 }
 
 func ContainsDoubleLetter(s string) bool {
@@ -42,19 +43,13 @@ func ContainsDoubleLetter(s string) bool {
 	return false
 }
 
-func ContainsBadString(s string) bool {
-	for i := 0; i < len(s)-1; i++ {
-		switch {
-		case s[i] == 'a' && s[i+1] == 'b':
-			return true
-		case s[i] == 'c' && s[i+1] == 'd':
-			return true
-		case s[i] == 'p' && s[i+1] == 'q':
-			return true
-		case s[i] == 'x' && s[i+1] == 'y':
-			return true
+func ContainsNoBadStrings(s string) bool {
+	banned := []string{"ab", "cd", "pq", "xy"}
+	for _, ban := range banned {
+		if strings.Contains(s, ban) {
+			return false
 		}
 	}
 
-	return false
+	return true
 }

@@ -16,7 +16,7 @@ func main() {
 		digits = LookAndSay(digits)
 	}
 
-	fmt.Printf("length: %d\n", len(digits))
+	fmt.Println(len(digits))
 }
 
 func LookAndSay(s []int) []int {
@@ -24,14 +24,14 @@ func LookAndSay(s []int) []int {
 
 	last, count := s[0], 1
 	for i := 1; i < len(s); i++ {
-		if s[i] != last {
-			output = append(output, []int{count, last}...)
-			last = s[i]
-			count = 1
+		if s[i] == last {
+			count++
 			continue
 		}
 
-		count++
+		output = append(output, []int{count, last}...)
+		last = s[i]
+		count = 1
 	}
 
 	output = append(output, []int{count, last}...)

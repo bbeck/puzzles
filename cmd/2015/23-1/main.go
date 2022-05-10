@@ -2,124 +2,78 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strconv"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	program := InputToProgram(2015, 23)
-	pc := 0
+	program := InputToProgram()
 	registers := make(map[string]uint)
 
+	var pc int
 	for {
 		if pc >= len(program) {
 			break
 		}
 
-		instruction := program[pc]
-		switch instruction.name {
+		switch instruction := program[pc]; instruction.OpCode {
 		case "hlf":
-			registers[instruction.register] /= 2
+			registers[instruction.Register] /= 2
 			pc++
-
 		case "tpl":
-			registers[instruction.register] *= 3
+			registers[instruction.Register] *= 3
 			pc++
-
 		case "inc":
-			registers[instruction.register]++
+			registers[instruction.Register] += 1
 			pc++
-
 		case "jmp":
-			pc += instruction.offset
-
+			pc += instruction.Offset
 		case "jie":
-			if registers[instruction.register]%2 == 0 {
-				pc += instruction.offset
+			if registers[instruction.Register]%2 == 0 {
+				pc += instruction.Offset
 			} else {
 				pc++
 			}
-
 		case "jio":
-			if registers[instruction.register] == 1 {
-				pc += instruction.offset
+			if registers[instruction.Register] == 1 {
+				pc += instruction.Offset
 			} else {
 				pc++
 			}
 		}
 	}
 
-	fmt.Printf("a: %d, b: %d\n", registers["a"], registers["b"])
+	fmt.Println(registers["b"])
 }
 
 type Instruction struct {
-	name     string
-	register string
-	offset   int
+	OpCode   string
+	Register string
+	Offset   int
 }
 
-func InputToProgram(year, day int) []Instruction {
-	program := make([]Instruction, 0)
-	for _, line := range aoc.InputToLines(year, day) {
-		tokens := strings.Split(line, " ")
-		name := tokens[0]
+func InputToProgram() []Instruction {
+	return aoc.InputLinesTo(2015, 23, func(line string) (Instruction, error) {
+		line = strings.ReplaceAll(line, ",", "")
+		line = strings.ReplaceAll(line, "+", "")
+		opcode, rest, _ := strings.Cut(line, " ")
+		args := strings.Fields(rest)
 
-		switch name {
-		case "hlf":
-			program = append(program, Instruction{
-				name:     name,
-				register: ParseRegister(tokens[1]),
-			})
-
-		case "tpl":
-			program = append(program, Instruction{
-				name:     name,
-				register: ParseRegister(tokens[1]),
-			})
-
-		case "inc":
-			program = append(program, Instruction{
-				name:     name,
-				register: ParseRegister(tokens[1]),
-			})
-
+		instruction := Instruction{OpCode: opcode}
+		switch line[:3] {
 		case "jmp":
-			program = append(program, Instruction{
-				name:   name,
-				offset: ParseOffset(tokens[1]),
-			})
-
+			instruction.Offset = aoc.ParseInt(args[0])
 		case "jie":
-			program = append(program, Instruction{
-				name:     name,
-				register: ParseRegister(tokens[1]),
-				offset:   ParseOffset(tokens[2]),
-			})
-
+			instruction.Register = args[0]
+			instruction.Offset = aoc.ParseInt(args[1])
 		case "jio":
-			program = append(program, Instruction{
-				name:     name,
-				register: ParseRegister(tokens[1]),
-				offset:   ParseOffset(tokens[2]),
-			})
+			instruction.Register = args[0]
+			instruction.Offset = aoc.ParseInt(args[1])
+		default:
+			instruction.Register = args[0]
 		}
-	}
 
-	return program
-}
-
-func ParseRegister(s string) string {
-	return strings.ReplaceAll(s, ",", "")
-}
-
-func ParseOffset(s string) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatalf("unable to parse offset: %s", s)
-	}
-
-	return n
+		return instruction, nil
+	})
 }

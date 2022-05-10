@@ -2,254 +2,189 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type State struct {
-	parent   *State
-	bossTurn bool
-
-	player struct {
-		hp     int
-		armor  int
-		mana   int
-		spells map[string]int
-		spent  int
-	}
-
-	boss struct {
-		hp     int
-		damage int
-	}
-}
-
-func (s *State) Copy() *State {
-	state := &State{
-		parent:   s,
-		bossTurn: s.bossTurn,
-
-		player: struct {
-			hp     int
-			armor  int
-			mana   int
-			spells map[string]int
-			spent  int
-		}{
-			hp:     s.player.hp,
-			armor:  s.player.armor,
-			mana:   s.player.mana,
-			spells: make(map[string]int),
-			spent:  s.player.spent,
+func main() {
+	state := State{
+		Turn: "player",
+		Player: Player{
+			HitPoints: 50,
+			Mana:      500,
 		},
-
-		boss: struct {
-			hp     int
-			damage int
-		}{
-			hp:     s.boss.hp,
-			damage: s.boss.damage,
-		},
+		Boss: InputToBoss(),
 	}
 
-	for spell, duration := range s.player.spells {
-		state.player.spells[spell] = duration
+	isGoal := func(s State) bool {
+		return s.Boss.HitPoints <= 0
 	}
 
-	return state
+	cost := func(from, to State) int {
+		return to.Spent - from.Spent
+	}
+
+	heuristic := func(s State) int {
+		// At most, we can do 7 hit points of damage per turn (magic missile + active
+		// poison).  We pay the cost of the magic missile every turn, but poison only
+		// every 6th turn.
+		turns := s.Boss.HitPoints / 7
+		return 53*turns + 173*turns/6
+	}
+
+	_, mana, found := aoc.AStarSearch(state, children, isGoal, cost, heuristic)
+	if found {
+		fmt.Println(mana)
+	}
 }
 
-func (s *State) ID() string {
-	parent := s.parent
-	s.parent = nil
-	id := fmt.Sprintf("%+v", *s)
-	s.parent = parent
-	return id
-}
+func children(parent State) []State {
+	// At the start of each turn the player loses 1 hit point.
+	parent.Player.HitPoints--
 
-func (s *State) Children() []aoc.Node {
-	// If either of us have died then we're done and there are no children.
-	if s.player.hp <= 0 || s.boss.hp <= 0 {
+	// The match is over if either character drops to 0 hit points or the player
+	// doesn't have enough mana to cast a spell (on their turn).
+	if parent.Player.HitPoints <= 0 || parent.Boss.HitPoints <= 0 {
+		return nil
+	}
+	if parent.Turn == "player" && parent.Player.Mana < 53 {
 		return nil
 	}
 
-	// Apply any active effects
-	if s.player.spells["Shield"] > 0 {
-		s.player.spells["Shield"]--
-		if s.player.spells["Shield"] == 0 {
-			s.player.armor -= 7
+	// Apply effects
+	if parent.Player.DrainTurns > 0 {
+		parent.Player.DrainTurns--
+		parent.Player.HitPoints += 2
+		parent.Boss.HitPoints -= 2
+	}
+	if parent.Player.ShieldTurns > 0 {
+		parent.Player.ShieldTurns--
+		parent.Player.Armor = 7
+	} else {
+		parent.Player.Armor = 0
+	}
+	if parent.Player.PoisonTurns > 0 {
+		parent.Player.PoisonTurns--
+		parent.Boss.HitPoints -= 3
+	}
+	if parent.Player.RechargeTurns > 0 {
+		parent.Player.RechargeTurns--
+		parent.Player.Mana += 101
+	}
+
+	if parent.Turn == "boss" {
+		return []State{
+			parent.BossAttacks(),
 		}
 	}
 
-	if s.player.spells["Poison"] > 0 {
-		s.player.spells["Poison"]--
-		s.boss.hp -= 3
-		if s.boss.hp <= 0 {
-			return []aoc.Node{s}
-		}
+	// It's the player's turn
+	var children []State
+
+	if parent.Player.Mana >= 53 {
+		children = append(children, parent.PlayerCastsMagicMissile())
 	}
-
-	if s.player.spells["Recharge"] > 0 {
-		s.player.spells["Recharge"]--
-		s.player.mana += 101
+	if parent.Player.Mana >= 73 {
+		children = append(children, parent.PlayerCastsDrain())
 	}
-
-	if s.bossTurn {
-		damage := s.boss.damage - s.player.armor
-		if damage <= 0 {
-			damage = 1
-		}
-
-		child := s.Copy()
-		child.bossTurn = false
-		child.player.hp -= damage
-		return []aoc.Node{child}
+	if parent.Player.Mana >= 113 && parent.Player.ShieldTurns == 0 {
+		children = append(children, parent.PlayerCastsShield())
 	}
-
-	// At the beginning of the player turn they lose 1 hp
-	s.player.hp--
-	if s.player.hp <= 0 {
-		return nil
+	if parent.Player.Mana >= 173 && parent.Player.PoisonTurns == 0 {
+		children = append(children, parent.PlayerCastsPoison())
 	}
-
-	// It's the player's turn.  Evaluate each option.
-	var children []aoc.Node
-
-	if s.player.mana >= 53 {
-		child := s.Copy()
-		child.bossTurn = true
-		child.player.mana -= 53
-		child.player.spent += 53
-		child.boss.hp -= 4
-		children = append(children, child)
-	}
-
-	if s.player.mana >= 73 {
-		child := s.Copy()
-		child.bossTurn = true
-		child.player.mana -= 73
-		child.player.spent += 73
-		child.player.hp += 2
-		child.boss.hp -= 2
-		children = append(children, child)
-	}
-
-	if s.player.mana >= 113 && s.player.spells["Shield"] == 0 {
-		child := s.Copy()
-		child.bossTurn = true
-		child.player.mana -= 113
-		child.player.spent += 113
-		child.player.spells["Shield"] = 6
-		child.player.armor += 7
-		children = append(children, child)
-	}
-
-	if s.player.mana >= 173 && s.player.spells["Poison"] == 0 {
-		child := s.Copy()
-		child.bossTurn = true
-		child.player.mana -= 173
-		child.player.spent += 173
-		child.player.spells["Poison"] = 6
-		children = append(children, child)
-	}
-
-	if s.player.mana >= 229 && s.player.spells["Recharge"] == 0 {
-		child := s.Copy()
-		child.bossTurn = true
-		child.player.mana -= 229
-		child.player.spent += 229
-		child.player.spells["Recharge"] = 5
-		children = append(children, child)
+	if parent.Player.Mana >= 229 && parent.Player.RechargeTurns == 0 {
+		children = append(children, parent.PlayerCastsRecharge())
 	}
 
 	return children
 }
 
-func main() {
-	state := InputToState(2015, 22)
+type Player struct {
+	HitPoints int
+	Mana      int
+	Armor     int
 
-	var best *State
-	aoc.BreadthFirstSearch(state, func(node aoc.Node) bool {
-		state := node.(*State)
-
-		// We died, this isn't a goal state.
-		if state.player.hp <= 0 {
-			return false
-		}
-
-		if state.boss.hp <= 0 && (best == nil || state.player.spent < best.player.spent) {
-			best = state
-		}
-
-		// Keep searching since we might find another goal that uses less mana.
-		return false
-	})
-
-	DisplayState(best)
-
-	fmt.Printf("spent: %d\n", best.player.spent)
+	// Since this struct is going to be used in maps and sets it can't contain any
+	// fields that make it unsuitable as a map key.
+	DrainTurns    int
+	ShieldTurns   int
+	PoisonTurns   int
+	RechargeTurns int
 }
 
-func DisplayState(state *State) {
-	if state == nil {
-		return
-	}
-
-	DisplayState(state.parent)
-	fmt.Println()
-	fmt.Println("===================================")
-	fmt.Println()
-
-	if !state.bossTurn {
-		fmt.Println("-- Player turn --")
-	} else {
-		fmt.Println("-- Boss turn --")
-	}
-
-	fmt.Printf("- Player has %d hit points, %d armor, %d mana\n", state.player.hp, state.player.armor, state.player.mana)
-	fmt.Printf("- Boss has %d hit points\n", state.boss.hp)
-	fmt.Printf("- Player spells: %+v\n", state.player.spells)
-
-	if state.bossTurn && state.boss.hp > 0 {
-		damage := state.boss.damage - state.player.armor
-		if damage <= 0 {
-			damage = 1
-		}
-		fmt.Printf("Boss attacks for %d damage.\n", damage)
-	}
+func (p Player) Copy() Player {
+	return p
 }
 
-func InputToState(year, day int) *State {
-	var hp, damage int
-	for _, line := range aoc.InputToLines(year, day) {
-		if _, err := fmt.Sscanf(line, "Hit Points: %d", &hp); err == nil {
-			continue
-		}
+type Boss struct {
+	HitPoints int
+	Damage    int
+}
 
-		if _, err := fmt.Sscanf(line, "ComputeDamage: %d", &damage); err == nil {
-			continue
-		}
+type State struct {
+	Player Player
+	Boss   Boss
+
+	// Whose turn it is, "boss" or "player"
+	Turn string
+
+	// How much mana has been spent
+	Spent int
+}
+
+func (s State) PlayerCastsMagicMissile() State {
+	s.Player.Mana -= 53
+	s.Boss.HitPoints -= 4
+	s.Turn = "boss"
+	s.Spent += 53
+	return s
+}
+
+func (s State) PlayerCastsDrain() State {
+	s.Player.Mana -= 73
+	s.Player.HitPoints += 2
+	s.Boss.HitPoints -= 2
+	s.Turn = "boss"
+	s.Spent += 73
+	return s
+}
+
+func (s State) PlayerCastsShield() State {
+	s.Player.Mana -= 113
+	s.Player.ShieldTurns = 6
+	s.Turn = "boss"
+	s.Spent += 113
+	return s
+}
+
+func (s State) PlayerCastsPoison() State {
+	s.Player.Mana -= 173
+	s.Player.PoisonTurns = 6
+	s.Turn = "boss"
+	s.Spent += 173
+	return s
+}
+
+func (s State) PlayerCastsRecharge() State {
+	s.Player.Mana -= 229
+	s.Player.RechargeTurns = 5
+	s.Turn = "boss"
+	s.Spent += 229
+	return s
+}
+
+func (s State) BossAttacks() State {
+	s.Player.HitPoints -= aoc.Max(1, s.Boss.Damage-s.Player.Armor)
+	s.Turn = "player"
+	return s
+}
+
+func InputToBoss() Boss {
+	var boss Boss
+	for _, line := range aoc.InputToLines(2015, 22) {
+		fmt.Sscanf(line, "Hit Points: %d", &boss.HitPoints)
+		fmt.Sscanf(line, "Damage: %d", &boss.Damage)
 	}
 
-	return &State{
-		player: struct {
-			hp     int
-			armor  int
-			mana   int
-			spells map[string]int
-			spent  int
-		}{
-			hp:     50,
-			mana:   500,
-			spells: make(map[string]int),
-		},
-
-		boss: struct {
-			hp     int
-			damage int
-		}{
-			hp:     hp,
-			damage: damage,
-		},
-	}
+	return boss
 }

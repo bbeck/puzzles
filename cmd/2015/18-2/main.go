@@ -6,47 +6,44 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type Configuration struct {
-	numRows int
-	numCols int
-	lights  []bool
-}
+func main() {
+	lights := InputToLights()
+	TurnOnCorners(lights)
 
-func (c *Configuration) Get(row, col int) bool {
-	return c.lights[row*c.numCols+col]
-}
-
-func (c *Configuration) Set(row, col int, state bool) {
-	c.lights[row*c.numCols+col] = state
-}
-
-func (c *Configuration) Next() *Configuration {
-	next := &Configuration{
-		numRows: c.numRows,
-		numCols: c.numCols,
-		lights:  make([]bool, len(c.lights)),
+	for i := 0; i < 100; i++ {
+		lights = Next(lights)
+		TurnOnCorners(lights)
 	}
 
-	on := func(row, col int) int {
-		if row >= 0 && row < c.numRows && col >= 0 && col < c.numCols {
-			if c.Get(row, col) {
-				return 1
+	fmt.Println(len(lights))
+}
+
+func TurnOnCorners(lights aoc.Set[aoc.Point2D]) {
+	lights.Add(
+		aoc.Point2D{X: 0, Y: 0},
+		aoc.Point2D{X: 99, Y: 0},
+		aoc.Point2D{X: 0, Y: 99},
+		aoc.Point2D{X: 99, Y: 99},
+	)
+}
+
+func Next(lights aoc.Set[aoc.Point2D]) aoc.Set[aoc.Point2D] {
+	var next aoc.Set[aoc.Point2D]
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
+			p := aoc.Point2D{X: x, Y: y}
+
+			var count int
+			for _, neighbor := range p.Neighbors() {
+				if lights.Contains(neighbor) {
+					count++
+				}
 			}
-		}
 
-		return 0
-	}
-
-	for row := 0; row < c.numRows; row++ {
-		for col := 0; col < c.numCols; col++ {
-			count := on(row-1, col-1) + on(row-1, col) + on(row-1, col+1) +
-				on(row, col-1) + on(row, col+1) +
-				on(row+1, col-1) + on(row+1, col) + on(row+1, col+1)
-
-			if c.Get(row, col) {
-				next.Set(row, col, count == 2 || count == 3)
-			} else {
-				next.Set(row, col, count == 3)
+			// If light==on and count in (2, 3)
+			// If light==off and count==3
+			if count == 3 || (lights.Contains(p) && count == 2) {
+				next.Add(p)
 			}
 		}
 	}
@@ -54,68 +51,15 @@ func (c *Configuration) Next() *Configuration {
 	return next
 }
 
-func (c *Configuration) Count() int {
-	var count int
-	for row := 0; row < c.numRows; row++ {
-		for col := 0; col < c.numCols; col++ {
-			if c.Get(row, col) {
-				count++
+func InputToLights() aoc.Set[aoc.Point2D] {
+	var lights aoc.Set[aoc.Point2D]
+	for y, line := range aoc.InputToLines(2015, 18) {
+		for x, c := range line {
+			if c == '#' {
+				lights.Add(aoc.Point2D{X: x, Y: y})
 			}
 		}
 	}
 
-	return count
-}
-
-func (c *Configuration) Print() {
-	for row := 0; row < c.numRows; row++ {
-		for col := 0; col < c.numCols; col++ {
-			if c.Get(row, col) {
-				fmt.Print("#")
-			} else {
-				fmt.Print(".")
-			}
-		}
-		fmt.Println()
-	}
-}
-
-func main() {
-	config := InputToLightConfiguration(2015, 18)
-	config.Set(0, 0, true)
-	config.Set(0, config.numCols-1, true)
-	config.Set(config.numRows-1, 0, true)
-	config.Set(config.numRows-1, config.numCols-1, true)
-
-	for i := 1; i <= 100; i++ {
-		config = config.Next()
-		config.Set(0, 0, true)
-		config.Set(0, config.numCols-1, true)
-		config.Set(config.numRows-1, 0, true)
-		config.Set(config.numRows-1, config.numCols-1, true)
-	}
-
-	fmt.Printf("num lights on: %d\n", config.Count())
-}
-
-func InputToLightConfiguration(year, day int) *Configuration {
-	lines := make([]string, 0)
-	for _, line := range aoc.InputToLines(year, day) {
-		lines = append(lines, line)
-	}
-
-	N := len(lines)
-
-	lights := make([]bool, N*N)
-	for row := 0; row < N; row++ {
-		for col := 0; col < N; col++ {
-			lights[row*N+col] = lines[row][col] == '#'
-		}
-	}
-
-	return &Configuration{
-		numRows: N,
-		numCols: N,
-		lights:  lights,
-	}
+	return lights
 }

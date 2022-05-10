@@ -17,16 +17,13 @@ func main() {
 	}
 
 	sum := Sum(tree)
-	fmt.Printf("sum: %d\n", sum)
+	fmt.Println(sum)
 }
 
 func Sum(root interface{}) int {
 	switch elem := root.(type) {
 	case float64:
 		return int(elem)
-
-	case string:
-		return 0
 
 	case []interface{}:
 		var sum int
@@ -36,21 +33,16 @@ func Sum(root interface{}) int {
 		return sum
 
 	case map[string]interface{}:
-		// If this object has a key with a value of "red" then it should be ignored.
+		var sum int
 		for _, v := range elem {
+			// If this object has a key with a value of "red" then it should be ignored.
 			if v == "red" {
 				return 0
 			}
-		}
 
-		var sum int
-		for _, v := range elem {
 			sum += Sum(v)
 		}
 		return sum
-
-	default:
-		log.Fatalf("unsupported type: %T", elem)
 	}
 
 	return 0

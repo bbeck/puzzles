@@ -2,35 +2,43 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
 	sizes := aoc.InputToInts(2015, 17)
-	count := CountWays(sizes, 150)
-
-	fmt.Printf("count: %d\n", count)
-}
-
-func CountWays(sizes []int, amount int) int {
-	valid := func(n int) bool {
-		var size int
-		for i := uint(0); i < uint(len(sizes)); i++ {
-			if n&(1<<i) != 0 {
-				size += sizes[i]
-			}
-		}
-
-		return size == amount
-	}
 
 	var count int
-	for n := 0; n < 1<<uint(len(sizes)); n++ {
-		if valid(n) {
-			count++
+	EnumerateWays(sizes, func(containers []bool) {
+		count++
+	})
+
+	fmt.Println(count)
+}
+
+func EnumerateWays(sizes []int, fn func([]bool)) {
+	containers := make([]bool, len(sizes))
+
+	var helper func(index int, remaining int)
+	helper = func(index int, remaining int) {
+		// If we haven't used too much eggnog, and still have containers to
+		// consider, then consider what happens if we do/don't use the
+		// current container.
+		if remaining >= 0 && index < len(sizes) {
+			containers[index] = true
+			helper(index+1, remaining-sizes[index])
+			containers[index] = false
+			helper(index+1, remaining)
+			return
+		}
+
+		// If we've reached the last container, then check to see if we've
+		// used exactly the amount of eggnog we needed to.  If we have then
+		// let our caller know.
+		if remaining == 0 {
+			fn(containers)
 		}
 	}
 
-	return count
+	helper(0, 150)
 }

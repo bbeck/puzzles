@@ -2,48 +2,53 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"math/bits"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
 )
 
 func main() {
 	sizes := aoc.InputToInts(2015, 17)
 
-	counts := make(map[int]int)
-	EnumerateWays(sizes, 150, func(n uint) {
-		counts[bits.OnesCount(n)]++
-	})
-
-	bestNumContainers := math.MaxInt64
-	bestCount := 0
-
-	for numContainers, count := range counts {
-		if numContainers < bestNumContainers {
-			bestNumContainers = numContainers
-			bestCount = count
-		}
-	}
-
-	fmt.Printf("count: %d\n", bestCount)
-}
-
-func EnumerateWays(sizes []int, amount int, fn func(n uint)) {
-	valid := func(n uint) bool {
-		var size int
-		for i := 0; i < len(sizes); i++ {
-			if n&(1<<uint(i)) != 0 {
-				size += sizes[i]
+	best := math.MaxInt
+	ways := make(map[int]int)
+	EnumerateWays(sizes, func(containers []bool) {
+		var count int
+		for _, container := range containers {
+			if container {
+				count++
 			}
 		}
 
-		return size == amount
-	}
+		best = aoc.Min(best, count)
+		ways[count]++
+	})
 
-	for n := uint(0); n < 1<<uint(len(sizes)); n++ {
-		if valid(n) {
-			fn(n)
+	fmt.Println(ways[best])
+}
+
+func EnumerateWays(sizes []int, fn func([]bool)) {
+	containers := make([]bool, len(sizes))
+
+	var helper func(index int, remaining int)
+	helper = func(index int, remaining int) {
+		// If we haven't used too much eggnog, and still have containers to
+		// consider, then consider what happens if we do/don't use the
+		// current container.
+		if remaining >= 0 && index < len(sizes) {
+			containers[index] = true
+			helper(index+1, remaining-sizes[index])
+			containers[index] = false
+			helper(index+1, remaining)
+			return
+		}
+
+		// If we've reached the last container, then check to see if we've
+		// used exactly the amount of eggnog we needed to.  If we have then
+		// let our caller know.
+		if remaining == 0 {
+			fn(containers)
 		}
 	}
+
+	helper(0, 150)
 }

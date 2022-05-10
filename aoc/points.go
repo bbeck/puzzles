@@ -10,6 +10,9 @@ type Point2D struct {
 	X, Y int
 }
 
+// Origin2D is the point that lies on the origin.
+var Origin2D = Point2D{X: 0, Y: 0}
+
 // Up returns the point above the current one when the points are from a
 // screen based coordinate system with the origin in the top left.
 func (p Point2D) Up() Point2D {
@@ -35,30 +38,6 @@ func (p Point2D) Right() Point2D {
 	return Point2D{p.X + 1, p.Y}
 }
 
-// South returns the point below the current one when the points are from a
-// cartesian coordinate system with the origin in the bottom left.
-func (p Point2D) South() Point2D {
-	return Point2D{p.X, p.Y - 1}
-}
-
-// West returns the point to the left of the current one when the points are
-// from a cartesian coordinate system with the origin in the bottom left.
-func (p Point2D) West() Point2D {
-	return Point2D{p.X - 1, p.Y}
-}
-
-// North returns the point above the current one when the points are from a
-// cartesian coordinate system with the origin in the bottom left.
-func (p Point2D) North() Point2D {
-	return Point2D{p.X, p.Y + 1}
-}
-
-// East returns the point to the right of the current one when the points are
-// from a cartesian coordinate system with the origin in the bottom left.
-func (p Point2D) East() Point2D {
-	return Point2D{p.X + 1, p.Y}
-}
-
 // OrthogonalNeighbors returns a slice of neighbors that are orthogonal to
 // the current point.
 func (p Point2D) OrthogonalNeighbors() []Point2D {
@@ -67,6 +46,15 @@ func (p Point2D) OrthogonalNeighbors() []Point2D {
 		p.Left(),
 		p.Right(),
 		p.Up(),
+	}
+}
+
+// Neighbors returns a slice of all neighbors to the current point.
+func (p Point2D) Neighbors() []Point2D {
+	return []Point2D{
+		p.Up().Left(), p.Up(), p.Up().Right(),
+		p.Left(), p.Right(),
+		p.Down().Left(), p.Down(), p.Down().Right(),
 	}
 }
 

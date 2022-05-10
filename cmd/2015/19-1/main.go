@@ -7,64 +7,45 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-type Replacement struct {
-	lhs, rhs string
-}
-
-func (r Replacement) Apply(s string) []string {
-	var replaced []string
-	for _, i := range Indices(s, r.lhs) {
-		replaced = append(replaced, s[0:i]+r.rhs+s[i+len(r.lhs):])
-	}
-	return replaced
-}
-
 func main() {
-	replacements, molecule := InputToReplacementsAndMolecule(2015, 19)
+	replacements := InputToReplacements()
+	molecule := InputToMolecule()
 
-	molecules := make(map[string]int)
-	for _, replacement := range replacements {
-		for _, newMolecule := range replacement.Apply(molecule) {
-			molecules[newMolecule]++
+	var molecules aoc.Set[string]
+	for start := 0; start < len(molecule); start++ {
+		for prefix, values := range replacements {
+			if !strings.HasPrefix(molecule[start:], prefix) {
+				continue
+			}
+
+			for _, value := range values {
+				updated := molecule[:start] + strings.Replace(molecule[start:], prefix, value, 1)
+				molecules.Add(updated)
+			}
 		}
 	}
 
-	fmt.Printf("num distinct molecules: %d\n", len(molecules))
+	fmt.Println(len(molecules))
 }
 
-func InputToReplacementsAndMolecule(year, day int) ([]Replacement, string) {
-	lines := aoc.InputToLines(year, day)
-
-	var replacements []Replacement
-	for i := 0; i < len(lines); i++ {
-		if len(lines[i]) == 0 {
-			break
+func InputToReplacements() map[string][]string {
+	replacements := make(map[string][]string)
+	for _, line := range aoc.InputToLines(2015, 19) {
+		lhs, rhs, ok := strings.Cut(line, " => ")
+		if ok {
+			replacements[lhs] = append(replacements[lhs], rhs)
 		}
-
-		parts := strings.SplitN(lines[i], " => ", 2)
-		lhs, rhs := parts[0], parts[1]
-
-		replacements = append(replacements, Replacement{lhs, rhs})
 	}
 
-	molecule := lines[len(lines)-1]
-
-	return replacements, molecule
+	return replacements
 }
 
-func Indices(s string, substr string) []int {
-	indices := make([]int, 0)
-
-	offset := 0
-	for {
-		index := strings.Index(s[offset:], substr)
-		if index == -1 {
-			break
+func InputToMolecule() string {
+	for _, line := range aoc.InputToLines(2015, 19) {
+		if len(line) > 0 && !strings.Contains(line, "=>") {
+			return line
 		}
-
-		indices = append(indices, offset+index)
-		offset += index + 1
 	}
 
-	return indices
+	return ""
 }

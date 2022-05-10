@@ -4,26 +4,27 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	key := aoc.InputToString(2015, 4)
+	prefix := aoc.InputToString(2015, 4)
 
 	var nonce int
 	for nonce = 0; ; nonce++ {
-		hash := md5.New()
-		_, _ = io.WriteString(hash, key)
-		_, _ = io.WriteString(hash, fmt.Sprintf("%d", nonce))
-		data := hex.EncodeToString(hash.Sum(nil))
-
-		if strings.HasPrefix(data, "000000") {
+		hash := Hash(prefix, nonce)
+		if strings.HasPrefix(hash, "000000") {
 			break
 		}
 	}
 
-	fmt.Printf("nonce: %d\n", nonce)
+	fmt.Println(nonce)
+}
+
+func Hash(prefix string, nonce int) string {
+	input := fmt.Sprintf("%s%d", prefix, nonce)
+	hash := md5.Sum([]byte(input))
+	return hex.EncodeToString(hash[:])
 }
