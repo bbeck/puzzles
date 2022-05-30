@@ -8,21 +8,21 @@ import (
 )
 
 func main() {
-	lights := make([]bool, 1_000_000)
-
+	lights := aoc.NewGrid2D[bool](1000, 1000)
 	for _, instruction := range InputToInstructions() {
 		for x := instruction.TopLeft.X; x <= instruction.BottomRight.X; x++ {
 			for y := instruction.TopLeft.Y; y <= instruction.BottomRight.Y; y++ {
-				index := y*1000 + x
-				lights[index] = instruction.Op(lights[index])
+				lights.AddXY(x, y, instruction.Op(lights.GetXY(x, y)))
 			}
 		}
 	}
 
 	var on int
-	for _, light := range lights {
-		if light {
-			on++
+	for y := 0; y < lights.Height; y++ {
+		for x := 0; x < lights.Width; x++ {
+			if lights.GetXY(x, y) {
+				on++
+			}
 		}
 	}
 	fmt.Println(on)

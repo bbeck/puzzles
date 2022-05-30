@@ -14,8 +14,9 @@ func main() {
 	people := graph.Vertices()
 
 	best := math.MinInt
-	aoc.EnumeratePermutations(len(people), func(perm []int) {
+	aoc.EnumeratePermutations(len(people), func(perm []int) bool {
 		best = aoc.Max(best, Happiness(graph, perm))
+		return false
 	})
 
 	fmt.Println(best)

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -10,180 +9,110 @@ import (
 )
 
 func main() {
-	program := InputToProgram(2016, 25)
-	for i, instruction := range program {
-		fmt.Printf("%2d: %+v\n", i, instruction)
-	}
+	program := InputToProgram()
 
-	var found bool
 	var a int
-	for a = 1; !found; a++ {
-		fmt.Printf("testing a=%d...", a)
+	var found bool
+	for !found {
+		a++
+		registers := map[string]int{"a": a, "b": 0, "c": 0, "d": 0}
 
-		count := 0
-		expected := 0
-		check := func(value int) bool {
+		var count int
+		run(program, registers, func(x int) bool {
+			if x != (count % 2) {
+				found = false
+				return true
+			}
+
 			count++
-
-			if count > 1000 {
+			if count > 100 {
 				found = true
 				return true
 			}
 
-			if value != expected {
-				return true
-			}
-
-			expected = 1 - value
 			return false
-		}
-
-		run(program, map[string]int{"a": a}, check)
-
-		if found {
-			fmt.Println("FOUND!")
-		} else {
-			fmt.Println("failed")
-		}
+		})
 	}
 
-	fmt.Printf("a: %d\n", a)
+	fmt.Println(a)
 }
 
-func run(program []Instruction, registers map[string]int, done func(int) bool) {
-	pc := 0
+func run(program []Instruction, registers map[string]int, out func(int) bool) {
+	reg := func(instruction Instruction, arg int) (string, error) {
+		if _, ok := registers[instruction.Args[arg]]; ok {
+			return instruction.Args[arg], nil
+		}
+		return "", fmt.Errorf("not a register: %s", instruction.Args[arg])
+	}
 
-	for {
-		if pc >= len(program) {
-			break
+	get := func(instruction Instruction, arg int) int {
+		if value, ok := registers[instruction.Args[arg]]; ok {
+			return value
 		}
 
-		instruction := program[pc]
-		switch instruction.name {
+		return instruction.Parsed[arg]
+	}
+
+	pc := 0
+	for pc >= 0 && pc < len(program) {
+		switch instruction := program[pc]; instruction.OpCode {
 		case "cpy":
-			if instruction.source != "" {
-				registers[instruction.destination] = registers[instruction.source]
-			} else {
-				registers[instruction.destination] = instruction.immediate
+			if target, err := reg(instruction, 1); err == nil {
+				registers[target] = get(instruction, 0)
 			}
 			pc++
 
 		case "inc":
-			registers[instruction.destination] = registers[instruction.destination] + 1
+			if target, err := reg(instruction, 0); err == nil {
+				registers[target]++
+			}
 			pc++
 
 		case "dec":
-			registers[instruction.destination] = registers[instruction.destination] - 1
+			if target, err := reg(instruction, 0); err == nil {
+				registers[target]--
+			}
 			pc++
 
 		case "jnz":
-			var test int
-			if instruction.source != "" {
-				test = registers[instruction.source]
-			} else {
-				test = instruction.immediate
-			}
-
-			if test != 0 {
-				pc += instruction.offset
+			if get(instruction, 0) != 0 {
+				pc += get(instruction, 1)
 			} else {
 				pc++
 			}
 
 		case "out":
-			var value int
-			if instruction.source == "" {
-				value = instruction.immediate
-			} else {
-				value = registers[instruction.source]
-			}
-
-			if done(value) {
+			if out(get(instruction, 0)) {
 				return
 			}
-
 			pc++
 		}
 	}
 }
 
 type Instruction struct {
-	name        string
-	source      string
-	destination string
-	immediate   int
-	offset      int
+	OpCode string
+	Args   []string
+	Parsed []int
 }
 
-func InputToProgram(year, day int) []Instruction {
-	var program []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		tokens := strings.Split(line, " ")
-		name := tokens[0]
+func InputToProgram() []Instruction {
+	return aoc.InputLinesTo(2016, 25, func(line string) (Instruction, error) {
+		fields := strings.Fields(line)
+		opcode := fields[0]
+		args := fields[1:]
+		parsed := make([]int, len(args))
 
-		switch name {
-		case "cpy":
-			if value, err := strconv.Atoi(tokens[1]); err == nil {
-				// we had an immediate value not a register
-				program = append(program, Instruction{
-					name:        name,
-					immediate:   value,
-					destination: tokens[2],
-				})
-			} else {
-				program = append(program, Instruction{
-					name:        name,
-					source:      tokens[1],
-					destination: tokens[2],
-				})
+		for i, arg := range args {
+			if n, err := strconv.Atoi(arg); err == nil {
+				parsed[i] = n
 			}
-
-		case "inc":
-			program = append(program, Instruction{
-				name:        name,
-				destination: tokens[1],
-			})
-
-		case "dec":
-			program = append(program, Instruction{
-				name:        name,
-				destination: tokens[1],
-			})
-
-		case "jnz":
-			if value, err := strconv.Atoi(tokens[1]); err == nil {
-				// we had an immediate value not a register
-				program = append(program, Instruction{
-					name:      name,
-					immediate: value,
-					offset:    aoc.ParseInt(tokens[2]),
-				})
-			} else {
-				program = append(program, Instruction{
-					name:   name,
-					source: tokens[1],
-					offset: aoc.ParseInt(tokens[2]),
-				})
-			}
-
-		case "out":
-			if value, err := strconv.Atoi(tokens[1]); err == nil {
-				// we had an immediate value not a register
-				program = append(program, Instruction{
-					name:      name,
-					immediate: value,
-				})
-			} else {
-				program = append(program, Instruction{
-					name:   name,
-					source: tokens[1],
-				})
-			}
-
-		default:
-			log.Fatalf("unrecognized instruction: %s", name)
 		}
-	}
 
-	return program
+		return Instruction{
+			OpCode: opcode,
+			Args:   args,
+			Parsed: parsed,
+		}, nil
+	})
 }

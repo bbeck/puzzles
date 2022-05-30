@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -10,117 +9,78 @@ import (
 )
 
 func main() {
-	program := InputToProgram(2016, 12)
-	registers := map[string]int{
-		"a": 0, "b": 0, "c": 0, "d": 0,
-	}
+	program := InputToProgram()
+	registers := map[string]int{"a": 0, "b": 0, "c": 0, "d": 0}
 	pc := 0
 
-	for {
-		if pc >= len(program) {
-			break
+	get := func(register string, immediate int) int {
+		if register != "" {
+			return registers[register]
 		}
+		return immediate
+	}
 
-		instruction := program[pc]
-		switch instruction.name {
+	for pc >= 0 && pc < len(program) {
+		switch instruction := program[pc]; instruction.OpCode {
 		case "cpy":
-			if instruction.source != "" {
-				registers[instruction.destination] = registers[instruction.source]
-			} else {
-				registers[instruction.destination] = instruction.immediate
-			}
+			registers[instruction.TargetRegister] = get(instruction.SourceRegister, instruction.Immediate)
 			pc++
 
 		case "inc":
-			registers[instruction.destination] = registers[instruction.destination] + 1
+			registers[instruction.TargetRegister]++
 			pc++
 
 		case "dec":
-			registers[instruction.destination] = registers[instruction.destination] - 1
+			registers[instruction.TargetRegister]--
 			pc++
 
 		case "jnz":
-			var test int
-			if instruction.source != "" {
-				test = registers[instruction.source]
-			} else {
-				test = instruction.immediate
-			}
-
-			if test != 0 {
-				pc += instruction.offset
+			if get(instruction.SourceRegister, instruction.Immediate) != 0 {
+				pc += instruction.Offset
 			} else {
 				pc++
 			}
 		}
 	}
 
-	fmt.Printf("a: %d\n", registers["a"])
+	fmt.Println(registers["a"])
 }
 
 type Instruction struct {
-	name        string
-	source      string
-	destination string
-	immediate   int
-	offset      int
+	OpCode         string
+	TargetRegister string
+	SourceRegister string
+	Immediate      int
+	Offset         int
 }
 
-func InputToProgram(year, day int) []Instruction {
-	var program []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		tokens := strings.Split(line, " ")
-		name := tokens[0]
+func InputToProgram() []Instruction {
+	return aoc.InputLinesTo(2016, 12, func(line string) (Instruction, error) {
+		opcode, rest, _ := strings.Cut(line, " ")
+		args := strings.Fields(rest)
 
-		switch name {
+		instruction := Instruction{OpCode: opcode}
+		switch opcode {
 		case "cpy":
-			if value, err := strconv.Atoi(tokens[1]); err == nil {
-				// we had an immediate value not a register
-				program = append(program, Instruction{
-					name:        name,
-					immediate:   value,
-					destination: tokens[2],
-				})
+			if n, err := strconv.Atoi(args[0]); err == nil {
+				instruction.Immediate = n
 			} else {
-				program = append(program, Instruction{
-					name:        name,
-					source:      tokens[1],
-					destination: tokens[2],
-				})
+				instruction.SourceRegister = args[0]
 			}
-
+			instruction.TargetRegister = args[1]
 		case "inc":
-			program = append(program, Instruction{
-				name:        name,
-				destination: tokens[1],
-			})
-
+			instruction.TargetRegister = args[0]
 		case "dec":
-			program = append(program, Instruction{
-				name:        name,
-				destination: tokens[1],
-			})
-
+			instruction.TargetRegister = args[0]
 		case "jnz":
-			if value, err := strconv.Atoi(tokens[1]); err == nil {
-				// we had an immediate value not a register
-				program = append(program, Instruction{
-					name:      name,
-					immediate: value,
-					offset:    aoc.ParseInt(tokens[2]),
-				})
+			if n, err := strconv.Atoi(args[0]); err == nil {
+				instruction.Immediate = n
 			} else {
-				program = append(program, Instruction{
-					name:   name,
-					source: tokens[1],
-					offset: aoc.ParseInt(tokens[2]),
-				})
+				instruction.SourceRegister = args[0]
 			}
-
-		default:
-			log.Fatalf("unrecognized instruction: %s", name)
+			instruction.Offset = aoc.ParseInt(args[1])
 		}
-	}
 
-	return program
+		return instruction, nil
+	})
 }

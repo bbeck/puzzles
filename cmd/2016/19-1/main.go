@@ -9,24 +9,23 @@ import (
 func main() {
 	n := aoc.InputToInt(2016, 19)
 
-	elves := aoc.NewRing()
+	var elves aoc.Ring[*Elf]
 	for i := 0; i < n; i++ {
-		elves.InsertAfter(&Elf{id: i + 1, presents: 1})
+		elves.InsertAfter(&Elf{ID: i + 1, Presents: 1})
 	}
 	elves.Next()
 
 	for i := 0; i < n-1; i++ {
-		current := elves.Current().(*Elf)
-		next := elves.Next().(*Elf)
-		current.presents += next.presents
+		current := elves.Current()
+		next := elves.Next()
+		current.Presents += next.Presents
 		elves.Remove()
 	}
 
-	current := elves.Current().(*Elf)
-	fmt.Printf("elf %d has all of the presents (%d)\n", current.id, current.presents)
+	fmt.Println(elves.Current().ID)
 }
 
 type Elf struct {
-	id       int
-	presents int
+	ID       int
+	Presents int
 }

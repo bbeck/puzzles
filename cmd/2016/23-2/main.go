@@ -8,141 +8,141 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-const debug = false
-
 func main() {
-	program := InputToProgram(2016, 23)
-	registers := map[string]int{
-		"a": 12, "b": 0, "c": 0, "d": 0,
-	}
+	program := InputToProgram()
+
+	// In my particular input, lines 3 through 9 form a nested loop that performs
+	// a multiplication operation using repeated incrementing.
+	//
+	//        cpy a d        # d = a
+	//        cpy 0 a        # a = 0
+	//
+	//                       # outer loop iterates a times
+	// outer: cpy b c        # c = b
+	//
+	//                       # inner loop adds b to a
+	// inner: inc a          # a++
+	//        dec c          # c--
+	//        jnz c -2       # if c != 0: goto inner
+	//
+	//        dec d          # d = d - 1
+	//        jnz d -5       # if d != 0: goto outer
+	//
+	// To optimize this we'll replace these nested loops with a multiplication
+	// instruction.  It's however important to be sure to keep the overall number
+	// of instructions the same so that relative jumps still function as
+	// expected.  To accomplish this we'll also introduce a no-op instruction.
+	program[3] = Instruction{OpCode: "mul", Args: []string{"b", "a"}}
+	program[4] = Instruction{OpCode: "cpy", Args: []string{"0", "c"}, Parsed: []int{0, 0}}
+	program[5] = Instruction{OpCode: "cpy", Args: []string{"0", "d"}, Parsed: []int{0, 0}}
+	program[6] = Instruction{OpCode: "nop"}
+	program[7] = Instruction{OpCode: "nop"}
+	program[8] = Instruction{OpCode: "nop"}
+	program[9] = Instruction{OpCode: "nop"}
+
+	registers := map[string]int{"a": 12, "b": 0, "c": 0, "d": 0}
 	pc := 0
 
-	for n := 0; ; n++ {
-		if pc >= len(program) {
-			break
+	reg := func(instruction Instruction, arg int) (string, error) {
+		if _, ok := registers[instruction.Args[arg]]; ok {
+			return instruction.Args[arg], nil
+		}
+		return "", fmt.Errorf("not a register: %s", instruction.Args[arg])
+	}
+
+	get := func(instruction Instruction, arg int) int {
+		if value, ok := registers[instruction.Args[arg]]; ok {
+			return value
 		}
 
-		instruction := program[pc]
-		if debug {
-			fmt.Println("registers:")
-			fmt.Printf("  a: %d, b: %d, c: %d, d: %d\n", registers["a"], registers["b"], registers["c"], registers["d"])
-			fmt.Println()
+		return instruction.Parsed[arg]
+	}
 
-			fmt.Println("program:")
-			for i := 0; i < len(program); i++ {
-				if pc == i {
-					fmt.Printf("> %+v\n", program[i])
-				} else {
-					fmt.Printf("  %+v\n", program[i])
-				}
-			}
-			fmt.Println()
-			fmt.Println("=========================================")
-			fmt.Println()
-		}
+	for pc >= 0 && pc < len(program) {
+		switch instruction := program[pc]; instruction.OpCode {
+		case "nop":
+			pc++
 
-		switch instruction.name {
 		case "cpy":
-			var value int
-			if immediate, err := strconv.Atoi(instruction.args[0]); err == nil {
-				value = immediate
-			} else {
-				value = registers[instruction.args[0]]
-			}
-
-			if _, ok := registers[instruction.args[1]]; ok {
-				registers[instruction.args[1]] = value
+			if target, err := reg(instruction, 1); err == nil {
+				registers[target] = get(instruction, 0)
 			}
 			pc++
 
 		case "inc":
-			registers[instruction.args[0]]++
+			if target, err := reg(instruction, 0); err == nil {
+				registers[target]++
+			}
 			pc++
 
 		case "dec":
-			registers[instruction.args[0]]--
+			if target, err := reg(instruction, 0); err == nil {
+				registers[target]--
+			}
+			pc++
+
+		case "mul":
+			if target, err := reg(instruction, 1); err == nil {
+				registers[target] = registers[target] * get(instruction, 0)
+			}
 			pc++
 
 		case "jnz":
-			var test int
-			if immediate, err := strconv.Atoi(instruction.args[0]); err == nil {
-				test = immediate
-			} else {
-				test = registers[instruction.args[0]]
-			}
-
-			var offset int
-			if immediate, err := strconv.Atoi(instruction.args[1]); err == nil {
-				offset = immediate
-			} else {
-				offset = registers[instruction.args[1]]
-			}
-
-			if test != 0 {
-				pc += offset
+			if get(instruction, 0) != 0 {
+				pc += get(instruction, 1)
 			} else {
 				pc++
 			}
 
 		case "tgl":
-			// toggle the instruction <source> away
-			// cpy -> jnz
-			// dec -> inc
-			// inc -> dec
-			// jnz -> cpy
-			// tgl -> inc
-			index := pc + registers[instruction.args[0]]
-			if index >= 0 && index < len(program) {
-				instr := program[index]
-				switch instr.name {
-				case "cpy":
-					instr.name = "jnz"
-
-				case "dec":
-					instr.name = "inc"
-
+			address := pc + get(instruction, 0)
+			if address >= 0 && address < len(program) {
+				switch target := &program[address]; target.OpCode {
+				// Single argument instructions
 				case "inc":
-					instr.name = "dec"
-
-				case "jnz":
-					instr.name = "cpy"
-
+					target.OpCode = "dec"
+				case "dec":
+					target.OpCode = "inc"
 				case "tgl":
-					instr.name = "inc"
+					target.OpCode = "inc"
+
+				// Two argument instructions
+				case "cpy":
+					target.OpCode = "jnz"
+				case "jnz":
+					target.OpCode = "cpy"
 				}
 			}
-
 			pc++
 		}
 	}
 
-	fmt.Printf("a: %d\n", registers["a"])
+	fmt.Println(registers["a"])
 }
 
 type Instruction struct {
-	name string
-	args []string
+	OpCode string
+	Args   []string
+	Parsed []int
 }
 
-func (instr *Instruction) String() string {
-	var builder strings.Builder
-	builder.WriteString(instr.name)
-	builder.WriteString(" ")
-	builder.WriteString(strings.Join(instr.args, " "))
-	return builder.String()
-}
+func InputToProgram() []Instruction {
+	return aoc.InputLinesTo(2016, 23, func(line string) (Instruction, error) {
+		fields := strings.Fields(line)
+		opcode := fields[0]
+		args := fields[1:]
+		parsed := make([]int, len(args))
 
-func InputToProgram(year, day int) []*Instruction {
-	var program []*Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		tokens := strings.Split(line, " ")
-		name := tokens[0]
+		for i, arg := range args {
+			if n, err := strconv.Atoi(arg); err == nil {
+				parsed[i] = n
+			}
+		}
 
-		program = append(program, &Instruction{
-			name: name,
-			args: tokens[1:],
-		})
-	}
-
-	return program
+		return Instruction{
+			OpCode: opcode,
+			Args:   args,
+			Parsed: parsed,
+		}, nil
+	})
 }

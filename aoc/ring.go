@@ -13,28 +13,32 @@ import (
 // Additionally, it stores a lookup table to make it possible to jump to a
 // specific entry in the ring.  This lookup only works when the values in the
 // ring are distinct from one another.
-type Ring struct {
+type Ring[T comparable] struct {
 	list    *list.List
 	current *list.Element
-	lookup  map[interface{}]*list.Element
+	lookup  map[T]*list.Element
 }
 
-func NewRing() *Ring {
-	return &Ring{
-		list:    list.New(),
-		current: nil,
-		lookup:  make(map[interface{}]*list.Element),
+func (r *Ring[T]) initialize() {
+	if r.list == nil {
+		r.list = list.New()
+	}
+
+	if r.lookup == nil {
+		r.lookup = make(map[T]*list.Element)
 	}
 }
 
 // Current returns the element that is currently being reference in the ring.
-func (r *Ring) Current() interface{} {
-	return r.current.Value
+func (r *Ring[T]) Current() T {
+	return r.current.Value.(T)
 }
 
 // JumpTo changes the current element in the ring to the specified one.  If the
 // specified value isn't found in the ring then the process will exit.
-func (r *Ring) JumpTo(value interface{}) {
+func (r *Ring[T]) JumpTo(value T) {
+	r.initialize()
+
 	elem, found := r.lookup[value]
 	if !found {
 		log.Fatalf("unable to find value %v in lookup table", value)
@@ -46,7 +50,9 @@ func (r *Ring) JumpTo(value interface{}) {
 
 // InsertAfter inserts a new value in the ring after the current one.  The
 // currently referenced element is changed to be the newly inserted one.
-func (r *Ring) InsertAfter(value interface{}) {
+func (r *Ring[T]) InsertAfter(value T) {
+	r.initialize()
+
 	if r.current == nil {
 		r.current = r.list.PushBack(value)
 	} else {
@@ -57,7 +63,9 @@ func (r *Ring) InsertAfter(value interface{}) {
 
 // InsertBefore inserts a new value in the ring before the current one.  The
 // currently referenced element is changed to be the newly inserted one.
-func (r *Ring) InsertBefore(value interface{}) {
+func (r *Ring[T]) InsertBefore(value T) {
+	r.initialize()
+
 	if r.current == nil {
 		r.current = r.list.PushFront(value)
 	} else {
@@ -67,7 +75,9 @@ func (r *Ring) InsertBefore(value interface{}) {
 }
 
 // Next moves the currently referenced element to the next one.
-func (r *Ring) Next() interface{} {
+func (r *Ring[T]) Next() T {
+	r.initialize()
+
 	if r.current == nil {
 		r.current = r.list.Front()
 	}
@@ -77,13 +87,13 @@ func (r *Ring) Next() interface{} {
 		r.current = r.list.Front()
 	}
 
-	return r.current.Value
+	return r.current.Value.(T)
 }
 
 // NextN moves the currently referenced element to the element n steps
 // after the currently referenced element.
-func (r *Ring) NextN(n int) interface{} {
-	var value interface{}
+func (r *Ring[T]) NextN(n int) T {
+	var value T
 	for i := 0; i < n; i++ {
 		value = r.Next()
 	}
@@ -92,7 +102,9 @@ func (r *Ring) NextN(n int) interface{} {
 }
 
 // Prev moves the currently referenced element to the previous one.
-func (r *Ring) Prev() interface{} {
+func (r *Ring[T]) Prev() T {
+	r.initialize()
+
 	if r.current == nil {
 		r.current = r.list.Back()
 	}
@@ -102,13 +114,13 @@ func (r *Ring) Prev() interface{} {
 		r.current = r.list.Back()
 	}
 
-	return r.current.Value
+	return r.current.Value.(T)
 }
 
 // PrevN moves the currently referenced element to the element n steps
 // before the currently referenced element.
-func (r *Ring) PrevN(n int) interface{} {
-	var value interface{}
+func (r *Ring[T]) PrevN(n int) T {
+	var value T
 	for i := 0; i < n; i++ {
 		value = r.Prev()
 	}
@@ -117,7 +129,9 @@ func (r *Ring) PrevN(n int) interface{} {
 }
 
 // Remove removes the current element from the ring.
-func (r *Ring) Remove() interface{} {
+func (r *Ring[T]) Remove() T {
+	r.initialize()
+
 	if r.current == nil {
 		r.current = r.list.Front()
 	}
@@ -125,13 +139,15 @@ func (r *Ring) Remove() interface{} {
 	remove := r.current
 	r.Next()
 
-	value := r.list.Remove(remove)
+	value := r.list.Remove(remove).(T)
 	delete(r.lookup, value)
 	return value
 }
 
 // String converts the ring to a string.
-func (r *Ring) String() string {
+func (r *Ring[T]) String() string {
+	r.initialize()
+
 	var builder strings.Builder
 	for elem := r.list.Front(); elem != nil; elem = elem.Next() {
 		if elem == r.current {

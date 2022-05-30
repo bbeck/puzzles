@@ -8,18 +8,21 @@ import (
 )
 
 func main() {
-	lights := make([]int, 1_000_000)
-
+	lights := aoc.NewGrid2D[int](1000, 1000)
 	for _, instruction := range InputToInstructions() {
 		for x := instruction.TopLeft.X; x <= instruction.BottomRight.X; x++ {
 			for y := instruction.TopLeft.Y; y <= instruction.BottomRight.Y; y++ {
-				index := y*1000 + x
-				lights[index] = instruction.Op(lights[index])
+				lights.AddXY(x, y, instruction.Op(lights.GetXY(x, y)))
 			}
 		}
 	}
 
-	brightness := aoc.Sum(lights...)
+	var brightness int
+	for y := 0; y < lights.Height; y++ {
+		for x := 0; x < lights.Width; x++ {
+			brightness += lights.GetXY(x, y)
+		}
+	}
 	fmt.Println(brightness)
 }
 

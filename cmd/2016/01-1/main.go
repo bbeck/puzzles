@@ -2,82 +2,40 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	start := aoc.Point2D{}
-
-	current := start
-	heading := "N"
-	for _, direction := range InputToDirections(2016, 1) {
-		switch heading {
-		case "N":
-			if direction.turn == "L" {
-				heading = "W"
-			} else {
-				heading = "E"
-			}
-		case "S":
-			if direction.turn == "L" {
-				heading = "E"
-			} else {
-				heading = "W"
-			}
-		case "W":
-			if direction.turn == "L" {
-				heading = "S"
-			} else {
-				heading = "N"
-			}
-		case "E":
-			if direction.turn == "L" {
-				heading = "N"
-			} else {
-				heading = "S"
-			}
+	var turtle aoc.Turtle
+	for _, direction := range InputToDirections() {
+		switch direction.Turn {
+		case 'L':
+			turtle.TurnLeft()
+		case 'R':
+			turtle.TurnRight()
 		}
-
-		for n := 0; n < direction.steps; n++ {
-			switch heading {
-			case "N":
-				current = current.North()
-			case "S":
-				current = current.South()
-			case "W":
-				current = current.West()
-			case "E":
-				current = current.East()
-			}
-		}
+		turtle.Forward(direction.Steps)
 	}
 
-	dx := current.X
-	if dx < 0 {
-		dx *= -1
-	}
-
-	dy := current.Y
-	if dy < 0 {
-		dy *= -1
-	}
-
-	fmt.Printf("distance: %d\n", dx+dy)
+	fmt.Println(aoc.Origin2D.ManhattanDistance(turtle.Location))
 }
 
 type Direction struct {
-	turn  string
-	steps int
+	Turn  byte
+	Steps int
 }
 
-func InputToDirections(year, day int) []Direction {
-	directions := make([]Direction, 0)
+func InputToDirections() []Direction {
+	input := aoc.InputToString(2016, 1)
+	input = strings.ReplaceAll(input, ",", "")
 
-	s := aoc.InputToString(year, day)
-	for _, part := range strings.Split(strings.ReplaceAll(s, ",", ""), " ") {
-		directions = append(directions, Direction{part[0:1], aoc.ParseInt(part[1:])})
+	var directions []Direction
+	for _, part := range strings.Fields(input) {
+		directions = append(directions, Direction{
+			Turn:  part[0],
+			Steps: aoc.ParseInt(part[1:]),
+		})
 	}
 
 	return directions

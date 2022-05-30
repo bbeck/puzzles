@@ -61,7 +61,7 @@ func InputToProgram() []Instruction {
 		args := strings.Fields(rest)
 
 		instruction := Instruction{OpCode: opcode}
-		switch line[:3] {
+		switch opcode {
 		case "jmp":
 			instruction.Offset = aoc.ParseInt(args[0])
 		case "jie":

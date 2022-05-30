@@ -78,3 +78,20 @@ func InputToInt(year, day int) int {
 func InputToInts(year, day int) []int {
 	return InputLinesTo(year, day, strconv.Atoi)
 }
+
+// InputToGrid2D builds a Grid2D instance from the input using the provided
+// function to determine the value for each cell in the grid.
+func InputToGrid2D[T any](year, day int, fn func(Point2D, string) T) Grid2D[T] {
+	lines := InputToLines(year, day)
+
+	grid := NewGrid2D[T](len(lines[0]), len(lines))
+	for y, line := range lines {
+		for x, c := range line {
+			p := Point2D{X: x, Y: y}
+
+			grid.Add(p, fn(p, string(c)))
+		}
+	}
+
+	return grid
+}

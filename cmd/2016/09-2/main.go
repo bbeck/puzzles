@@ -8,47 +8,31 @@ import (
 )
 
 func main() {
-	var sum int
-	for _, line := range aoc.InputToLines(2016, 9) {
-		sum += DecompressedLength(line)
-	}
-
-	fmt.Printf("total: %d\n", sum)
+	s := aoc.InputToString(2016, 9)
+	fmt.Println(DecompressedLength(s))
 }
 
 func DecompressedLength(s string) int {
 	var length int
-
 	for len(s) > 0 {
-		switch s[0] {
-		case '(':
-			var chars, times int
-			chars, times, s = ParseMarker(s)
-			length += times * chars
-			if chars <= len(s) {
-				s = s[chars:]
-			} else {
-				s = ""
-			}
-
-		default:
-			length++
-			s = s[1:]
+		if s[0] == '(' {
+			chars, times, rest := ParseMarker(s[1:])
+			length += times * DecompressedLength(rest[:chars])
+			s = rest[chars:]
+			continue
 		}
+
+		length++
+		s = s[1:]
 	}
 
 	return length
 }
 
-// ParseMarker takes a string that has a marker at the beginning, removes it
-// and returns the sizes and the string without the marker.
 func ParseMarker(s string) (int, int, string) {
-	var pieces []string
-	pieces = strings.SplitN(s[1:], "x", 2)
-	length := aoc.ParseInt(pieces[0]) // the number of characters to copy
+	marker, rest, _ := strings.Cut(s, ")")
 
-	pieces = strings.SplitN(pieces[1], ")", 2)
-	times := aoc.ParseInt(pieces[0]) // the number of times to paste
-
-	return length, times, pieces[1]
+	var a, b int
+	fmt.Sscanf(marker, "%dx%d", &a, &b)
+	return a, b, rest
 }

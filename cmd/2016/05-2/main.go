@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -13,38 +12,23 @@ import (
 func main() {
 	prefix := aoc.InputToString(2016, 5)
 
-	password := make(map[int]string)
-	index := 0
-	for n := 0; len(password) < 8; n++ {
-		var checksum string
-
-		for {
-			hash := md5.New()
-			_, _ = io.WriteString(hash, prefix)
-			_, _ = io.WriteString(hash, fmt.Sprintf("%d", index))
-			checksum = hex.EncodeToString(hash.Sum(nil))
-
-			if strings.HasPrefix(checksum, "00000") {
-				break
-			}
-
-			index++
-		}
-
-		digit := checksum[5]
-		if digit >= '0' && digit <= '7' {
-			position := aoc.ParseInt(string(digit))
-			if password[position] == "" {
-				password[position] = string(checksum[6])
+	password := make([]uint8, 8)
+	for nonce, count := 0, 0; count < 8; nonce++ {
+		hash := Hash(prefix, nonce)
+		if strings.HasPrefix(hash, "00000") {
+			position := hash[5] - '0'
+			if position < 8 && password[position] == 0 {
+				password[position] = hash[6]
+				count++
 			}
 		}
-
-		index++
 	}
 
-	fmt.Print("password: ")
-	for i := 0; i < 8; i++ {
-		fmt.Print(password[i])
-	}
-	fmt.Println()
+	fmt.Println(string(password))
+}
+
+func Hash(prefix string, nonce int) string {
+	input := fmt.Sprintf("%s%d", prefix, nonce)
+	hash := md5.Sum([]byte(input))
+	return hex.EncodeToString(hash[:])
 }

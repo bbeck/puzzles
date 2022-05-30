@@ -2,73 +2,64 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
 	var count int
-	for _, address := range InputToAddresses(2016, 7) {
-		if address.SupportsSSL() {
+	for _, address := range InputToAddresses() {
+		if SupportsSSL(address) {
 			count++
 		}
 	}
 
-	fmt.Printf("count: %d\n", count)
+	fmt.Println(count)
 }
 
-type Address struct {
-	parts    []string
-	hypernet []string
-}
-
-func InputToAddresses(year, day int) []Address {
-	var addresses []Address
-	for _, line := range aoc.InputToLines(year, day) {
-		var address Address
-		for _, p := range strings.Split(line, "]") {
-			for i, part := range strings.Split(p, "[") {
-				if i%2 == 0 {
-					address.parts = append(address.parts, part)
-				} else {
-					address.hypernet = append(address.hypernet, part)
-				}
+func SupportsSSL(a Address) bool {
+	var abas []string
+	for _, supernet := range a.Supernets {
+		for start := 0; start < len(supernet)-2; start++ {
+			c0, c1, c2 := supernet[start], supernet[start+1], supernet[start+2]
+			if c0 != c1 && c0 == c2 {
+				abas = append(abas, supernet[start:start+3])
 			}
 		}
-
-		addresses = append(addresses, address)
 	}
 
-	return addresses
-}
-
-type Pair struct {
-	c1, c2 byte
-}
-
-func (a Address) SupportsSSL() bool {
-	pairs := func(parts []string) []Pair {
-		var pairs []Pair
-		for _, part := range parts {
-			for i := 0; i < len(part)-2; i++ {
-				if part[i] == part[i+2] && part[i] != part[i+1] {
-					pairs = append(pairs, Pair{part[i], part[i+1]})
-				}
-			}
-		}
-
-		return pairs
-	}
-
-	for _, pair := range pairs(a.parts) {
-		bab := fmt.Sprintf("%c%c%c", pair.c2, pair.c1, pair.c2)
-		for _, s := range a.hypernet {
-			if strings.Contains(s, bab) {
+	for _, aba := range abas {
+		bab := fmt.Sprintf("%c%c%c", aba[1], aba[0], aba[1])
+		for _, hypernet := range a.Hypernets {
+			if strings.Contains(hypernet, bab) {
 				return true
 			}
 		}
 	}
 
 	return false
+}
+
+type Address struct {
+	Supernets []string
+	Hypernets []string
+}
+
+func InputToAddresses() []Address {
+	return aoc.InputLinesTo(2016, 7, func(line string) (Address, error) {
+		line = strings.ReplaceAll(line, "[", " ")
+		line = strings.ReplaceAll(line, "]", " ")
+		parts := strings.Split(line, " ")
+
+		var address Address
+		for i, part := range parts {
+			if i%2 == 0 {
+				address.Supernets = append(address.Supernets, part)
+			} else {
+				address.Hypernets = append(address.Hypernets, part)
+			}
+		}
+
+		return address, nil
+	})
 }

@@ -2,107 +2,89 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
-)
-
-const (
-	target1 = 17
-	target2 = 61
+	"strings"
 )
 
 func main() {
-	inits, bots, outputs := InputToBots(2016, 10)
-	for _, initialization := range inits {
-		bots[initialization.bot].Take(initialization.value, bots, outputs)
+	bots := InputToBots()
+	values := make(map[int][]int)
+	outputs := make(map[int]int)
+
+	var bot Bot
+	var actions = InputToInitializations()
+	for len(actions) > 0 {
+		var action Action
+		action, actions = actions[0], actions[1:]
+
+		bot = bots[action.Bot]
+		if len(values[bot.ID]) == 0 {
+			values[bot.ID] = append(values[bot.ID], action.Value)
+			continue
+		}
+
+		min := aoc.Min(values[bot.ID][0], action.Value)
+		max := aoc.Max(values[bot.ID][0], action.Value)
+		values[bot.ID] = nil
+
+		if bot.LowKind == "bot" {
+			actions = append(actions, Action{Value: min, Bot: bot.Low})
+		} else {
+			outputs[bot.Low] = min
+		}
+		if bot.HighKind == "bot" {
+			actions = append(actions, Action{Value: max, Bot: bot.High})
+		} else {
+			outputs[bot.High] = max
+		}
 	}
 
-	fmt.Printf("product: %d\n", outputs[0].value*outputs[1].value*outputs[2].value)
-}
-
-type Initialization struct {
-	// value # goes to bot #
-	value int
-	bot   int
+	fmt.Println(aoc.Product(outputs[0], outputs[1], outputs[2]))
 }
 
 type Bot struct {
-	// bot # gives low to (bot|output) # and high to (bot|output) #
-	id                int
-	lowType, highType string
-	low, high         int
-	value             int
+	ID                int
+	LowKind, HighKind string
+	Low, High         int
 }
 
-func (b *Bot) Take(n int, bots map[int]*Bot, outputs map[int]*Output) {
-	if b.value == 0 {
-		b.value = n
-		return
-	}
-
-	if (n == target1 && b.value == target2) || (n == target2 && b.value == target1) {
-		fmt.Printf("id: %d, comparing %d and %d\n", b.id, target1, target2)
-	}
-
-	var low, high int
-	if n < b.value {
-		low = n
-		high = b.value
-	} else {
-		low = b.value
-		high = n
-	}
-	b.value = 0
-
-	if b.lowType == "bot" {
-		bots[b.low].Take(low, bots, outputs)
-	} else {
-		outputs[b.low].value = low
-	}
-
-	if b.highType == "bot" {
-		bots[b.high].Take(high, bots, outputs)
-	} else {
-		outputs[b.high].value = high
-	}
-}
-
-type Output struct {
-	id    int
-	value int
-}
-
-func InputToBots(year, day int) ([]Initialization, map[int]*Bot, map[int]*Output) {
-	var initializations []Initialization
-	bots := make(map[int]*Bot)
-	outputs := make(map[int]*Output)
-
-	for _, line := range aoc.InputToLines(year, day) {
-		var value, bot int
-		if _, err := fmt.Sscanf(line, "value %d goes to bot %d", &value, &bot); err == nil {
-			initializations = append(initializations, Initialization{value, bot})
+func InputToBots() map[int]Bot {
+	bots := make(map[int]Bot)
+	for _, line := range aoc.InputToLines(2016, 10) {
+		if !strings.HasPrefix(line, "bot") {
 			continue
 		}
 
-		var low, high int
-		var lowType, highType string
-		if _, err := fmt.Sscanf(line, "bot %d gives low to %s %d and high to %s %d", &bot, &lowType, &low, &highType, &high); err == nil {
-			bots[bot] = &Bot{bot, lowType, highType, low, high, 0}
+		line = strings.ReplaceAll(line, "gives low to ", "")
+		line = strings.ReplaceAll(line, "and high to ", "")
 
-			if lowType == "output" {
-				outputs[low] = &Output{low, 0}
-			}
+		var bot Bot
+		fmt.Sscanf(line, "bot %d %s %d %s %d", &bot.ID, &bot.LowKind, &bot.Low, &bot.HighKind, &bot.High)
 
-			if highType == "output" {
-				outputs[high] = &Output{high, 0}
-			}
+		bots[bot.ID] = bot
+	}
 
+	return bots
+}
+
+type Action struct {
+	Value int
+	Bot   int
+}
+
+func InputToInitializations() []Action {
+	var initializations []Action
+	for _, line := range aoc.InputToLines(2016, 10) {
+		if !strings.HasPrefix(line, "value") {
 			continue
 		}
 
-		log.Fatalf("unable to parse instruction: %s", line)
+		line = strings.ReplaceAll(line, "goes to bot ", "")
+
+		var initialization Action
+		fmt.Sscanf(line, "value %d %d", &initialization.Value, &initialization.Bot)
+		initializations = append(initializations, initialization)
 	}
 
-	return initializations, bots, outputs
+	return initializations
 }

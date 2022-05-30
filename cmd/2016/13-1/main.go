@@ -2,77 +2,45 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math/bits"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math/bits"
 )
 
 func main() {
-	offset := uint(aoc.InputToInt(2016, 13))
-	start := Location{Point2D: aoc.Point2D{1, 1}, offset: offset}
-	goal := Location{Point2D: aoc.Point2D{31, 39}, offset: offset}
+	m := Maze(aoc.InputToInt(2016, 13))
+	start := aoc.Point2D{X: 1, Y: 1}
+	target := aoc.Point2D{X: 31, Y: 39}
 
-	cost := func(from, to aoc.Node) int {
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		var children []aoc.Point2D
+		for _, n := range p.OrthogonalNeighbors() {
+			if n.X < 0 || n.Y < 0 || !m.IsOpen(n) {
+				continue
+			}
+			children = append(children, n)
+		}
+
+		return children
+	}
+
+	goal := func(p aoc.Point2D) bool {
+		return p == target
+	}
+
+	cost := func(from, to aoc.Point2D) int {
 		return 1
 	}
 
-	heuristic := func(node aoc.Node) int {
-		l := node.(Location)
-		return l.ManhattanDistance(goal.Point2D)
-	}
-
-	visit := func(node aoc.Node) bool {
-		l := node.(Location)
-		return l.Point2D == goal.Point2D
-	}
-
-	path, distance, found := aoc.AStarSearch(start, visit, cost, heuristic)
+	_, length, found := aoc.AStarSearch(start, children, goal, cost, target.ManhattanDistance)
 	if !found {
-		log.Fatal("no path found")
+		fmt.Println("no path found")
 	}
-
-	fmt.Printf("path (distance: %d)\n", distance)
-	for _, l := range path {
-		fmt.Printf("  %s\n", l.ID())
-	}
+	fmt.Println(length)
 }
 
-type Location struct {
-	aoc.Point2D
-	offset uint
-}
+type Maze int
 
-func (l Location) ID() string {
-	return fmt.Sprintf("(%d, %d)", l.X, l.Y)
-}
-
-func (l Location) Children() []aoc.Node {
-	isOpen := func(p aoc.Point2D) bool {
-		if p.X < 0 || p.Y < 0 {
-			return false
-		}
-
-		x, y := uint(p.X), uint(p.Y)
-		return bits.OnesCount(x*x+3*x+2*x*y+y+y*y+l.offset)%2 == 0
-	}
-
-	var neighbors []aoc.Node
-	if isOpen(l.Up()) {
-		neighbors = append(neighbors, Location{Point2D: l.Up(), offset: l.offset})
-	}
-
-	if isOpen(l.Down()) {
-		neighbors = append(neighbors, Location{Point2D: l.Down(), offset: l.offset})
-	}
-
-	if isOpen(l.Left()) {
-		neighbors = append(neighbors, Location{Point2D: l.Left(), offset: l.offset})
-	}
-
-	if isOpen(l.Right()) {
-		neighbors = append(neighbors, Location{Point2D: l.Right(), offset: l.offset})
-	}
-
-	return neighbors
+func (m Maze) IsOpen(p aoc.Point2D) bool {
+	n := uint(p.X*p.X + 3*p.X + 2*p.X*p.Y + p.Y + p.Y*p.Y + int(m))
+	return bits.OnesCount(n)%2 == 0
 }

@@ -15,7 +15,7 @@ func main() {
 		elves[i] = &Elf{id: i + 1, presents: 1}
 	}
 
-	// now that all of the elves are created, link them together in a ring
+	// now that the elves are created, link them together in a ring
 	for i := 0; i < n; i++ {
 		elves[i].prev = elves[(i-1+n)%n]
 		elves[i].next = elves[(i+1+n)%n]
@@ -37,7 +37,7 @@ func main() {
 		}
 	}
 
-	fmt.Printf("elf %d is left with %d presents\n", elf1.id, elf1.presents)
+	fmt.Println(elf1.id)
 }
 
 type Elf struct {

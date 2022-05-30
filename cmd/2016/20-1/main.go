@@ -2,55 +2,45 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	ranges := InputToRanges(2016, 20)
+	ranges := InputToRanges()
 	sort.Slice(ranges, func(i, j int) bool {
-		return ranges[i].start < ranges[j].start
+		return ranges[i].Start < ranges[j].Start
 	})
 
-	ip := 0
+	var ip int
 	for _, r := range ranges {
-		if r.start > ip {
-			fmt.Printf("ip: %d is not filtered\n", ip)
+		if r.Start > ip {
 			break
 		}
 
-		ip = r.end + 1
+		// It's possible that the ending ip of this range is earlier than our
+		// current ip.  When this happens don't update where we currently are
+		// or else we'll double-check ips.
+		if r.End+1 > ip {
+			ip = r.End + 1
+		}
 	}
+
+	fmt.Println(ip)
 }
 
 type Range struct {
-	start, end int
+	Start, End int
 }
 
-func InputToRanges(year, day int) []Range {
-	var ranges []Range
-	for _, line := range aoc.InputToLines(year, day) {
-		fields := strings.Split(line, "-")
-		if len(fields) != 2 {
-			log.Fatalf("unable to parse range: %s", line)
-		}
-
-		start, err := strconv.Atoi(fields[0])
-		if err != nil {
-			log.Fatalf("unable to parse range: %s", line)
-		}
-
-		end, err := strconv.Atoi(fields[1])
-		if err != nil {
-			log.Fatalf("unable to parse range: %s", line)
-		}
-
-		ranges = append(ranges, Range{start, end})
-	}
-
-	return ranges
+func InputToRanges() []Range {
+	return aoc.InputLinesTo(2016, 20, func(line string) (Range, error) {
+		start, end, _ := strings.Cut(line, "-")
+		return Range{
+			Start: aoc.ParseInt(start),
+			End:   aoc.ParseInt(end),
+		}, nil
+	})
 }

@@ -48,11 +48,6 @@ func children(parent State) []State {
 	}
 
 	// Apply effects
-	if parent.Player.DrainTurns > 0 {
-		parent.Player.DrainTurns--
-		parent.Player.HitPoints += 2
-		parent.Boss.HitPoints -= 2
-	}
 	if parent.Player.ShieldTurns > 0 {
 		parent.Player.ShieldTurns--
 		parent.Player.Armor = 7
@@ -103,7 +98,6 @@ type Player struct {
 
 	// Since this struct is going to be used in maps and sets it can't contain any
 	// fields that make it unsuitable as a map key.
-	DrainTurns    int
 	ShieldTurns   int
 	PoisonTurns   int
 	RechargeTurns int

@@ -2,190 +2,82 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
 )
 
 func main() {
-	board, waypoints := InputToBoard(2016, 24)
-	start := board.location
-	N := len(waypoints)
-
-	// We'll perform the Floyd-Warshall algorithm to determine the all-pairs
-	// shortest path between any two waypoints on the board.
-	dist := make([][]int, N)
-	for i := 0; i < N; i++ {
-		dist[i] = make([]int, N)
-		for j := 0; j < N; j++ {
-			if i != j {
-				dist[i][j] = distance(board, waypoints[i], waypoints[j])
-			}
-		}
-	}
-
-	for k := 1; k < N; k++ {
-		for i := 1; i < N; i++ {
-			for j := 1; j < N; j++ {
-				if dist[i][j] > dist[i][k]+dist[k][j] {
-					dist[i][j] = dist[i][k] + dist[k][j]
-				}
-			}
-		}
-	}
-
-	// We now know the minimum distance between any two waypoints on the board.
-	// Now we just need to find the permutation through the waypoints that yields
-	// the shortest path.
-	best := math.MaxInt64
-	bestPerm := make([]aoc.Point2D, 0)
-	aoc.EnumeratePermutations(N, func(perm []int) {
-		// Don't bother checking this permutation if it doesn't start at the correct
-		// location.
-		if waypoints[perm[0]] != start {
-			return
+	var waypoints []aoc.Point2D
+	grid := aoc.InputToGrid2D(2016, 24, func(p aoc.Point2D, value string) bool {
+		if value == "#" {
+			return false
 		}
 
-		var cost int
-		for i := 1; i < N; i++ {
-			cost += dist[perm[i-1]][perm[i]]
-		}
-
-		if cost < best {
-			best = cost
-			bestPerm = make([]aoc.Point2D, N)
-			for i := 0; i < N; i++ {
-				bestPerm[i] = waypoints[perm[i]]
-			}
-		}
-	})
-
-	fmt.Printf("best: %d\n", best)
-	fmt.Printf("order:\n")
-	for i := 0; i < N; i++ {
-		fmt.Printf("  %s\n", bestPerm[i])
-	}
-}
-
-func distance(board *Board, start, end aoc.Point2D) int {
-	board.location = start
-
-	isGoal := func(node aoc.Node) bool {
-		board := node.(*Board)
-		return board.location == end
-	}
-
-	cost := func(from, to aoc.Node) int {
-		return 1
-	}
-
-	heuristic := func(node aoc.Node) int {
-		board := node.(*Board)
-		return board.location.ManhattanDistance(end)
-	}
-
-	_, distance, found := aoc.AStarSearch(board, isGoal, cost, heuristic)
-	if !found {
-		log.Fatalf("unable to find path between: %s and %s", start, end)
-	}
-
-	return distance
-}
-
-type Board struct {
-	location aoc.Point2D
-	width    int
-	height   int
-	cells    map[aoc.Point2D]string
-}
-
-func (b *Board) ID() string {
-	return b.location.String()
-}
-
-func (b *Board) Children() []aoc.Node {
-	locations := []aoc.Point2D{
-		b.location.Up(),
-		b.location.Down(),
-		b.location.Left(),
-		b.location.Right(),
-	}
-
-	var children []aoc.Node
-	for _, nloc := range locations {
-		if cell, ok := b.cells[nloc]; ok && cell != WALL {
-			child := &Board{
-				location: nloc,
-				width:    b.width,
-				height:   b.height,
-				cells:    b.cells,
-			}
-			children = append(children, child)
-		}
-	}
-
-	return children
-}
-
-func (b *Board) String() string {
-	var builder strings.Builder
-	for y := 0; y < b.height; y++ {
-		for x := 0; x < b.width; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-
-			if p == b.location {
-				builder.WriteString("P")
+		if value != "." {
+			if value == "0" {
+				// This is our starting location, make sure it's always at the front of
+				// the list.
+				waypoints = append([]aoc.Point2D{p}, waypoints...)
 			} else {
-				builder.WriteString(b.cells[p])
-			}
-		}
-
-		builder.WriteString("\n")
-	}
-
-	return builder.String()
-}
-
-const (
-	EMPTY string = "."
-	WALL  string = "#"
-)
-
-func InputToBoard(year, day int) (*Board, []aoc.Point2D) {
-	var width, height int       // the dimensions of the board
-	var location aoc.Point2D    // my current location
-	var waypoints []aoc.Point2D // points to visit in some order
-
-	cells := make(map[aoc.Point2D]string)
-	for y, line := range aoc.InputToLines(year, day) {
-		height = y + 1
-
-		for x, c := range line {
-			width = x + 1
-			p := aoc.Point2D{X: x, Y: y}
-
-			if c == '0' {
-				location = p
-			}
-
-			switch c {
-			case '.':
-				cells[p] = EMPTY
-			case '#':
-				cells[p] = WALL
-			default:
-				cells[p] = EMPTY
 				waypoints = append(waypoints, p)
 			}
 		}
+
+		return true
+	})
+
+	// Determine the shortest distance between each of the waypoints.
+	distances := aoc.Make2D[int](len(waypoints), len(waypoints))
+	for i := 0; i < len(waypoints); i++ {
+		distances[i][i] = 0
+		for j := i + 1; j < len(waypoints); j++ {
+			distances[i][j] = distance(waypoints[i], waypoints[j], grid)
+			distances[j][i] = distances[i][j]
+		}
 	}
 
-	return &Board{
-		width:    width,
-		height:   height,
-		location: location,
-		cells:    cells,
-	}, waypoints
+	// Consider each ordering of the waypoints and determine the one that results
+	// in the shortest distance traveled.  Keeping in mind that we always start
+	// at the first waypoint in the list.
+	var best = math.MaxInt
+	aoc.EnumeratePermutations(len(waypoints)-1, func(perm []int) bool {
+		path := []int{0}
+		for _, index := range perm {
+			// We add 1 to the index since we're enumerating permutations skipping
+			// over the first element which is our current location.  This ensures
+			// that we're looking up the correct distances.
+			path = append(path, index+1)
+		}
+
+		var sum int
+		for i := 0; i < len(path)-1; i++ {
+			sum += distances[path[i]][path[i+1]]
+		}
+		best = aoc.Min(best, sum)
+		return false
+	})
+
+	fmt.Println(best)
+}
+
+func distance(p1, p2 aoc.Point2D, g aoc.Grid2D[bool]) int {
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		var children []aoc.Point2D
+		for _, c := range p.OrthogonalNeighbors() {
+			if g.Get(c) {
+				children = append(children, c)
+			}
+		}
+		return children
+	}
+
+	goal := func(p aoc.Point2D) bool {
+		return p == p2
+	}
+
+	path, found := aoc.BreadthFirstSearch(p1, children, goal)
+	if !found {
+		return math.MaxInt
+	}
+	return len(path) - 1
 }

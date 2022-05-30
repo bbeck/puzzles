@@ -2,64 +2,62 @@ package main
 
 import (
 	"fmt"
-	"math/bits"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math/bits"
 )
 
 func main() {
-	offset := uint(aoc.InputToInt(2016, 13))
-	start := Location{Point2D: aoc.Point2D{1, 1}, offset: offset}
+	m := Maze(aoc.InputToInt(2016, 13))
+	start := aoc.Point2D{X: 1, Y: 1}
 
-	seen := make(map[Location]bool)
-	aoc.BreadthFirstSearch(start, func(node aoc.Node) bool {
-		seen[node.(Location)] = true
-		return false
-	})
+	// Remember the distance from the start of each location we visit.
+	distances := make(map[aoc.Point2D]int)
 
-	fmt.Printf("number of reachable locations: %d\n", len(seen))
-}
-
-type Location struct {
-	aoc.Point2D
-	offset   uint
-	distance int
-}
-
-func (l Location) ID() string {
-	return fmt.Sprintf("(%d, %d)", l.X, l.Y)
-}
-
-func (l Location) Children() []aoc.Node {
-	isOpen := func(p aoc.Point2D) bool {
-		if p.X < 0 || p.Y < 0 {
-			return false
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		// If this node is too far away from the start then don't explore any of
+		// its children.
+		if distances[p] >= 50 {
+			return nil
 		}
 
-		x, y := uint(p.X), uint(p.Y)
-		return bits.OnesCount(x*x+3*x+2*x*y+y+y*y+l.offset)%2 == 0
+		var children []aoc.Point2D
+		for _, n := range p.OrthogonalNeighbors() {
+			if n.X < 0 || n.Y < 0 || !m.IsOpen(n) {
+				continue
+			}
+
+			// Skip over this neighbor if we've previously processed it.  Since we're
+			// performing a BFS, if we've previously processed it we've found a path
+			// that's either the same length or shorter than this one.
+			if _, found := distances[n]; found {
+				continue
+			}
+
+			children = append(children, n)
+			distances[n] = distances[p] + 1
+		}
+
+		return children
 	}
 
-	var children []aoc.Node
-	if l.distance < 50 && isOpen(l.Up()) {
-		child := Location{Point2D: l.Up(), offset: l.offset, distance: l.distance + 1}
-		children = append(children, child)
+	goal := func(aoc.Point2D) bool {
+		return false
 	}
 
-	if l.distance < 50 && isOpen(l.Down()) {
-		child := Location{Point2D: l.Down(), offset: l.offset, distance: l.distance + 1}
-		children = append(children, child)
-	}
+	aoc.BreadthFirstSearch(start, children, goal)
 
-	if l.distance < 50 && isOpen(l.Left()) {
-		child := Location{Point2D: l.Left(), offset: l.offset, distance: l.distance + 1}
-		children = append(children, child)
+	var count int
+	for _, distance := range distances {
+		if distance <= 50 {
+			count++
+		}
 	}
+	fmt.Println(count)
+}
 
-	if l.distance < 50 && isOpen(l.Right()) {
-		child := Location{Point2D: l.Right(), offset: l.offset, distance: l.distance + 1}
-		children = append(children, child)
-	}
+type Maze int
 
-	return children
+func (m Maze) IsOpen(p aoc.Point2D) bool {
+	n := uint(p.X*p.X + 3*p.X + 2*p.X*p.Y + p.Y + p.Y*p.Y + int(m))
+	return bits.OnesCount(n)%2 == 0
 }

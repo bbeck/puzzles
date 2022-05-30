@@ -1,121 +1,125 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	ops := InputToOperations(2016, 21)
-	s := "abcdefgh"
-	lines := aoc.InputToLines(2016, 21)
+	password := []byte("abcdefgh")
+	for _, op := range InputToOperations() {
+		password = op(password)
+	}
 
-	for i, op := range ops {
-		s2 := op(s)
-		fmt.Printf("%2d (%-40s): %s -> %s\n", i, lines[i], s, s2)
-		s = s2
+	fmt.Println(string(password))
+}
+
+type Operation func(bs []byte) []byte
+
+func SwapPositions(x, y int) Operation {
+	return func(bs []byte) []byte {
+		bs[x], bs[y] = bs[y], bs[x]
+		return bs
 	}
 }
 
-type Operation func(s string) string
+func SwapLetters(x, y string) Operation {
+	return func(bs []byte) []byte {
+		bs = bytes.ReplaceAll(bs, []byte(x), []byte("_"))
+		bs = bytes.ReplaceAll(bs, []byte(y), []byte(x))
+		bs = bytes.ReplaceAll(bs, []byte("_"), []byte(y))
+		return bs
+	}
+}
 
-func InputToOperations(year, day int) []Operation {
-	var operations []Operation
-	for _, line := range aoc.InputToLines(year, day) {
-		tokens := strings.Split(line, " ")
-		switch {
-		case tokens[0] == "swap" && tokens[1] == "position":
-			x := aoc.ParseInt(tokens[2])
-			y := aoc.ParseInt(tokens[5])
+func RotateBasedOnPosition(x string) Operation {
+	return func(bs []byte) []byte {
+		index := bytes.IndexByte(bs, x[0])
+		if index >= 4 {
+			index += 1
+		}
+		index++
 
-			operations = append(operations, func(s string) string {
-				bs := []byte(s)
-				bs[x], bs[y] = bs[y], bs[x]
-				return string(bs)
-			})
+		x := index % len(bs)
+		return append(bs[len(bs)-x:], bs[:len(bs)-x]...)
+	}
+}
 
-		case tokens[0] == "swap" && tokens[1] == "letter":
-			x := tokens[2]
-			y := tokens[5]
-
-			operations = append(operations, func(s string) string {
-				s = strings.ReplaceAll(s, x, ".")
-				s = strings.ReplaceAll(s, y, x)
-				s = strings.ReplaceAll(s, ".", y)
-				return s
-			})
-
-		case tokens[0] == "rotate" && tokens[1] == "left":
-			x := aoc.ParseInt(tokens[2])
-
-			operations = append(operations, func(s string) string {
-				for i := 0; i < x; i++ {
-					s = s[1:] + string(s[0])
-				}
-
-				return s
-			})
-
-		case tokens[0] == "rotate" && tokens[1] == "right":
-			x := aoc.ParseInt(tokens[2])
-
-			operations = append(operations, func(s string) string {
-				for i := 0; i < x; i++ {
-					s = string(s[len(s)-1]) + s[:len(s)-1]
-				}
-
-				return s
-			})
-
-		case tokens[0] == "rotate" && tokens[1] == "based":
-			x := tokens[6]
-
-			operations = append(operations, func(s string) string {
-				index := strings.Index(s, x)
-				if index >= 4 {
-					index++
-				}
-				index++
-
-				x := index
-				for i := 0; i < x; i++ {
-					s = string(s[len(s)-1]) + s[:len(s)-1]
-				}
-
-				return s
-			})
-
-		case tokens[0] == "reverse" && tokens[1] == "positions":
-			x := aoc.ParseInt(tokens[2])
-			y := aoc.ParseInt(tokens[4])
-
-			operations = append(operations, func(s string) string {
-				bs := []byte(s)
-				for start, end := x, y; start < end; start, end = start+1, end-1 {
-					bs[start], bs[end] = bs[end], bs[start]
-				}
-
-				return string(bs)
-			})
-
-		case tokens[0] == "move" && tokens[1] == "position":
-			x := aoc.ParseInt(tokens[2])
-			y := aoc.ParseInt(tokens[5])
-
-			operations = append(operations, func(s string) string {
-				c := s[x]
-				s = s[:x] + s[x+1:]
-				if y < len(s) {
-					s = s[:y] + string(c) + s[y:]
-				} else {
-					s = s[:y] + string(c)
-				}
-				return s
-			})
+func Rotate(dir string, x int) Operation {
+	if dir == "left" {
+		return func(bs []byte) []byte {
+			return append(bs[x:], bs[:x]...)
+		}
+	} else {
+		return func(bs []byte) []byte {
+			return append(bs[len(bs)-x:], bs[:len(bs)-x]...)
 		}
 	}
+}
 
-	return operations
+func Reverse(x, y int) Operation {
+	return func(bs []byte) []byte {
+		for lo, hi := x, y; lo < hi; lo, hi = lo+1, hi-1 {
+			bs[lo], bs[hi] = bs[hi], bs[lo]
+		}
+		return bs
+	}
+}
+
+func Move(x, y int) Operation {
+	return func(bs []byte) []byte {
+		c := bs[x]
+		bs = append(bs[:x], bs[x+1:]...) // remove c
+
+		var cs []byte
+		cs = append(cs, bs[:y]...) // copy the first y characters
+		cs = append(cs, c)         // insert c
+		if len(bs) > y {
+			cs = append(cs, bs[y:]...) // copy the remainder
+		}
+
+		return cs
+	}
+}
+
+func InputToOperations() []Operation {
+	return aoc.InputLinesTo(2016, 21, func(line string) (Operation, error) {
+		tokens := strings.Fields(line)
+		if tokens[0] == "swap" && tokens[1] == "position" {
+			x := aoc.ParseInt(tokens[2])
+			y := aoc.ParseInt(tokens[5])
+			return SwapPositions(x, y), nil
+		}
+
+		if tokens[0] == "swap" && tokens[1] == "letter" {
+			x := tokens[2]
+			y := tokens[5]
+			return SwapLetters(x, y), nil
+		}
+
+		if tokens[0] == "rotate" && (tokens[1] == "left" || tokens[1] == "right") {
+			x := aoc.ParseInt(tokens[2])
+			return Rotate(tokens[1], x), nil
+		}
+
+		if tokens[0] == "rotate" && tokens[1] == "based" {
+			x := tokens[6]
+			return RotateBasedOnPosition(x), nil
+		}
+
+		if tokens[0] == "reverse" {
+			x := aoc.ParseInt(tokens[2])
+			y := aoc.ParseInt(tokens[4])
+			return Reverse(x, y), nil
+		}
+		if tokens[0] == "move" {
+			x := aoc.ParseInt(tokens[2])
+			y := aoc.ParseInt(tokens[5])
+			return Move(x, y), nil
+		}
+
+		return nil, fmt.Errorf("unable to parse line: %s", line)
+	})
 }

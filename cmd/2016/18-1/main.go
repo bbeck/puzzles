@@ -2,73 +2,62 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	N := 40
+	rows := []Tiles{InputToTiles()}
+	for row := 0; len(rows) < 40; row++ {
+		rows = append(rows, Next(rows[row]))
+	}
 
 	var count int
-	for r, i := InputToRow(2016, 18), 0; i < N; r, i = r.Next(), i+1 {
-		for _, tile := range r {
-			if tile == SAFE {
+	for row := 0; row < len(rows); row++ {
+		for _, tile := range rows[row] {
+			if tile == Safe {
 				count++
 			}
 		}
 	}
-
-	fmt.Printf("number of safe tiles: %d\n", count)
+	fmt.Println(count)
 }
 
-const (
-	SAFE = false
-	TRAP = true
-)
-
-type Row []bool
-
-func (r Row) Next() Row {
-	var next Row
-	for x := 0; x < len(r); x++ {
-		var left, center, right bool
-		if x > 0 {
-			left = r[x-1]
-		}
-		center = r[x]
-		if x < len(r)-1 {
-			right = r[x+1]
-		}
-
-		isTrap := (left == TRAP && center == TRAP && right == SAFE) ||
-			(left == SAFE && center == TRAP && right == TRAP) ||
-			(left == TRAP && center == SAFE && right == SAFE) ||
-			(left == SAFE && center == SAFE && right == TRAP)
-		next = append(next, isTrap)
+func Next(tiles Tiles) Tiles {
+	traps := map[[3]bool]bool{
+		{Trap, Trap, Safe}: Trap,
+		{Safe, Trap, Trap}: Trap,
+		{Trap, Safe, Safe}: Trap,
+		{Safe, Safe, Trap}: Trap,
 	}
 
+	var next Tiles
+	for col := 0; col < len(tiles); col++ {
+		var L, C, R bool
+		if col > 0 {
+			L = tiles[col-1]
+		}
+		C = tiles[col]
+		if col < len(tiles)-1 {
+			R = tiles[col+1]
+		}
+
+		next = append(next, traps[[3]bool{L, C, R}])
+	}
 	return next
 }
 
-func (r Row) String() string {
-	var builder strings.Builder
-	for _, b := range r {
-		if b == SAFE {
-			builder.WriteByte('.')
-		} else {
-			builder.WriteByte('^')
-		}
+const (
+	Safe = false
+	Trap = true
+)
+
+type Tiles []bool
+
+func InputToTiles() Tiles {
+	var tiles Tiles
+	for _, c := range aoc.InputToString(2016, 18) {
+		tiles = append(tiles, c == '^')
 	}
 
-	return builder.String()
-}
-
-func InputToRow(year, day int) Row {
-	var row []bool
-	for _, c := range aoc.InputToString(year, day) {
-		row = append(row, c == '^')
-	}
-
-	return row
+	return tiles
 }

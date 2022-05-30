@@ -2,48 +2,52 @@ package main
 
 import (
 	"fmt"
-	"regexp"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	nodes := InputToNodes(2016, 22)
+	nodes := InputToNodes()
 
 	var count int
 	for i := 0; i < len(nodes); i++ {
 		for j := 0; j < len(nodes); j++ {
-			a := nodes[i]
-			b := nodes[j]
-
-			if (a.used > 0) && (a.x != b.x || a.y != b.y) && (a.used < b.available) {
-				count++
+			if i == j || nodes[i].Used == 0 || nodes[i].Used > nodes[j].Avail {
+				continue
 			}
+
+			count++
 		}
 	}
 
-	fmt.Printf("number of compatible nodes: %d\n", count)
+	fmt.Println(count)
 }
 
 type Node struct {
-	x, y                  int
-	size, used, available int
+	aoc.Point2D
+	Size, Used, Avail int
 }
 
-func InputToNodes(year, day int) []Node {
-	var regex = regexp.MustCompile(`/dev/grid/node-x(\d+)-y(\d+)\s+(\d+)T\s+(\d+)T\s+(\d+)T\s+(\d+)%`)
-
+func InputToNodes() []Node {
 	var nodes []Node
-	for _, line := range aoc.InputToLines(year, day)[2:] {
-		matches := regex.FindStringSubmatch(line)
+	for _, line := range aoc.InputToLines(2016, 22) {
+		if !strings.HasPrefix(line, "/dev/grid") {
+			continue
+		}
 
-		x := aoc.ParseInt(matches[1])
-		y := aoc.ParseInt(matches[2])
-		size := aoc.ParseInt(matches[3])
-		used := aoc.ParseInt(matches[4])
-		avail := size - used
+		line = strings.ReplaceAll(line, "/dev/grid/node-", "")
+		line = strings.ReplaceAll(line, "x", "")
+		line = strings.ReplaceAll(line, "y", "")
+		line = strings.ReplaceAll(line, "T", "")
+		line = strings.ReplaceAll(line, "-", " ")
+		fields := strings.Fields(line)
 
-		nodes = append(nodes, Node{x, y, size, used, avail})
+		nodes = append(nodes, Node{
+			Point2D: aoc.Point2D{X: aoc.ParseInt(fields[0]), Y: aoc.ParseInt(fields[1])},
+			Size:    aoc.ParseInt(fields[2]),
+			Used:    aoc.ParseInt(fields[3]),
+			Avail:   aoc.ParseInt(fields[4]),
+		})
 	}
 
 	return nodes

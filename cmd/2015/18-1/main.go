@@ -12,26 +12,38 @@ func main() {
 		lights = Next(lights)
 	}
 
-	fmt.Println(len(lights))
+	var count int
+	for y := 0; y < lights.Height; y++ {
+		for x := 0; x < lights.Width; x++ {
+			if lights.GetXY(x, y) {
+				count++
+			}
+		}
+	}
+	fmt.Println(count)
 }
 
-func Next(lights aoc.Set[aoc.Point2D]) aoc.Set[aoc.Point2D] {
-	var next aoc.Set[aoc.Point2D]
+func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
+	next := aoc.NewGrid2D[bool](lights.Width, lights.Height)
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
 			p := aoc.Point2D{X: x, Y: y}
 
 			var count int
 			for _, neighbor := range p.Neighbors() {
-				if lights.Contains(neighbor) {
+				if neighbor.X < 0 || neighbor.X >= lights.Width || neighbor.Y < 0 || neighbor.Y >= lights.Height {
+					continue
+				}
+
+				if lights.Get(neighbor) {
 					count++
 				}
 			}
 
 			// If light==on and count in (2, 3)
 			// If light==off and count==3
-			if count == 3 || (lights.Contains(p) && count == 2) {
-				next.Add(p)
+			if count == 3 || (lights.Get(p) && count == 2) {
+				next.Add(p, true)
 			}
 		}
 	}
@@ -39,12 +51,12 @@ func Next(lights aoc.Set[aoc.Point2D]) aoc.Set[aoc.Point2D] {
 	return next
 }
 
-func InputToLights() aoc.Set[aoc.Point2D] {
-	var lights aoc.Set[aoc.Point2D]
+func InputToLights() aoc.Grid2D[bool] {
+	lights := aoc.NewGrid2D[bool](100, 100)
 	for y, line := range aoc.InputToLines(2015, 18) {
 		for x, c := range line {
 			if c == '#' {
-				lights.Add(aoc.Point2D{X: x, Y: y})
+				lights.AddXY(x, y, true)
 			}
 		}
 	}

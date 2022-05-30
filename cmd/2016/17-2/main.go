@@ -4,72 +4,76 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
+var Vault = aoc.Point2D{X: 3, Y: 3}
+
 func main() {
-	start := Room{
-		location: aoc.Point2D{0, 0},
-		passcode: aoc.InputToString(2016, 17),
-	}
+	start := InputToRoom()
 
-	goal := aoc.Point2D{3, 3}
-
-	var passcode string
-	aoc.BreadthFirstSearch(start, func(node aoc.Node) bool {
-		room := node.(Room)
-		if room.location == goal {
-			passcode = room.passcode
+	var longest string
+	goal := func(r Room) bool {
+		if r.Coordinate == Vault {
+			longest = r.Passcode[len(start.Passcode):]
 		}
 
 		return false
-	})
+	}
 
-	// It's a breadth first search, so the last entry will be the deepest.
-	fmt.Printf("longest is of length: %d\n", len(passcode)-len(start.passcode))
+	aoc.BreadthFirstSearch(start, Children, goal)
+	fmt.Println(len(longest))
 }
 
-type Room struct {
-	location aoc.Point2D
-	passcode string
-}
-
-func (r Room) ID() string {
-	return r.passcode
-}
-
-func (r Room) Children() []aoc.Node {
-	h := md5.New()
-	_, _ = io.WriteString(h, r.passcode)
-	sum := hex.EncodeToString(h.Sum(nil))
-
-	open := func(c byte) bool {
-		return c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f'
+func Children(r Room) []Room {
+	if r.Coordinate == Vault {
+		return nil
 	}
 
-	var children []aoc.Node
+	open := map[byte]bool{'b': true, 'c': true, 'd': true, 'e': true, 'f': true}
+	hash := Hash(r.Passcode)
 
-	if r.location.X == 3 && r.location.Y == 3 {
-		return children
+	var children []Room
+	if r.Coordinate.Y > 0 && open[hash[0]] {
+		children = append(children, Room{
+			Coordinate: r.Coordinate.Up(),
+			Passcode:   r.Passcode + "U",
+		})
 	}
-
-	if r.location.Y > 0 && open(sum[0]) {
-		children = append(children, Room{r.location.Up(), r.passcode + "U"})
+	if r.Coordinate.Y < 3 && open[hash[1]] {
+		children = append(children, Room{
+			Coordinate: r.Coordinate.Down(),
+			Passcode:   r.Passcode + "D",
+		})
 	}
-
-	if r.location.Y < 3 && open(sum[1]) {
-		children = append(children, Room{r.location.Down(), r.passcode + "D"})
+	if r.Coordinate.X > 0 && open[hash[2]] {
+		children = append(children, Room{
+			Coordinate: r.Coordinate.Left(),
+			Passcode:   r.Passcode + "L",
+		})
 	}
-
-	if r.location.X > 0 && open(sum[2]) {
-		children = append(children, Room{r.location.Left(), r.passcode + "L"})
-	}
-
-	if r.location.X < 3 && open(sum[3]) {
-		children = append(children, Room{r.location.Right(), r.passcode + "R"})
+	if r.Coordinate.X < 3 && open[hash[3]] {
+		children = append(children, Room{
+			Coordinate: r.Coordinate.Right(),
+			Passcode:   r.Passcode + "R",
+		})
 	}
 
 	return children
+}
+
+func Hash(input string) string {
+	hash := md5.Sum([]byte(input))
+	return hex.EncodeToString(hash[:])
+}
+
+type Room struct {
+	Coordinate aoc.Point2D
+	Passcode   string
+}
+
+func InputToRoom() Room {
+	return Room{
+		Passcode: aoc.InputToString(2016, 17),
+	}
 }

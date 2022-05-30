@@ -15,13 +15,14 @@ func main() {
 	cities := graph.Vertices()
 
 	var distances []int
-	aoc.EnumeratePermutations(len(cities), func(perm []int) {
+	aoc.EnumeratePermutations(len(cities), func(perm []int) bool {
 		distance := 0
 		for i := 1; i < len(perm); i++ {
 			distance += graph.Edge(cities[perm[i-1]], cities[perm[i]])
 		}
 
 		distances = append(distances, distance)
+		return false
 	})
 
 	fmt.Println(aoc.Max(distances...))
