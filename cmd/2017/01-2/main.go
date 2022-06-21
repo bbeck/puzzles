@@ -12,13 +12,10 @@ func main() {
 
 	var sum int
 	for i := 0; i < N; i++ {
-		c1 := string(s[i])
-		c2 := string(s[(i+N/2)%N])
-
-		if c1 == c2 {
-			sum += aoc.ParseInt(c1)
+		j := (i + N/2 + N) % N
+		if s[i] == s[j] {
+			sum += aoc.ParseInt(string(s[i]))
 		}
 	}
-
-	fmt.Printf("sum: %d\n", sum)
+	fmt.Println(sum)
 }

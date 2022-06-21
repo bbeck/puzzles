@@ -2,7 +2,6 @@ package aoc
 
 import (
 	"container/heap"
-	"fmt"
 )
 
 type FrequencyCounter[T comparable] struct {
@@ -11,15 +10,6 @@ type FrequencyCounter[T comparable] struct {
 
 	// Heap of entries with the root being the most frequent entry.
 	heap *Heap[T]
-}
-
-func (fc FrequencyCounter[T]) Dump(msg string) {
-	fmt.Println(msg)
-	fmt.Println("  entries (in order):")
-	for _, entry := range fc.Entries() {
-		fmt.Printf("    value: %v, count: %d\n", entry.Value, entry.Count)
-	}
-	fmt.Println()
 }
 
 // Add adds a value to the frequency counter.  If the value already exists in

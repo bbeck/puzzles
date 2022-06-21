@@ -7,18 +7,14 @@ import (
 )
 
 func main() {
-	var length int
-	for _, line := range aoc.InputToLines(2017, 9) {
-		length += GarbageLength(line)
-	}
-
-	fmt.Printf("length: %d\n", length)
+	length := GarbageLength(aoc.InputToString(2017, 9))
+	fmt.Println(length)
 }
 
 func GarbageLength(s string) int {
-	var depth int      // depth of the group we're currently in
-	var inGarbage bool // whether or not we're currently within garbage
 	var length int     // the length of the garbage encountered
+	var depth int      // depth of the group we're currently in
+	var inGarbage bool // whether we're currently within garbage
 
 	for i := 0; i < len(s); i++ {
 		switch {

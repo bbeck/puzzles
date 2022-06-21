@@ -8,68 +8,33 @@ import (
 )
 
 func main() {
-	lengths := InputToInts(2017, 10)
-
-	ring := &Ring{data: make([]int, 0)}
+	var buffer []byte
 	for i := 0; i <= 255; i++ {
-		ring.Append(i)
+		buffer = append(buffer, byte(i))
 	}
 
-	for _, length := range lengths {
-		ring.Twist(length)
+	var current, skip byte
+	for _, length := range InputToLengths() {
+		Reverse(buffer, current, length)
+		current += length + skip
+		skip++
 	}
-
-	fmt.Printf("checksum: %d\n", ring.data[0]*ring.data[1])
+	fmt.Println(int(buffer[0]) * int(buffer[1]))
 }
 
-type Ring struct {
-	data    []int
-	current int
-	skip    int
+func Reverse(buffer []byte, current, length byte) {
+	for i := byte(0); i < length/2; i++ {
+		buffer[current+i], buffer[current+length-i-1] = buffer[current+length-i-1], buffer[current+i]
+	}
 }
 
-func (r *Ring) Append(n int) {
-	r.data = append(r.data, n)
-}
+func InputToLengths() []byte {
+	input := aoc.InputToString(2017, 10)
 
-func (r *Ring) Twist(length int) {
-	N := len(r.data)
-	swap := func(a, b int) {
-		a = (a + N) % N
-		b = (b + N) % N
-		r.data[a], r.data[b] = r.data[b], r.data[a]
+	var lengths []byte
+	for _, s := range strings.Split(input, ",") {
+		lengths = append(lengths, byte(aoc.ParseInt(s)))
 	}
 
-	for i := 0; i < length/2; i++ {
-		swap(r.current+i, r.current+length-i-1)
-	}
-
-	r.current = (r.current + length + N + r.skip) % N
-	r.skip++
-}
-
-func (r *Ring) String() string {
-	var builder strings.Builder
-	for i := 0; i < len(r.data); i++ {
-		if i == r.current {
-			builder.WriteString(fmt.Sprintf("[%d]", r.data[i]))
-		} else {
-			builder.WriteString(fmt.Sprintf("%d", r.data[i]))
-		}
-
-		if i < len(r.data)-1 {
-			builder.WriteString(" ")
-		}
-	}
-
-	return builder.String()
-}
-
-func InputToInts(year, day int) []int {
-	var ints []int
-	for _, part := range strings.Split(aoc.InputToString(year, day), ",") {
-		ints = append(ints, aoc.ParseInt(part))
-	}
-
-	return ints
+	return lengths
 }

@@ -2,57 +2,30 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	generators := InputToGenerators(2017, 15)
+	previous := InputToPreviousValues()
+	factors := []int{16807, 48271}
 
 	var count int
-	for round := 0; round < 40_000_000; round++ {
-		seen := make(map[uint64]bool)
-		for _, g := range generators {
-			seen[g.Next()&0xFFFF] = true
-		}
+	for n := 0; n < 40_000_000; n++ {
+		previous[0] = (previous[0] * factors[0]) % 2147483647
+		previous[1] = (previous[1] * factors[1]) % 2147483647
 
-		if len(seen) == 1 {
+		if previous[0]&0b11111111_11111111 == previous[1]&0b11111111_11111111 {
 			count++
 		}
 	}
-
-	fmt.Printf("count: %d\n", count)
+	fmt.Println(count)
 }
 
-type Generator struct {
-	id     string
-	factor uint64
-	value  uint64
-}
-
-func (g *Generator) Next() uint64 {
-	g.value = (g.value * g.factor) % 2147483647
-	return g.value
-}
-
-func InputToGenerators(year, day int) []*Generator {
-	var generators []*Generator
-	for _, line := range aoc.InputToLines(year, day) {
+func InputToPreviousValues() []int {
+	return aoc.InputLinesTo(2017, 15, func(line string) (int, error) {
 		var id string
-		var value uint64
-		if _, err := fmt.Sscanf(line, "Generator %s starts with %d", &id, &value); err != nil {
-			log.Fatalf("unable to parse input line: %s", line)
-		}
-
-		switch id {
-		case "A":
-			generators = append(generators, &Generator{id: id, factor: 16807, value: value})
-
-		case "B":
-			generators = append(generators, &Generator{id: id, factor: 48271, value: value})
-		}
-	}
-
-	return generators
+		var value int
+		_, err := fmt.Sscanf(line, "Generator %s starts with %d", &id, &value)
+		return value, err
+	})
 }

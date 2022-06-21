@@ -2,86 +2,66 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	n := aoc.InputToInt(2017, 3)
-	fmt.Printf("value: %d\n", SpiralSum(n))
+	target := aoc.InputToInt(2017, 3)
+	sums := map[aoc.Point2D]int{
+		aoc.Origin2D: 1,
+	}
+
+	var sum int
+	for n := 0; ; n++ {
+		c := SpiralCoordinate(n)
+
+		sum = sums[c]
+		if sum == 0 {
+			for _, neighbor := range c.Neighbors() {
+				sum += sums[neighbor]
+			}
+			sums[c] = sum
+		}
+
+		if sum > target {
+			break
+		}
+	}
+
+	fmt.Println(sum)
 }
 
-func SpiralSum(n int) int {
-	var coord aoc.Point2D
-	grid := map[aoc.Point2D]int{
-		coord: 1,
-	}
+func SpiralCoordinate(n int) aoc.Point2D {
+	var turtle aoc.Turtle
+	turtle.TurnRight()
 
-	value := 1
-	dir := "E"
-	dist := 1
-	left := 1
+	// Edges represent the distance along the edges that we're traveling.
+	// We use a container since we have to configure multiple edges at a time.
+	var edges aoc.Stack[int]
+	edges.Push(1)
+	edges.Push(1)
 
-	for value < n {
-		value++
+	// Remaining represents how much further along the current edge we need to
+	// travel before making a turn.
+	remaining := edges.Peek()
 
-		if left == 0 {
-			if dir == "E" {
-				dir = "N"
-				left = dist
-			} else if dir == "N" {
-				dir = "W"
-				dist++
-				left = dist
-			} else if dir == "W" {
-				dir = "S"
-				left = dist
-			} else {
-				dir = "E"
-				dist++
-				left = dist
+	for n > 1 {
+		turtle.Forward(1)
+		remaining--
+		n--
+
+		if remaining == 0 {
+			// We've completed an edge, see if we need to prepare the next set of
+			// edges.
+			if edge := edges.Pop(); edges.Empty() {
+				edges.Push(edge + 1)
+				edges.Push(edge + 1)
 			}
+
+			remaining = edges.Peek()
+			turtle.TurnLeft()
 		}
-
-		switch dir {
-		case "E":
-			coord = coord.East()
-		case "N":
-			coord = coord.North()
-		case "W":
-			coord = coord.West()
-		case "S":
-			coord = coord.South()
-		}
-
-		left--
-
-		// We know that value goes into coord.  Let's compute the grid value for
-		// coord which is the sum of the neighboring values.
-		neighbors := []aoc.Point2D{
-			coord.North(),
-			coord.North().West(),
-			coord.West(),
-			coord.West().South(),
-			coord.South(),
-			coord.South().East(),
-			coord.East(),
-			coord.East().North(),
-		}
-
-		var v int
-		for _, neighbor := range neighbors {
-			v += grid[neighbor]
-		}
-
-		if v > n {
-			return v
-		}
-
-		grid[coord] = v
 	}
 
-	log.Fatal("couldn't find sum")
-	return 0
+	return turtle.Location
 }

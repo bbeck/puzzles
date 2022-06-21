@@ -8,125 +8,83 @@ import (
 )
 
 func main() {
-	programs := InputToPrograms(2017, 7)
-
 	// The program that's the root of the tree is the one that never appears as
 	// a child of any other program.
-	children := make(map[string]bool)
-	for _, program := range programs {
-		for _, child := range program.children {
-			children[child.id] = true
-		}
+	programs := make(map[string]Program)
+	var all, children aoc.Set[string]
+	for _, program := range InputToPrograms() {
+		programs[program.ID] = program
+		all.Add(program.ID)
+		children.Add(program.Children...)
 	}
+	root := all.Difference(children).Entries()[0]
 
-	var root *Program
-	for _, program := range programs {
-		if !children[program.id] {
-			root = program
-			break
-		}
-	}
-
-	// Walk down the tree constantly moving down the branch of imbalance until we
-	// reach a node that has all equal weight children.  At that point we know
-	// that we've found the node with an incorrect weight.
-	var lastDelta int
-	for root != nil {
-		// choose the child that's out of balance
-		choice, delta := Choose(root.children)
-		if choice == nil {
-			fmt.Printf("%s weight should be %d\n", root.id, root.weight-lastDelta)
-			break
-		}
-
-		root = choice
-		lastDelta = delta
-	}
+	_, weight := FindImbalance(root, 0, programs)
+	fmt.Println(weight)
 }
 
-func Choose(children []*Program) (*Program, int) {
-	var weights []int
-	frequency := make(map[int]int)
-	for _, child := range children {
-		weight := Weight(child)
-		weights = append(weights, weight)
-		frequency[weight]++
+func FindImbalance(id string, expected int, programs map[string]Program) (string, int) {
+	program := programs[id]
+
+	// Index the weights of our children.
+	weights := make(map[int][]string)
+	for _, child := range program.Children {
+		weight := Weight(child, programs)
+		weights[weight] = append(weights[weight], child)
 	}
 
-	// If all of the children have the same weight or there are no children then
-	// we can't choose a child.
-	if len(frequency) == 0 {
-		return nil, 0
+	// If there was only a single weight discovered then our children are in
+	// balance, the imbalance must lie in this node's weight.
+	if len(weights) == 1 {
+		return id, expected - (Weight(id, programs) - program.Weight)
 	}
 
-	// Now that we know the weights, we need to find the one that has the lowest
-	// frequency.
-	for i := 0; i < len(weights); i++ {
-		weight := weights[i]
-		if frequency[weight] == 1 {
-			if i != 0 {
-				return children[i], Weight(children[i]) - Weight(children[0])
-			} else {
-				return children[i], Weight(children[i]) - Weight(children[1])
-			}
+	// We know there was more than one weight discovered.  Find the outlier one
+	// and seek the imbalance in that branch.  If we end up in a situation where
+	// a node only has two children, and they have different weights, that is
+	// okay, either child can be adjusted to achieve balance.
+	var outlier string
+	for weight, children := range weights {
+		if len(children) == 1 {
+			outlier = children[0]
+		}
+		if len(children) > 1 {
+			expected = weight
 		}
 	}
 
-	// If we get here then we know that all of the children had the same weight.
-	return nil, 0
+	return FindImbalance(outlier, expected, programs)
 }
 
-// Weight computes the weight of a program and all of its children
-func Weight(p *Program) int {
-	weight := p.weight
-	for _, child := range p.children {
-		weight += Weight(child)
+func Weight(id string, programs map[string]Program) int {
+	program := programs[id]
+
+	weight := program.Weight
+	for _, child := range program.Children {
+		weight += Weight(child, programs)
 	}
 
 	return weight
 }
 
 type Program struct {
-	id       string
-	weight   int
-	children []*Program
+	ID       string
+	Weight   int
+	Children []string
 }
 
-func InputToPrograms(year, day int) []*Program {
-	catalog := make(map[string]*Program)
-	for _, line := range aoc.InputToLines(year, day) {
+func InputToPrograms() []Program {
+	return aoc.InputLinesTo(2017, 7, func(line string) (Program, error) {
 		line = strings.ReplaceAll(line, ",", "")
+		line = strings.ReplaceAll(line, "->", "")
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 
-		tokens := strings.Split(line, " ")
-		id := tokens[0]
-		weight := aoc.ParseInt(tokens[1])
-
-		program := catalog[id]
-		if program == nil {
-			program = &Program{id: id}
-			catalog[id] = program
-		}
-
-		program.weight = weight
-
-		// children
-		for i := 3; i < len(tokens); i++ {
-			child := catalog[tokens[i]]
-			if child == nil {
-				child = &Program{id: tokens[i]}
-				catalog[tokens[i]] = child
-			}
-
-			program.children = append(program.children, child)
-		}
-	}
-
-	var programs []*Program
-	for _, program := range catalog {
-		programs = append(programs, program)
-	}
-
-	return programs
+		fields := strings.Fields(line)
+		return Program{
+			ID:       fields[0],
+			Weight:   aoc.ParseInt(fields[1]),
+			Children: fields[2:],
+		}, nil
+	})
 }

@@ -1,64 +1,55 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
 	programs := []byte("abcdefghijklmnop")
-	for _, instruction := range InputToInstructions(2017, 16) {
-		programs = instruction(programs)
+	for _, instruction := range InputToInstructions() {
+		instruction(programs)
 	}
 
-	fmt.Printf("programs: %s\n", string(programs))
+	fmt.Println(string(programs))
 }
 
-type Instruction func([]byte) []byte
+type Instruction func([]byte)
 
-func InputToInstructions(year, day int) []Instruction {
+const L = 16
+
+func InputToInstructions() []Instruction {
+	fields := strings.Split(aoc.InputToString(2017, 16), ",")
+
 	var instructions []Instruction
-	for _, s := range strings.Split(aoc.InputToString(year, day), ",") {
+	for _, field := range fields {
 		var instruction Instruction
 
-		switch s[0] {
+		switch field[0] {
 		case 's':
-			size := aoc.ParseInt(s[1:])
-			instruction = func(bs []byte) []byte {
-				L := len(bs)
-				return append(bs[L-size:], bs[:L-size]...)
+			n := aoc.ParseInt(field[1:])
+			instruction = func(bs []byte) {
+				cs := make([]byte, L)
+				copy(cs, bs[L-n:])
+				copy(cs[n:], bs[:L-n])
+				copy(bs, cs)
 			}
 
 		case 'x':
-			parts := strings.Split(s[1:], "/")
-			pos1 := aoc.ParseInt(parts[0])
-			pos2 := aoc.ParseInt(parts[1])
-			instruction = func(bs []byte) []byte {
-				bs[pos1], bs[pos2] = bs[pos2], bs[pos1]
-				return bs
+			sa, sb, _ := strings.Cut(field[1:], "/")
+			a, b := aoc.ParseInt(sa), aoc.ParseInt(sb)
+			instruction = func(bs []byte) {
+				bs[a], bs[b] = bs[b], bs[a]
 			}
 
 		case 'p':
-			parts := strings.Split(s[1:], "/")
-			id1 := parts[0][0]
-			id2 := parts[1][0]
-			instruction = func(bs []byte) []byte {
-				for i := 0; i < len(bs); i++ {
-					if bs[i] == id1 {
-						bs[i] = id2
-					} else if bs[i] == id2 {
-						bs[i] = id1
-					}
-				}
-
-				return bs
+			a, b, _ := strings.Cut(field[1:], "/")
+			instruction = func(bs []byte) {
+				ia, ib := bytes.IndexByte(bs, a[0]), bytes.IndexByte(bs, b[0])
+				bs[ia], bs[ib] = bs[ib], bs[ia]
 			}
-
-		default:
-			log.Fatalf("unable to parse instruction: %s", s)
 		}
 
 		instructions = append(instructions, instruction)

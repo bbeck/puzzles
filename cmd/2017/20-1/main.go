@@ -2,70 +2,51 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
 )
 
 func main() {
-	particles := InputToParticles(2017, 20)
+	// Determine the position of each particle in the distant future and see
+	// which is closest.
+	const T = 1000
+	closest := -1
+	distance := math.MaxInt
 
-	for n := 0; n < 1000; n++ {
-		var closestID int
-		var closestDistance = math.MaxInt64
-
-		for id, particle := range particles {
-			particle.vx += particle.ax
-			particle.vy += particle.ay
-			particle.vz += particle.az
-			particle.x += particle.vx
-			particle.y += particle.vy
-			particle.z += particle.vz
-
-			// Keep track of whether or not this is the closest particle to the origin
-			distance := particle.Distance()
-			if distance < closestDistance {
-				closestID = id
-				closestDistance = distance
-			}
+	for id, particle := range InputToParticles() {
+		d := aoc.Origin3D.ManhattanDistance(particle.Position(T))
+		if d < distance {
+			distance = d
+			closest = id
 		}
-
-		fmt.Printf("n:%d, id:%d, particle:%+v\n", n, closestID, particles[closestID])
 	}
+
+	fmt.Println(closest)
 }
 
 type Particle struct {
-	x, y, z    int
-	vx, vy, vz int
-	ax, ay, az int
+	p, v, a aoc.Point3D
 }
 
-func (p *Particle) Distance() int {
-	abs := func(n int) int {
-		if n < 0 {
-			n = -n
-		}
-		return n
+func (p Particle) Position(t int) aoc.Point3D {
+	// The position of a particle undergoing constant acceleration at a time t in
+	// the future is given by: p(t) = p0 + v0*t + 1/2*a*t^2
+	t2 := t * t / 2
+	return aoc.Point3D{
+		X: p.p.X + p.v.X*t + p.a.X*t2,
+		Y: p.p.X + p.v.Y*t + p.a.Y*t2,
+		Z: p.p.X + p.v.Z*t + p.a.Z*t2,
 	}
-
-	return abs(p.x) + abs(p.y) + abs(p.z)
 }
 
-func InputToParticles(year, day int) []*Particle {
-	var particles []*Particle
-	for _, line := range aoc.InputToLines(year, day) {
-		var x, y, z int
-		var vx, vy, vz int
-		var ax, ay, az int
-
-		_, err := fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>", &x, &y, &z, &vx, &vy, &vz, &ax, &ay, &az)
-		if err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
-
-		particles = append(particles, &Particle{x, y, z, vx, vy, vz, ax, ay, az})
-	}
-
-	return particles
+func InputToParticles() []Particle {
+	return aoc.InputLinesTo(2017, 20, func(line string) (Particle, error) {
+		var particle Particle
+		_, err := fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
+			&particle.p.X, &particle.p.Y, &particle.p.Z,
+			&particle.v.X, &particle.v.Y, &particle.v.Z,
+			&particle.a.X, &particle.a.Y, &particle.a.Z,
+		)
+		return particle, err
+	})
 }

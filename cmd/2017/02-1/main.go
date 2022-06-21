@@ -2,50 +2,25 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	matrix := InputToMatrix(2017, 2)
-
 	var sum int
-	for _, row := range matrix {
-		min, max := minmax(row)
-		sum += max - min
+	for _, row := range InputToRows() {
+		sum += aoc.Max(row...) - aoc.Min(row...)
 	}
-
-	fmt.Printf("checksum: %d\n", sum)
+	fmt.Println(sum)
 }
 
-func minmax(row []int) (int, int) {
-	min := math.MaxInt64
-	max := math.MinInt64
-
-	for _, n := range row {
-		if n < min {
-			min = n
-		}
-		if n > max {
-			max = n
-		}
-	}
-
-	return min, max
-}
-
-func InputToMatrix(year, day int) [][]int {
-	var matrix [][]int
-	for _, line := range aoc.InputToLines(2017, 2) {
+func InputToRows() [][]int {
+	return aoc.InputLinesTo(2017, 2, func(line string) ([]int, error) {
 		var row []int
-		for _, s := range strings.Split(line, "\t") {
+		for _, s := range strings.Fields(line) {
 			row = append(row, aoc.ParseInt(s))
 		}
 
-		matrix = append(matrix, row)
-	}
-
-	return matrix
+		return row, nil
+	})
 }

@@ -2,108 +2,72 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	grid := InputToGrid(2017, 19)
-
-	loc := FindStart(grid)
-	dir := "D"
-
-	step := func(dir string) aoc.Point2D {
-		switch dir {
-		case "U":
-			return loc.Up()
-		case "D":
-			return loc.Down()
-		case "L":
-			return loc.Left()
-		case "R":
-			return loc.Right()
-		}
-
-		log.Fatalf("unrecognized direction: %s", dir)
-		return aoc.Point2D{}
-	}
-
-	// given 3 directions, pick the first one that works and return the new
-	// location and direction.
-	valid := func(loc aoc.Point2D) bool {
-		cell := grid[loc]
-		return cell != "" && cell != " "
-	}
-
-	choose := func(dir1, dir2, dir3 string) (aoc.Point2D, string) {
-		if p := step(dir1); valid(p) {
-			return p, dir1
-		}
-
-		if p := step(dir2); valid(p) {
-			return p, dir2
-		}
-
-		if p := step(dir3); valid(p) {
-			return p, dir3
-		}
-
-		return aoc.Point2D{}, ""
-	}
+	grid := InputToGrid()
 
 	var steps int
-	for done := false; !done; {
-		switch {
-		case !valid(loc):
-			done = true
-
-		case grid[loc] == "|" || grid[loc] == "-":
-			loc = step(dir)
-			steps++
-
-		case grid[loc] == "+":
-			if dir == "U" {
-				loc, dir = choose("U", "L", "R")
-			} else if dir == "D" {
-				loc, dir = choose("D", "L", "R")
-			} else if dir == "L" {
-				loc, dir = choose("L", "U", "D")
-			} else if dir == "R" {
-				loc, dir = choose("R", "U", "D")
-			}
-			steps++
-
-		default:
-			loc = step(dir)
-			steps++
+	turtle := aoc.Turtle{Location: FindStart(grid), Heading: aoc.Down}
+	for {
+		steps++
+		if CanMoveForward(grid, turtle) {
+			turtle.Forward(1)
+			continue
 		}
+
+		turtle.TurnLeft()
+		if CanMoveForward(grid, turtle) {
+			turtle.Forward(1)
+			continue
+		}
+
+		turtle.TurnLeft()
+		turtle.TurnLeft()
+		if CanMoveForward(grid, turtle) {
+			turtle.Forward(1)
+			continue
+		}
+
+		// We're out of moves
+		break
 	}
 
-	fmt.Printf("number of steps: %d\n", steps)
+	fmt.Println(steps)
 }
 
-func FindStart(grid Grid) aoc.Point2D {
-	for x := 0; ; x++ {
-		p := aoc.Point2D{X: x, Y: 0}
-		if grid[p] == "|" {
-			return p
+var Deltas = map[aoc.Heading]aoc.Point2D{
+	aoc.Up:    {X: 0, Y: -1},
+	aoc.Right: {X: 1, Y: 0},
+	aoc.Down:  {X: 0, Y: 1},
+	aoc.Left:  {X: -1, Y: 0},
+}
+
+func CanMoveForward(g aoc.Grid2D[string], t aoc.Turtle) bool {
+	delta := Deltas[t.Heading]
+	next := aoc.Point2D{X: t.Location.X + delta.X, Y: t.Location.Y + delta.Y}
+	return g.InBounds(next) && g.Get(next) != Empty
+}
+
+func FindStart(g aoc.Grid2D[string]) aoc.Point2D {
+	for x := 0; x < g.Width; x++ {
+		if g.GetXY(x, 0) != Empty {
+			return aoc.Point2D{X: x, Y: 0}
 		}
 	}
+	return aoc.Point2D{}
 }
 
-type Grid map[aoc.Point2D]string
+const Empty string = " "
 
-func InputToGrid(year, day int) Grid {
-	grid := make(Grid)
-	for y, line := range aoc.InputToLines(year, day) {
-		for x, c := range line {
-			if c == ' ' {
-				continue
-			}
+func InputToGrid() aoc.Grid2D[string] {
+	lines := aoc.InputToLines(2017, 19)
 
-			p := aoc.Point2D{X: x, Y: y}
-			grid[p] = string(c)
+	grid := aoc.NewGrid2D[string](len(lines[0]), len(lines))
+	for y := 0; y < grid.Height; y++ {
+		for x := 0; x < grid.Width; x++ {
+			grid.AddXY(x, y, string(lines[y][x]))
 		}
 	}
 

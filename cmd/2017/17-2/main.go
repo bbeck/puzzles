@@ -24,5 +24,5 @@ func main() {
 		}
 	}
 
-	fmt.Printf("value: %d\n", after)
+	fmt.Println(after)
 }

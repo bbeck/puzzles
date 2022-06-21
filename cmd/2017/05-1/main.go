@@ -16,5 +16,5 @@ func main() {
 		pc += offset
 	}
 
-	fmt.Printf("steps: %d\n", steps)
+	fmt.Println(steps)
 }

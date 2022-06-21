@@ -2,136 +2,77 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	state, N, instructions := InputToMachine(2017, 25)
+	state, steps, program := InputToMachine()
+
+	cursor := 0
 	tape := make(map[int]int)
-	pos := 0
 
-	for n := 0; n < N; n++ {
-		for _, instr := range instructions {
-			if instr.state != state {
-				continue
-			}
+	for n := 0; n < steps; n++ {
+		action := program[state][tape[cursor]]
+		tape[cursor] = action.Write
+		state = action.State
 
-			// fmt.Printf("      %+v\n", instr)
-
-			value := tape[pos]
-			if value == 0 {
-				tape[pos] = instr.zvalue
-				pos += instr.zdelta
-				state = instr.zstate
-			} else {
-				tape[pos] = instr.ovalue
-				pos += instr.odelta
-				state = instr.ostate
-			}
-			break
+		if action.Move == "left" {
+			cursor--
+		} else {
+			cursor++
 		}
 	}
 
 	var count int
-	for _, v := range tape {
-		if v == 1 {
+	for _, value := range tape {
+		if value == 1 {
 			count++
 		}
 	}
-
-	fmt.Printf("checksum: %d\n", count)
+	fmt.Println(count)
 }
 
-type Instruction struct {
-	state          string
-	zvalue, ovalue int    // value to write to the tape
-	zdelta, odelta int    // change to position
-	zstate, ostate string // state to transition to
+type Action struct {
+	Write int
+	Move  string
+	State string
 }
 
-func InputToMachine(year, day int) (string, int, []Instruction) {
-	lines := aoc.InputToLines(year, day)
-	for i := range lines {
-		lines[i] = strings.ReplaceAll(lines[i], ".", "")
-		lines[i] = strings.ReplaceAll(lines[i], ":", "")
-		lines[i] = strings.ReplaceAll(lines[i], "-", "")
-		lines[i] = strings.Trim(lines[i], " ")
+func InputToMachine() (string, int, map[string]map[int]Action) {
+	var lines []string
+	for _, line := range aoc.InputToLines(2017, 25) {
+		line = strings.ReplaceAll(line, ".", "")
+		line = strings.ReplaceAll(line, ":", "")
+		line = strings.ReplaceAll(line, "-", "")
+		lines = append(lines, strings.TrimSpace(line))
 	}
 
-	// Parse the initial state
-	var initial string
-	if _, err := fmt.Sscanf(lines[0], "Begin in state %s", &initial); err != nil {
-		log.Fatalf("unable to parse initial state: %s", lines[0])
-	}
+	var start string
+	fmt.Sscanf(lines[0], "Begin in state %s", &start)
 
-	// Parse the number of iterations
-	var N int
-	if _, err := fmt.Sscanf(lines[1], "Perform a diagnostic checksum after %d steps", &N); err != nil {
-		log.Fatalf("unable to parse num iterations: %s", lines[1])
-	}
+	var steps int
+	fmt.Sscanf(lines[1], "Perform a diagnostic checksum after %d steps", &steps)
 
-	var instructions []Instruction
+	program := make(map[string]map[int]Action)
 	for n := 3; n < len(lines); n += 10 {
 		var state string
-		if _, err := fmt.Sscanf(lines[n], "In state %s", &state); err != nil {
-			log.Fatalf("unable to parse state: %s", lines[n])
-		}
+		fmt.Sscanf(lines[n], "In state %s", &state)
+		program[state] = make(map[int]Action)
 
-		var zvalue int
-		if _, err := fmt.Sscanf(lines[n+2], "Write the value %d", &zvalue); err != nil {
-			log.Fatalf("unable to parse value line: %s", lines[n+2])
-		}
+		for value := range []int{0, 1} {
+			var write int
+			fmt.Sscanf(lines[n+2+4*value], "Write the value %d", &write)
 
-		var zdirection string
-		if _, err := fmt.Sscanf(lines[n+3], "Move one slot to the %s", &zdirection); err != nil {
-			log.Fatalf("unable to parse value line: %s", lines[n+3])
-		}
-		var zdelta int
-		if zdirection == "left" {
-			zdelta = -1
-		} else {
-			zdelta = 1
-		}
+			var move string
+			fmt.Sscanf(lines[n+3+4*value], "Move one slot to the %s", &move)
 
-		var zstate string
-		if _, err := fmt.Sscanf(lines[n+4], "Continue with state %s", &zstate); err != nil {
-			log.Fatalf("unable to parse next state line: %s", lines[n+4])
-		}
+			var next string
+			fmt.Sscanf(lines[n+4+4*value], "Continue with state %s", &next)
 
-		var ovalue int
-		if _, err := fmt.Sscanf(lines[n+6], "Write the value %d", &ovalue); err != nil {
-			log.Fatalf("unable to parse value line: %s", lines[n+6])
+			program[state][value] = Action{Write: write, Move: move, State: next}
 		}
-
-		var odirection string
-		if _, err := fmt.Sscanf(lines[n+7], "Move one slot to the %s", &odirection); err != nil {
-			log.Fatalf("unable to parse value line: %s", lines[n+7])
-		}
-		var odelta int
-		if odirection == "left" {
-			odelta = -1
-		} else {
-			odelta = 1
-		}
-
-		var ostate string
-		if _, err := fmt.Sscanf(lines[n+8], "Continue with state %s", &ostate); err != nil {
-			log.Fatalf("unable to parse next state line: %s", lines[n+8])
-		}
-
-		instructions = append(instructions, Instruction{
-			state:  state,
-			zvalue: zvalue,
-			zdelta: zdelta,
-			zstate: zstate,
-			ovalue: ovalue,
-			odelta: odelta,
-			ostate: ostate,
-		})
 	}
 
-	return initial, N, instructions
+	return start, steps, program
 }

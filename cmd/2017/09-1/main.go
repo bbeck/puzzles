@@ -7,18 +7,14 @@ import (
 )
 
 func main() {
-	var score int
-	for _, line := range aoc.InputToLines(2017, 9) {
-		score += Score(line)
-	}
-
-	fmt.Printf("score: %d\n", score)
+	score := Score(aoc.InputToString(2017, 9))
+	fmt.Println(score)
 }
 
 func Score(s string) int {
 	var score int      // overall score for the string
 	var depth int      // depth of the group we're currently in
-	var inGarbage bool // whether or not we're currently within garbage
+	var inGarbage bool // whether we're currently within garbage
 
 	for i := 0; i < len(s); i++ {
 		switch {

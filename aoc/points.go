@@ -2,10 +2,10 @@ package aoc
 
 import (
 	"fmt"
-	"math"
 	"math/big"
 )
 
+// Point2D is a rectangular representation of a point in 2D space.
 type Point2D struct {
 	X, Y int
 }
@@ -61,17 +61,7 @@ func (p Point2D) Neighbors() []Point2D {
 // ManhattanDistance computes the distance between the current point and the
 // provided point when traveling along a rectilinear path between the points.
 func (p Point2D) ManhattanDistance(q Point2D) int {
-	dx := p.X - q.X
-	if dx < 0 {
-		dx = -dx
-	}
-
-	dy := p.Y - q.Y
-	if dy < 0 {
-		dy = -dy
-	}
-
-	return dx + dy
+	return Abs(p.X-q.X) + Abs(p.Y-q.Y)
 }
 
 // Slope computes the slope of the line between two points.  The slope is
@@ -93,29 +83,20 @@ func (p Point2D) String() string {
 	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
 }
 
-// GetBounds determines the minimum and maximum X and Y values of a slice of
-// points.  The returned values are minX, minY, maxX, and maxY.  Note the
-// returned values are the extremes of the points, (minX, minY) and (maxX, maxY)
-// are not necessarily one of the points from the inputted slice.
-func GetBounds(points []Point2D) (int, int, int, int) {
-	minX := math.MaxInt64
-	maxX := 0
-	minY := math.MaxInt64
-	maxY := 0
-	for _, p := range points {
-		if p.X < minX {
-			minX = p.X
-		}
-		if p.X > maxX {
-			maxX = p.X
-		}
-		if p.Y < minY {
-			minY = p.Y
-		}
-		if p.Y > maxY {
-			maxY = p.Y
-		}
-	}
+// Point3D is a rectangular representation of a point in 3D space.
+type Point3D struct {
+	X, Y, Z int
+}
 
-	return minX, minY, maxX, maxY
+// Origin3D is the point that lies on the origin.
+var Origin3D = Point3D{X: 0, Y: 0, Z: 0}
+
+// ManhattanDistance computes the distance between the current point and the
+// provided point when traveling along a rectilinear path between the points.
+func (p Point3D) ManhattanDistance(q Point3D) int {
+	return Abs(p.X-q.X) + Abs(p.Y-q.Y) + Abs(p.Z-q.Z)
+}
+
+func (p Point3D) String() string {
+	return fmt.Sprintf("(%d, %d, %d)", p.X, p.Y, p.Z)
 }

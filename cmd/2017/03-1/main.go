@@ -2,60 +2,46 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
 	n := aoc.InputToInt(2017, 3)
-	c := spiral(n)
-
-	fmt.Printf("distance: %d\n", c.ManhattanDistance(aoc.Point2D{}))
+	c := SpiralCoordinate(n)
+	fmt.Println(aoc.Origin2D.ManhattanDistance(c))
 }
 
-// Determine the coordinate of the nth value in a spiral.
-func spiral(n int) aoc.Point2D {
-	var coord aoc.Point2D
+func SpiralCoordinate(n int) aoc.Point2D {
+	var turtle aoc.Turtle
+	turtle.TurnRight()
 
-	value := 1
-	dir := "E"
-	dist := 1
-	left := 1
+	// Edges represent the distance along the edges that we're traveling.
+	// We use a container since we have to configure multiple edges at a time.
+	var edges aoc.Stack[int]
+	edges.Push(1)
+	edges.Push(1)
 
-	for value < n {
-		value++
+	// Remaining represents how much further along the current edge we need to
+	// travel before making a turn.
+	remaining := edges.Peek()
 
-		if left == 0 {
-			if dir == "E" {
-				dir = "N"
-				left = dist
-			} else if dir == "N" {
-				dir = "W"
-				dist++
-				left = dist
-			} else if dir == "W" {
-				dir = "S"
-				left = dist
-			} else {
-				dir = "E"
-				dist++
-				left = dist
+	for n > 1 {
+		turtle.Forward(1)
+		remaining--
+		n--
+
+		if remaining == 0 {
+			// We've completed an edge, see if we need to prepare the next set of
+			// edges.
+			if edge := edges.Pop(); edges.Empty() {
+				edges.Push(edge + 1)
+				edges.Push(edge + 1)
 			}
-		}
 
-		switch dir {
-		case "E":
-			coord = coord.East()
-		case "N":
-			coord = coord.North()
-		case "W":
-			coord = coord.West()
-		case "S":
-			coord = coord.South()
+			remaining = edges.Peek()
+			turtle.TurnLeft()
 		}
-
-		left--
 	}
 
-	return coord
+	return turtle.Location
 }

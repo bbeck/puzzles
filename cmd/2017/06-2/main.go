@@ -8,79 +8,60 @@ import (
 )
 
 func main() {
-	banks := InputToBanks(2017, 6)
+	banks := InputToBanks()
+	N := len(banks)
 
-	seen := make(map[string]int)
+	var seen aoc.Set[string]
+	last := make(map[string]int)
 
 	var cycle int
 	for cycle = 1; ; cycle++ {
-		id := banks.ID()
-		if seen[id] > 0 {
+		remaining, index := Choose(banks)
+		banks[index] = 0
+
+		// Each bank will get div blocks added to it, and the first mod banks will
+		// get an extra block.
+		div, mod := remaining/N, remaining%N
+
+		for i := 1; i <= N; i++ {
+			var extra int
+			if mod > 0 {
+				extra = 1
+				mod--
+			}
+			banks[(index+i+N)%N] += div + extra
+		}
+
+		if !seen.Add(ID(banks)) {
 			break
 		}
 
-		seen[id] = cycle
-		banks = banks.Distribute(banks.Largest())
+		last[ID(banks)] = cycle
 	}
 
-	length := cycle - seen[banks.ID()]
-	fmt.Printf("cycle length: %d\n", length)
+	fmt.Println(cycle - last[ID(banks)])
 }
 
-type Banks []int
-
-func (b Banks) ID() string {
-	var builder strings.Builder
-	for i, bank := range b {
-		builder.WriteString(fmt.Sprintf("%d", bank))
-		if i < len(b)-1 {
-			builder.WriteString(" ")
-		}
-	}
-
-	return builder.String()
+func ID(banks []int) string {
+	return fmt.Sprintf("%v", banks)
 }
 
-func (b Banks) Largest() int {
-	max := b[0]
-
-	var index int
-	for i := 1; i < len(b); i++ {
-		if b[i] > max {
-			max = b[i]
+func Choose(banks []int) (int, int) {
+	var max, index int
+	for i, bank := range banks {
+		if bank > max {
+			max = bank
 			index = i
 		}
 	}
 
-	return index
+	return max, index
 }
 
-func (b Banks) Distribute(id int) Banks {
-	updated := append(Banks(nil), b...)
-
-	N := len(b)
-	div := b[id] / N
-	mod := b[id] % N
-
-	updated[id] = 0
-	for i := 1; i <= N; i++ {
-		index := (id + i + N) % N
-
-		updated[index] += div
-		if mod > 0 {
-			updated[index]++
-			mod--
-		}
+func InputToBanks() []int {
+	var banks []int
+	for _, field := range strings.Fields(aoc.InputToString(2017, 6)) {
+		banks = append(banks, aoc.ParseInt(field))
 	}
-
-	return updated
-}
-
-func InputToBanks(year, day int) Banks {
-	var banks Banks
-	for _, token := range strings.Split(aoc.InputToString(year, day), "\t") {
-		banks = append(banks, aoc.ParseInt(token))
-	}
-
 	return banks
 }

@@ -9,7 +9,7 @@ import (
 func main() {
 	stride := aoc.InputToInt(2017, 17)
 
-	ring := aoc.NewRing()
+	var ring aoc.Ring[int]
 	ring.InsertAfter(0)
 
 	for n := 1; n <= 2017; n++ {
@@ -18,5 +18,5 @@ func main() {
 	}
 
 	ring.Next()
-	fmt.Printf("current: %+v\n", ring.Current())
+	fmt.Println(ring.Current())
 }

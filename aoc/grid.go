@@ -41,3 +41,14 @@ func (g Grid2D[T]) Get(p Point2D) T {
 func (g Grid2D[T]) GetXY(x, y int) T {
 	return g.Cells[y*g.Width+x]
 }
+
+// InBounds determines if the location specified is in bounds of the grid.
+func (g Grid2D[T]) InBounds(p Point2D) bool {
+	return g.InBoundsXY(p.X, p.Y)
+}
+
+// InBoundsXY determines if the location specified by the X and Y coordinate is
+// in bounds of the grid.
+func (g Grid2D[T]) InBoundsXY(x, y int) bool {
+	return x >= 0 && x < g.Width && y >= 0 && y < g.Height
+}

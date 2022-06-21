@@ -2,58 +2,59 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	pipes := InputToPipes(2017, 24)
-	length, strength := MaximizeStrength(pipes, 0, 0)
-	fmt.Printf("length: %d\n", length)
-	fmt.Printf("strength: %d\n", strength)
+	components := InputToComponents()
+	fmt.Println(LongestBridge(components))
 }
 
-func MaximizeStrength(pipes []Pipe, needed int, used int) (int, int) {
-	var length, strength int
-	for i, pipe := range pipes {
-		var next int
-		if used&(1<<i) > 0 {
-			continue
-		} else if pipe.lhs == needed {
-			next = pipe.rhs
-		} else if pipe.rhs == needed {
-			next = pipe.lhs
-		} else {
-			continue
+func LongestBridge(components []Component) int {
+	var helper func(needed int, used aoc.BitSet) (int, int)
+	helper = func(needed int, used aoc.BitSet) (int, int) {
+		var bestLength, bestStrength int
+		for i, c := range components {
+			var next int
+			if used.Contains(i) {
+				continue
+			} else if c.L == needed {
+				next = c.R
+			} else if c.R == needed {
+				next = c.L
+			} else {
+				continue
+			}
+
+			length, strength := helper(next, used.Add(i))
+			bestLength, bestStrength = Best(length+1, strength+c.L+c.R, bestLength, bestStrength)
 		}
 
-		l, s := MaximizeStrength(pipes, next, used|(1<<i))
-		l += 1
-		s += pipe.lhs + pipe.rhs
-
-		if l > length || (l == length && s > strength) {
-			length = l
-			strength = s
-		}
+		return bestLength, bestStrength
 	}
 
-	return length, strength
+	_, strength := helper(0, 0)
+	return strength
 }
 
-type Pipe struct {
-	lhs, rhs int
-}
-
-func InputToPipes(year, day int) []Pipe {
-	var pipes []Pipe
-	for _, line := range aoc.InputToLines(year, day) {
-		parts := strings.Split(line, "/")
-		lhs := aoc.ParseInt(parts[0])
-		rhs := aoc.ParseInt(parts[1])
-
-		pipes = append(pipes, Pipe{lhs, rhs})
+func Best(length1, strength1, length2, strength2 int) (int, int) {
+	if length1 > length2 || (length1 == length2 && strength1 > strength2) {
+		return length1, strength1
 	}
+	return length2, strength2
+}
 
-	return pipes
+type Component struct {
+	L, R int
+}
+
+func InputToComponents() []Component {
+	return aoc.InputLinesTo(2017, 24, func(line string) (Component, error) {
+		lhs, rhs, _ := strings.Cut(line, "/")
+		return Component{
+			L: aoc.ParseInt(lhs),
+			R: aoc.ParseInt(rhs),
+		}, nil
+	})
 }

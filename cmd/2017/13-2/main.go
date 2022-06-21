@@ -8,84 +8,50 @@ import (
 )
 
 func main() {
-	layers := InputToLayers(2017, 13)
+	layers := InputToLayers()
 
 	var delay int
-	for delay = 0; ; delay++ {
-		if Simulate(layers) {
-			break
-		}
+outer:
+	for {
+		delay++
 
 		for _, layer := range layers {
-			layer.Step()
+			if Position(layer.Range, delay+layer.Depth) == 0 {
+				continue outer
+			}
 		}
+
+		break
 	}
 
-	fmt.Printf("delay: %d\n", delay)
+	fmt.Println(delay)
 }
 
-func Simulate(initial []*Layer) bool {
-	layers := make([]*Layer, len(initial))
-	for i, layer := range initial {
-		layers[i] = &Layer{
-			id:        layer.id,
-			depth:     layer.depth,
-			position:  layer.position,
-			direction: layer.direction,
-		}
+func Position(r int, tm int) int {
+	// The scanner moves in discrete steps between 0 and r-1 and then back again.
+	// This means that it's period is 2*r-2.  Using this we can directly compute
+	// where it's located at any point in time.
+	period := 2*r - 2
+	x := tm % period
+	if x >= r {
+		x = period - x
 	}
-
-	for tm := 0; tm <= layers[len(layers)-1].id; tm++ {
-		for _, layer := range layers {
-			if layer.id == tm && layer.position == 0 {
-				return false
-			}
-
-			layer.Step()
-		}
-	}
-
-	return true
+	return x
 }
 
 type Layer struct {
-	id        int
-	depth     int
-	position  int
-	direction string
+	Depth int
+	Range int
 }
 
-func (l *Layer) Step() {
-	switch l.direction {
-	case "U":
-		if l.position == 0 {
-			l.position = 1
-			l.direction = "D"
-			return
-		}
+func InputToLayers() []Layer {
+	return aoc.InputLinesTo(2017, 13, func(line string) (Layer, error) {
+		line = strings.ReplaceAll(line, ":", "")
+		fields := strings.Fields(line)
 
-		l.position--
-
-	case "D":
-		if l.position == l.depth-1 {
-			l.position = l.depth - 2
-			l.direction = "U"
-			return
-		}
-
-		l.position++
-	}
-}
-
-func InputToLayers(year, day int) []*Layer {
-	var layers []*Layer
-	for _, line := range aoc.InputToLines(year, day) {
-		parts := strings.Split(strings.ReplaceAll(line, ":", ""), " ")
-		id := aoc.ParseInt(parts[0])
-		depth := aoc.ParseInt(parts[1])
-
-		layers = append(layers, &Layer{id: id, depth: depth, direction: "D"})
-	}
-
-	return layers
+		return Layer{
+			Depth: aoc.ParseInt(fields[0]),
+			Range: aoc.ParseInt(fields[1]),
+		}, nil
+	})
 }

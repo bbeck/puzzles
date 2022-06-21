@@ -2,53 +2,50 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	pipes := InputToPipes(2017, 24)
-	strength := MaximizeStrength(pipes, 0, 0)
-	fmt.Printf("strength: %d\n", strength)
+	components := InputToComponents()
+	fmt.Println(StrongestBridge(components))
 }
 
-func MaximizeStrength(pipes []Pipe, needed int, used int) int {
-	var best int
-	for i, pipe := range pipes {
-		var next int
-		if used&(1<<i) > 0 {
-			continue
-		} else if pipe.lhs == needed {
-			next = pipe.rhs
-		} else if pipe.rhs == needed {
-			next = pipe.lhs
-		} else {
-			continue
+func StrongestBridge(components []Component) int {
+	var helper func(needed int, used aoc.BitSet) int
+	helper = func(needed int, used aoc.BitSet) int {
+		var best int
+		for i, c := range components {
+			var next int
+			if used.Contains(i) {
+				continue
+			} else if c.L == needed {
+				next = c.R
+			} else if c.R == needed {
+				next = c.L
+			} else {
+				continue
+			}
+
+			best = aoc.MaxInt(best, c.L+c.R+helper(next, used.Add(i)))
 		}
 
-		s := MaximizeStrength(pipes, next, used|(1<<i)) + pipe.lhs + pipe.rhs
-		if s > best {
-			best = s
-		}
+		return best
 	}
 
-	return best
+	return helper(0, 0)
 }
 
-type Pipe struct {
-	lhs, rhs int
+type Component struct {
+	L, R int
 }
 
-func InputToPipes(year, day int) []Pipe {
-	var pipes []Pipe
-	for _, line := range aoc.InputToLines(year, day) {
-		parts := strings.Split(line, "/")
-		lhs := aoc.ParseInt(parts[0])
-		rhs := aoc.ParseInt(parts[1])
-
-		pipes = append(pipes, Pipe{lhs, rhs})
-	}
-
-	return pipes
+func InputToComponents() []Component {
+	return aoc.InputLinesTo(2017, 24, func(line string) (Component, error) {
+		lhs, rhs, _ := strings.Cut(line, "/")
+		return Component{
+			L: aoc.ParseInt(lhs),
+			R: aoc.ParseInt(rhs),
+		}, nil
+	})
 }

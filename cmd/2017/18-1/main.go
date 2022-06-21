@@ -2,115 +2,93 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/advent-of-code/aoc"
 	"strconv"
 	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	program := InputToProgram(2017, 18)
 	registers := make(map[string]int)
 
-	// get the immediate value or the value of the register
-	get := func(i Instruction) int {
-		if i.register == "" {
-			return i.immediate
+	get := func(instruction Instruction, index int) int {
+		arg := instruction.Args[index]
+		if 'a' <= arg[0] && arg[0] <= 'z' {
+			return registers[arg]
 		}
-
-		return registers[i.register]
+		return instruction.Parsed[index]
 	}
 
-	// get the test value for a jgz
-	test := func(i Instruction) int {
-		v, err := strconv.Atoi(i.target)
-		if err == nil {
-			return v
-		}
+	program := InputToProgram()
+	var pc, frequency int
 
-		return registers[i.target]
-	}
-
-	var sound int
-	for pc := 0; pc >= 0 && pc < len(program); pc++ {
-		instruction := program[pc]
-
-		switch instruction.op {
+loop:
+	for pc >= 0 && pc < len(program) {
+		switch instruction := program[pc]; instruction.OpCode {
 		case "snd":
-			sound = get(instruction)
+			frequency = get(instruction, 0)
+			pc++
 
 		case "set":
-			registers[instruction.target] = get(instruction)
+			x, y := instruction.Args[0], get(instruction, 1)
+			registers[x] = y
+			pc++
 
 		case "add":
-			registers[instruction.target] += get(instruction)
+			x, y := instruction.Args[0], get(instruction, 1)
+			registers[x] += y
+			pc++
 
 		case "mul":
-			registers[instruction.target] *= get(instruction)
+			x, y := instruction.Args[0], get(instruction, 1)
+			registers[x] *= y
+			pc++
 
 		case "mod":
-			registers[instruction.target] %= get(instruction)
+			x, y := instruction.Args[0], get(instruction, 1)
+			registers[x] %= y
+			pc++
 
 		case "rcv":
-			if registers[instruction.register] != 0 {
-				fmt.Printf("recovered sound: %d\n", sound)
-				return
+			x := get(instruction, 0)
+			if x != 0 {
+				break loop
 			}
+			pc++
 
 		case "jgz":
-			if test(instruction) > 0 {
-				pc += instruction.immediate - 1
+			x, y := get(instruction, 0), get(instruction, 1)
+			if x > 0 {
+				pc += y
+			} else {
+				pc++
 			}
 		}
 	}
+
+	fmt.Println(frequency)
 }
 
 type Instruction struct {
-	op        string
-	target    string
-	immediate int
-	register  string
+	OpCode string
+	Args   []string
+	Parsed []int
 }
 
-func (i Instruction) String() string {
-	return fmt.Sprintf("%s %s immediate:%d register:%s", i.op, i.target, i.immediate, i.register)
-}
+func InputToProgram() []Instruction {
+	return aoc.InputLinesTo(2017, 18, func(line string) (Instruction, error) {
+		fields := strings.Fields(line)
 
-func InputToProgram(year, day int) []Instruction {
-	// parse an argument as either an immediate or the register it refers to
-	parse := func(s string) (int, string) {
-		immediate, err := strconv.Atoi(s)
-		if err == nil {
-			return immediate, ""
+		parsed := make([]int, len(fields)-1)
+		for i, arg := range fields[1:] {
+			if n, err := strconv.Atoi(arg); err == nil {
+				parsed[i] = n
+			}
 		}
 
-		return 0, s
-	}
-
-	var program []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		tokens := strings.Split(line, " ")
-
-		var target string
-		var immediate int
-		var register string
-
-		switch len(tokens) {
-		case 2:
-			immediate, register = parse(tokens[1])
-
-		case 3:
-			target = tokens[1]
-			immediate, register = parse(tokens[2])
-		}
-
-		program = append(program, Instruction{
-			op:        tokens[0],
-			target:    target,
-			immediate: immediate,
-			register:  register,
-		})
-	}
-
-	return program
+		return Instruction{
+			OpCode: fields[0],
+			Args:   fields[1:],
+			Parsed: parsed,
+		}, nil
+	})
 }

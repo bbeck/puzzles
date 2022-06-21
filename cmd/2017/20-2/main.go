@@ -2,91 +2,54 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	particles := InputToParticles(2017, 20)
+	particles := InputToParticles()
 
-	for n := 0; n < 1000; n++ {
-		for _, particle := range particles {
-			if particle == nil {
+	for tm := 0; tm < 1000; tm++ {
+		positions := make(map[aoc.Point3D][]Particle)
+		for i := 0; i < len(particles); i++ {
+			particles[i].Step()
+			positions[particles[i].pos] = append(positions[particles[i].pos], particles[i])
+		}
+
+		var next []Particle
+		for _, ps := range positions {
+			if len(ps) > 1 {
 				continue
 			}
-
-			particle.vx += particle.ax
-			particle.vy += particle.ay
-			particle.vz += particle.az
-			particle.x += particle.vx
-			particle.y += particle.vy
-			particle.z += particle.vz
+			next = append(next, ps...)
 		}
 
-		// Now that all of the particles have been moved, check for collisions and
-		// remove any particles that have collided.
-		seen := make(map[Point3D]int)
-		for id, particle := range particles {
-			if particle == nil {
-				continue
-			}
-
-			p := Point3D{x: particle.x, y: particle.y, z: particle.z}
-			if oid, ok := seen[p]; ok {
-				particles[oid] = nil
-				particles[id] = nil
-			}
-
-			seen[p] = id
-		}
-
-		var count int
-		for _, particle := range particles {
-			if particle != nil {
-				count++
-			}
-		}
-
-		fmt.Printf("n: %d, num left: %d\n", n, count)
+		particles = next
 	}
-}
 
-type Point3D struct {
-	x, y, z int
+	fmt.Println(len(particles))
 }
 
 type Particle struct {
-	x, y, z    int
-	vx, vy, vz int
-	ax, ay, az int
+	pos, vel, acc aoc.Point3D
 }
 
-func (p *Particle) Distance() int {
-	abs := func(n int) int {
-		if n < 0 {
-			n = -n
-		}
-		return n
-	}
-
-	return abs(p.x) + abs(p.y) + abs(p.z)
+func (p *Particle) Step() {
+	p.vel.X += p.acc.X
+	p.vel.Y += p.acc.Y
+	p.vel.Z += p.acc.Z
+	p.pos.X += p.vel.X
+	p.pos.Y += p.vel.Y
+	p.pos.Z += p.vel.Z
 }
 
-func InputToParticles(year, day int) []*Particle {
-	var particles []*Particle
-	for _, line := range aoc.InputToLines(year, day) {
-		var x, y, z int
-		var vx, vy, vz int
-		var ax, ay, az int
-
-		_, err := fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>", &x, &y, &z, &vx, &vy, &vz, &ax, &ay, &az)
-		if err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
-
-		particles = append(particles, &Particle{x, y, z, vx, vy, vz, ax, ay, az})
-	}
-
-	return particles
+func InputToParticles() []Particle {
+	return aoc.InputLinesTo(2017, 20, func(line string) (Particle, error) {
+		var particle Particle
+		_, err := fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
+			&particle.pos.X, &particle.pos.Y, &particle.pos.Z,
+			&particle.vel.X, &particle.vel.Y, &particle.vel.Z,
+			&particle.acc.X, &particle.acc.Y, &particle.acc.Z,
+		)
+		return particle, err
+	})
 }

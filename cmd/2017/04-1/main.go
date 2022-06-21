@@ -14,19 +14,15 @@ func main() {
 			count++
 		}
 	}
-
-	fmt.Printf("count: %d\n", count)
+	fmt.Println(count)
 }
 
-func IsValid(line string) bool {
-	seen := make(map[string]bool)
-
-	for _, word := range strings.Split(line, " ") {
-		if seen[word] {
+func IsValid(s string) bool {
+	var seen aoc.Set[string]
+	for _, word := range strings.Fields(s) {
+		if !seen.Add(word) {
 			return false
 		}
-
-		seen[word] = true
 	}
 
 	return true

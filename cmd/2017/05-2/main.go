@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
@@ -20,5 +19,5 @@ func main() {
 		pc += offset
 	}
 
-	fmt.Printf("steps: %d\n", steps)
+	fmt.Println(steps)
 }

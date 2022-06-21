@@ -2,25 +2,21 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/advent-of-code/aoc"
 	"log"
 	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	matrix := InputToMatrix(2017, 2)
-
 	var sum int
-	for _, row := range matrix {
-		a, b := divides(row)
-		sum += a / b
+	for _, row := range InputToRows() {
+		n, d := FindEvenlyDivisible(row)
+		sum += n / d
 	}
-
-	fmt.Printf("checksum: %d\n", sum)
+	fmt.Println(sum)
 }
 
-func divides(row []int) (int, int) {
+func FindEvenlyDivisible(row []int) (int, int) {
 	for i := 0; i < len(row); i++ {
 		for j := 0; j < len(row); j++ {
 			if i == j {
@@ -33,20 +29,17 @@ func divides(row []int) (int, int) {
 		}
 	}
 
-	log.Fatal("unable to find the two numbers that divide each other")
+	log.Fatalf("unable to find evenly divisible pair: %v", row)
 	return 0, 0
 }
 
-func InputToMatrix(year, day int) [][]int {
-	var matrix [][]int
-	for _, line := range aoc.InputToLines(2017, 2) {
+func InputToRows() [][]int {
+	return aoc.InputLinesTo(2017, 2, func(line string) ([]int, error) {
 		var row []int
-		for _, s := range strings.Split(line, "\t") {
+		for _, s := range strings.Fields(line) {
 			row = append(row, aoc.ParseInt(s))
 		}
 
-		matrix = append(matrix, row)
-	}
-
-	return matrix
+		return row, nil
+	})
 }

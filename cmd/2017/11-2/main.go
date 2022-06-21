@@ -8,88 +8,34 @@ import (
 )
 
 func main() {
-	var location Cell
+	deltas := map[string]aoc.Point2D{
+		"n":  {X: 0, Y: -1},
+		"ne": {X: 1, Y: -1},
+		"se": {X: 1, Y: 0},
+		"s":  {X: 0, Y: 1},
+		"sw": {X: -1, Y: 1},
+		"nw": {X: -1, Y: 0},
+	}
+
+	var location aoc.Point2D
 	var furthest int
-	for _, step := range InputToSteps(2017, 11) {
-		switch step {
-		case "nw":
-			location = location.NorthWest()
-		case "n":
-			location = location.North()
-		case "ne":
-			location = location.NorthEast()
-		case "sw":
-			location = location.SouthWest()
-		case "s":
-			location = location.South()
-		case "se":
-			location = location.SouthEast()
-		}
-
-		d := Distance(Cell{}, location)
-		if d > furthest {
-			furthest = d
-		}
+	for _, step := range InputToSteps() {
+		delta := deltas[step]
+		location = aoc.Point2D{X: location.X + delta.X, Y: location.Y + delta.Y}
+		furthest = aoc.Max(furthest, HexDistance(aoc.Origin2D, location))
 	}
 
-	fmt.Printf("furthest: %d\n", furthest)
+	fmt.Println(furthest)
 }
 
-type Cell struct {
-	x, y, z int
+func HexDistance(a, b aoc.Point2D) int {
+	// https://www.redblobgames.com/grids/hexagons/#distances
+	aq, ar, as := a.X, a.Y, -a.X-a.Y
+	bq, br, bs := b.X, b.Y, -b.X-b.Y
+	return (aoc.Abs(aq-bq) + aoc.Abs(ar-br) + aoc.Abs(as-bs)) / 2
 }
 
-func (c Cell) NorthWest() Cell {
-	return Cell{x: c.x - 1, y: c.y + 1, z: c.z + 0}
-}
-
-func (c Cell) North() Cell {
-	return Cell{x: c.x + 0, y: c.y + 1, z: c.z - 1}
-}
-
-func (c Cell) NorthEast() Cell {
-	return Cell{x: c.x + 1, y: c.y + 0, z: c.z - 1}
-}
-
-func (c Cell) SouthWest() Cell {
-	return Cell{x: c.x - 1, y: c.y + 0, z: c.z + 1}
-}
-
-func (c Cell) South() Cell {
-	return Cell{x: c.x + 0, y: c.y - 1, z: c.z + 1}
-}
-
-func (c Cell) SouthEast() Cell {
-	return Cell{x: c.x + 1, y: c.y - 1, z: c.z + 0}
-}
-
-func (c Cell) ID() string {
-	return fmt.Sprintf("(%d, %d, %d)", c.x, c.y, c.z)
-}
-
-func (c Cell) Children() []aoc.Node {
-	return []aoc.Node{
-		c.NorthWest(),
-		c.North(),
-		c.NorthEast(),
-		c.SouthWest(),
-		c.South(),
-		c.SouthEast(),
-	}
-}
-
-func Distance(start, end Cell) int {
-	abs := func(a int) int {
-		if a < 0 {
-			a = -a
-		}
-		return a
-	}
-
-	return (abs(end.x-start.x) + abs(end.y-start.y) + abs(end.z-start.z)) / 2
-}
-
-func InputToSteps(year, day int) []string {
-	s := aoc.InputToString(year, day)
+func InputToSteps() []string {
+	s := aoc.InputToString(2017, 11)
 	return strings.Split(s, ",")
 }

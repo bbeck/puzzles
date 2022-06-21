@@ -8,77 +8,37 @@ import (
 )
 
 func main() {
-	programs := InputToPrograms(2017, 12)
+	g := InputToGraph()
 
-	sets := make(map[string]*aoc.DisjointSet)
-	for _, program := range programs {
-		sets[program.ID()] = aoc.NewDisjointSet(program)
-	}
-
-	// Union the sets together based on the children of the programs
-	for _, program := range programs {
-		for _, child := range program.children {
-			sets[program.ID()].Union(sets[child.ID()])
+	var s aoc.DisjointSet[int]
+	for node, children := range g {
+		for _, child := range children {
+			s.UnionWithAdd(node, child)
 		}
 	}
 
-	// Now count the number of unique representative programs to determine how
-	// many groups there are
-	groups := make(map[string]bool)
-	for _, set := range sets {
-		groups[set.Find().Data.(*Program).ID()] = true
+	var roots aoc.Set[int]
+	for node := range g {
+		if root, found := s.Find(node); found {
+			roots.Add(root)
+		}
 	}
-
-	fmt.Printf("number of groups: %d\n", len(groups))
+	fmt.Println(len(roots))
 }
 
-type Program struct {
-	id       int
-	children []*Program
-}
+func InputToGraph() map[int][]int {
+	edges := make(map[int][]int)
+	for _, line := range aoc.InputToLines(2017, 12) {
+		line = strings.ReplaceAll(line, ",", "")
+		line = strings.ReplaceAll(line, "<-> ", "")
+		fields := strings.Fields(line)
 
-func (p *Program) ID() string {
-	return fmt.Sprintf("%d", p.id)
-}
-
-func InputToPrograms(year, day int) []*Program {
-	connections := make(map[int][]int)
-	for _, line := range aoc.InputToLines(year, day) {
-		sides := strings.Split(line, " <-> ")
-		a := aoc.ParseInt(sides[0])
-
-		for _, rhs := range strings.Split(strings.ReplaceAll(sides[1], ",", ""), " ") {
-			b := aoc.ParseInt(rhs)
-
-			connections[a] = append(connections[a], b)
+		from := aoc.ParseInt(fields[0])
+		for _, s := range fields[1:] {
+			to := aoc.ParseInt(s)
+			edges[from] = append(edges[from], to)
 		}
 	}
 
-	programs := make(map[int]*Program)
-
-	get := func(id int) *Program {
-		program := programs[id]
-		if program == nil {
-			program = &Program{id: id}
-			programs[id] = program
-		}
-
-		return program
-	}
-
-	for id, children := range connections {
-		parent := get(id)
-
-		for _, cid := range children {
-			child := get(cid)
-			parent.children = append(parent.children, child)
-		}
-	}
-
-	ps := make([]*Program, 0)
-	for _, program := range programs {
-		ps = append(ps, program)
-	}
-
-	return ps
+	return edges
 }

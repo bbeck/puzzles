@@ -31,11 +31,7 @@ func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
 
 			var count int
 			for _, neighbor := range p.Neighbors() {
-				if neighbor.X < 0 || neighbor.X >= lights.Width || neighbor.Y < 0 || neighbor.Y >= lights.Height {
-					continue
-				}
-
-				if lights.Get(neighbor) {
+				if lights.InBounds(neighbor) && lights.Get(neighbor) {
 					count++
 				}
 			}
