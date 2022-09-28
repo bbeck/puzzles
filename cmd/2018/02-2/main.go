@@ -2,37 +2,33 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	report := func(a, b string) {
-		for i := 0; i < len(a); i++ {
-			if a[i] == b[i] {
-				fmt.Print(string(a[i]))
+	ids := aoc.InputToLines(2018, 2)
+
+	var i, j int
+outer:
+	for i = 0; i < len(ids); i++ {
+		for j = i + 1; j < len(ids); j++ {
+			var count int
+			for c := 0; count < 2 && c < len(ids[i]); c++ {
+				if ids[i][c] != ids[j][c] {
+					count++
+				}
+			}
+
+			if count < 2 {
+				break outer
 			}
 		}
-		fmt.Println()
 	}
 
-	lines := aoc.InputToLines(2018, 2)
-	for i := 0; i < len(lines); i++ {
-		for j := i + 1; j < len(lines); j++ {
-			if Distance(lines[i], lines[j]) == 1 {
-				report(lines[i], lines[j])
-			}
+	for k := 0; k < len(ids[i]); k++ {
+		if ids[i][k] == ids[j][k] {
+			fmt.Printf("%c", ids[i][k])
 		}
 	}
-}
-
-func Distance(a, b string) int {
-	var dist int
-	for i := 0; i < len(a); i++ {
-		if a[i] != b[i] {
-			dist++
-		}
-	}
-
-	return dist
+	fmt.Println()
 }

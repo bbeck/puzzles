@@ -9,19 +9,18 @@ import (
 func main() {
 	deltas := aoc.InputToInts(2018, 1)
 
-	seen := make(map[int]bool)
+	var seen aoc.Set[int]
 	var frequency int
+
 outer:
 	for {
 		for _, delta := range deltas {
 			frequency += delta
-			if seen[frequency] {
+			if !seen.Add(frequency) {
 				break outer
 			}
-
-			seen[frequency] = true
 		}
 	}
 
-	fmt.Printf("frequency: %d\n", frequency)
+	fmt.Println(frequency)
 }

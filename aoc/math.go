@@ -1,5 +1,7 @@
 package aoc
 
+import "math"
+
 // Abs returns the absolute value of the provided integer or float.
 func Abs[T Integer | Float](n T) T {
 	if n < 0 {
@@ -47,4 +49,22 @@ func Max[T Ordered](elems ...T) T {
 		}
 	}
 	return max
+}
+
+// Digits returns the individual digits of the provided number in order from
+// left to right.  If the provided number is negative, then the sign will be
+// ignored.
+func Digits[T Integer](n T) []T {
+	n = Abs(n)
+	if n < 10 {
+		return []T{n}
+	}
+
+	length := 1 + int(math.Floor(math.Log10(float64(n))))
+	digits := make([]T, length)
+	for i := len(digits) - 1; n > 0; i-- {
+		digits[i] = n % 10
+		n /= 10
+	}
+	return digits
 }

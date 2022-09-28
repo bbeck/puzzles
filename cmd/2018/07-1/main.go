@@ -2,125 +2,80 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"github.com/bbeck/advent-of-code/aoc"
 	"sort"
 	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	graph := InputToGraph(2018, 7)
-	order := TopologicalSort(graph)
-
-	fmt.Printf("order: %s\n", strings.Join(order, ""))
+	graph := InputToGraph()
+	ordering := graph.TopologicalSort()
+	fmt.Println(strings.Join(ordering, ""))
 }
 
 type Graph struct {
-	vertices map[string]int
-	matrix   [][]bool
+	Vertices aoc.Set[string]
+	Parents  map[string][]string
 }
 
-// Compute the topological sort of the graph using Kahn's algorithm -- this
-// method will modify the graph.
-func TopologicalSort(g *Graph) []string {
-	// return the parent node of a given node (i.e. the nodes that the given node
-	// has an incoming edge from).
-	parents := func(to string) []string {
-		tid := g.vertices[to]
-
-		var parents []string
-		for from, fid := range g.vertices {
-			if g.matrix[fid][tid] {
-				parents = append(parents, from)
-			}
-		}
-
-		return parents
+func (g *Graph) AddEdge(child, parent string) {
+	if g.Parents == nil {
+		g.Parents = make(map[string][]string)
 	}
 
-	children := func(from string) []string {
-		fid := g.vertices[from]
-
-		var children []string
-		for to, tid := range g.vertices {
-			if g.matrix[fid][tid] {
-				children = append(children, to)
-			}
-		}
-
-		return children
-	}
-
-	var L []string // the topological sort output
-
-	var S []string // set of nodes that have no incoming edge
-	for name := range g.vertices {
-		if len(parents(name)) == 0 {
-			S = append(S, name)
-		}
-	}
-
-	for len(S) > 0 {
-		// ensure S is sorted
-		sort.Strings(S)
-
-		// remove a node n from S
-		n := S[0]
-		S = S[1:]
-
-		// add n to tail of L
-		L = append(L, n)
-
-		// for each node m with an edge e from n to m
-		for _, m := range children(n) {
-			// remove edge e from the graph
-			g.matrix[g.vertices[n]][g.vertices[m]] = false
-
-			// if m has no other incoming edges then
-			if len(parents(m)) == 0 {
-				// insert m into S
-				S = append(S, m)
-			}
-		}
-	}
-
-	return L
+	g.Vertices.Add(child, parent)
+	g.Parents[child] = append(g.Parents[child], parent)
 }
 
-func InputToGraph(year, day int) *Graph {
-	assigned := make(map[string]bool)  // each vertex that has been assigned an id
-	vertices := make(map[string]int)   // the assigned id for each vertex
-	edges := make(map[string][]string) // the mapping of edges from vertex to vertex
+func (g Graph) TopologicalSort() []string {
+	var vertices []string
+	for len(g.Vertices) > 0 {
+		choice := g.Choose()
+		vertices = append(vertices, choice)
 
-	for _, line := range aoc.InputToLines(year, day) {
-		var from, to string
-		if _, err := fmt.Sscanf(line, "Step %s must be finished before step %s can begin.", &from, &to); err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
-
-		if !assigned[from] {
-			vertices[from] = len(vertices)
-			assigned[from] = true
-		}
-		if !assigned[to] {
-			vertices[to] = len(vertices)
-			assigned[to] = true
-		}
-
-		edges[from] = append(edges[from], to)
-	}
-
-	matrix := make([][]bool, len(vertices))
-	for name, id := range vertices {
-		matrix[id] = make([]bool, len(vertices))
-		for _, child := range edges[name] {
-			matrix[id][vertices[child]] = true
+		g.Vertices.Remove(choice)
+		for child := range g.Parents {
+			g.Parents[child] = Remove(g.Parents[child], choice)
 		}
 	}
 
-	return &Graph{
-		vertices: vertices,
-		matrix:   matrix,
+	return vertices
+}
+
+func (g *Graph) Choose() string {
+	var candidates []string
+	for _, child := range g.Vertices.Entries() {
+		if len(g.Parents[child]) == 0 {
+			candidates = append(candidates, child)
+		}
 	}
+
+	sort.Strings(candidates)
+	return candidates[0]
+}
+
+func Remove[T comparable](s []T, elem T) []T {
+	var i int
+	for i < len(s) {
+		if s[i] != elem {
+			i++
+			continue
+		}
+
+		s = append(s[:i], s[i+1:]...)
+	}
+
+	return s
+}
+
+func InputToGraph() Graph {
+	var graph Graph
+	for _, line := range aoc.InputToLines(2018, 7) {
+		var parent, child string
+		fmt.Sscanf(line, "Step %s must be finished before step %s can begin.", &parent, &child)
+
+		graph.AddEdge(child, parent)
+	}
+
+	return graph
 }

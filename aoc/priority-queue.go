@@ -1,5 +1,7 @@
 package aoc
 
+// PriorityQueue represents a min heap.  The zero value for PriorityQueue is
+// an empty heap ready to use.
 type PriorityQueue[T any] struct {
 	values     []T
 	priorities []int

@@ -8,12 +8,14 @@ import (
 
 func main() {
 	var waypoints []aoc.Point2D
-	grid := aoc.InputToGrid2D(2016, 24, func(p aoc.Point2D, value string) bool {
+	grid := aoc.InputToGrid2D(2016, 24, func(x, y int, value string) bool {
 		if value == "#" {
 			return false
 		}
 
 		if value != "." {
+			p := aoc.Point2D{X: x, Y: y}
+
 			if value == "0" {
 				// This is our starting location, make sure it's always at the front of
 				// the list.

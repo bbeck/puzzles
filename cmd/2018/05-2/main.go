@@ -1,49 +1,40 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
 )
 
 func main() {
-	s := aoc.InputToString(2018, 5)
-	alphabet := "abcdefghijklmnopqrstuvwxyz"
-
-	shortest := math.MaxInt64
-	for _, c := range alphabet {
-		s1 := strings.ReplaceAll(s, string(c), "")
-		s2 := strings.ReplaceAll(s1, strings.ToUpper(string(c)), "")
-		length := len(Collapse(s2))
-
-		if length < shortest {
-			shortest = length
-		}
+	matches := make(map[byte]byte)
+	for i := byte(0); i < 26; i++ {
+		matches['a'+i] = 'A' + i
+		matches['A'+i] = 'a' + i
 	}
 
-	fmt.Printf("shortest: %d\n", shortest)
+	input := aoc.InputToBytes(2018, 5)
+
+	var best = math.MaxInt
+	for i := byte(0); i < 26; i++ {
+		bs := bytes.ReplaceAll(input, []byte{'a' + i}, nil)
+		bs = bytes.ReplaceAll(bs, []byte{'A' + i}, nil)
+		best = aoc.Min(best, Collapse(bs, matches))
+	}
+
+	fmt.Println(best)
 }
 
-func Collapse(s string) string {
-	replacements := []string{
-		"aA", "bB", "cC", "dD", "eE", "fF", "gG", "hH", "iI", "jJ", "kK", "lL", "mM",
-		"nN", "oO", "pP", "qQ", "rR", "sS", "tT", "uU", "vV", "wW", "xX", "yY", "zZ",
-		"Aa", "Bb", "Cc", "Dd", "Ee", "Ff", "Gg", "Hh", "Ii", "Jj", "Kk", "Ll", "Mm",
-		"Nn", "Oo", "Pp", "Qq", "Rr", "Ss", "Tt", "Uu", "Vv", "Ww", "Xx", "Yy", "Zz",
-	}
-
-	for {
-		size := len(s)
-		for _, replacement := range replacements {
-			s = strings.ReplaceAll(s, replacement, "")
-		}
-
-		if len(s) == size {
-			break
+func Collapse(s []byte, matches map[byte]byte) int {
+	var stack aoc.Stack[byte]
+	for _, c := range s {
+		if stack.Peek() == matches[c] {
+			stack.Pop()
+		} else {
+			stack.Push(c)
 		}
 	}
 
-	return s
+	return stack.Len()
 }

@@ -12,5 +12,5 @@ func main() {
 		frequency += i
 	}
 
-	fmt.Printf("frequency: %d\n", frequency)
+	fmt.Println(frequency)
 }

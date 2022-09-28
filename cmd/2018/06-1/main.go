@@ -2,84 +2,71 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
 )
 
 func main() {
-	points := InputToPoints(2018, 6)
+	points := InputToPoints()
+	tl, br := aoc.GetBounds(points)
 
-	// Determine the bounds of the region we're working in.
-	minX, minY, maxX, maxY := aoc.GetBounds(points)
-
-	// Within our bounding box, determine the coordinate closest to each point.
-	// If there are multiple, then don't assign a closest point.
-	closestTo := make(map[aoc.Point2D]aoc.Point2D)
-	for x := minX; x <= maxX; x++ {
-		for y := minY; y <= maxY; y++ {
+	// This grid contains the index of the closest point, or -1 if no single
+	// point is closest to this location.  The only portions of the grid that
+	// have values are the ones within the bounds of our points.
+	grid := aoc.NewGrid2D[int](br.X+1, br.Y+1)
+	for y := tl.Y; y <= br.Y; y++ {
+		for x := tl.X; x <= br.X; x++ {
 			cell := aoc.Point2D{X: x, Y: y}
+			grid.Add(cell, -1) // initialize
 
-			var closest = -1
-			var distance = math.MaxInt64
-			for i, p := range points {
+			var best = math.MaxInt // how far away the closest point is
+			var closest []int      // index of points that are closest
+			for index, p := range points {
 				d := cell.ManhattanDistance(p)
-				if d == distance {
-					// We just found a 2nd point that has the same distance as our best
-					// so far, so we have to clear the point since neither can win.  We
-					// leave the distance alone though, because we can still do better.
-					closest = -1
+
+				if d < best {
+					best = d
+					closest = nil
 				}
 
-				if d < distance {
-					closest = i
-					distance = d
+				if d == best {
+					closest = append(closest, index)
 				}
 			}
 
-			if closest != -1 {
-				closestTo[cell] = points[closest]
+			if len(closest) == 1 {
+				grid.Add(cell, closest[0])
 			}
 		}
 	}
 
-	// For all non-infinite points determine how many cells are closest to them.
-	// An infinite point is one that has an x value equal to the minimum or
-	// maximum x or a y value equal to the minimum or maximum y.
-	var best aoc.Point2D
-	var bestCount int
-	for _, p := range points {
-		if p.X == minX || p.X == maxX || p.Y == minY || p.Y == maxY {
-			continue
-		}
-
-		var count int
-		for _, other := range closestTo {
-			if p == other {
-				count++
-			}
-		}
-
-		if count > bestCount {
-			best = p
-			bestCount = count
-		}
+	// An area is infinite if it touches the edge
+	var infinite aoc.Set[int]
+	for x := tl.X; x <= br.X; x++ {
+		infinite.Add(grid.GetXY(x, tl.Y), grid.GetXY(x, br.Y))
+	}
+	for y := tl.Y; y <= br.Y; y++ {
+		infinite.Add(grid.GetXY(tl.X, y), grid.GetXY(br.X, y))
 	}
 
-	fmt.Printf("point %s has an area of %d\n", best, bestCount)
+	var largest int
+	sizes := make(map[int]int)
+	for y := tl.Y; y <= br.Y; y++ {
+		for x := tl.X; x <= br.X; x++ {
+			n := grid.GetXY(x, y)
+			if !infinite.Contains(n) {
+				sizes[n]++
+				largest = aoc.Max(largest, sizes[n])
+			}
+		}
+	}
+	fmt.Println(largest)
 }
 
-func InputToPoints(year, day int) []aoc.Point2D {
-	var points []aoc.Point2D
-	for _, line := range aoc.InputToLines(year, day) {
-		var x, y int
-		if _, err := fmt.Sscanf(line, "%d, %d", &x, &y); err != nil {
-			log.Fatalf("unable to parse point: %s", line)
-		}
-
-		points = append(points, aoc.Point2D{X: x, Y: y})
-	}
-
-	return points
+func InputToPoints() []aoc.Point2D {
+	return aoc.InputLinesTo(2018, 6, func(line string) (aoc.Point2D, error) {
+		var p aoc.Point2D
+		_, err := fmt.Sscanf(line, "%d, %d", &p.X, &p.Y)
+		return p, err
+	})
 }

@@ -1,144 +1,148 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
-	"log"
-	"math"
-	"math/rand"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	bots := InputToNanobots(2018, 23)
+	bots := InputToNanobots()
 
-	// We're asked to find the point that's contained with the bounding box of the
-	// most bots.  For this we'll use a simulated annealing which is
-	// probabilistic so it may take a lot of runs to get the optimal answer.  To
-	// mitigate this we'll tune it to run slowly in hopes that it'll converge on
-	// the global minimum.
+	// We're going to work on iteratively subdividing the space into smaller
+	// cubes constantly focusing on the cube that intersects with the largest
+	// number of bots.  When multiple cubes intersect the same number of bots
+	// then the focus will be on the one closest to the origin.  Once we've
+	// whittled the space down to a single point we know we're finished.
+	//
+	// We use a container/heap instead of an aoc.PriorityQueue[T] because we
+	// need a compound key that doesn't fit easily into the singular priority
+	// that aoc.PriorityQueue[T] uses.
 
-	// A random neighbor of a given point.
-	neighbor := func(p Point3D) Point3D {
-		switch rand.Intn(6) {
-		case 0:
-			return Point3D{p.X - rand.Intn(10000), p.Y, p.Z}
-		case 1:
-			return Point3D{p.X + rand.Intn(10000), p.Y, p.Z}
-		case 2:
-			return Point3D{p.X, p.Y - rand.Intn(10000), p.Z}
-		case 3:
-			return Point3D{p.X, p.Y + rand.Intn(10000), p.Z}
-		case 4:
-			return Point3D{p.X, p.Y, p.Z - rand.Intn(10000)}
-		case 5:
-			return Point3D{p.X, p.Y, p.Z + rand.Intn(10000)}
-		default:
-			log.Fatal("unhandled case")
-			return p
-		}
+	cubes := &Heap{
+		Entry{
+			Cube:  GetInitialCube(bots),
+			Count: len(bots),
+		},
 	}
+	heap.Init(cubes)
 
-	// Evaluate the point that we're at to determine how good it is.  This is the
-	// function that we're going to attempt to minimize -- so the better the
-	// solution is, the lower of a value this should return.  For our purposes
-	// returning the number of bots that this point isn't within range of should
-	// do well.
-	cost := func(p Point3D) int {
-		var count int
-		for _, bot := range bots {
-			if !bot.InRange(p) {
-				count++
+	var cube Cube
+	for len(*cubes) > 0 {
+		cube = heap.Pop(cubes).(Entry).Cube
+
+		if cube.Volume() == 1 {
+			break
+		}
+
+		for _, octant := range cube.Octants() {
+			entry := Entry{
+				Cube:  octant,
+				Count: octant.GetNumIntersectingBots(bots),
 			}
-		}
-
-		return count
-	}
-
-	// The acceptance function that determines whether or not we accept the
-	// solution with the old cost or the solution with the new cost.  This is the
-	// probabilistic part of simulated annealing.  We model acceptance by
-	// comparing e^((old - new)/T) because when the new solution is better
-	// (lower) than the old solution (old - new) will be positive and cause the
-	// exponential to evaluate to a larger number.  When the old solution is
-	// better then (old - new) will be negative and cause the exponential to be
-	// close to zero.  Thus we'll tend to accept better answers over worse ones
-	// depending on the random number generated.
-	accept := func(old, new int, t float64) bool {
-		return math.Exp(float64(old-new)/t) > rand.Float64()
-	}
-
-	// We need to start with a solution, for this we'll pick one the location of
-	// one of the bots at random.
-	bestLocation := bots[rand.Intn(len(bots))].location
-	bestCost := cost(bestLocation)
-
-	// We'll start at a hot temperature and after each iteration scale it by
-	// alpha until we reach our minimum temperature.  At that point we're done.
-	Tmax := 100000.
-	Tmin := 0.00001
-	alpha := 0.9
-
-	for T := Tmax; T > Tmin; T = T * alpha {
-		// Try a lot of neighbors in the area of our best solution in the hopes of
-		// finding the best one.
-		for i := 0; i < 10000; i++ {
-			nextLocation := neighbor(bestLocation)
-			nextCost := cost(nextLocation)
-
-			if accept(bestCost, nextCost, T) {
-				bestLocation = nextLocation
-				bestCost = nextCost
-			}
+			heap.Push(cubes, entry)
 		}
 	}
 
-	distance := bestLocation.X + bestLocation.Y + bestLocation.Z
-	fmt.Printf("solution: %s, cost: %d\n", bestLocation, bestCost)
-	fmt.Printf("manhattan distance from origin: %d\n", distance)
+	fmt.Println(aoc.Origin3D.ManhattanDistance(cube.Point3D))
+}
+
+func GetInitialCube(bots []Nanobot) Cube {
+	// Ensure that the dimensions of the cube returned are a power of two so as
+	// we subdivide we always end up with integer dimensions.
+	max := 1
+	for _, b := range bots {
+		for max < aoc.Abs(b.X)+b.R || max < aoc.Abs(b.Y)+b.R || max < aoc.Abs(b.Z)+b.R {
+			max *= 2
+		}
+	}
+
+	return Cube{
+		Point3D: aoc.Point3D{X: -max, Y: -max, Z: -max},
+		W:       2 * max, H: 2 * max, D: 2 * max,
+	}
+}
+
+type Cube struct {
+	aoc.Point3D
+	W, H, D int
+}
+
+func (c Cube) Volume() int {
+	return c.W * c.H * c.D
+}
+
+func (c Cube) Octants() [8]Cube {
+	x, y, z := c.X, c.Y, c.Z
+	dx, dy, dz := c.W/2, c.H/2, c.D/2
+
+	return [8]Cube{
+		{Point3D: aoc.Point3D{X: x, Y: y, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x + dx, Y: y, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x + dx, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x + dx, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: aoc.Point3D{X: x + dx, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
+	}
+}
+
+func (c Cube) GetNumIntersectingBots(bots []Nanobot) int {
+	var count int
+	for _, b := range bots {
+		closest := aoc.Point3D{
+			X: aoc.Min(aoc.Max(b.X, c.X), c.X+c.W-1),
+			Y: aoc.Min(aoc.Max(b.Y, c.Y), c.Y+c.H-1),
+			Z: aoc.Min(aoc.Max(b.Z, c.Z), c.Z+c.D-1),
+		}
+
+		if closest.ManhattanDistance(b.Point3D) <= b.R {
+			count++
+		}
+	}
+
+	return count
+}
+
+type Entry struct {
+	Cube  Cube
+	Count int
+}
+
+type Heap []Entry
+
+func (h Heap) Len() int      { return len(h) }
+func (h Heap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+func (h Heap) Less(i, j int) bool {
+	if h[i].Count != h[j].Count {
+		return h[i].Count > h[j].Count
+	}
+
+	di := aoc.Origin3D.ManhattanDistance(h[i].Cube.Point3D)
+	dj := aoc.Origin3D.ManhattanDistance(h[j].Cube.Point3D)
+	return di < dj
+}
+
+func (h *Heap) Push(x any) { *h = append(*h, x.(Entry)) }
+func (h *Heap) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
 }
 
 type Nanobot struct {
-	location Point3D
-	radius   int
+	aoc.Point3D
+	R int
 }
 
-// Determine if a point is in range of this nanobot.
-func (n Nanobot) InRange(p Point3D) bool {
-	dx := n.location.X - p.X
-	if dx < 0 {
-		dx = -dx
-	}
-	dy := n.location.Y - p.Y
-	if dy < 0 {
-		dy = -dy
-	}
-	dz := n.location.Z - p.Z
-	if dz < 0 {
-		dz = -dz
-	}
-
-	return dx+dy+dz <= n.radius
-}
-
-type Point3D struct {
-	X, Y, Z int
-}
-
-func (p Point3D) String() string {
-	return fmt.Sprintf("(%d, %d, %d)", p.X, p.Y, p.Z)
-}
-
-func InputToNanobots(year, day int) []Nanobot {
-	var nanobots []Nanobot
-	for _, line := range aoc.InputToLines(year, day) {
-		var x, y, z, r int
-		if _, err := fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &x, &y, &z, &r); err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
-
-		nanobots = append(nanobots, Nanobot{Point3D{x, y, z}, r})
-	}
-
-	return nanobots
+func InputToNanobots() []Nanobot {
+	return aoc.InputLinesTo(2018, 23, func(line string) (Nanobot, error) {
+		var p aoc.Point3D
+		var r int
+		_, err := fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &p.X, &p.Y, &p.Z, &r)
+		return Nanobot{Point3D: p, R: r}, err
+	})
 }

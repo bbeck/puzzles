@@ -2,136 +2,141 @@ package main
 
 import (
 	"fmt"
-	"math"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	facility := InputToFacility(2018, 20)
+	regex := aoc.InputToString(2018, 20)
+	world, origin := ParseRegex(regex)
 
+	// Determine the point that's furthest from the current location.  Because
+	// we're looking for the furthest point we'll assume there are no cycles.
+	// This means a basic breadth first search will work.
 	distances := map[aoc.Point2D]int{
-		aoc.Point2D{X: 0, Y: 0}: 0,
+		origin: 0,
 	}
 
-	aoc.BreadthFirstSearch(facility[aoc.Point2D{X: 0, Y: 0}], func(node aoc.Node) bool {
-		room := node.(*Room)
-		if _, ok := distances[room.location]; ok {
-			return false
-		}
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		var children []aoc.Point2D
+		for _, child := range p.OrthogonalNeighbors() {
+			if !world.InBounds(child) || !world.Get(child) {
+				continue
+			}
 
-		// This room's distance is the distance of its closest child + 1
-		closest := math.MaxInt64
-		for _, child := range room.Children() {
-			cRoom := child.(*Room)
-			if cDistance, ok := distances[cRoom.location]; ok && cDistance < closest {
-				closest = cDistance
+			if _, found := distances[child]; !found {
+				distances[child] = distances[p] + 1
+				children = append(children, child)
 			}
 		}
 
-		distances[room.location] = closest + 1
+		return children
+	}
+
+	aoc.BreadthFirstSearch(origin, children, func(p aoc.Point2D) bool {
 		return false
 	})
 
 	var count int
-	for _, distance := range distances {
-		if distance >= 1000 {
+	for p, d := range distances {
+		// Anything that's not at the same X/Y parity level as the origin is a door.
+		if p.X%2 != origin.X%2 || p.Y%2 != origin.Y%2 {
+			continue
+		}
+
+		// Count paths longer than 1000 units (double to take into account doors).
+		if d >= 2000 {
 			count++
 		}
 	}
-
-	fmt.Printf("paths > 1000 doors: %d\n", count)
+	fmt.Println(count)
 }
 
-type Room struct {
-	location   aoc.Point2D
-	n, s, w, e bool
+func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
+	input = strings.ReplaceAll(input, "^", "")
+	input = strings.ReplaceAll(input, "$", "")
 
-	facility *Facility
-}
+	// Which coordinates are open in the world.
+	var open aoc.Set[aoc.Point2D]
+	open.Add(aoc.Origin2D)
 
-func (r *Room) ID() string {
-	return r.location.String()
-}
+	// The current positions we're exploring.  This is the fringe of the search.
+	// Every time we encounter a new group we'll push this set onto a stack so
+	// that we can return to them whenever we need to branch within the group.
+	// When we exit a group we'll pop from the stack.
+	var currents aoc.Set[aoc.Point2D]
+	currents.Add(aoc.Origin2D)
 
-func (r *Room) Children() []aoc.Node {
-	facility := r.facility
+	// The stack of previous positions on the fringe that we've encountered.
+	// These are kept so that when we're in an OR group we know which position
+	// to return to when we encounter an OR operator.
+	var previous aoc.Stack[aoc.Set[aoc.Point2D]]
 
-	var children []aoc.Node
+	// A stack of positions that have been reached while in a group.  Whenever
+	// we enter a group we'll push an empty set onto the stack.  As we process
+	// the different OR expressions within the group we'll union the set of
+	// positions reached with the top entry of this stack.  When we exit the
+	// group the top of this stack will become the current positions set.
+	var group aoc.Stack[aoc.Set[aoc.Point2D]]
 
-	if r.n {
-		children = append(children, (*facility)[r.location.Up()])
-	}
-	if r.s {
-		children = append(children, (*facility)[r.location.Down()])
-	}
-	if r.w {
-		children = append(children, (*facility)[r.location.Left()])
-	}
-	if r.e {
-		children = append(children, (*facility)[r.location.Right()])
-	}
+	for _, ch := range input {
+		var next aoc.Set[aoc.Point2D]
 
-	return children
-}
-
-type Facility map[aoc.Point2D]*Room
-
-func InputToFacility(year, day int) Facility {
-	regex := aoc.InputToString(year, day)
-
-	// Start off assuming we're standing at (0, 0)
-	location := aoc.Point2D{X: 0, Y: 0}
-
-	facility := make(Facility)
-
-	getRoom := func(p aoc.Point2D) *Room {
-		room := facility[p]
-		if room == nil {
-			room = &Room{
-				location: location,
-				facility: &facility,
-			}
-			facility[p] = room
-		}
-
-		return room
-	}
-
-	stack := aoc.NewStack()
-	for _, c := range regex {
-		switch c {
+		switch ch {
 		case 'N':
-			getRoom(location).n = true
-			location = location.Up()
-			getRoom(location).s = true
-
+			for _, p := range currents.Entries() {
+				open.Add(p.Up(), p.Up().Up())
+				next.Add(p.Up().Up())
+			}
+		case 'E':
+			for _, p := range currents.Entries() {
+				open.Add(p.Right(), p.Right().Right())
+				next.Add(p.Right().Right())
+			}
 		case 'S':
-			getRoom(location).s = true
-			location = location.Down()
-			getRoom(location).n = true
+			for _, p := range currents.Entries() {
+				open.Add(p.Down(), p.Down().Down())
+				next.Add(p.Down().Down())
+			}
 
 		case 'W':
-			getRoom(location).w = true
-			location = location.Left()
-			getRoom(location).e = true
-
-		case 'E':
-			getRoom(location).e = true
-			location = location.Right()
-			getRoom(location).w = true
-
-		case '|':
-			location = stack.Pop().(aoc.Point2D)
-			stack.Push(location)
+			for _, p := range currents.Entries() {
+				open.Add(p.Left(), p.Left().Left())
+				next.Add(p.Left().Left())
+			}
 
 		case '(':
-			stack.Push(location)
+			previous.Push(currents)
+			group.Push(aoc.Set[aoc.Point2D]{})
+
+		case '|':
+			// We're going to backtrack.  Before we do remember where we ended up in
+			// the group stack.
+			g := group.Pop()
+			g.Add(currents.Entries()...)
+			group.Push(g)
+
+			currents = previous.Peek()
 
 		case ')':
-			location = stack.Pop().(aoc.Point2D)
+			// We've finished this group.  Union together all the ending positions
+			// for each term of the group.
+			currents.Add(group.Pop().Entries()...)
+
+			previous.Pop()
+		}
+
+		if len(next) > 0 {
+			currents = next
 		}
 	}
 
-	return facility
+	// Convert the set of open points into a grid.
+	tl, br := aoc.GetBounds(open.Entries())
+	grid := aoc.NewGrid2D[bool](br.X-tl.X+1, br.Y-tl.Y+1)
+	for _, p := range open.Entries() {
+		grid.AddXY(p.X-tl.X, p.Y-tl.Y, true)
+	}
+
+	return grid, aoc.Point2D{X: -tl.X, Y: -tl.Y}
 }

@@ -8,77 +8,53 @@ import (
 )
 
 func main() {
-	root := InputToTree(2018, 8)
-	fmt.Printf("value of root: %d\n", root.Value())
-}
+	var value func(Node) int
+	value = func(n Node) int {
+		if len(n.Children) == 0 {
+			return aoc.Sum(n.Metadata...)
+		}
 
-type Queue []int
+		var sum int
+		for _, index := range n.Metadata {
+			if index <= 0 || index > len(n.Children) {
+				continue
+			}
 
-func (q *Queue) Pop() int {
-	data := (*q)[0]
-	*q = (*q)[1:]
-	return data
+			sum += value(n.Children[index-1])
+		}
+		return sum
+	}
+
+	root := InputToTree()
+	fmt.Println(value(root))
 }
 
 type Node struct {
-	metadata []int
-	children []*Node
+	Children []Node
+	Metadata []int
 }
 
-func (n *Node) Value() int {
-	numChildren := len(n.children)
-
-	var sum int
-	for _, idx := range n.metadata {
-		switch {
-		case numChildren == 0:
-			sum += idx
-
-		case idx <= 0 || idx > numChildren:
-			sum += 0
-
-		default:
-			sum += n.children[idx-1].Value()
-		}
+func InputToTree() Node {
+	var ns aoc.Deque[int]
+	for _, s := range strings.Fields(aoc.InputToString(2018, 8)) {
+		ns.PushBack(aoc.ParseInt(s))
 	}
 
-	return sum
-}
+	var next func() Node
+	next = func() Node {
+		numChildren := ns.PopFront()
+		numMetadata := ns.PopFront()
 
-func InputToTree(year, day int) *Node {
-	q := Queue(InputToInts(year, day))
-
-	var toNode func() *Node
-	toNode = func() *Node {
-		numChildren := q.Pop()
-		numMetadata := q.Pop()
-
-		var children []*Node
+		var n Node
 		for i := 0; i < numChildren; i++ {
-			children = append(children, toNode())
+			n.Children = append(n.Children, next())
 		}
-
-		var metadata []int
 		for i := 0; i < numMetadata; i++ {
-			metadata = append(metadata, q.Pop())
+			n.Metadata = append(n.Metadata, ns.PopFront())
 		}
 
-		return &Node{
-			metadata: metadata,
-			children: children,
-		}
+		return n
 	}
 
-	return toNode()
-}
-
-func InputToInts(year, day int) []int {
-	parts := strings.Split(aoc.InputToString(year, day), " ")
-
-	var ints []int
-	for _, p := range parts {
-		ints = append(ints, aoc.ParseInt(p))
-	}
-
-	return ints
+	return next()
 }

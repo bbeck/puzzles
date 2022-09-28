@@ -2,104 +2,74 @@ package main
 
 import (
 	"fmt"
-	"math/bits"
+	"github.com/bbeck/advent-of-code/aoc"
 	"sort"
 	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	activities := InputToActivities(2018, 4)
+	guards := InputToGuards()
+	sort.Slice(guards, func(i, j int) bool {
+		return aoc.Sum(guards[i].Sleep[:]...) > aoc.Sum(guards[j].Sleep[:]...)
+	})
 
-	// Find the guard that was asleep the most overall number of minutes.
-	counts := make(map[int]int)
-	for _, activity := range activities {
-		counts[activity.guard] += bits.OnesCount64(activity.schedule)
-	}
+	max := aoc.Max(guards[0].Sleep[:]...)
 
-	var guard, count int
-	for id, c := range counts {
-		if c > count {
-			guard = id
-			count = c
-		}
-	}
-	fmt.Printf("guard %d was alseep for %d minutes\n", guard, count)
-
-	// Now that we've selected a guard, determine which minute he was most asleep
-	// for.
-	counts = make(map[int]int)
-	for _, activity := range activities {
-		if activity.guard != guard {
-			continue
-		}
-
-		for m := 0; m <= 60; m++ {
-			if activity.schedule&(1<<m) > 0 {
-				counts[m]++
-			}
+	var minute int
+	for minute = 0; minute < 60; minute++ {
+		if guards[0].Sleep[minute] == max {
+			break
 		}
 	}
 
-	var minute, max int
-	for m, c := range counts {
-		if c > max {
-			minute = m
-			max = c
-		}
-	}
-	fmt.Printf("guard was asleep %d times during minute %d\n", max, minute)
-	fmt.Printf("id * minute: %d\n", guard*minute)
+	fmt.Println(guards[0].ID * minute)
 }
 
-type Activity struct {
-	date     string
-	guard    int
-	schedule uint64
+type Guard struct {
+	ID    int
+	Sleep [60]int
 }
 
-func InputToActivities(year, day int) []Activity {
-	lines := aoc.InputToLines(year, day)
+func InputToGuards() []Guard {
+	lines := aoc.InputToLines(2018, 4)
+	sort.Strings(lines) // Sort into time order
 
-	// The lines are not sorted in time order, so we need to sort them.
-	// Fortunately they use a variant of ISO8601 so a simple textual sort should
-	// work.
-	sort.Strings(lines)
+	sleep := make(map[int][60]int) // number of times each guard was asleep at the given minute
 
-	var activities []Activity
+	var current int // the current guard
+	var asleep int  // the minute the current guard fell asleep
 
-	var activity *Activity
-	var asleep int
 	for _, line := range lines {
-		date := strings.ReplaceAll(strings.Split(line, " ")[0], "[", "")
-		minute := aoc.ParseInt(strings.Split(strings.Split(line, ":")[1], "]")[0])
+		line = strings.ReplaceAll(line, "[", "")
+		line = strings.ReplaceAll(line, "]", "")
+		line = strings.ReplaceAll(line, "#", "")
+		line = strings.ReplaceAll(line, ":", " ")
+		line = strings.ReplaceAll(line, "-", " ")
+		fields := strings.Fields(line)
+
+		minute := aoc.ParseInt(fields[4])
 
 		if strings.Contains(line, "begins shift") {
-			if activity != nil {
-				activities = append(activities, *activity)
-			}
-
-			id := aoc.ParseInt(strings.Split(strings.Split(line, "#")[1], " ")[0])
-			activity = &Activity{date: date, guard: id}
-			continue
+			current = aoc.ParseInt(fields[6])
 		}
 
 		if strings.Contains(line, "falls asleep") {
-			activity.date = date
 			asleep = minute
-			continue
 		}
 
 		if strings.Contains(line, "wakes up") {
-			for m := asleep; m < minute; m++ {
-				activity.schedule |= 1 << m
+			for tm := asleep; tm < minute; tm++ {
+				schedule := sleep[current]
+				schedule[tm]++
+				sleep[current] = schedule
 			}
-			continue
 		}
 	}
 
-	activities = append(activities, *activity)
+	var guards []Guard
+	for id, schedule := range sleep {
+		guards = append(guards, Guard{ID: id, Sleep: schedule})
+	}
 
-	return activities
+	return guards
 }

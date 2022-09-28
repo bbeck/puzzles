@@ -2,229 +2,141 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	world := InputToWorld(2018, 17)
-	Flow(world, aoc.Point2D{X: 500, Y: 1})
+	world := InputToWorld()
 
-	fmt.Printf("complete\n")
-	fmt.Println(world)
-
-	var count int
-	for p, cell := range world.grid {
-		if p.Y < world.minY || p.Y > world.maxY {
-			continue
-		}
-
-		if cell == WATER {
-			count++
+	// Find the initial spring of water.
+	var spring aoc.Point2D
+	for x := 0; x < world.Width; x++ {
+		if world.GetXY(x, 0) == Flow {
+			spring = aoc.Point2D{X: x, Y: 0}
 		}
 	}
-	fmt.Printf("water tiles: %d\n", count)
+
+	Down(world, spring.Down())
+
+	var wet int
+	for y := 0; y < world.Height; y++ {
+		for x := 0; x < world.Width; x++ {
+			switch world.GetXY(x, y) {
+			case Water:
+				wet++
+			}
+		}
+	}
+	fmt.Println(wet)
 }
 
-func Flow(world *World, p aoc.Point2D) {
-	if p.Y > world.maxY {
+func Down(world World, p aoc.Point2D) {
+	if world.Get(p) != Empty {
 		return
 	}
 
-	current := world.grid[p]
-	if current != EMPTY {
+	// Start by making our new point water flow.
+	world.Add(p, Flow)
+
+	down := p.Down()
+	if !world.InBounds(down) {
 		return
 	}
 
-	world.grid[p] = FLOW
-
-	below := world.grid[p.Down()]
-	if below == EMPTY {
-		Flow(world, p.Down())
+	// If below us is empty, then flow down into it.
+	if world.Get(down) == Empty {
+		Down(world, down)
 	}
 
-	// At this point everything below us has been flooded properly.  If we're
-	// currently on top of more flow then we're done we can't move to the sides.
-	// Otherwise we're on top of standing water or a wall and need to spread water
-	// to the sides.
-	below = world.grid[p.Down()]
-	if below == FLOW || p.Down().Y > world.maxY {
-		return
-	}
+	// At this point everything below us has been determined.  If we're
+	// sitting on top of water or a wall, then we should spread out to the
+	// sides.
+	if below := world.Get(down); below == Wall || below == Water {
+		cl := Side(world, p, -1)
+		cr := Side(world, p, +1)
 
-	Spread(world, p)
+		// If the flow at this level is contained on both sides by a wall, then
+		// convert it into standing water.
+		if cl && cr {
+			for q := p; world.InBounds(q) && world.Get(q) != Wall; q = q.Left() {
+				world.Add(q, Water)
+			}
+			for q := p; world.InBounds(q) && world.Get(q) != Wall; q = q.Right() {
+				world.Add(q, Water)
+			}
+		}
+	}
 }
 
-func Spread(world *World, p aoc.Point2D) bool {
-	if world.grid[p] != FLOW {
-		log.Fatalf("attempting to spread on a non-flow cell, p: %s", p)
-		return false
-	}
-
-	// We can't short circuit here, we must always try to spread in both
-	// directions.
-	containedLeft := SpreadLeft(world, p.Left())
-	containedRight := SpreadRight(world, p.Right())
-
-	// If the left and right are contained, we can convert all of our flow into
-	// standing water.
-	if containedLeft && containedRight {
-		for x := p; world.grid[x] != WALL; x = x.Left() {
-			world.grid[x] = WATER
-		}
-		for x := p; world.grid[x] != WALL; x = x.Right() {
-			world.grid[x] = WATER
-		}
-
+func Side(world World, p aoc.Point2D, dx int) bool {
+	if current := world.Get(p); current == Wall || current == Water {
 		return true
+	}
+
+	below := world.Get(p.Down())
+	switch {
+	case below == Wall || below == Water:
+		world.Add(p, Flow)
+		return Side(world, aoc.Point2D{X: p.X + dx, Y: p.Y}, dx)
+	case below == Empty:
+		Down(world, p)
 	}
 
 	return false
 }
 
-// SpreadLeft will keep spreading flow to the left until it either falls off of
-// a cliff or runs into a way.  The returned boolean indicates if a wall was hit
-// which indicates that from this side it's okay to convert the flow into
-// standing water since it's contained.
-func SpreadLeft(world *World, p aoc.Point2D) bool {
-	if world.grid[p] == WALL || world.grid[p] == WATER {
-		return true
-	}
-
-	below := world.grid[p.Down()]
-	if below == EMPTY {
-		Flow(world, p)
-		return false
-	}
-
-	if below == FLOW {
-		return false
-	}
-
-	world.grid[p] = FLOW
-	return SpreadLeft(world, p.Left())
-}
-
-func SpreadRight(world *World, p aoc.Point2D) bool {
-	if world.grid[p] == WALL || world.grid[p] == WATER {
-		return true
-	}
-
-	below := world.grid[p.Down()]
-	if below == EMPTY {
-		Flow(world, p)
-		return false
-	}
-
-	if below == FLOW {
-		return false
-	}
-
-	world.grid[p] = FLOW
-	return SpreadRight(world, p.Right())
-}
-
 const (
-	EMPTY  int = 0
-	SPRING int = 1
-	WALL   int = 3
-	FLOW   int = 4
-	WATER  int = 5
+	Empty = iota
+	Wall
+	Water
+	Flow
 )
 
-type World struct {
-	minX, maxX int
-	minY, maxY int
-	grid       map[aoc.Point2D]int
-}
+type World struct{ aoc.Grid2D[int] }
 
-func (w *World) String() string {
-	var builder strings.Builder
-
-	// header
-	builder.WriteString("     ")
-	for x := w.minX - 1; x <= w.maxX+1; x++ {
-		builder.WriteString(fmt.Sprintf("%d", x/100%10))
-	}
-	builder.WriteString("\n")
-	builder.WriteString("     ")
-	for x := w.minX - 1; x <= w.maxX+1; x++ {
-		builder.WriteString(fmt.Sprintf("%d", x/10%10))
-	}
-	builder.WriteString("\n")
-	builder.WriteString("     ")
-	for x := w.minX - 1; x <= w.maxX+1; x++ {
-		builder.WriteString(fmt.Sprintf("%d", x%10))
-	}
-	builder.WriteString("\n")
-
-	for y := w.minY; y <= w.maxY; y++ {
-		builder.WriteString(fmt.Sprintf("%4d ", y))
-		for x := w.minX - 1; x <= w.maxX+1; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-			switch w.grid[p] {
-			case SPRING:
-				builder.WriteString("+")
-			case WALL:
-				builder.WriteString("█")
-			case FLOW:
-				builder.WriteString("|")
-			case WATER:
-				builder.WriteString("~")
-			default:
-				builder.WriteString(" ")
+func InputToWorld() World {
+	// Convert the input into line segments
+	type Line []aoc.Point2D
+	lines := aoc.InputLinesTo(2018, 17, func(s string) (Line, error) {
+		var x1, x2, y1, y2 int
+		var line Line
+		if _, err := fmt.Sscanf(s, "x=%d, y=%d..%d", &x1, &y1, &y2); err == nil {
+			for y := y1; y <= y2; y++ {
+				line = append(line, aoc.Point2D{X: x1, Y: y})
 			}
+			return line, nil
 		}
-		builder.WriteString("\n")
-	}
-
-	return builder.String()
-}
-
-func InputToWorld(year, day int) *World {
-	minX, minY := math.MaxInt64, math.MaxInt64
-	maxX, maxY := math.MinInt64, math.MinInt64
-	grid := map[aoc.Point2D]int{}
-
-	for _, line := range aoc.InputToLines(year, day) {
-		var xmin, xmax, ymin, ymax int
-		if _, err := fmt.Sscanf(line, "x=%d, y=%d..%d", &xmin, &ymin, &ymax); err == nil {
-			xmax = xmin
-		} else if _, err := fmt.Sscanf(line, "y=%d, x=%d..%d", &ymin, &xmin, &xmax); err == nil {
-			ymax = ymin
-		} else {
-			log.Fatalf("unable to parse input: %s", line)
-		}
-
-		if xmin < minX {
-			minX = xmin
-		}
-		if xmax > maxX {
-			maxX = xmax
-		}
-		if ymin < minY {
-			minY = ymin
-		}
-		if ymax > maxY {
-			maxY = ymax
-		}
-
-		for y := ymin; y <= ymax; y++ {
-			for x := xmin; x <= xmax; x++ {
-				p := aoc.Point2D{X: x, Y: y}
-				grid[p] = WALL
+		if _, err := fmt.Sscanf(s, "y=%d, x=%d..%d", &y1, &x1, &x2); err == nil {
+			for x := x1; x <= x2; x++ {
+				line = append(line, aoc.Point2D{X: x, Y: y1})
 			}
+			return line, nil
+		}
+		return line, fmt.Errorf("unable to parse line: %s", s)
+	})
+
+	// Determine the bounding box of the line segments.
+	var ps []aoc.Point2D
+	for _, line := range lines {
+		ps = append(ps, line...)
+	}
+	tl, br := aoc.GetBounds(ps)
+
+	// Determine the offsets to apply to each line segment that removes empty
+	// space to the left of them.
+	x0, y0 := tl.X-1, tl.Y
+
+	// Build the world from the line segments.
+	world := aoc.NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
+	for _, line := range lines {
+		for _, p := range line {
+			world.AddXY(p.X-x0, p.Y-y0, Wall)
 		}
 	}
 
-	return &World{
-		minX: minX,
-		maxX: maxX,
-		minY: minY,
-		maxY: maxY,
-		grid: grid,
-	}
+	// Lastly, since we've shifted the coordinates around also compute the new
+	// X coordinate of the spring.  We know the y coordinate will be 0.
+	world.AddXY(500-x0, 0, Flow)
+
+	return World{world}
 }

@@ -9,29 +9,24 @@ import (
 func main() {
 	var sum2, sum3 int
 	for _, line := range aoc.InputToLines(2018, 2) {
-		c2, c3 := Analyze(line)
-		sum2 += c2
-		sum3 += c3
-	}
-
-	fmt.Printf("checksum: %d\n", sum2*sum3)
-}
-
-func Analyze(s string) (int, int) {
-	counts := make(map[string]int)
-	for _, c := range s {
-		counts[string(c)]++
-	}
-
-	var has2, has3 int
-	for _, v := range counts {
-		if v == 2 {
-			has2 = 1
+		var counter aoc.FrequencyCounter[rune]
+		for _, c := range line {
+			counter.Add(c)
 		}
-		if v == 3 {
-			has3 = 1
+
+		var has2, has3 bool
+		for _, entry := range counter.Entries() {
+			has2 = has2 || entry.Count == 2
+			has3 = has3 || entry.Count == 3
+		}
+
+		if has2 {
+			sum2++
+		}
+		if has3 {
+			sum3++
 		}
 	}
 
-	return has2, has3
+	fmt.Println(sum2 * sum3)
 }

@@ -48,14 +48,7 @@ func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
 }
 
 func InputToLights() aoc.Grid2D[bool] {
-	lights := aoc.NewGrid2D[bool](100, 100)
-	for y, line := range aoc.InputToLines(2015, 18) {
-		for x, c := range line {
-			if c == '#' {
-				lights.AddXY(x, y, true)
-			}
-		}
-	}
-
-	return lights
+	return aoc.InputToGrid2D(2015, 18, func(x, y int, s string) bool {
+		return s == "#"
+	})
 }

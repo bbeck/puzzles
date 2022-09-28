@@ -2,47 +2,41 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	counts := make(map[aoc.Point2D]int)
-	for _, claim := range InputToClaims(2018, 3) {
-		for x := claim.left; x < claim.left+claim.width; x++ {
-			for y := claim.top; y < claim.top+claim.height; y++ {
-				counts[aoc.Point2D{X: x, Y: y}]++
+	area := aoc.Make2D[int](1001, 1001)
+	for _, claim := range InputToClaims() {
+		for dx := 0; dx < claim.Width; dx++ {
+			for dy := 0; dy < claim.Height; dy++ {
+				area[claim.TL.Y+dy][claim.TL.X+dx]++
 			}
 		}
 	}
 
-	var overlap int
-	for _, count := range counts {
-		if count > 1 {
-			overlap++
+	var count int
+	for y := 0; y <= 1000; y++ {
+		for x := 0; x <= 1000; x++ {
+			if area[y][x] > 1 {
+				count++
+			}
 		}
 	}
-
-	fmt.Printf("overlap: %d\n", overlap)
+	fmt.Println(count)
 }
 
 type Claim struct {
-	id            int
-	left, top     int
-	width, height int
+	ID            string
+	TL            aoc.Point2D
+	Width, Height int
 }
 
-func InputToClaims(year, day int) []Claim {
-	var claims []Claim
-	for _, line := range aoc.InputToLines(year, day) {
-		var id, left, top, width, height int
-		if _, err := fmt.Sscanf(line, "#%d @ %d,%d: %dx%d", &id, &left, &top, &width, &height); err != nil {
-			log.Fatalf("unable to parse claim: %s", line)
-		}
+func InputToClaims() []Claim {
+	return aoc.InputLinesTo(2018, 3, func(line string) (Claim, error) {
+		var claim Claim
+		fmt.Sscanf(line, "#%s @ %d,%d: %dx%d", &claim.ID, &claim.TL.X, &claim.TL.Y, &claim.Width, &claim.Height)
 
-		claims = append(claims, Claim{id, left, top, width, height})
-	}
-
-	return claims
+		return claim, nil
+	})
 }

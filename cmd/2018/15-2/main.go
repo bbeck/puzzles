@@ -2,391 +2,249 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/advent-of-code/aoc"
 	"math"
 	"sort"
-	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	L := 4
-	U := 200
+	// A binary search on AP doesn't work here because it's not always true that
+	// a success at one AP means success at all higher APs.  Consider the case
+	// where a higher AP elf finishes off a gnome more quickly and gets into a
+	// new fight.  That elf may have just blocked a higher health one that was
+	// getting into position to attack.  Thus, we have a lower health elf fighting
+	// and could take a loss.
+	//
+	// Considering the number of attacks it takes to finish off a gnome, does
+	// work, so we'll binary search on that instead.
+	outcomes := make(map[int]int) // outcomes indexed by number of attacks
 
-	outcomes := make(map[int]int) // mapping from successful AP to the outcome
-	for L <= U {
-		ap := (L + U) / 2
+	// Our search space is "backwards" since a lower number of attacks results
+	// in a higher AP.  So search will return the number of attacks value that
+	// results in our first loss.  We'll need the one before that.
+	attacks := -1 + sort.Search(200, func(n int) bool {
+		// Compute the AP that's needed to finish a 200HP gnome
+		ap := int(math.Ceil(200 / float64(n)))
 
-		result, outcome := simulate(ap)
-		if result {
-			U = ap - 1
-			outcomes[ap] = outcome
-		} else {
-			L = ap + 1
-		}
-	}
+		var success bool
+		outcomes[n], success = Simulate(ap)
+		return !success
+	})
 
-	for ap := 4; ; ap++ {
-		if outcomes[ap] > 0 {
-			fmt.Printf("ap: %d, outcome: %d\n", ap, outcomes[ap])
-			break
-		}
-	}
+	fmt.Println(outcomes[attacks])
 }
 
-func simulate(ap int) (bool, int) {
-	cavern := InputToCavern(2018, 15, ap)
-	// fmt.Printf("=== Initial =======================================\n")
-	// fmt.Println(cavern)
+func Simulate(ap int) (int, bool) {
+	cavern, units := InputToCavern(), InputToUnits(ap)
 
 	var round int
 	for round = 1; ; round++ {
-		// fmt.Printf("=== Round %2d =======================================\n", round)
+		sort.Slice(units, TurnOrder(units))
 
 		var done bool
-		for _, unit := range cavern.TurnOrder() {
-			// Check if the game is over.  If so then we have a partial round.
-			if len(cavern.elves) == 0 || len(cavern.goblins) == 0 {
+		for i := 0; !done && i < len(units); i++ {
+			TakeTurn(&units[i], cavern, units)
+
+			if IsGameOver(units) {
 				done = true
-				round--
-
-				// fmt.Printf("  Ended early\n")
-				// fmt.Println()
-				break
-			}
-
-			if unit.hp <= 0 {
-				// The unit died earlier in the round
-				continue
-			}
-
-			// Move (if necessary)
-			cavern.Move(unit)
-
-			// Attack
-			if cavern.Attack(unit) {
-				return false, 0
+				if i != len(units)-1 {
+					round--
+				}
 			}
 		}
+
+		// Remove the dead
+		var next []Unit
+		for _, unit := range units {
+			// Terminate with a failure if an elf dies.
+			if unit.Kind == "E" && unit.HP <= 0 {
+				return 0, false
+			}
+
+			if unit.HP > 0 {
+				next = append(next, unit)
+			}
+		}
+		units = next
 
 		if done {
 			break
 		}
-
-		// fmt.Printf("At end of round %d, board is:\n", round)
-		// fmt.Println(cavern)
 	}
-
-	// fmt.Printf("=== Final =======================================\n")
-	// fmt.Println(cavern)
 
 	var hps int
-	for _, elf := range cavern.elves {
-		hps += elf.hp
+	for _, unit := range units {
+		hps += unit.HP
 	}
-	for _, goblin := range cavern.goblins {
-		hps += goblin.hp
-	}
-
-	// fmt.Printf("full rounds: %d, hps: %d, outcome: %d\n", round, hps, round*hps)
-	return true, round * hps
+	return round * hps, true
 }
 
-const (
-	WALL  string = "#"
-	EMPTY        = "."
-)
-
-type Cavern struct {
-	width   int
-	height  int
-	cells   map[aoc.Point2D]string
-	elves   map[aoc.Point2D]*Unit
-	goblins map[aoc.Point2D]*Unit
+func TurnOrder(units []Unit) func(int, int) bool {
+	return func(i int, j int) bool {
+		return units[i].Y < units[j].Y ||
+			(units[i].Y == units[j].Y && units[i].X < units[j].X)
+	}
 }
 
-func (c *Cavern) TurnOrder() []*Unit {
-	var units []*Unit
-	for y := 0; y < c.height; y++ {
-		for x := 0; x < c.width; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-			if elf, ok := c.elves[p]; ok {
-				units = append(units, elf)
+func ReadingOrder(ps []aoc.Point2D) func(int, int) bool {
+	return func(i int, j int) bool {
+		return ps[i].Y < ps[j].Y ||
+			(ps[i].Y == ps[j].Y && ps[i].X < ps[j].X)
+	}
+}
+
+func IsGameOver(units []Unit) bool {
+	var foundE, foundG bool
+	for i := 0; i < len(units) && (!foundE || !foundG); i++ {
+		if units[i].HP <= 0 {
+			continue
+		}
+
+		switch units[i].Kind {
+		case "E":
+			foundE = true
+		case "G":
+			foundG = true
+		}
+	}
+
+	return !foundE || !foundG
+}
+
+func TakeTurn(unit *Unit, cavern aoc.Grid2D[bool], units []Unit) {
+	if unit.HP <= 0 {
+		return
+	}
+
+	var occupied aoc.Set[aoc.Point2D]
+	for _, u := range units {
+		if u.HP > 0 && u.Point2D != unit.Point2D {
+			occupied.Add(u.Point2D)
+		}
+	}
+
+	enemies := make(map[aoc.Point2D]int)
+	for index, u := range units {
+		if u.HP > 0 && u.Kind != unit.Kind {
+			enemies[u.Point2D] = index
+		}
+	}
+
+	// Attempt to move.  Start by computing all possible targets for this unit.
+	// A target is an open cell adjacent to an enemy.
+	var candidates aoc.Set[aoc.Point2D]
+	for target := range enemies {
+		for _, p := range target.OrthogonalNeighbors() {
+			if cavern.Get(p) && !occupied.Contains(p) {
+				candidates.Add(p)
 			}
-			if goblin, ok := c.goblins[p]; ok {
-				units = append(units, goblin)
+		}
+	}
+
+	// If we're already at one of the candidate positions then no move is
+	// necessary.  We'll use an empty targets slice in this situation.
+	var targets []aoc.Point2D
+	if !candidates.Contains(unit.Point2D) {
+		targets = candidates.Entries()
+		sort.Slice(targets, ReadingOrder(targets))
+	}
+
+	// This unit can move to one of its neighboring cells.  Choose the neighboring
+	// cell that's closest to a target cell.
+	var choice aoc.Point2D
+	best := math.MaxInt
+	for _, end := range targets {
+		for _, start := range []aoc.Point2D{unit.Up(), unit.Left(), unit.Right(), unit.Down()} {
+			if !cavern.Get(start) || occupied.Contains(start) {
+				continue
+			}
+
+			distance := Distance(start, end, cavern, occupied)
+			if distance < best {
+				best = distance
+				choice = start
+			}
+		}
+	}
+
+	if best < math.MaxInt {
+		unit.Point2D = choice
+	}
+
+	// Now determine if this unit is in range of an enemy to attack.  If multiple
+	// enemies are in range the one with the lowest hit points is chosen.
+	attack := -1
+	for _, p := range []aoc.Point2D{unit.Up(), unit.Left(), unit.Right(), unit.Down()} {
+		if index, found := enemies[p]; found && (attack == -1 || units[index].HP < units[attack].HP) {
+			attack = index
+		}
+	}
+	if attack != -1 {
+		units[attack].HP -= unit.AP
+	}
+}
+
+func Distance(start, end aoc.Point2D, cavern aoc.Grid2D[bool], occupied aoc.Set[aoc.Point2D]) int {
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		var children []aoc.Point2D
+		for _, neighbor := range []aoc.Point2D{p.Up(), p.Left(), p.Right(), p.Down()} {
+			if cavern.InBounds(neighbor) && cavern.Get(neighbor) && !occupied.Contains(neighbor) {
+				children = append(children, neighbor)
+			}
+		}
+		return children
+	}
+
+	isGoal := func(p aoc.Point2D) bool {
+		return p == end
+	}
+
+	path, found := aoc.BreadthFirstSearch(start, children, isGoal)
+	if !found {
+		return math.MaxInt
+	}
+	return len(path)
+}
+
+type Unit struct {
+	aoc.Point2D
+	Kind string
+	HP   int
+	AP   int
+}
+
+func InputToCavern() aoc.Grid2D[bool] {
+	lines := aoc.InputToLines(2018, 15)
+
+	grid := aoc.NewGrid2D[bool](len(lines[0]), len(lines))
+	for y := 0; y < len(lines); y++ {
+		for x, c := range lines[y] {
+			grid.AddXY(x, y, c != '#')
+		}
+	}
+	return grid
+}
+
+func InputToUnits(elfAP int) []Unit {
+	lines := aoc.InputToLines(2018, 15)
+
+	var units []Unit
+	for y := 0; y < len(lines); y++ {
+		for x, c := range lines[y] {
+			var ap = 3
+			if c == 'E' {
+				ap = elfAP
+			}
+			if c == 'G' || c == 'E' {
+				units = append(units, Unit{
+					Kind:    string(c),
+					Point2D: aoc.Point2D{X: x, Y: y},
+					HP:      200,
+					AP:      ap,
+				})
 			}
 		}
 	}
 
 	return units
-}
-
-func (c *Cavern) Move(u *Unit) {
-	enemies := c.goblins
-	if u.side == "G" {
-		enemies = c.elves
-	}
-
-	// First, determine the distance and path to each cell that's adjacent to an
-	// enemy.
-	targets := make([]aoc.Point2D, 0)
-	distances := make(map[aoc.Point2D]int)
-	for _, enemy := range enemies {
-		neighbors := []aoc.Point2D{
-			enemy.location.Up(),
-			enemy.location.Left(),
-			enemy.location.Right(),
-			enemy.location.Down(),
-		}
-		for _, neighbor := range neighbors {
-			if neighbor == u.location {
-				targets = append(targets, neighbor)
-				distances[neighbor] = 0
-				continue
-			}
-
-			if c.cells[neighbor] == WALL {
-				continue
-			}
-
-			if c.elves[neighbor] != nil {
-				continue
-			}
-
-			if c.goblins[neighbor] != nil {
-				continue
-			}
-
-			heuristic := func(node aoc.Node) int {
-				p := node.(*Unit).location
-				return p.ManhattanDistance(neighbor)
-			}
-
-			isGoal := func(node aoc.Node) bool {
-				p := node.(*Unit).location
-				return p == neighbor
-			}
-
-			cost := func(from, to aoc.Node) int {
-				return 1
-			}
-
-			// We can't use the path discovered by the A* search because it doesn't
-			// always obey reading order -- we don't have control over the tie breaks
-			// within the priority queue.
-			_, distance, found := aoc.AStarSearch(u, isGoal, cost, heuristic)
-			if !found {
-				// There wasn't a path, nothing to remember.
-				continue
-			}
-
-			targets = append(targets, neighbor)
-			distances[neighbor] = distance
-		}
-	}
-
-	if len(targets) == 0 {
-		// There wasn't a valid target, we can't move.
-		return
-	}
-
-	// Order the targets in reading order
-	sort.Slice(targets, func(i, j int) bool {
-		return targets[i].Y < targets[j].Y ||
-			(targets[i].Y == targets[j].Y && targets[i].X < targets[j].X)
-	})
-
-	// Now that we know all of the targets, choose the first one with the shortest
-	// distance.
-	var target aoc.Point2D
-	var distance = math.MaxInt64
-	for _, t := range targets {
-		if distances[t] < distance {
-			target = t
-			distance = distances[t]
-		}
-	}
-
-	// If the distance is 0 then we're already in the place we want to be.  No
-	// need to move.
-	if distance == 0 {
-		return
-	}
-
-	// Now determine the reading order path to our target.  We know a path exists
-	// due to the A* search we already performed.
-	path, _ := aoc.BreadthFirstSearch(u, func(node aoc.Node) bool {
-		return node.(*Unit).location == target
-	})
-
-	next := path[1].(*Unit)
-	if u.side == "E" {
-		delete(c.elves, u.location)
-		c.elves[next.location] = u
-		u.location = next.location
-	} else {
-		delete(c.goblins, u.location)
-		c.goblins[next.location] = u
-		u.location = next.location
-	}
-}
-
-func (c *Cavern) Attack(u *Unit) bool {
-	// These are the possible locations of a target in reading order.
-	ps := []aoc.Point2D{
-		u.location.Up(),
-		u.location.Left(),
-		u.location.Right(),
-		u.location.Down(),
-	}
-
-	var target *Unit
-	for _, p := range ps {
-		switch u.side {
-		case "E":
-			if goblin, ok := c.goblins[p]; ok {
-				if target == nil || goblin.hp < target.hp {
-					target = goblin
-				}
-			}
-		case "G":
-			if elf, ok := c.elves[p]; ok {
-				if target == nil || elf.hp < target.hp {
-					target = elf
-				}
-			}
-		}
-	}
-
-	// There wasn't a target to attack, skip the attacking.
-	if target == nil {
-		return false
-	}
-
-	target.hp -= u.ap
-	if target.hp <= 0 {
-		switch target.side {
-		case "E":
-			delete(c.elves, target.location)
-			return true
-
-		case "G":
-			delete(c.goblins, target.location)
-		}
-	}
-
-	return false
-}
-
-func (c *Cavern) String() string {
-	var builder strings.Builder
-	for y := 0; y < c.height; y++ {
-		var units []string
-
-		builder.WriteString("  ")
-		for x := 0; x < c.width; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-
-			if c.cells[p] == WALL {
-				builder.WriteString("█")
-			} else if elf, ok := c.elves[p]; ok {
-				builder.WriteString(elf.side)
-				units = append(units, fmt.Sprintf("E(%d)", elf.hp))
-			} else if goblin, ok := c.goblins[p]; ok {
-				builder.WriteString(goblin.side)
-				units = append(units, fmt.Sprintf("G(%d)", goblin.hp))
-			} else {
-				builder.WriteString(EMPTY)
-			}
-		}
-
-		builder.WriteString("  ")
-		builder.WriteString(strings.Join(units, ", "))
-		if y < c.height-1 {
-			builder.WriteString("\n")
-		}
-	}
-
-	return builder.String()
-}
-
-type Unit struct {
-	side     string
-	location aoc.Point2D
-	ap       int
-	hp       int
-	cavern   *Cavern
-}
-
-func (u *Unit) ID() string {
-	return u.location.String()
-}
-
-func (u *Unit) Children() []aoc.Node {
-	ps := []aoc.Point2D{
-		u.location.Up(),
-		u.location.Left(),
-		u.location.Right(),
-		u.location.Down(),
-	}
-
-	var children []aoc.Node
-	for _, p := range ps {
-		if cell, ok := u.cavern.cells[p]; !ok || cell == WALL {
-			continue
-		}
-
-		if _, ok := u.cavern.elves[p]; ok {
-			continue
-		}
-
-		if _, ok := u.cavern.goblins[p]; ok {
-			continue
-		}
-
-		children = append(children, &Unit{
-			side:     u.side,
-			location: p,
-			hp:       u.hp,
-			cavern:   u.cavern,
-		})
-	}
-
-	return children
-}
-
-func InputToCavern(year, day int, elfAP int) *Cavern {
-	cavern := new(Cavern)
-	width := 0
-	height := 0
-	cells := make(map[aoc.Point2D]string)
-	elves := make(map[aoc.Point2D]*Unit)
-	goblins := make(map[aoc.Point2D]*Unit)
-	for y, line := range aoc.InputToLines(year, day) {
-		for x, c := range line {
-			p := aoc.Point2D{X: x, Y: y}
-			switch c {
-			case '#':
-				cells[p] = WALL
-			case '.':
-				cells[p] = EMPTY
-			case 'E':
-				cells[p] = EMPTY
-				elves[p] = &Unit{side: "E", location: p, ap: elfAP, hp: 200, cavern: cavern}
-			case 'G':
-				cells[p] = EMPTY
-				goblins[p] = &Unit{side: "G", location: p, ap: 3, hp: 200, cavern: cavern}
-			}
-			width = x + 1
-		}
-		height = y + 1
-	}
-
-	cavern.width = width
-	cavern.height = height
-	cavern.cells = cells
-	cavern.elves = elves
-	cavern.goblins = goblins
-	return cavern
 }

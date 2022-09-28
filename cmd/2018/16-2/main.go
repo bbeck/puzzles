@@ -2,290 +2,162 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"reflect"
+	"regexp"
+	"strings"
 )
 
 func main() {
-	samples, program := InputToSamplesAndProgram(2018, 16)
-	mapping := DeriveInstructionMapping(samples)
+	operations := IdentifyOperations()
 
-	registers := Registers{0, 0, 0, 0}
-	for _, instruction := range program {
-		op, a, b, c := instruction.op, instruction.a, instruction.b, instruction.c
-		registers = mapping[op](a, b, c, registers)
+	regs := make([]int, 4)
+	for _, instruction := range InputToProgram() {
+		operations[instruction.OpCode](instruction.A, instruction.B, instruction.C, regs)
 	}
-
-	for i := 0; i < 4; i++ {
-		fmt.Printf("register %d: %d\n", i, registers[i])
-	}
+	fmt.Println(regs[0])
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
-type Instruction func(a, b, c int, registers Registers) Registers
-
-var instructions = map[string]Instruction{
-	"addr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] + registers[b]
-		return registers
-	},
-	"addi": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] + b
-		return registers
-	},
-	"mulr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] * registers[b]
-		return registers
-	},
-	"muli": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] * b
-		return registers
-	},
-	"banr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] & registers[b]
-		return registers
-	},
-	"bani": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] & b
-		return registers
-	},
-	"borr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] | registers[b]
-		return registers
-	},
-	"bori": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a] | b
-		return registers
-	},
-	"setr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = registers[a]
-		return registers
-	},
-	"seti": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		registers[c] = a
-		return registers
-	},
-	"gtir": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		if a > registers[b] {
-			registers[c] = 1
-		} else {
-			registers[c] = 0
+func IdentifyOperations() []Operation {
+	gt := func(a, b int) int {
+		if a > b {
+			return 1
 		}
-		return registers
-	},
-	"gtri": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		if registers[a] > b {
-			registers[c] = 1
-		} else {
-			registers[c] = 0
-		}
-		return registers
-	},
-	"gtrr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		if registers[a] > registers[b] {
-			registers[c] = 1
-		} else {
-			registers[c] = 0
-		}
-		return registers
-	},
-	"eqir": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		if a == registers[b] {
-			registers[c] = 1
-		} else {
-			registers[c] = 0
-		}
-		return registers
-	},
-	"eqri": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		if registers[a] == b {
-			registers[c] = 1
-		} else {
-			registers[c] = 0
-		}
-		return registers
-	},
-	"eqrr": func(a, b, c int, registers Registers) Registers {
-		registers = append(Registers{}, registers...)
-		if registers[a] == registers[b] {
-			registers[c] = 1
-		} else {
-			registers[c] = 0
-		}
-		return registers
-	},
-}
-
-func DeriveInstructionMapping(samples []Sample) map[int]Instruction {
-	opcodes := make([]string, 0)
-	for opcode := range instructions {
-		opcodes = append(opcodes, opcode)
+		return 0
 	}
 
-	// initially every op id can be any op code
-	possibilities := make(map[int][]string)
-	for i := 0; i < 16; i++ {
-		possibilities[i] = append([]string{}, opcodes...)
+	eq := func(a, b int) int {
+		if a == b {
+			return 1
+		}
+		return 0
 	}
 
-	// intersect two sets of strings
-	intersect := func(s1, s2 []string) []string {
-		m := make(map[string]bool)
-		for _, s := range s1 {
-			m[s] = true
-		}
+	operations := map[string]Operation{
+		"addr": func(a, b, c int, reg []int) { reg[c] = reg[a] + reg[b] },
+		"addi": func(a, b, c int, reg []int) { reg[c] = reg[a] + b },
+		"mulr": func(a, b, c int, reg []int) { reg[c] = reg[a] * reg[b] },
+		"muli": func(a, b, c int, reg []int) { reg[c] = reg[a] * b },
+		"banr": func(a, b, c int, reg []int) { reg[c] = reg[a] & reg[b] },
+		"bani": func(a, b, c int, reg []int) { reg[c] = reg[a] & b },
+		"borr": func(a, b, c int, reg []int) { reg[c] = reg[a] | reg[b] },
+		"bori": func(a, b, c int, reg []int) { reg[c] = reg[a] | b },
+		"setr": func(a, b, c int, reg []int) { reg[c] = reg[a] },
+		"seti": func(a, b, c int, reg []int) { reg[c] = a },
+		"gtir": func(a, b, c int, reg []int) { reg[c] = gt(a, reg[b]) },
+		"gtri": func(a, b, c int, reg []int) { reg[c] = gt(reg[a], b) },
+		"gtrr": func(a, b, c int, reg []int) { reg[c] = gt(reg[a], reg[b]) },
+		"eqir": func(a, b, c int, reg []int) { reg[c] = eq(a, reg[b]) },
+		"eqri": func(a, b, c int, reg []int) { reg[c] = eq(reg[a], b) },
+		"eqrr": func(a, b, c int, reg []int) { reg[c] = eq(reg[a], reg[b]) },
+	}
 
-		var result []string
-		for _, s := range s2 {
-			if m[s] {
-				result = append(result, s)
+	// Start with every opcode being able to be any operation
+	var possibilities [16]aoc.Set[string]
+	for i := 0; i < len(possibilities); i++ {
+		for op := range operations {
+			possibilities[i].Add(op)
+		}
+	}
+
+	// Filter opcode possibilities by what each sample says
+	for _, sample := range InputToSamples() {
+		var possible aoc.Set[string]
+		for op, operation := range operations {
+			regs := make([]int, len(sample.Before))
+			copy(regs, sample.Before[:])
+
+			operation(sample.A, sample.B, sample.C, regs)
+
+			if reflect.DeepEqual(regs, sample.After[:]) {
+				possible.Add(op)
 			}
 		}
 
-		return result
+		possibilities[sample.OpCode] = possibilities[sample.OpCode].Intersect(possible)
 	}
 
-	// For each sample's op, determine the possible op codes
-	for _, sample := range samples {
-		var matches []string
-		for opcode, instruction := range instructions {
-			after := instruction(sample.a, sample.b, sample.c, sample.before)
-			if after.Equals(sample.after) {
-				matches = append(matches, opcode)
+	// Derive the mapping from opcode to operations by repeatedly going through
+	// the list of possibilities and identifying opcodes that only have one
+	// possibility.  Once a mapping is identified it can be removed from the set
+	// of possibilities for other opcodes.
+	var mapped aoc.Set[string]
+	mapping := make(map[int]string)
+	for len(mapping) < len(operations) {
+		for opcode, possible := range possibilities {
+			if len(possible) == 1 {
+				name := possible.Entries()[0]
+				mapping[opcode] = name
+				mapped.Add(name)
 			}
 		}
 
-		possibilities[sample.op] = intersect(possibilities[sample.op], matches)
-	}
-
-	// subtract any entry from a set of strings that's in another set of strings
-	subtract := func(s1, s2 []string) []string {
-		m := make(map[string]bool)
-		for _, s := range s2 {
-			m[s] = true
-		}
-
-		var result []string
-		for _, s := range s1 {
-			if !m[s] {
-				result = append(result, s)
-			}
-		}
-		return result
-	}
-
-	// Keep looping until we have a mapping for every instruction
-	mapping := make(map[int]Instruction)
-	used := make([]string, 0) // the used op codes
-	for len(mapping) < len(instructions) {
-		for op, opcodes := range possibilities {
-			// Remove any already used op codes
-			opcodes = subtract(opcodes, used)
-
-			// If only one choice remains then we can assign it
-			if len(opcodes) == 1 {
-				mapping[op] = instructions[opcodes[0]]
-				used = append(used, opcodes[0])
-			}
+		for opcode := range possibilities {
+			possibilities[opcode] = possibilities[opcode].Difference(mapped)
 		}
 	}
 
-	return mapping
+	var index []Operation
+	for i := 0; i < len(operations); i++ {
+		index = append(index, operations[mapping[i]])
+	}
+	return index
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
-type Registers []int
-
-func (r Registers) Equals(other Registers) bool {
-	for i := 0; i < len(r); i++ {
-		if r[i] != other[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
-// /////////////////////////////////////////////////////////////////////////////
+type Operation func(a, b, c int, reg []int)
 
 type Sample struct {
-	before  Registers
-	after   Registers
-	op      int
-	a, b, c int
+	Before  [4]int
+	After   [4]int
+	OpCode  int
+	A, B, C int
 }
 
-type CompiledInstruction struct {
-	op, a, b, c int
-}
+func InputToSamples() []Sample {
+	input := aoc.InputToString(2018, 16)
+	regex := regexp.MustCompile(`\d+`)
 
-func InputToSamplesAndProgram(year, day int) ([]Sample, []CompiledInstruction) {
-	lines := aoc.InputToLines(year, day)
-
-	registers := func(s string) Registers {
-		var a, b, c, d int
-		if _, err := fmt.Sscanf(s, "[%d, %d, %d, %d]", &a, &b, &c, &d); err != nil {
-			log.Fatalf("unable to parse registers: %s", s)
-		}
-
-		return Registers{a, b, c, d}
+	var nums []int
+	for _, s := range regex.FindAllString(input, -1) {
+		nums = append(nums, aoc.ParseInt(s))
 	}
 
 	var samples []Sample
-	var i int
-	for i = 0; i < len(lines); i += 4 {
-		if lines[i] == "" && lines[i+1] == "" {
-			break
-		}
+	for i := 0; i < strings.Count(input, "Before"); i++ {
+		var sample Sample
+		sample.Before = [4]int{nums[12*i+0], nums[12*i+1], nums[12*i+2], nums[12*i+3]}
+		sample.OpCode = nums[12*i+4]
+		sample.A = nums[12*i+5]
+		sample.B = nums[12*i+6]
+		sample.C = nums[12*i+7]
+		sample.After = [4]int{nums[12*i+8], nums[12*i+9], nums[12*i+10], nums[12*i+11]}
+		samples = append(samples, sample)
+	}
+	return samples
+}
 
-		before := registers(lines[i+0][8:])
-		after := registers(lines[i+2][8:])
+type Instruction struct {
+	OpCode  int
+	A, B, C int
+}
 
-		var op, a, b, c int
-		if _, err := fmt.Sscanf(lines[i+1], "%d %d %d %d", &op, &a, &b, &c); err != nil {
-			log.Fatalf("unable to parse operation: %s", lines[i+1])
-		}
+func InputToProgram() []Instruction {
+	input := aoc.InputToString(2018, 16)
+	regex := regexp.MustCompile(`\d+`)
 
-		samples = append(samples, Sample{
-			before: before,
-			after:  after,
-			op:     op,
-			a:      a,
-			b:      b,
-			c:      c,
+	var nums []int
+	for _, s := range regex.FindAllString(input, -1) {
+		nums = append(nums, aoc.ParseInt(s))
+	}
+
+	var instructions []Instruction
+	for i := 12 * strings.Count(input, "Before"); i < len(nums); i += 4 {
+		instructions = append(instructions, Instruction{
+			OpCode: nums[i],
+			A:      nums[i+1],
+			B:      nums[i+2],
+			C:      nums[i+3],
 		})
 	}
-
-	// There's 2 blank lines between the samples and the program
-	i += 2
-
-	var program []CompiledInstruction
-	for ; i < len(lines); i++ {
-		var op, a, b, c int
-		if _, err := fmt.Sscanf(lines[i], "%d %d %d %d", &op, &a, &b, &c); err != nil {
-			log.Fatalf("unable to parse instruction: %s", lines[i])
-		}
-
-		program = append(program, CompiledInstruction{op: op, a: a, b: b, c: c})
-	}
-
-	return samples, program
+	return instructions
 }

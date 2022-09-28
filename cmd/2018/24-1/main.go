@@ -10,283 +10,200 @@ import (
 )
 
 func main() {
-	groups := InputToGroups(2018, 24)
+	groups := InputToGroups()
 
-	for round := 1; !Done(groups); round++ {
-		fmt.Printf("=== Round %d ===\n", round)
-
-		//
-		// Status phase
-		//
-		sort.Slice(groups, func(i, j int) bool {
-			return groups[i].id < groups[j].id
-		})
-
-		var immunes []*Group
-		var infections []*Group
-		for _, group := range groups {
-			if group.kind == "immune" {
-				immunes = append(immunes, group)
-			} else {
-				infections = append(infections, group)
-			}
+	ByEffectivePower := func(i, j int) bool {
+		gi, gj := groups[i], groups[j]
+		if pi, pj := EffectivePower(gi), EffectivePower(gj); pi != pj {
+			return pi > pj
 		}
+		return gi.Initiative > gj.Initiative
+	}
 
-		fmt.Println("  == Immune System ==")
-		for _, group := range immunes {
-			fmt.Printf("    Group %d contains %d units\n", group.id, group.count)
-		}
-		fmt.Println()
+	ByInitiative := func(i, j int) bool {
+		return groups[i].Initiative > groups[j].Initiative
+	}
 
-		fmt.Println("  == Infection ==")
-		for _, group := range infections {
-			fmt.Printf("    Group %d contains %d units\n", group.id, group.count)
-		}
-		fmt.Println()
-
+	for {
 		//
 		// Target selection phase
 		//
-		fmt.Println("  == Target Selection ==")
+		sort.Slice(groups, ByEffectivePower)
 
-		// sort by effective power, largest to smallest
-		sort.Slice(groups, func(i, j int) bool {
-			ip := groups[i].count * groups[i].ap
-			jp := groups[j].count * groups[j].ap
-
-			return ip > jp || (ip == jp && groups[i].initiative > groups[j].initiative)
-		})
-
-		chosen := make(map[*Group]bool)
-		assignments := make(map[*Group]*Group)
-		for _, group := range groups {
-			var target *Group
-			var targetDamage int
-
-			for _, potentialTarget := range groups {
-				if potentialTarget.kind == group.kind {
-					continue
-				}
-
-				if chosen[potentialTarget] {
-					continue
-				}
-
-				if potentialTarget.count == 0 {
-					continue
-				}
-
-				// In the case of a tie, the defending group with the largest effective
-				// power wins, if there's still a tie then it goes to the group with the
-				// highest initiative
-				damage := group.ComputeDamage(potentialTarget)
-				fmt.Printf("    %s group %d would deal defending group %d %d damage\n",
-					group.kind, group.id, potentialTarget.id, damage)
-				if damage == 0 {
-					continue
-				}
-
-				if target == nil {
-					target = potentialTarget
-					targetDamage = damage
-					continue
-				}
-
-				if damage > targetDamage {
-					target = potentialTarget
-					targetDamage = damage
-					continue
-				}
-
-				tEffectivePower := target.count * target.ap
-				ptEffectivePower := potentialTarget.count * potentialTarget.ap
-				tInitiative := target.initiative
-				ptInitiative := potentialTarget.initiative
-				if tEffectivePower < ptEffectivePower || (tEffectivePower == ptEffectivePower && tInitiative < ptInitiative) {
-					target = potentialTarget
-					targetDamage = damage
-					continue
-				}
-			}
-
-			if target != nil {
-				// fmt.Printf("  %s group %d has chosen defending group %d\n",
-				// 	group.kind, group.id, target.id)
-				chosen[target] = true
-				assignments[group] = target
+		var used aoc.Set[*Group]
+		targets := make(map[*Group]*Group)
+		for _, attacker := range groups {
+			defender := ChooseTarget(attacker, groups, used)
+			if defender != nil {
+				targets[attacker] = defender
+				used.Add(defender)
 			}
 		}
 
-		fmt.Println()
-
+		//
 		// Attack phase
-		sort.Slice(groups, func(i, j int) bool {
-			return groups[i].initiative > groups[j].initiative
-		})
+		//
+		sort.Slice(groups, ByInitiative)
 
-		fmt.Println("  == Attack Phase ==")
+		for _, attacker := range groups {
+			defender := targets[attacker]
+			if defender != nil {
+				defender.Count -= aoc.Min(defender.Count, Damage(attacker, defender)/defender.HitPoints)
+			}
+		}
+
+		//
+		// Determination phase
+		//
+		var hasImmune, hasInfection bool
 		for _, group := range groups {
-			if group.count == 0 {
-				continue
+			if group.Kind == "immune" && group.Count > 0 {
+				hasImmune = true
 			}
-
-			target := assignments[group]
-			if target == nil {
-				continue
-			}
-
-			damage := group.ComputeDamage(target)
-			if damage == 0 {
-				continue
-			}
-
-			delta := damage / target.hp
-			fmt.Printf("    %s group %d attacks defending group %d, killing %d units\n",
-				group.kind, group.id, target.id, delta)
-
-			target.count -= delta
-			if target.count < 0 {
-				target.count = 0
+			if group.Kind == "infection" && group.Count > 0 {
+				hasInfection = true
 			}
 		}
 
-		fmt.Println()
+		if !hasImmune || !hasInfection {
+			break
+		}
 	}
 
-	var winner string
-	var winnerCount int
+	var sum int
 	for _, group := range groups {
-		if group.count > 0 {
-			winner = group.kind
-			winnerCount += group.count
-		}
+		sum += group.Count
 	}
-
-	fmt.Printf("%s wins with %d units remaining\n", winner, winnerCount)
+	fmt.Println(sum)
 }
 
-func Done(groups []*Group) bool {
-	counts := make(map[string]int)
-	for _, group := range groups {
-		counts[group.kind] += group.count
-	}
-
-	for _, count := range counts {
-		if count == 0 {
-			return true
-		}
-	}
-
-	return false
+func EffectivePower(g *Group) int {
+	return g.Count * g.AttackPower
 }
 
-func Contains(needle string, haystack []string) bool {
-	for _, s := range haystack {
-		if s == needle {
-			return true
+func Damage(attacker, defender *Group) int {
+	multiplier := 1
+	if defender.Immunities.Contains(attacker.AttackType) {
+		multiplier = 0
+	} else if defender.Weaknesses.Contains(attacker.AttackType) {
+		multiplier = 2
+	}
+
+	return multiplier * attacker.Count * attacker.AttackPower
+}
+
+func ChooseTarget(attacker *Group, groups []*Group, used aoc.Set[*Group]) *Group {
+	var defender *Group
+	for _, candidate := range groups {
+		if attacker.Kind == candidate.Kind || candidate.Count <= 0 || used.Contains(candidate) {
+			continue
+		}
+
+		dc := Damage(attacker, candidate)
+		if dc <= 0 {
+			continue
+		}
+
+		if defender == nil {
+			defender = candidate
+			continue
+		}
+
+		dd := Damage(attacker, defender)
+		pd, pc := EffectivePower(defender), EffectivePower(candidate)
+		id, ic := defender.Initiative, candidate.Initiative
+		if defender == nil || dd < dc || (dd == dc && pd < pc) || (dd == dc && pd == pc && id < ic) {
+			defender = candidate
 		}
 	}
 
-	return false
+	return defender
 }
 
 type Group struct {
-	kind       string
-	id         int
-	count      int
-	hp         int
-	immunities []string
-	weaknesses []string
-	ap         int
-	at         string
-	initiative int
+	ID          int
+	Kind        string
+	Count       int
+	HitPoints   int
+	AttackPower int
+	AttackType  string
+	Initiative  int
+	Immunities  aoc.Set[string]
+	Weaknesses  aoc.Set[string]
 }
 
-func (g *Group) ComputeDamage(target *Group) int {
-	if Contains(g.at, target.immunities) {
-		return 0
-	}
+var regex = regexp.MustCompile(strings.TrimSpace(strings.Join([]string{
+	`(?P<count>\d+) units`,
+	`each with (?P<hp>\d+) hit points`,
+	`(?:\((?P<modifiers>.*)\))?`,
+	`with an attack that does (?P<ap>\d+) (?P<at>\S+) damage`,
+	`at initiative (?P<initiative>\d+)`,
+}, "\\s?")))
 
-	if Contains(g.at, target.weaknesses) {
-		return 2 * g.count * g.ap
-	}
-
-	return g.count * g.ap
-}
-
-func InputToGroups(year, day int) []*Group {
-	var kind string
-	var id int
+func InputToGroups() []*Group {
 	var groups []*Group
-	for _, line := range aoc.InputToLines(year, day) {
+
+	var kind string
+	for _, line := range aoc.InputToLines(2018, 24) {
 		if len(line) == 0 {
 			continue
 		}
 
 		if line == "Immune System:" {
 			kind = "immune"
-			id = 1
 			continue
 		}
 
 		if line == "Infection:" {
 			kind = "infection"
-			id = 1
 			continue
 		}
 
-		fields := MatchGroup(line)
+		fields := MatchFields(line, regex)
 		groups = append(groups, &Group{
-			kind:       kind,
-			id:         id,
-			count:      aoc.ParseInt(fields["count"]),
-			hp:         aoc.ParseInt(fields["hp"]),
-			immunities: Immunities(fields["modifiers"]),
-			weaknesses: Weaknesses(fields["modifiers"]),
-			ap:         aoc.ParseInt(fields["ap"]),
-			at:         fields["at"],
-			initiative: aoc.ParseInt(fields["initiative"]),
+			Kind:        kind,
+			Count:       aoc.ParseInt(fields["count"]),
+			HitPoints:   aoc.ParseInt(fields["hp"]),
+			AttackPower: aoc.ParseInt(fields["ap"]),
+			AttackType:  fields["at"],
+			Initiative:  aoc.ParseInt(fields["initiative"]),
+			Immunities:  ParseModifiers(fields["modifiers"], "immune"),
+			Weaknesses:  ParseModifiers(fields["modifiers"], "weak"),
 		})
-		id++
 	}
 
 	return groups
 }
 
-var groupRegex = regexp.MustCompile(`(?P<count>\d+) units each with (?P<hp>\d+) hit points(?: \((?P<modifiers>.*)\))? with an attack that does (?P<ap>\d+) (?P<at>.*) damage at initiative (?P<initiative>\d+)`)
-
-func MatchGroup(s string) map[string]string {
+func MatchFields(s string, regex *regexp.Regexp) map[string]string {
 	fields := make(map[string]string)
 
-	names := groupRegex.SubexpNames()
-	parts := groupRegex.FindStringSubmatch(s)
+	names := regex.SubexpNames()
+	matches := regex.FindStringSubmatch(s)
 	for i := 1; i < len(names); i++ {
-		fields[names[i]] = parts[i]
+		fields[names[i]] = matches[i]
 	}
-
 	return fields
 }
 
-func Immunities(s string) []string {
-	var immunities []string
-	for _, part := range strings.Split(s, "; ") {
-		if strings.HasPrefix(part, "immune to ") {
-			for _, immunity := range strings.Split(part[10:], ", ") {
-				immunities = append(immunities, immunity)
-			}
-		}
-	}
-	return immunities
-}
+func ParseModifiers(s string, kind string) aoc.Set[string] {
+	s = strings.ReplaceAll(s, " to ", " ")
+	s = strings.ReplaceAll(s, ",", "")
+	s = strings.ReplaceAll(s, ";", "")
 
-func Weaknesses(s string) []string {
-	var weaknesses []string
-	for _, part := range strings.Split(s, "; ") {
-		if strings.HasPrefix(part, "weak to ") {
-			for _, weakness := range strings.Split(part[8:], ", ") {
-				weaknesses = append(weaknesses, weakness)
-			}
+	var modifiers aoc.Set[string]
+	var save bool
+	for _, field := range strings.Fields(s) {
+		if field == kind {
+			save = true
+			continue
+		} else if field == "immune" || field == "weak" {
+			save = false
+			continue
+		} else if save {
+			modifiers.Add(field)
 		}
 	}
-	return weaknesses
+
+	return modifiers
 }

@@ -52,3 +52,17 @@ func (g Grid2D[T]) InBounds(p Point2D) bool {
 func (g Grid2D[T]) InBoundsXY(x, y int) bool {
 	return x >= 0 && x < g.Width && y >= 0 && y < g.Height
 }
+
+func (g Grid2D[T]) ForEach(fn func(Point2D, T)) {
+	g.ForEachXY(func(x, y int, value T) {
+		fn(Point2D{X: x, Y: y}, value)
+	})
+}
+
+func (g Grid2D[T]) ForEachXY(fn func(int, int, T)) {
+	for y := 0; y < g.Height; y++ {
+		for x := 0; x < g.Width; x++ {
+			fn(x, y, g.GetXY(x, y))
+		}
+	}
+}

@@ -2,30 +2,24 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	s := aoc.InputToString(2018, 5)
-	replacements := []string{
-		"aA", "bB", "cC", "dD", "eE", "fF", "gG", "hH", "iI", "jJ", "kK", "lL", "mM",
-		"nN", "oO", "pP", "qQ", "rR", "sS", "tT", "uU", "vV", "wW", "xX", "yY", "zZ",
-		"Aa", "Bb", "Cc", "Dd", "Ee", "Ff", "Gg", "Hh", "Ii", "Jj", "Kk", "Ll", "Mm",
-		"Nn", "Oo", "Pp", "Qq", "Rr", "Ss", "Tt", "Uu", "Vv", "Ww", "Xx", "Yy", "Zz",
+	matches := make(map[rune]rune)
+	for i := 0; i < 26; i++ {
+		matches[rune('a'+i)] = rune('A' + i)
+		matches[rune('A'+i)] = rune('a' + i)
 	}
 
-	for {
-		size := len(s)
-		for _, replacement := range replacements {
-			s = strings.ReplaceAll(s, replacement, "")
-		}
-
-		if len(s) == size {
-			break
+	var stack aoc.Stack[rune]
+	for _, c := range aoc.InputToString(2018, 5) {
+		if stack.Peek() == matches[c] {
+			stack.Pop()
+		} else {
+			stack.Push(c)
 		}
 	}
 
-	fmt.Printf("length: %d\n", len(s))
+	fmt.Println(stack.Len())
 }

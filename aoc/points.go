@@ -2,6 +2,7 @@ package aoc
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 )
 
@@ -81,6 +82,21 @@ func (p Point2D) Slope(q Point2D) (int, int) {
 
 func (p Point2D) String() string {
 	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
+}
+
+// GetBounds determines the corners of the bounding box that contains all
+// specified points.  The bounding box corners returned are the top left and
+// bottom right corners.
+func GetBounds(ps []Point2D) (Point2D, Point2D) {
+	minX, minY, maxX, maxY := math.MaxInt, math.MaxInt, math.MinInt, math.MinInt
+	for _, p := range ps {
+		minX = Min(minX, p.X)
+		maxX = Max(maxX, p.X)
+		minY = Min(minY, p.Y)
+		maxY = Max(maxY, p.Y)
+	}
+
+	return Point2D{X: minX, Y: minY}, Point2D{X: maxX, Y: maxY}
 }
 
 // Point3D is a rectangular representation of a point in 3D space.

@@ -2,193 +2,96 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"reflect"
+	"regexp"
+	"strings"
 )
 
 func main() {
-	instructions := map[string]Instruction{
-		"addr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] + registers[b]
-			return registers
-		},
-		"addi": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] + b
-			return registers
-		},
-		"mulr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] * registers[b]
-			return registers
-		},
-		"muli": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] * b
-			return registers
-		},
-		"banr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] & registers[b]
-			return registers
-		},
-		"bani": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] & b
-			return registers
-		},
-		"borr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] | registers[b]
-			return registers
-		},
-		"bori": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a] | b
-			return registers
-		},
-		"setr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = registers[a]
-			return registers
-		},
-		"seti": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			registers[c] = a
-			return registers
-		},
-		"gtir": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			if a > registers[b] {
-				registers[c] = 1
-			} else {
-				registers[c] = 0
-			}
-			return registers
-		},
-		"gtri": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			if registers[a] > b {
-				registers[c] = 1
-			} else {
-				registers[c] = 0
-			}
-			return registers
-		},
-		"gtrr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			if registers[a] > registers[b] {
-				registers[c] = 1
-			} else {
-				registers[c] = 0
-			}
-			return registers
-		},
-		"eqir": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			if a == registers[b] {
-				registers[c] = 1
-			} else {
-				registers[c] = 0
-			}
-			return registers
-		},
-		"eqri": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			if registers[a] == b {
-				registers[c] = 1
-			} else {
-				registers[c] = 0
-			}
-			return registers
-		},
-		"eqrr": func(a, b, c int, registers Registers) Registers {
-			registers = append(Registers{}, registers...)
-			if registers[a] == registers[b] {
-				registers[c] = 1
-			} else {
-				registers[c] = 0
-			}
-			return registers
-		},
+	gt := func(a, b int) int {
+		if a > b {
+			return 1
+		}
+		return 0
+	}
+
+	eq := func(a, b int) int {
+		if a == b {
+			return 1
+		}
+		return 0
+	}
+
+	operations := map[string]Operation{
+		"addr": func(a, b, c int, reg []int) { reg[c] = reg[a] + reg[b] },
+		"addi": func(a, b, c int, reg []int) { reg[c] = reg[a] + b },
+		"mulr": func(a, b, c int, reg []int) { reg[c] = reg[a] * reg[b] },
+		"muli": func(a, b, c int, reg []int) { reg[c] = reg[a] * b },
+		"banr": func(a, b, c int, reg []int) { reg[c] = reg[a] & reg[b] },
+		"bani": func(a, b, c int, reg []int) { reg[c] = reg[a] & b },
+		"borr": func(a, b, c int, reg []int) { reg[c] = reg[a] | reg[b] },
+		"bori": func(a, b, c int, reg []int) { reg[c] = reg[a] | b },
+		"setr": func(a, b, c int, reg []int) { reg[c] = reg[a] },
+		"seti": func(a, b, c int, reg []int) { reg[c] = a },
+		"gtir": func(a, b, c int, reg []int) { reg[c] = gt(a, reg[b]) },
+		"gtri": func(a, b, c int, reg []int) { reg[c] = gt(reg[a], b) },
+		"gtrr": func(a, b, c int, reg []int) { reg[c] = gt(reg[a], reg[b]) },
+		"eqir": func(a, b, c int, reg []int) { reg[c] = eq(a, reg[b]) },
+		"eqri": func(a, b, c int, reg []int) { reg[c] = eq(reg[a], b) },
+		"eqrr": func(a, b, c int, reg []int) { reg[c] = eq(reg[a], reg[b]) },
 	}
 
 	var count int
-	for _, sample := range InputToSamples(2018, 16) {
-		var n int
-		for _, instruction := range instructions {
-			after := instruction(sample.a, sample.b, sample.c, sample.before)
-			if after.Equal(sample.after) {
-				n++
+	for _, sample := range InputToSamples() {
+		var possibilities aoc.Set[string]
+		for op, instruction := range operations {
+			regs := make([]int, len(sample.Before))
+			copy(regs, sample.Before[:])
+
+			instruction(sample.A, sample.B, sample.C, regs)
+
+			if reflect.DeepEqual(regs, sample.After[:]) {
+				possibilities.Add(op)
 			}
 		}
 
-		if n >= 3 {
+		if len(possibilities) >= 3 {
 			count++
 		}
 	}
 
-	fmt.Printf("count: %d\n", count)
+	fmt.Println(count)
 }
 
-type Registers []int
-
-func (r Registers) Equal(other Registers) bool {
-	for i := 0; i < len(r); i++ {
-		if r[i] != other[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
-type Instruction func(a, b, c int, registers Registers) Registers
+type Operation func(a, b, c int, reg []int)
 
 type Sample struct {
-	before  Registers
-	after   Registers
-	op      int
-	a, b, c int
+	Before  [4]int
+	After   [4]int
+	OpCode  int
+	A, B, C int
 }
 
-func InputToSamples(year, day int) []Sample {
-	lines := aoc.InputToLines(year, day)
+func InputToSamples() []Sample {
+	input := aoc.InputToString(2018, 16)
+	regex := regexp.MustCompile(`\d+`)
 
-	registers := func(s string) Registers {
-		var a, b, c, d int
-		if _, err := fmt.Sscanf(s, "[%d, %d, %d, %d]", &a, &b, &c, &d); err != nil {
-			log.Fatalf("unable to parse registers: %s", s)
-		}
-
-		return Registers{a, b, c, d}
+	var nums []int
+	for _, s := range regex.FindAllString(input, -1) {
+		nums = append(nums, aoc.ParseInt(s))
 	}
 
 	var samples []Sample
-	for i := 0; i < len(lines); i += 4 {
-		if lines[i] == "" && lines[i+1] == "" {
-			break
-		}
-
-		before := registers(lines[i+0][8:])
-		after := registers(lines[i+2][8:])
-
-		var op, a, b, c int
-		if _, err := fmt.Sscanf(lines[i+1], "%d %d %d %d", &op, &a, &b, &c); err != nil {
-			log.Fatalf("unable to parse operation: %s", lines[i+1])
-		}
-
-		samples = append(samples, Sample{
-			before: before,
-			after:  after,
-			op:     op,
-			a:      a,
-			b:      b,
-			c:      c,
-		})
+	for i := 0; i < strings.Count(input, "Before"); i++ {
+		var sample Sample
+		sample.Before = [4]int{nums[12*i+0], nums[12*i+1], nums[12*i+2], nums[12*i+3]}
+		sample.OpCode = nums[12*i+4]
+		sample.A = nums[12*i+5]
+		sample.B = nums[12*i+6]
+		sample.C = nums[12*i+7]
+		sample.After = [4]int{nums[12*i+8], nums[12*i+9], nums[12*i+10], nums[12*i+11]}
+		samples = append(samples, sample)
 	}
-
 	return samples
 }
