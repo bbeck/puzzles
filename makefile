@@ -4,7 +4,7 @@
 EDITOR := goland
 
 # Retrieve our session cookie so that we can automatically download inputs.
-SESSION := $(file < .session)
+SESSION := $(shell cat .session)
 
 # Infer which solution we're working with based on which files exist locally.
 # This inference will only execute in the situation where a particular solution
@@ -17,12 +17,12 @@ PART := $(word 3, $(last_dir))
 # Canonicalize the YEAR/DAY/PART parameters so they're suitable to use in 
 # directory or file names.  This will ensure that each parameter is padded to 
 # the correct length with leading zeroes.
-override YEAR := $(shell printf '%04d' $$((10#$(YEAR))))
-override DAY  := $(shell printf '%02d' $$((10#$(DAY))))
-override PART := $(shell printf '%01d' $$((10#$(PART))))
+override YEAR := $(shell printf '%04d' $$((10\#$(YEAR))))
+override DAY  := $(shell printf '%02d' $$((10\#$(DAY))))
+override PART := $(shell printf '%01d' $$((10\#$(PART))))
 
 # When downloading we need to know the day number without any leading zeroes.
-DAY_NO_ZERO := $(shell printf '%d' $$((10#$(DAY))))
+DAY_NO_ZERO := $(shell printf '%d' $$((10\#$(DAY))))
 
 # Determine the parameters for the next solution.  This is needed by the next 
 # target.  We do this here because it requires conditionals and they are tricky
@@ -44,7 +44,7 @@ endif
 # When generating the source for the next day we need to know the next day 
 # number without any leading zeroes.  If we don't then the day number will
 # be interpreted as octal which is a problem for days 8 and 9.
-NEXT_DAY_NO_ZERO := $(shell printf '%d' $$((10#$(NEXT_DAY))))
+NEXT_DAY_NO_ZERO := $(shell printf '%d' $$((10\#$(NEXT_DAY))))
 
 ## run the solution for the specified YEAR/DAY/PART
 .PHONY: run
@@ -54,7 +54,7 @@ run: cmd/$(YEAR)/$(DAY)-1/input.txt
 # Download the input file for a particular day
 cmd/$(YEAR)/$(DAY)-1/input.txt:
 	@curl                                                          \
-      --fail                                                       \
+	  --fail                                                       \
 	  --silent                                                     \
 	  --cookie "session=$(SESSION)"                                \
 	  --output cmd/$(YEAR)/$(DAY)-1/input.txt                      \
