@@ -2,48 +2,47 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	digits := InputToDigits(2019, 16)
+	digits := InputToDigits()
+
+	// Precompute the patterns we'll need.
+	var patterns [][]int
+	for digit := 1; digit < len(digits)+1; digit++ {
+		patterns = append(patterns, BuildPattern([]int{0, 1, 0, -1}, digit, len(digits)))
+	}
 
 	for n := 0; n < 100; n++ {
-		digits = RunPhase(digits)
+		digits = FFT(digits, patterns)
 	}
 
-	var prefix string
 	for n := 0; n < 8; n++ {
-		prefix = prefix + fmt.Sprintf("%d", digits[n])
+		fmt.Print(digits[n])
 	}
-	fmt.Println("prefix:", prefix)
+	fmt.Println()
 }
 
-func RunPhase(inputs []int) []int {
-	var outputs []int
-
-	for n := 0; n < len(inputs); n++ {
-		pattern := Pattern(len(inputs), n)
-
-		var output int
-		for i := 0; i < len(inputs); i++ {
-			output += inputs[i] * pattern[i]
+func FFT(digits []int, patterns [][]int) []int {
+	output := make([]int, len(digits))
+	for i := 0; i < len(digits); i++ {
+		var sum int
+		for j := 0; j < len(digits); j++ {
+			sum += digits[j] * patterns[i][j]
 		}
-		outputs = append(outputs, aoc.AbsInt(output)%10)
+		output[i] = aoc.Abs(sum) % 10
 	}
 
-	return outputs
+	return output
 }
 
-func Pattern(length int, digit int) []int {
-	base := []int{0, 1, 0, -1}
-
-	var pattern = make([]int, 0)
+func BuildPattern(base []int, n int, length int) []int {
+	var pattern []int
 	for len(pattern) < length+1 {
-		for _, b := range base {
-			for n := 0; n < digit+1; n++ {
-				pattern = append(pattern, b)
+		for _, digit := range base {
+			for c := 0; c < n; c++ {
+				pattern = append(pattern, digit)
 			}
 		}
 	}
@@ -51,10 +50,10 @@ func Pattern(length int, digit int) []int {
 	return pattern[1 : length+1]
 }
 
-func InputToDigits(year, day int) []int {
+func InputToDigits() []int {
 	var digits []int
-	for _, b := range aoc.InputToString(year, day) {
-		digits = append(digits, aoc.ParseInt(string(b)))
+	for _, s := range aoc.InputToString(2019, 16) {
+		digits = append(digits, aoc.ParseInt(string(s)))
 	}
 
 	return digits

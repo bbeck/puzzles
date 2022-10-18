@@ -19,7 +19,7 @@ loop:
 		}
 	}
 
-	fmt.Printf("noun: %d, verb: %d, output: %d\n", noun, verb, 100*noun+verb)
+	fmt.Println(100*noun + verb)
 }
 
 func Execute(noun, verb int) int {

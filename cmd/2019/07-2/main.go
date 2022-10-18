@@ -2,84 +2,55 @@ package main
 
 import (
 	"fmt"
-	"sync"
-
 	"github.com/bbeck/advent-of-code/aoc"
 	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"sync"
 )
 
+const N = 5
+
 func main() {
-	settings := []int{5, 6, 7, 8, 9}
-
 	var best int
-	aoc.EnumeratePermutations(5, func(perm []int) {
-		phases := []int{
-			settings[perm[0]],
-			settings[perm[1]],
-			settings[perm[2]],
-			settings[perm[3]],
-			settings[perm[4]],
+	aoc.EnumeratePermutations(N, func(perm []int) bool {
+		settings := make([]int, N)
+		for i := 0; i < len(perm); i++ {
+			settings[i] = perm[i] + 5
 		}
 
-		EtoA := make(chan int, 2)
-		AtoB := make(chan int, 2)
-		BtoC := make(chan int, 2)
-		CtoD := make(chan int, 2)
-		DtoE := make(chan int, 2)
-
-		// Initialize the phase settings
-		EtoA <- phases[0]
-		AtoB <- phases[1]
-		BtoC <- phases[2]
-		CtoD <- phases[3]
-		DtoE <- phases[4]
-
-		var wg sync.WaitGroup
-		wg.Add(5)
-
-		EtoA <- 0 // First amplifier's first input is hardcoded to zero
-		A := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-EtoA },
-			Output: func(value int) { AtoB <- value },
-		}
-		go func() { A.Execute(); wg.Done() }()
-
-		B := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-AtoB },
-			Output: func(value int) { BtoC <- value },
-		}
-		go func() { B.Execute(); wg.Done() }()
-
-		C := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-BtoC },
-			Output: func(value int) { CtoD <- value },
-		}
-		go func() { C.Execute(); wg.Done() }()
-
-		D := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-CtoD },
-			Output: func(value int) { DtoE <- value },
-		}
-		go func() { D.Execute(); wg.Done() }()
-
-		E := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-DtoE },
-			Output: func(value int) { EtoA <- value },
-		}
-		go func() { E.Execute(); wg.Done() }()
-
-		wg.Wait()
-
-		signal := <-EtoA
-		if signal > best {
-			best = signal
-		}
+		best = aoc.Max(best, TestSettings(settings))
+		return false
 	})
+	fmt.Println(best)
+}
 
-	fmt.Printf("largest signal: %d\n", best)
+func TestSettings(settings []int) int {
+	var chans [N]chan int
+	for i := 0; i < len(chans); i++ {
+		chans[i] = make(chan int, 2)
+	}
+
+	// Send the settings into the inputs
+	for i, setting := range settings {
+		chans[i] <- setting
+	}
+
+	// First amplifier's input is hardcoded to 0
+	chans[0] <- 0
+
+	//
+	var wg sync.WaitGroup
+	wg.Add(N)
+
+	var amps [N]cpus.IntcodeCPU
+	for i := 0; i < N; i++ {
+		i := i
+		amps[i].Memory = cpus.InputToIntcodeMemory(2019, 7)
+		amps[i].Input = func() int { return <-chans[i] }
+		amps[i].Output = func(value int) { chans[(i+1)%N] <- value }
+		amps[i].Halt = func() { wg.Done() }
+		go amps[i].Execute()
+	}
+
+	wg.Wait()
+	return <-chans[0]
 }

@@ -2,105 +2,64 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 const N = 5
 
 func main() {
-	state := InputToState(2019, 24)
+	// Since there are so few cells in the grid we'll pack its bits into a
+	// number instead of using a dynamically sized data structure.  This will
+	// make determining repeated states trivial.  Additionally, we'll organize
+	// the bits such that the value of the set is the biodiversity rating that
+	// we seek.
+	grid := InputToGrid()
 
-	seen := map[int]bool{
-		state.Hash(): true,
-	}
-	for tm := 1; ; tm++ {
-		state = state.Next()
-		hash := state.Hash()
+	var seen aoc.Set[aoc.BitSet]
+	seen.Add(grid)
 
-		if seen[hash] {
-			fmt.Println("biodiversity:", hash)
+	for {
+		grid = Next(grid)
+		if !seen.Add(grid) {
 			break
 		}
-		seen[hash] = true
 	}
+
+	fmt.Println(grid)
 }
 
-type State map[aoc.Point2D]bool
-
-func (s State) Next() State {
-	neighbors := func(p aoc.Point2D) int {
-		var count int
-		if s[p.Up()] {
-			count++
+func Next(grid aoc.BitSet) aoc.BitSet {
+	get := func(x, y int) int {
+		if 0 <= x && x < N && 0 <= y && y < N && grid.Contains(y*N+x) {
+			return 1
 		}
-		if s[p.Down()] {
-			count++
-		}
-		if s[p.Left()] {
-			count++
-		}
-		if s[p.Right()] {
-			count++
-		}
-		return count
+		return 0
 	}
 
-	next := make(State)
+	var next aoc.BitSet
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-			ns := neighbors(p)
-			switch {
-			case s[p] && ns != 1:
-				next[p] = false
-			case !s[p] && ns == 1:
-				next[p] = true
-			case !s[p] && ns == 2:
-				next[p] = true
-			default:
-				next[p] = s[p]
+			count := get(x-1, y) + get(x+1, y) + get(x, y-1) + get(x, y+1)
+			if get(x, y) == 1 && count == 1 {
+				next = next.Add(y*N + x)
+			} else if get(x, y) == 0 && (count == 1 || count == 2) {
+				next = next.Add(y*N + x)
 			}
 		}
 	}
+
 	return next
 }
 
-func (s State) Hash() int {
-	hash := 0
-	for p, value := range s {
-		index := p.Y*N + p.X
-		if value {
-			hash |= 1 << index
-		}
-	}
-	return hash
-}
-
-func (s State) String() string {
-	var builder strings.Builder
-	for y := 0; y < N; y++ {
-		for x := 0; x < N; x++ {
-			if s[aoc.Point2D{X: x, Y: y}] {
-				builder.WriteString("#")
-			} else {
-				builder.WriteString(".")
-			}
-		}
-		builder.WriteString("\n")
-	}
-	return builder.String()
-}
-
-func InputToState(year, day int) State {
-	state := make(State)
-	for y, line := range aoc.InputToLines(year, day) {
+func InputToGrid() aoc.BitSet {
+	var grid aoc.BitSet
+	for y, line := range aoc.InputToLines(2019, 24) {
 		for x, c := range line {
 			if c == '#' {
-				state[aoc.Point2D{X: x, Y: y}] = true
+				grid = grid.Add(y*N + x)
 			}
 		}
 	}
-	return state
+
+	return grid
 }

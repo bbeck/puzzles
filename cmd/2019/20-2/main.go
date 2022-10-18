@@ -2,159 +2,105 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"unicode"
 )
 
-type Cells map[aoc.Point2D]bool
-type Portals map[aoc.Point2D]aoc.Point2D
-type Depths map[aoc.Point2D]int
-
-var cells Cells
-var portals Portals
-var depths Depths
-var start, goal aoc.Point2D
-
 func main() {
-	cells, portals, depths, start, goal = InputToMaze(2019, 20)
+	grid, portals, depths, start, goal := InputToMaze()
+	start3d := aoc.Point3D{X: start.X, Y: start.Y, Z: 0}
+	goal3d := aoc.Point3D{X: goal.X, Y: goal.Y, Z: 0}
 
-	isGoal := func(n aoc.Node) bool {
-		l := n.(Location)
-		return l.depth == 0 && l.Point2D == goal
+	children := func(p3d aoc.Point3D) []aoc.Point3D {
+		p := aoc.Point2D{X: p3d.X, Y: p3d.Y}
+
+		var children []aoc.Point3D
+		if other, found := portals[p]; found {
+			if depth := p3d.Z + depths[p]; depth >= 0 {
+				children = append(children, aoc.Point3D{X: other.X, Y: other.Y, Z: p3d.Z + depths[p]})
+			}
+		}
+
+		for _, child := range p.OrthogonalNeighbors() {
+			if grid.Get(child) {
+				children = append(children, aoc.Point3D{X: child.X, Y: child.Y, Z: p3d.Z})
+			}
+		}
+
+		return children
 	}
 
-	cost := func(from, to aoc.Node) int {
-		return 1
+	isGoal := func(p aoc.Point3D) bool {
+		return p == goal3d
 	}
 
-	heuristic := func(n aoc.Node) int {
-		return 1 // TODO: might need to make this smarter
-	}
-
-	_, distance, found := aoc.AStarSearch(Location{start, 0}, isGoal, cost, heuristic)
-	if !found {
-		log.Fatal("no path found")
-	}
-
-	fmt.Println("shortest path:", distance)
+	path, _ := aoc.BreadthFirstSearch(start3d, children, isGoal)
+	fmt.Println(len(path) - 1) // the path includes the starting point
 }
 
-type Location struct {
-	aoc.Point2D
-	depth int
-}
+func InputToMaze() (aoc.Grid2D[bool], map[aoc.Point2D]aoc.Point2D, map[aoc.Point2D]int, aoc.Point2D, aoc.Point2D) {
+	lines := aoc.InputToLines(2019, 20)
+	width := len(lines[2]) + 2
+	height := len(lines)
 
-func (l Location) ID() string {
-	return fmt.Sprintf("%s@%d", l.String(), l.depth)
-}
+	get := func(x, y int) rune {
+		if 0 <= y && y < height && 0 <= x && x < len(lines[y]) {
+			return rune(lines[y][x])
+		}
+		return ' '
+	}
 
-func (l Location) Children() []aoc.Node {
-	var children []aoc.Node
-	if cells[l.Up()] {
-		children = append(children, Location{l.Up(), l.depth})
-	}
-	if cells[l.Right()] {
-		children = append(children, Location{l.Right(), l.depth})
-	}
-	if cells[l.Down()] {
-		children = append(children, Location{l.Down(), l.depth})
-	}
-	if cells[l.Left()] {
-		children = append(children, Location{l.Left(), l.depth})
-	}
-	if other, ok := portals[l.Point2D]; ok {
-		depth := l.depth + depths[l.Point2D]
-		if depth >= 0 {
-			children = append(children, Location{other, depth})
+	isLetter := unicode.IsLetter
+
+	grid := aoc.NewGrid2D[bool](width, height)
+	labels := make(map[string][]aoc.Point2D)
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			c := get(x, y)
+			grid.AddXY(x, y, c == '.')
+
+			if c1, c2, c3 := c, get(x, y+1), get(x, y+2); isLetter(c1) && isLetter(c2) && c3 == '.' {
+				label := string(c1) + string(c2)
+				labels[label] = append(labels[label], aoc.Point2D{X: x, Y: y + 2})
+			}
+			if c1, c2, c3 := get(x, y-1), c, get(x, y-2); isLetter(c1) && isLetter(c2) && c3 == '.' {
+				label := string(c1) + string(c2)
+				labels[label] = append(labels[label], aoc.Point2D{X: x, Y: y - 2})
+			}
+			if c1, c2, c3 := c, get(x+1, y), get(x+2, y); isLetter(c1) && isLetter(c2) && c3 == '.' {
+				label := string(c1) + string(c2)
+				labels[label] = append(labels[label], aoc.Point2D{X: x + 2, Y: y})
+			}
+			if c1, c2, c3 := get(x-1, y), c, get(x-2, y); isLetter(c1) && isLetter(c2) && c3 == '.' {
+				label := string(c1) + string(c2)
+				labels[label] = append(labels[label], aoc.Point2D{X: x - 2, Y: y})
+			}
 		}
 	}
 
-	return children
-}
-
-func InputToMaze(year, day int) (Cells, Portals, Depths, aoc.Point2D, aoc.Point2D) {
-	isLetter := func(r rune) bool {
-		return 'A' <= r && r <= 'Z'
-	}
-
-	chars := make(map[aoc.Point2D]rune)
-	for y, line := range aoc.InputToLines(year, day) {
-		for x, c := range line {
-			p := aoc.Point2D{X: x, Y: y}
-			chars[p] = c
-		}
-	}
-
-	// First pass through to map all of the cells
-	cells := make(Cells)
-	for p, c := range chars {
-		cells[p] = c == '.'
-	}
-
-	// Now make a second pass through looking for all of the letters to map
-	// the start and goal as well as portals.
 	var start, goal aoc.Point2D
-	var labels = make(map[string][]aoc.Point2D)
-	for p, c := range chars {
-		var label string
-		var target aoc.Point2D
+	portals := make(map[aoc.Point2D]aoc.Point2D)
+	depths := make(map[aoc.Point2D]int)
 
-		if isLetter(c) && isLetter(chars[p.Right()]) {
-			label = fmt.Sprintf("%c%c", c, chars[p.Right()])
-			if cells[p.Right().Right()] {
-				target = p.Right().Right()
-			} else {
-				target = p.Left()
-			}
-		}
-
-		if isLetter(c) && isLetter(chars[p.Down()]) {
-			label = fmt.Sprintf("%c%c", c, chars[p.Down()])
-			if cells[p.Down().Down()] {
-				target = p.Down().Down()
-			} else {
-				target = p.Up()
-			}
-		}
-
-		switch label {
-		case "":
-		case "AA":
-			start = target
-		case "ZZ":
-			goal = target
-		default:
-			labels[label] = append(labels[label], target)
-		}
-	}
-
-	portals := make(Portals)
-	depths := make(Depths)
 	for label, ps := range labels {
-		if len(ps) != 2 {
-			log.Fatalf("incorrect number of targets for label: %s, %+v", label, ps)
-		}
+		switch label {
+		case "AA":
+			start = ps[0]
+		case "ZZ":
+			goal = ps[0]
+		default:
+			portals[ps[0]] = ps[1]
+			portals[ps[1]] = ps[0]
 
-		p1 := ps[0]
-		p2 := ps[1]
-
-		portals[p1] = p2
-		portals[p2] = p1
-
-		// Determine which point is on the inner vs outer ring.  Points on the
-		// outside will become out of bounds 3 steps away.
-		if chars[p1.Up().Up().Up()] == 0 ||
-			chars[p1.Right().Right().Right()] == 0 ||
-			chars[p1.Down().Down().Down()] == 0 ||
-			chars[p1.Left().Left().Left()] == 0 {
-			depths[p1] = -1
-			depths[p2] = 1
-		} else {
-			depths[p1] = 1
-			depths[p2] = -1
+			for _, p := range ps {
+				if p.X == 2 || p.X == width-3 || p.Y == 2 || p.Y == height-3 {
+					depths[p] = -1
+				} else {
+					depths[p] = 1
+				}
+			}
 		}
 	}
 
-	return cells, portals, depths, start, goal
+	return grid, portals, depths, start, goal
 }

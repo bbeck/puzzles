@@ -2,62 +2,51 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 const (
-	Width  int = 25
-	Height     = 6
+	Width  = 25
+	Height = 6
+
+	Black       = 0
+	White       = 1
+	Transparent = 2
 )
 
 func main() {
-	layers := InputToLayers(2019, 8)
-	output := Render(layers)
-	fmt.Println("output:")
-	fmt.Println(output)
-}
+	layers := InputToLayers()
 
-func Render(layers []Layer) Layer {
-	var output Layer = make([]int, Width*Height)
-
-pixel:
-	for i := 0; i < Width*Height; i++ {
-		for _, layer := range layers {
-			output[i] = layer[i]
-			if output[i] != 2 {
-				continue pixel
+	for y := 0; y < Height; y++ {
+		for x := 0; x < Width; x++ {
+			switch Color(layers, x, y) {
+			case Black:
+				fmt.Print(" ")
+			case White:
+				fmt.Print("█")
+			case Transparent:
+				fmt.Print("!")
 			}
 		}
+		fmt.Println()
 	}
+}
 
-	return output
+func Color(layers []Layer, x, y int) int {
+	index := y*Width + x
+	for _, layer := range layers {
+		if layer[index] != Transparent {
+			return layer[index]
+		}
+	}
+	return Transparent
 }
 
 type Layer []int
 
-func (l Layer) String() string {
-	var builder strings.Builder
-	for y := 0; y < Height; y++ {
-		for x := 0; x < Width; x++ {
-			switch l[y*Width+x] {
-			case 0:
-				builder.WriteString(" ")
-			case 1:
-				builder.WriteString("█")
-			case 2:
-				builder.WriteString("!")
-			}
-		}
-		builder.WriteString("\n")
-	}
-	return builder.String()
-}
-
-func InputToLayers(year, day int) []Layer {
+func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range aoc.InputToString(year, day) {
+	for _, b := range aoc.InputToString(2019, 8) {
 		digits = append(digits, aoc.ParseInt(string(b)))
 	}
 

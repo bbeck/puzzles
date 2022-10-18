@@ -2,71 +2,44 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
+
 	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
+const N = 5
+
 func main() {
-	phases := []int{0, 1, 2, 3, 4}
-
 	var best int
-	aoc.EnumeratePermutations(5, func(perm []int) {
-		ZtoA := make(chan int, 2)
-		AtoB := make(chan int, 2)
-		BtoC := make(chan int, 2)
-		CtoD := make(chan int, 2)
-		DtoE := make(chan int, 2)
-		EtoT := make(chan int)
-
-		// Initialize the phase settings
-		ZtoA <- phases[perm[0]]
-		AtoB <- phases[perm[1]]
-		BtoC <- phases[perm[2]]
-		CtoD <- phases[perm[3]]
-		DtoE <- phases[perm[4]]
-
-		ZtoA <- 0 // First amplifier's input is hardcoded to zero
-		A := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-ZtoA },
-			Output: func(value int) { AtoB <- value },
-		}
-		go A.Execute()
-
-		B := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-AtoB },
-			Output: func(value int) { BtoC <- value },
-		}
-		go B.Execute()
-
-		C := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-BtoC },
-			Output: func(value int) { CtoD <- value },
-		}
-		go C.Execute()
-
-		D := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-CtoD },
-			Output: func(value int) { DtoE <- value },
-		}
-		go D.Execute()
-
-		E := cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 7),
-			Input:  func(int) int { return <-DtoE },
-			Output: func(value int) { EtoT <- value },
-		}
-		go E.Execute()
-
-		signal := <-EtoT
-		if signal > best {
-			best = signal
-		}
+	aoc.EnumeratePermutations(N, func(settings []int) bool {
+		best = aoc.Max(best, TestSettings(settings))
+		return false
 	})
+	fmt.Println(best)
+}
 
-	fmt.Printf("largest signal: %d\n", best)
+func TestSettings(settings []int) int {
+	var chans [N + 1]chan int
+	for i := 0; i < len(chans); i++ {
+		chans[i] = make(chan int, 2)
+	}
+
+	// Send the settings into the inputs
+	for i, setting := range settings {
+		chans[i] <- setting
+	}
+
+	// First amplifier's input is hardcoded to 0
+	chans[0] <- 0
+
+	var amps [N]cpus.IntcodeCPU
+	for i := 0; i < N; i++ {
+		i := i
+		amps[i].Memory = cpus.InputToIntcodeMemory(2019, 7)
+		amps[i].Input = func() int { return <-chans[i] }
+		amps[i].Output = func(value int) { chans[i+1] <- value }
+		go amps[i].Execute()
+	}
+
+	return <-chans[N]
 }

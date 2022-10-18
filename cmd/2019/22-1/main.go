@@ -2,114 +2,91 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	var deck []int
-	N := 10007
-	for i := 0; i < N; i++ {
-		deck = append(deck, i)
+	instructions := InputToInstructions()
+	var deck Deck
+	for i := 0; i < 10007; i++ {
+		deck.PushBack(i)
 	}
 
-	instructions := InputToInstructions(2019, 22)
 	for _, instruction := range instructions {
-		switch instruction.kind {
-		case DealNewStackKind:
-			deck = DealNewStack(deck)
-		case DealWithIncrementKind:
-			deck = DealWithIncrement(deck, instruction.arg)
-		case CutKind:
-			deck = Cut(deck, instruction.arg)
+		switch instruction.Kind {
+		case DealNewStack:
+			deck.DealIntoNewStack()
+		case Cut:
+			deck.Cut(instruction.Arg)
+		case DealWithIncrement:
+			deck.DealWithIncrement(instruction.Arg)
 		}
 	}
 
-	for i, card := range deck {
-		if card == 2019 {
-			fmt.Println("position of card 2019:", i)
-		}
+	var position int
+	for deck.PeekFront() != 2019 {
+		deck.Rotate(-1)
+		position++
 	}
+	fmt.Println(position)
 }
 
-func DealNewStack(deck []int) []int {
-	var next []int
-	for _, card := range deck {
-		next = append([]int{card}, next...)
-	}
-	return next
+type Deck struct {
+	aoc.Deque[int]
 }
 
-func DealWithIncrement(deck []int, increment int) []int {
-	next := make([]int, len(deck))
+func (d *Deck) DealIntoNewStack() {
+	var next Deck
+	for d.Len() > 0 {
+		next.PushBack(d.PopBack())
+	}
+	*d = next
+}
+
+func (d *Deck) Cut(n int) {
+	d.Rotate(-n)
+}
+
+func (d *Deck) DealWithIncrement(n int) {
+	cards := make([]int, d.Len())
 
 	var index int
-	for _, card := range deck {
-		next[index] = card
-		index = (index + increment) % len(deck)
-	}
-	return next
-}
-
-func Cut(deck []int, cut int) []int {
-	if cut == 0 {
-		return deck
+	for d.Len() > 0 {
+		cards[index] = d.PopFront()
+		index = (index + n) % len(cards)
 	}
 
-	var next []int
-	if cut > 0 {
-		next = append(deck[cut:], deck[:cut]...)
+	var next Deck
+	for _, c := range cards {
+		next.PushBack(c)
 	}
-	if cut < 0 {
-		cut = -cut
-		next = append(deck[len(deck)-cut:], deck[:len(deck)-cut]...)
-	}
-
-	return next
+	*d = next
 }
 
 const (
-	DealNewStackKind      string = "DealNewStack"
-	CutKind               string = "Cut"
-	DealWithIncrementKind string = "DealWithIncrement"
+	DealNewStack      = "new_stack"
+	Cut               = "cut"
+	DealWithIncrement = "increment"
 )
 
 type Instruction struct {
-	kind string
-	arg  int
+	Kind string
+	Arg  int
 }
 
-func InputToInstructions(year, day int) []Instruction {
-	var instructions []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		var argument int
-
-		if _, err := fmt.Sscanf(line, "deal with increment %d", &argument); err == nil {
-			instructions = append(instructions, Instruction{
-				kind: DealWithIncrementKind,
-				arg:  argument,
-			})
-			continue
+func InputToInstructions() []Instruction {
+	return aoc.InputLinesTo(2019, 22, func(line string) (Instruction, error) {
+		if strings.HasPrefix(line, "deal into new stack") {
+			return Instruction{Kind: DealNewStack}, nil
+		} else if strings.HasPrefix(line, "cut") {
+			arg := aoc.ParseInt(strings.Split(line, " ")[1])
+			return Instruction{Kind: Cut, Arg: arg}, nil
+		} else if strings.HasPrefix(line, "deal with increment") {
+			arg := aoc.ParseInt(strings.Split(line, " ")[3])
+			return Instruction{Kind: DealWithIncrement, Arg: arg}, nil
+		} else {
+			return Instruction{}, fmt.Errorf("unrecognized line: %s", line)
 		}
-
-		if line == "deal into new stack" {
-			instructions = append(instructions, Instruction{
-				kind: DealNewStackKind,
-			})
-			continue
-		}
-
-		if _, err := fmt.Sscanf(line, "cut %d", &argument); err == nil {
-			instructions = append(instructions, Instruction{
-				kind: CutKind,
-				arg:  argument,
-			})
-			continue
-		}
-
-		log.Fatalf("unable to parse line: %s", line)
-	}
-
-	return instructions
+	})
 }

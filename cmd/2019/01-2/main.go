@@ -8,26 +8,17 @@ import (
 
 func main() {
 	var fuel int
-	for _, line := range aoc.InputToLines(2019, 1) {
-		mass := aoc.ParseInt(line)
-		fuel += FuelRequired(mass)
+	for _, mass := range aoc.InputToInts(2019, 1) {
+		fuel += Fuel(mass)
 	}
 
-	fmt.Printf("total fuel required: %d\n", fuel)
+	fmt.Println(fuel)
 }
 
-func FuelRequired(mass int) int {
-	needed := func(m int) int {
-		fuel := m/3 - 2
-		if fuel < 0 {
-			return 0
-		}
-		return fuel
-	}
-
+func Fuel(mass int) int {
 	var total int
 	for mass > 0 {
-		fuel := needed(mass)
+		fuel := aoc.Max(0, mass/3-2)
 		total += fuel
 		mass = fuel
 	}

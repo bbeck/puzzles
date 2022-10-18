@@ -7,57 +7,45 @@ import (
 )
 
 func main() {
-	locations := InputToAsteroidLocations(2019, 10)
+	locations := InputToAsteroidLocations()
 
-	var bestVisible int
-	var bestLocation aoc.Point2D
+	var best int
 	for _, p := range locations {
-		visible := NumVisible(p, locations)
-		if visible > bestVisible {
-			bestVisible = visible
-			bestLocation = p
-		}
+		best = aoc.Max(best, NumVisible(p, locations))
 	}
-
-	fmt.Printf("asteroid %+v is the best with %d other asteroids visible\n", bestLocation, bestVisible)
+	fmt.Println(best)
 }
 
-func NumVisible(p aoc.Point2D, locations []aoc.Point2D) int {
-	// Our approach here will be to compute the slope of the line between the
-	// asteroid we're interested in and every other asteroid.  Asteroids that have
-	// the same slope have the ability to block one another but don't necessarily
-	// block depending on which side of the line they are from our point of
-	// interest.
-	slopes := make(map[Slope]bool)
-	for _, q := range locations {
-		if p == q {
-			continue
+func NumVisible(p aoc.Point2D, qs []aoc.Point2D) int {
+	// Consider p as the center of a coordinate system.  Within each quadrant of
+	// the coordinate system only a single point with a slope can be seen by p.
+	var slopes [4]aoc.Set[Slope]
+	for _, q := range qs {
+		var quadrant int
+		if q.X < p.X {
+			quadrant += 1
+		}
+		if q.Y > p.Y {
+			quadrant += 2
 		}
 
-		dy, dx := p.Slope(q)
-
-		// Determine which side of p the location q is on.  If q is to the left
-		// of p, or they're on a vertical line and q is above p, then we'll consider
-		// that the true side.  Otherwise it's the false side.
-		side := q.X < p.X || (q.X == p.X && q.Y < p.Y)
-
-		slopes[Slope{dy, dx, side}] = true
+		dx, dy := p.Slope(q)
+		slopes[quadrant].Add(Slope{dx: dx, dy: dy})
 	}
 
-	return len(slopes)
+	return len(slopes[0]) + len(slopes[1]) + len(slopes[2]) + len(slopes[3])
 }
 
 type Slope struct {
 	dy, dx int
-	side   bool
 }
 
-func InputToAsteroidLocations(year, day int) []aoc.Point2D {
+func InputToAsteroidLocations() []aoc.Point2D {
 	var locations []aoc.Point2D
-	for y, line := range aoc.InputToLines(year, day) {
+	for y, line := range aoc.InputToLines(2019, 10) {
 		for x, b := range line {
 			if b == '#' {
-				locations = append(locations, aoc.Point2D{x, y})
+				locations = append(locations, aoc.Point2D{X: x, Y: y})
 			}
 		}
 	}

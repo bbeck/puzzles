@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -10,75 +9,63 @@ import (
 
 func main() {
 	reactions := make(map[string]Reaction)
-	for _, reaction := range InputToReactions(2019, 14) {
-		reactions[reaction.output] = reaction
+	for _, reaction := range InputToReactions() {
+		reactions[reaction.Output.Symbol] = reaction
 	}
 
-	// These are the chemicals we have and the quantities that we have them in,
-	// we want to keep breaking these down until the only positive quantities that
-	// we have is for ORE.
-	chemicals := map[string]int{
-		"FUEL": 1,
-	}
+	chemicals := map[string]int{"FUEL": 1}
+	Reduce(chemicals, reactions)
+	fmt.Println(chemicals["ORE"])
+}
 
-	// Choose a chemical to break down, if there are none left then the empty
-	// string is returned.
-	choose := func(chemicals map[string]int) string {
-		for chemical, quantity := range chemicals {
-			if chemical != "ORE" && quantity > 0 {
-				return chemical
+func Reduce(chemicals map[string]int, reactions map[string]Reaction) {
+	changed := true
+	for changed {
+		changed = false
+
+		for _, reaction := range reactions {
+			if chemicals[reaction.Output.Symbol] <= 0 {
+				continue
 			}
-		}
 
-		return ""
-	}
+			multiplier := aoc.Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
+			chemicals[reaction.Output.Symbol] -= multiplier * reaction.Output.Quantity
+			for _, input := range reaction.Inputs {
+				chemicals[input.Symbol] += multiplier * input.Quantity
+			}
 
-	for {
-		chemical := choose(chemicals)
-		if chemical == "" {
-			break
-		}
-
-		reaction := reactions[chemical]
-		chemicals[chemical] -= reaction.quantity
-		for input, quantity := range reaction.inputs {
-			chemicals[input] += quantity
+			changed = true
 		}
 	}
+}
 
-	fmt.Printf("ore needed: %d\n", chemicals["ORE"])
+type Chemical struct {
+	Symbol   string
+	Quantity int
 }
 
 type Reaction struct {
-	inputs   map[string]int
-	output   string
-	quantity int
+	Inputs []Chemical
+	Output Chemical
 }
 
-func InputToReactions(year, day int) []Reaction {
-	var reactions []Reaction
-	for _, line := range aoc.InputToLines(year, day) {
-		sides := strings.Split(line, " => ")
+func InputToReactions() []Reaction {
+	return aoc.InputLinesTo(2019, 14, func(line string) (Reaction, error) {
+		lhs, rhs, _ := strings.Cut(line, " => ")
 
-		inputs := make(map[string]int)
-		for _, part := range strings.Split(sides[0], ", ") {
-			var quantity int
-			var chemical string
-			if _, err := fmt.Sscanf(part, "%d %s", &quantity, &chemical); err != nil {
-				log.Fatalf("unable to parse input part: %s", part)
-			}
-
-			inputs[chemical] = quantity
+		var reaction Reaction
+		for _, s := range strings.Split(lhs, ", ") {
+			quantity, symbol, _ := strings.Cut(s, " ")
+			reaction.Inputs = append(reaction.Inputs, Chemical{
+				Symbol:   symbol,
+				Quantity: aoc.ParseInt(quantity),
+			})
 		}
 
-		var quantity int
-		var output string
-		if _, err := fmt.Sscanf(sides[1], "%d %s", &quantity, &output); err != nil {
-			log.Fatalf("unable to parse output part: %s", sides[1])
-		}
+		quantity, symbol, _ := strings.Cut(rhs, " ")
+		reaction.Output.Symbol = symbol
+		reaction.Output.Quantity = aoc.ParseInt(quantity)
 
-		reactions = append(reactions, Reaction{inputs, output, quantity})
-	}
-
-	return reactions
+		return reaction, nil
+	})
 }

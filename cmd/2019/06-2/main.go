@@ -8,58 +8,41 @@ import (
 )
 
 func main() {
-	parents := make(map[string]string)
-	for _, orbit := range InputToOrbits(2019, 6) {
-		parents[orbit.object] = orbit.center
+	graph := make(map[string]string)
+	for _, o := range InputToOrbits() {
+		graph[o.Child] = o.Parent
 	}
 
-	path := func(n string) []string {
-		var path []string
-		for n != "" {
-			path = append(path, n)
-			n = parents[n]
-		}
-		return path[1 : len(path)-1]
+	pYOU, pSAN := PathToRoot(graph, "YOU"), PathToRoot(graph, "SAN")
+
+	// Find the closest common ancestor between YOU and SAN -- ancestor is
+	// referenced from the back of the path arrays.
+	var ancestor int
+	for pYOU[len(pYOU)-ancestor-1] == pSAN[len(pSAN)-ancestor-1] {
+		ancestor++
 	}
 
-	// Determine the closest common ancestor between YOU and SAN.  That's the
-	// vertex in the graph where we'll stop going inwards to COM and start going
-	// outwards towards SAN.
-	pathYOU := path("YOU")
-	pathSAN := path("SAN")
+	// The remaining elements are the ones to traverse.
+	fmt.Println(len(pYOU) - ancestor + len(pSAN) - ancestor)
+}
 
-	yi, si := len(pathYOU)-1, len(pathSAN)-1
-	for pathYOU[yi] == pathSAN[si] {
-		yi--
-		si--
+func PathToRoot(graph map[string]string, n string) []string {
+	var path []string
+	for n != "" {
+		path = append(path, n)
+		n = graph[n]
 	}
-
-	// We stopped when the nodes were different, so we have to go back one step to
-	// be at the closest common ancestor.
-	yi++
-	si++
-
-	// At this point we're pointing at the closest common ancestor.  The number of
-	// nodes to the left of where we're pointing are the nodes we had to travel
-	// through in order to get to the closest common ancestor.  So the distance
-	// that we have to travel to get to santa is the sum of them.
-	distance := yi + si
-	fmt.Printf("distance: %d\n", distance)
+	return path[1:] // don't include the node itself in the path
 }
 
 type Orbit struct {
-	object string
-	center string
+	Parent, Child string
 }
 
-func InputToOrbits(year, day int) []Orbit {
-	var orbits []Orbit
-	for _, line := range aoc.InputToLines(year, day) {
-		parts := strings.Split(line, ")")
-		center, object := parts[0], parts[1]
-
-		orbits = append(orbits, Orbit{object: object, center: center})
-	}
-
-	return orbits
+func InputToOrbits() []Orbit {
+	return aoc.InputLinesTo(2019, 6, func(line string) (Orbit, error) {
+		var orbit Orbit
+		orbit.Parent, orbit.Child, _ = strings.Cut(line, ")")
+		return orbit, nil
+	})
 }

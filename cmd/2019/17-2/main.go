@@ -2,291 +2,187 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"strings"
 )
 
-type Grid map[aoc.Point2D]bool
-
-type Step struct {
-	turn    string
-	forward int
-}
-
 func main() {
-	grid, robot := ReadGrid()
-	path := ComputePath(robot, grid)
-	main, A, B, C := ComputeSubprocesses(path)
-	if main == "" {
-		log.Fatal("unable to find a solution")
+	grid, turtle := Load()
+	path := BuildPath(grid, turtle)
+
+	main, A, B, C := BuildRules(path)
+
+	// Set up our program for the robot.  We want to tell it our routines and
+	// then send it a n to indicate we don't want realtime updates as the robot
+	// moves.
+	var program strings.Builder
+	for _, s := range []string{main, A, B, C, "n"} {
+		program.WriteString(s)
+		program.WriteByte('\n')
 	}
 
-	toInputs := func(s string) []int {
-		var nums []int
-		for _, c := range s {
-			nums = append(nums, int(c))
-		}
-
-		return nums
-	}
-
-	// Convert the subprocesses into the stream of inputs
-	var inputs []int
-	inputs = append(inputs, toInputs(main)...)
-	inputs = append(inputs, '\n')
-	inputs = append(inputs, toInputs(A)...)
-	inputs = append(inputs, '\n')
-	inputs = append(inputs, toInputs(B)...)
-	inputs = append(inputs, '\n')
-	inputs = append(inputs, toInputs(C)...)
-	inputs = append(inputs, '\n')
-	inputs = append(inputs, 'n') // do we want a live feed?
-	inputs = append(inputs, '\n')
-
+	// Force the robot to wake.
 	memory := cpus.InputToIntcodeMemory(2019, 17)
 	memory[0] = 2
 
-	var output int
-	cpu := cpus.IntcodeCPU{
+	// Wire the program as input.
+	input := make(chan int, program.Len())
+	for _, c := range program.String() {
+		input <- int(c)
+	}
+
+	// Run the robot keeping track of the last value outputted.
+	var dust int
+	robot := cpus.IntcodeCPU{
 		Memory: memory,
-		Input: func(addr int) int {
-			i := inputs[0]
-			inputs = inputs[1:]
-			return i
-		},
-		Output: func(value int) {
-			output = value
-		},
+		Input:  func() int { return <-input },
+		Output: func(value int) { dust = value },
 	}
-	cpu.Execute()
+	robot.Execute()
 
-	fmt.Println("dust collected:", output)
+	fmt.Println(dust)
 }
 
-func IsSolution(steps string) bool {
-	steps = strings.ReplaceAll(steps, "A,", "")
-	steps = strings.ReplaceAll(steps, "B,", "")
-	steps = strings.ReplaceAll(steps, "C,", "")
-	return len(steps) == 0
+type Step struct {
+	Turn    aoc.Heading
+	Forward int
 }
 
-func ComputeSubprocesses(path []Step) (string, string, string, string) {
-	// Convert the path to a string so that we can use the strings library on it.
-	// We'll make sure every step is followed by a comma so we can do clean
-	// substitutions.
-	steps := ""
-	for _, step := range path {
-		steps += fmt.Sprintf("%s,%d,", step.turn, step.forward)
+func BuildPath(grid aoc.Set[aoc.Point2D], robot aoc.Turtle) []Step {
+	tryForward := func(r aoc.Turtle) bool {
+		r.Forward(1)
+		return grid.Contains(r.Location)
 	}
 
-	// Now that we have the path through the maze, we need to collapse all of it
-	// into subroutines A, B, and C.  Each subroutine cannot be longer than 20
-	// characters when represented as ASCII text.  Because we need to consume all
-	// of the input we can focus on taking exclusively from the front of the path.
-	//
-	// Because the dataset is relatively small and we know we need 3 subroutines
-	// we can brute force the sizes of subroutine A, B, and C.  The largest a
-	// subroutine can be is 6 steps because when converted to ASCII each step
-	// requires a minimum of 3 characters, but some will require more if there are
-	// two digit distances.
-	for _, a := range Subprocesses(steps) {
-		stepsA := strings.ReplaceAll(steps, a+",", "A,")
-
-		for _, b := range Subprocesses(stepsA) {
-			stepsB := strings.ReplaceAll(stepsA, b+",", "B,")
-
-			for _, c := range Subprocesses(stepsB) {
-				stepsC := strings.ReplaceAll(stepsB, c+",", "C,")
-
-				if IsSolution(stepsC) {
-					return stepsC[0 : len(stepsC)-1], a, b, c
-				}
-			}
-		}
+	tryLeft := func(r aoc.Turtle) bool {
+		r.TurnLeft()
+		return tryForward(r)
 	}
 
-	return "", "", "", ""
-}
-
-func Subprocesses(steps string) []string {
-	for len(steps) > 0 {
-		if steps[0] == 'L' || steps[0] == 'R' {
-			break
-		}
-		steps = steps[1:]
+	tryRight := func(r aoc.Turtle) bool {
+		r.TurnRight()
+		return tryForward(r)
 	}
 
-	var subprocesses []string
-	for i := 0; i < 20; i++ {
-		// Subprocesses cannot call each other, so if we run into a call to another
-		// subprocess then we're done and can't move any further to the right in the
-		// string.
-		if steps[i] == 'A' || steps[i] == 'B' || steps[i] == 'C' {
-			break
-		}
-
-		// Look for the end of a step
-		if steps[i] != ',' {
-			continue
-		}
-
-		if steps[i-1] < '0' || steps[i-1] > '9' {
-			continue
-		}
-
-		subprocesses = append(subprocesses, steps[0:i])
-	}
-
-	return subprocesses
-}
-
-func ComputePath(robot Turtle, grid Grid) []Step {
-	// Pick a direction to turn (L or R) or return the empty string for a dead end
-	choose := func(robot Turtle, grid Grid) string {
-		left := Turtle{robot.location, robot.direction}
-		left.Left()
-		left.Forward()
-		if grid[left.location] {
-			return "L"
-		}
-
-		right := Turtle{robot.location, robot.direction}
-		right.Right()
-		right.Forward()
-		if grid[right.location] {
-			return "R"
-		}
-
-		return ""
-	}
-
-	// Determine if the robot can take a step forward without falling.
-	canStep := func(robot Turtle, grid Grid) bool {
-		t := Turtle{robot.location, robot.direction}
-		t.Forward()
-		return grid[t.location]
-	}
-
+	// Visualizing the map it's just a line that overlaps itself that needs to be
+	// followed.  Because the robot starts off not facing the direction of the
+	// line, we're going to make the assumption that each portion of the path is
+	// structured as a turn followed by some number of steps to move forward.
 	var path []Step
 	for {
-		var count int
-		turn := choose(robot, grid)
-		if turn == "L" {
-			robot.Left()
-		} else if turn == "R" {
-			robot.Right()
+		var turn aoc.Heading
+		if tryLeft(robot) {
+			turn = aoc.Left
+			robot.TurnLeft()
+		} else if tryRight(robot) {
+			turn = aoc.Right
+			robot.TurnRight()
 		} else {
-			// There was no turn, we're done.
 			break
 		}
 
-		for canStep(robot, grid) {
-			count++
-			robot.Forward()
+		var count int
+		for count = 0; tryForward(robot); count++ {
+			robot.Forward(1)
 		}
 
-		path = append(path, Step{turn, count})
+		path = append(path, Step{Turn: turn, Forward: count})
 	}
 
 	return path
 }
 
-func ReadGrid() (Grid, Turtle) {
-	grid := make(Grid)
-	var robot Turtle
+func BuildRules(steps []Step) (string, string, string, string) {
+	// We need to determine A, B, and C as sequences of steps that can be
+	// combined to generate the path exactly.  Each of the A, B, and C sequences
+	// cannot be longer than 20 characters.
+	//
+	// To accomplish this we'll work with the path as a string.  We'll choose a
+	// prefix of the string to be one of our sequences, then remove any
+	// occurrences of the sequence in the string.  If after the 3rd sequence is
+	// chosen the path string is empty then we know we've found a solution.
+	var path string
+	for _, step := range steps {
+		path = path + fmt.Sprintf("%s,%d,", step.Turn, step.Forward)
+	}
 
-	current := aoc.Point2D{}
+	choose := func(s string) []string {
+		// Only consider substrings that end on a comma.  This ensures we always
+		// work with full steps.
+		var choices []string
+		for i := 0; i < len(s) && i < 20; i++ {
+			if s[i] == ',' {
+				choices = append(choices, s[:i+1])
+			}
+		}
 
-	output := func(value int) {
-		switch value {
-		case '.':
-			current = current.Right()
+		return choices
+	}
 
-		case '#':
-			grid[current] = true
-			current = current.Right()
-
-		case '^':
-			grid[current] = true
-			robot.location = current
-			robot.direction = "N"
-			current = current.Right()
-
-		case '>':
-			grid[current] = true
-			robot.location = current
-			robot.direction = "E"
-			current = current.Right()
-
-		case 'v':
-			grid[current] = true
-			robot.location = current
-			robot.direction = "S"
-			current = current.Right()
-
-		case '<':
-			grid[current] = true
-			robot.location = current
-			robot.direction = "W"
-			current = current.Right()
-
-		case '\n':
-			current = aoc.Point2D{0, current.Y + 1}
+	var A, B, C string
+loop:
+	for _, A = range choose(path) {
+		withoutA := strings.ReplaceAll(path, A, "")
+		for _, B = range choose(withoutA) {
+			withoutB := strings.ReplaceAll(withoutA, B, "")
+			for _, C = range choose(withoutB) {
+				withoutC := strings.ReplaceAll(withoutB, C, "")
+				if withoutC == "" {
+					break loop
+				}
+			}
 		}
 	}
 
+	main := path
+	main = strings.ReplaceAll(main, A, "A,")
+	main = strings.ReplaceAll(main, B, "B,")
+	main = strings.ReplaceAll(main, C, "C,")
+	main = strings.TrimRight(main, ",")
+	A = strings.TrimRight(A, ",")
+	B = strings.TrimRight(B, ",")
+	C = strings.TrimRight(C, ",")
+	return main, A, B, C
+}
+
+func Load() (aoc.Set[aoc.Point2D], aoc.Turtle) {
+	var grid aoc.Set[aoc.Point2D]
+	var robot aoc.Turtle
+
+	// Build the grid.
+	var current aoc.Point2D
 	cpu := cpus.IntcodeCPU{
 		Memory: cpus.InputToIntcodeMemory(2019, 17),
-		Output: output,
+		Output: func(value int) {
+			switch value {
+			case '.':
+				current = current.Right()
+			case '#':
+				grid.Add(current)
+				current = current.Right()
+			case '^':
+				grid.Add(current)
+				robot = aoc.Turtle{Location: current, Heading: aoc.Up}
+				current = current.Right()
+			case 'v':
+				grid.Add(current)
+				robot = aoc.Turtle{Location: current, Heading: aoc.Down}
+				current = current.Right()
+			case '<':
+				grid.Add(current)
+				robot = aoc.Turtle{Location: current, Heading: aoc.Left}
+				current = current.Right()
+			case '>':
+				grid.Add(current)
+				robot = aoc.Turtle{Location: current, Heading: aoc.Right}
+				current = current.Right()
+			case '\n':
+				current = aoc.Point2D{X: 0, Y: current.Y + 1}
+			}
+		},
 	}
 	cpu.Execute()
 
 	return grid, robot
-}
-
-type Turtle struct {
-	location  aoc.Point2D
-	direction string
-}
-
-func (t *Turtle) Forward() {
-	switch t.direction {
-	case "N":
-		t.location = t.location.Up()
-	case "E":
-		t.location = t.location.Right()
-	case "S":
-		t.location = t.location.Down()
-	case "W":
-		t.location = t.location.Left()
-	}
-}
-
-func (t *Turtle) Left() {
-	switch t.direction {
-	case "N":
-		t.direction = "W"
-	case "E":
-		t.direction = "N"
-	case "S":
-		t.direction = "E"
-	case "W":
-		t.direction = "S"
-	}
-}
-
-func (t *Turtle) Right() {
-	switch t.direction {
-	case "N":
-		t.direction = "E"
-	case "E":
-		t.direction = "S"
-	case "S":
-		t.direction = "W"
-	case "W":
-		t.direction = "N"
-	}
 }

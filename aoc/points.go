@@ -39,6 +39,22 @@ func (p Point2D) Right() Point2D {
 	return Point2D{p.X + 1, p.Y}
 }
 
+// Move returns the adjacent point along the specified heading.
+func (p Point2D) Move(h Heading) Point2D {
+	switch h {
+	case Up:
+		return p.Up()
+	case Down:
+		return p.Down()
+	case Left:
+		return p.Left()
+	case Right:
+		return p.Right()
+	default:
+		return p
+	}
+}
+
 // OrthogonalNeighbors returns a slice of neighbors that are orthogonal to
 // the current point.
 func (p Point2D) OrthogonalNeighbors() []Point2D {

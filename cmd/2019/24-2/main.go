@@ -2,310 +2,124 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-const N = uint8(5)
-const D = 225
+const N = 5
 
 func main() {
-	state := InputToState(2019, 24)
+	grids := []aoc.BitSet{InputToGrid()}
 	for tm := 0; tm < 200; tm++ {
-		state = state.Next()
+		grids = Next(grids)
 	}
 
 	var count int
-	for _, v := range state {
-		if v {
-			count++
-		}
+	for _, grid := range grids {
+		count += grid.Size()
 	}
-
-	fmt.Printf("number of bugs: %d\n", count)
+	fmt.Println(count)
 }
 
-type Coordinate struct {
-	id    uint8
-	depth int
-}
+func Next(grids []aoc.BitSet) []aoc.BitSet {
+	get := func(depth, x, y int) int {
+		if depth < 1 || depth > len(grids) || x < 0 || x >= N || y < 0 || y >= N {
+			return 0
+		}
 
-func (c Coordinate) Neighbors() []Coordinate {
-	switch c.id {
-	case 1:
-		return []Coordinate{
-			{8, c.depth - 1},
-			{2, c.depth},
-			{6, c.depth},
-			{12, c.depth - 1},
+		if grids[depth-1].Contains(y*N + x) {
+			return 1
 		}
-	case 2:
-		return []Coordinate{
-			{8, c.depth - 1},
-			{3, c.depth},
-			{7, c.depth},
-			{1, c.depth},
-		}
-	case 3:
-		return []Coordinate{
-			{8, c.depth - 1},
-			{4, c.depth},
-			{8, c.depth},
-			{2, c.depth},
-		}
-	case 4:
-		return []Coordinate{
-			{8, c.depth - 1},
-			{5, c.depth},
-			{9, c.depth},
-			{3, c.depth},
-		}
-	case 5:
-		return []Coordinate{
-			{8, c.depth - 1},
-			{14, c.depth - 1},
-			{10, c.depth},
-			{4, c.depth},
-		}
-	case 6:
-		return []Coordinate{
-			{1, c.depth},
-			{7, c.depth},
-			{11, c.depth},
-			{12, c.depth - 1},
-		}
-	case 7:
-		return []Coordinate{
-			{2, c.depth},
-			{8, c.depth},
-			{12, c.depth},
-			{6, c.depth},
-		}
-	case 8:
-		return []Coordinate{
-			{3, c.depth},
-			{9, c.depth},
-			{1, c.depth + 1},
-			{2, c.depth + 1},
-			{3, c.depth + 1},
-			{4, c.depth + 1},
-			{5, c.depth + 1},
-			{7, c.depth},
-		}
-	case 9:
-		return []Coordinate{
-			{4, c.depth},
-			{10, c.depth},
-			{14, c.depth},
-			{8, c.depth},
-		}
-	case 10:
-		return []Coordinate{
-			{5, c.depth},
-			{14, c.depth - 1},
-			{15, c.depth},
-			{9, c.depth},
-		}
-	case 11:
-		return []Coordinate{
-			{6, c.depth},
-			{12, c.depth},
-			{16, c.depth},
-			{12, c.depth - 1},
-		}
-	case 12:
-		return []Coordinate{
-			{7, c.depth},
-			{1, c.depth + 1},
-			{6, c.depth + 1},
-			{11, c.depth + 1},
-			{16, c.depth + 1},
-			{21, c.depth + 1},
-			{17, c.depth},
-			{11, c.depth},
-		}
-	case 14:
-		return []Coordinate{
-			{9, c.depth},
-			{15, c.depth},
-			{19, c.depth},
-			{5, c.depth + 1},
-			{10, c.depth + 1},
-			{15, c.depth + 1},
-			{20, c.depth + 1},
-			{25, c.depth + 1},
-		}
-	case 15:
-		return []Coordinate{
-			{10, c.depth},
-			{14, c.depth - 1},
-			{20, c.depth},
-			{14, c.depth},
-		}
-	case 16:
-		return []Coordinate{
-			{11, c.depth},
-			{17, c.depth},
-			{21, c.depth},
-			{12, c.depth - 1},
-		}
-	case 17:
-		return []Coordinate{
-			{12, c.depth},
-			{18, c.depth},
-			{22, c.depth},
-			{16, c.depth},
-		}
-	case 18:
-		return []Coordinate{
-			{21, c.depth + 1},
-			{22, c.depth + 1},
-			{23, c.depth + 1},
-			{24, c.depth + 1},
-			{25, c.depth + 1},
-			{19, c.depth},
-			{23, c.depth},
-			{17, c.depth},
-		}
-	case 19:
-		return []Coordinate{
-			{14, c.depth},
-			{20, c.depth},
-			{24, c.depth},
-			{18, c.depth},
-		}
-	case 20:
-		return []Coordinate{
-			{15, c.depth},
-			{14, c.depth - 1},
-			{25, c.depth},
-			{19, c.depth},
-		}
-	case 21:
-		return []Coordinate{
-			{16, c.depth},
-			{22, c.depth},
-			{18, c.depth - 1},
-			{12, c.depth - 1},
-		}
-	case 22:
-		return []Coordinate{
-			{17, c.depth},
-			{23, c.depth},
-			{18, c.depth - 1},
-			{21, c.depth},
-		}
-	case 23:
-		return []Coordinate{
-			{18, c.depth},
-			{24, c.depth},
-			{18, c.depth - 1},
-			{22, c.depth},
-		}
-	case 24:
-		return []Coordinate{
-			{19, c.depth},
-			{25, c.depth},
-			{18, c.depth - 1},
-			{23, c.depth},
-		}
-	case 25:
-		return []Coordinate{
-			{20, c.depth},
-			{14, c.depth - 1},
-			{18, c.depth - 1},
-			{24, c.depth},
-		}
-	default:
-		log.Fatalf("unable to determine neighbors for: %+v", c)
-		return nil
-	}
-}
-
-type State map[Coordinate]bool
-
-func NewState() State {
-	state := make(State)
-	for depth := -D; depth < D; depth++ {
-		for id := uint8(1); id <= N*N; id++ {
-			if id == 13 {
-				continue
-			}
-
-			state[Coordinate{id, depth}] = false
-		}
+		return 0
 	}
 
-	return state
-}
+	next := make([]aoc.BitSet, len(grids)+2)
+	for n := 0; n < len(next); n++ {
+		for x := 0; x < N; x++ {
+			for y := 0; y < N; y++ {
+				if x == 2 && y == 2 {
+					continue
+				}
 
-func (s State) Next() State {
-	// Count the number of neighbors of this coordinate that are true
-	neighbors := func(c Coordinate) int {
-		var count int
-		for _, neighbor := range c.Neighbors() {
-			if s[neighbor] {
-				count++
-			}
-		}
-		return count
-	}
+				var count int
+				ForEachNeighbor(x, y, func(x, y, delta int) {
+					count += get(n+delta, x, y)
+				})
 
-	next := NewState()
-	for depth := -D; depth < D; depth++ {
-		for id := uint8(1); id <= N*N; id++ {
-			if id == 13 {
-				continue
-			}
-
-			coordinate := Coordinate{id, depth}
-			count := neighbors(coordinate)
-
-			if s[coordinate] {
-				next[coordinate] = count == 1
-			} else {
-				next[coordinate] = count == 1 || count == 2
+				if get(n, x, y) == 1 && count == 1 {
+					next[n] = next[n].Add(y*N + x)
+				} else if get(n, x, y) == 0 && (count == 1 || count == 2) {
+					next[n] = next[n].Add(y*N + x)
+				}
 			}
 		}
 	}
+
 	return next
 }
 
-func (s State) String() string {
-	var builder strings.Builder
-	for depth := -D; depth < D; depth++ {
-		builder.WriteString(fmt.Sprintf("Depth %d:\n", depth))
-		for id := uint8(1); id <= N*N; id++ {
-			if id == 13 {
-				builder.WriteString("?")
-				continue
-			}
-
-			coordinate := Coordinate{id, depth}
-			if s[coordinate] {
-				builder.WriteString("#")
-			} else {
-				builder.WriteString(".")
-			}
-			if id%5 == 0 {
-				builder.WriteString("\n")
-			}
-		}
-		builder.WriteString("\n")
+func ForEachNeighbor(x, y int, fn func(x, y, delta int)) {
+	// N
+	if y == 0 {
+		fn(2, 1, -1)
+	} else if y == 3 && x == 2 {
+		fn(0, 4, +1)
+		fn(1, 4, +1)
+		fn(2, 4, +1)
+		fn(3, 4, +1)
+		fn(4, 4, +1)
+	} else {
+		fn(x, y-1, 0)
 	}
-	return builder.String()
+
+	// W
+	if x == 0 {
+		fn(1, 2, -1)
+	} else if x == 3 && y == 2 {
+		fn(4, 0, +1)
+		fn(4, 1, +1)
+		fn(4, 2, +1)
+		fn(4, 3, +1)
+		fn(4, 4, +1)
+	} else {
+		fn(x-1, y, 0)
+	}
+
+	// E
+	if x == 4 {
+		fn(3, 2, -1)
+	} else if x == 1 && y == 2 {
+		fn(0, 0, +1)
+		fn(0, 1, +1)
+		fn(0, 2, +1)
+		fn(0, 3, +1)
+		fn(0, 4, +1)
+	} else {
+		fn(x+1, y, 0)
+	}
+
+	// S
+	if y == 4 {
+		fn(2, 3, -1)
+	} else if y == 1 && x == 2 {
+		fn(0, 0, +1)
+		fn(1, 0, +1)
+		fn(2, 0, +1)
+		fn(3, 0, +1)
+		fn(4, 0, +1)
+	} else {
+		fn(x, y+1, 0)
+	}
 }
 
-func InputToState(year, day int) State {
-	state := NewState()
-	for y, line := range aoc.InputToLines(year, day) {
+func InputToGrid() aoc.BitSet {
+	var grid aoc.BitSet
+	for y, line := range aoc.InputToLines(2019, 24) {
 		for x, c := range line {
 			if c == '#' {
-				state[Coordinate{id: uint8(y)*N + uint8(x+1), depth: 0}] = true
+				grid = grid.Add(y*N + x)
 			}
 		}
 	}
-	return state
+
+	return grid
 }

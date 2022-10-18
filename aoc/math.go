@@ -68,3 +68,12 @@ func Digits[T Integer](n T) []T {
 	}
 	return digits
 }
+
+// JoinDigits interprets the provided digits as a number.
+func JoinDigits[T Integer](ds []T) T {
+	var n T
+	for _, d := range ds {
+		n = n*10 + d
+	}
+	return n
+}

@@ -52,3 +52,16 @@ func AbsInt(n int) int {
 	}
 	return n
 }
+
+// GCD returns the greatest common divisor of two integers.
+func GCD(a, b int) int {
+	if a == 0 {
+		return b
+	}
+	return GCD(b%a, a)
+}
+
+// LCM returns the least common multiple of two integers.
+func LCM(a, b int) int {
+	return (a * b) / GCD(a, b)
+}

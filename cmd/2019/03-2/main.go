@@ -2,76 +2,66 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"math"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	paths := InputToWirePaths(2019, 3)
-	steps0 := paths[0].PointSteps()
-	steps1 := paths[1].PointSteps()
+	paths := InputToPaths()
+	s0, s1 := paths[0].Steps(), paths[1].Steps()
 
-	var distances []int
-	for p, dist0 := range steps0 {
-		if dist1, ok := steps1[p]; ok {
-			distances = append(distances, dist0+dist1)
+	best := math.MaxInt
+	for p, stepsP := range s0 {
+		if stepsQ, found := s1[p]; found {
+			best = aoc.Min(best, stepsP+stepsQ)
 		}
 	}
-
-	sort.Ints(distances)
-	fmt.Printf("shortest distance: %d\n", distances[0])
+	fmt.Println(best)
 }
 
-type WirePath struct {
-	dirs    []string
-	lengths []int
+type Path struct {
+	Dirs    []string
+	Lengths []int
 }
 
-func (p WirePath) PointSteps() map[aoc.Point2D]int {
+func (p Path) Steps() map[aoc.Point2D]int {
 	steps := make(map[aoc.Point2D]int)
 
-	var location aoc.Point2D
-	var distance int
-	for step := 0; step < len(p.dirs); step++ {
-		dir := p.dirs[step]
-		length := p.lengths[step]
-
-		for n := 0; n < length; n++ {
-			switch dir {
+	var current aoc.Point2D
+	var count int
+	for i := 0; i < len(p.Dirs); i++ {
+		for n := 0; n < p.Lengths[i]; n++ {
+			switch p.Dirs[i] {
 			case "U":
-				location = location.Up()
+				current = current.Up()
 			case "D":
-				location = location.Down()
+				current = current.Down()
 			case "L":
-				location = location.Left()
+				current = current.Left()
 			case "R":
-				location = location.Right()
+				current = current.Right()
 			}
+			count++
 
-			distance++
-			steps[location] = distance
+			if _, found := steps[current]; !found {
+				steps[current] = count
+			}
 		}
 	}
 
 	return steps
 }
 
-func InputToWirePaths(year, day int) []WirePath {
-	var paths []WirePath
-
-	for _, line := range aoc.InputToLines(year, day) {
-		var dirs []string
-		var lengths []int
-
+func InputToPaths() []Path {
+	return aoc.InputLinesTo(2019, 3, func(line string) (Path, error) {
+		var path Path
 		for _, part := range strings.Split(line, ",") {
-			dirs = append(dirs, string(part[0]))
-			lengths = append(lengths, aoc.ParseInt(part[1:]))
+			path.Dirs = append(path.Dirs, string(part[0]))
+			path.Lengths = append(path.Lengths, aoc.ParseInt(part[1:]))
 		}
 
-		paths = append(paths, WirePath{dirs: dirs, lengths: lengths})
-	}
-
-	return paths
+		return path, nil
+	})
 }

@@ -3,6 +3,7 @@ package cpus
 import (
 	"log"
 	"strings"
+	"sync/atomic"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
@@ -13,10 +14,10 @@ type IntcodeCPU struct {
 	Memory  Memory
 	ip      int
 	bp      int
-	Input   func(addr int) int
-	Output  func(value int)
+	stopped atomic.Bool
+	Input   func() int
+	Output  func(int)
 	Halt    func()
-	stopped bool
 }
 
 const (
@@ -33,16 +34,13 @@ const (
 )
 
 func (cpu *IntcodeCPU) Execute() {
-	for {
+	for !cpu.stopped.Load() {
 		cpu.Step()
-		if cpu.stopped {
-			break
-		}
 	}
 }
 
 func (cpu *IntcodeCPU) Stop() {
-	cpu.stopped = true
+	cpu.stopped.Store(true)
 }
 
 func (cpu *IntcodeCPU) Step() {
@@ -61,21 +59,21 @@ func (cpu *IntcodeCPU) Step() {
 			return addr
 		case 2: // relative mode
 			return cpu.Memory[cpu.bp+addr]
+		default:
+			log.Fatalf("don't know how to get addr: %d, in mode: %d", addr, mode)
+			return -1
 		}
-
-		log.Fatalf("don't know how to get addr: %d, in mode: %d\addr", addr, mode)
-		return -1
 	}
 
 	// Write a value obeying the parameter mode
-	set := func(addr int, value int, mode int) {
+	set := func(addr int, mode int, value int) {
 		switch mode {
 		case 0: // position mode
 			cpu.Memory[addr] = value
 		case 2: // relative mode
 			cpu.Memory[cpu.bp+addr] = value
 		default:
-			log.Fatalf("don't know how to set addr: %d, in mode: %d\addr", addr, mode)
+			log.Fatalf("don't know how to set addr: %d, in mode: %d", addr, mode)
 		}
 	}
 
@@ -84,19 +82,19 @@ func (cpu *IntcodeCPU) Step() {
 		a := cpu.Memory[cpu.ip+1]
 		b := cpu.Memory[cpu.ip+2]
 		c := cpu.Memory[cpu.ip+3]
-		set(c, get(a, aMode)+get(b, bMode), cMode)
+		set(c, cMode, get(a, aMode)+get(b, bMode))
 		cpu.ip += 4
 
 	case OpcodeMul:
 		a := cpu.Memory[cpu.ip+1]
 		b := cpu.Memory[cpu.ip+2]
 		c := cpu.Memory[cpu.ip+3]
-		set(c, get(a, aMode)*get(b, bMode), cMode)
+		set(c, cMode, get(a, aMode)*get(b, bMode))
 		cpu.ip += 4
 
 	case OpcodeIn:
 		a := cpu.Memory[cpu.ip+1]
-		set(a, cpu.Input(a), aMode)
+		set(a, aMode, cpu.Input())
 		cpu.ip += 2
 
 	case OpcodeOut:
@@ -127,9 +125,9 @@ func (cpu *IntcodeCPU) Step() {
 		b := cpu.Memory[cpu.ip+2]
 		c := cpu.Memory[cpu.ip+3]
 		if get(a, aMode) < get(b, bMode) {
-			set(c, 1, cMode)
+			set(c, cMode, 1)
 		} else {
-			set(c, 0, cMode)
+			set(c, cMode, 0)
 		}
 		cpu.ip += 4
 
@@ -138,9 +136,9 @@ func (cpu *IntcodeCPU) Step() {
 		b := cpu.Memory[cpu.ip+2]
 		c := cpu.Memory[cpu.ip+3]
 		if get(a, aMode) == get(b, bMode) {
-			set(c, 1, cMode)
+			set(c, cMode, 1)
 		} else {
-			set(c, 0, cMode)
+			set(c, cMode, 0)
 		}
 		cpu.ip += 4
 
@@ -153,7 +151,7 @@ func (cpu *IntcodeCPU) Step() {
 		if cpu.Halt != nil {
 			cpu.Halt()
 		}
-		cpu.stopped = true
+		cpu.stopped.Store(true)
 
 	default:
 		log.Fatalf("unrecognized opcode: %d, instruction:%d, ip:%d", op, instruction, cpu.ip)

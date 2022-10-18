@@ -2,117 +2,123 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math/big"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math/big"
+	"strings"
 )
 
-var n int64 = 119_315_717_514_047 // <- prime
-var N = big.NewInt(n)
-var t int64 = 101_741_582_076_661 // <- prime
-var T = big.NewInt(t)
-
+// This reddit comment was very helpful in deriving the math:
+// https://www.reddit.com/r/adventofcode/comments/ee0rqi/comment/fbnkaju
 func main() {
-	//  https://www.reddit.com/r/adventofcode/comments/ee0rqi/2019_day_22_solutions/fbnkaju
+	instructions := InputToInstructions()
 
-	var offset, increment = big.NewInt(0), big.NewInt(1)
-	for _, instruction := range InputToInstructions(2019, 22) {
-		switch instruction.kind {
-		case DealNewStackKind:
-			increment.Neg(increment)
-			offset.Add(offset, increment)
-			offset.Mod(offset, N)
+	// The numbers we're working with along with intermediate values during
+	// computations can get quite large and overflow an int64.  Because of this
+	// we'll work with arbitrary precision integers.
+	N := big.NewInt(119315717514047) // number of cards in the deck
+	S := big.NewInt(101741582076661) // number of shuffles
 
-		case CutKind:
+	// By observing the examples we can see that a shuffle is uniquely determined
+	// by the value of the first card and a delta value between cards.  The n-th
+	// card in the deck can be computed by (first + n*delta) % N.
+	first := big.NewInt(0)
+	delta := big.NewInt(1)
+
+	for _, instruction := range instructions {
+		switch instruction.Kind {
+		case DealNewStack:
+			// Reverses the deck.  The last card becomes the first, and we change the
+			// direction we move in.
+			first.Sub(first, delta)
+			delta.Neg(delta)
+
+		case Cut:
+			// Move arg cards forward.  Only the first card changes.
 			var temp big.Int
-			temp.Mul(increment, big.NewInt(instruction.arg))
+			temp.Mul(big.NewInt(instruction.Arg), delta)
+			first.Add(first, &temp)
 
-			offset.Add(offset, &temp)
-			offset.Mod(offset, N)
-
-		case DealWithIncrementKind:
-			var inverse big.Int
-			inverse.ModInverse(big.NewInt(instruction.arg), N)
-
-			increment.Mul(increment, &inverse)
-			increment.Mod(increment, N)
+		case DealWithIncrement:
+			// The first element always remains the same, the second element moves to
+			// the arg-th element.  The third element moves to the 2*arg-th element,
+			// and so on.  So if we can figure out which element becomes the new
+			// second element we can compute the new delta.  Thus, we want to find x
+			// in x*arg = 1 (mod N).  Thus x = inverse(arg) (mod N).
+			//
+			// The value of the x-th element in our list is first + x*delta, and
+			// subtracting the first element from that gives us a new delta of
+			// x*delta or inverse(arg)*delta.
+			var temp big.Int
+			temp.ModInverse(big.NewInt(instruction.Arg), N)
+			delta.Mul(delta, &temp)
 		}
+
+		first.Mod(first, N)
+		delta.Mod(delta, N)
 	}
 
-	// 1 pass of the shuffle is now encoded in offset and increment.  To figure
-	// out the values of offset and increment after T shuffles we can use the
-	// following:
+	// Now that we've computed one round of the shuffling, use the result to
+	// determine the result after many more rounds of shuffling.
 	//
-	//   incrementT = increment^T mod N
+	// Viewing the single round of shuffling algorithm we can draw two
+	// conclusions about the effects of a round of shuffling:
+	//   1. delta is always some integer multiple of the starting delta (dd)
+	//   2. first is always incremented by some multiple of delta (df)
 	//
-	//   offsetT = offset * (1 + increment + increment^2 + ... + increment^T) mod N
-	//           = offset * (1 - increment^T)/(1 - increment) mod N
-	//           = offset * (1 - increment^T) * inverse(1 - increment) mod N
-	var incrementT big.Int
-	incrementT.Exp(increment, T, N)
+	// Extrapolating to represent many shuffles (S) from a factory ordered deck:
+	//   delta(s) = dd*delta(s-1)              ; delta(0) = 1
+	//   first(s) = first(s-1) + df*delta(s-1) ; first(0) = 0
+	//
+	// From this we can conclude that deltas are computed via exponentiation, and
+	// first is just a geometric series.
+	//   delta(s) = (dd)^s
+	//   first(s) = df*(1 + dd + (dd)^2 + ... + (dd)^s) = df*(1-(dd)^s)/(1-dd)
 
-	var temp1 big.Int
-	temp1.Exp(increment, T, N)
-	temp1.Sub(big.NewInt(1), &temp1)
+	var deltaS, firstS big.Int
+	deltaS.Exp(delta, S, N)
+	firstS = GeometricSum(first, delta, S, N)
 
-	var temp2 big.Int
-	temp2.Sub(big.NewInt(1), increment)
-	temp2.ModInverse(&temp2, N)
+	// Lastly determine the 2020th card in the deck.
+	var card big.Int
+	card.Mod(card.Add(&firstS, card.Mul(big.NewInt(2020), &deltaS)), N)
+	fmt.Println(card.Int64())
+}
 
-	var offsetT big.Int
-	offsetT.Mul(offset, &temp1)
-	offsetT.Mul(&offsetT, &temp2)
-	offsetT.Mod(&offsetT, N)
+func GeometricSum(a, r, n, mod *big.Int) big.Int {
+	var numerator big.Int
+	numerator.Mod(numerator.Sub(big.NewInt(1), numerator.Exp(r, n, mod)), mod)
 
-	var answer big.Int
-	answer.Mul(&incrementT, big.NewInt(2020))
-	answer.Add(&answer, &offsetT)
-	answer.Mod(&answer, N)
-	fmt.Println("answer:", &answer)
+	var denominator big.Int
+	denominator.Mod(denominator.Sub(big.NewInt(1), r), mod)
+
+	var result big.Int
+	result.Mod(result.Mul(a, result.Mul(&numerator, denominator.ModInverse(&denominator, mod))), mod)
+	return result
 }
 
 const (
-	DealNewStackKind      string = "DealNewStack"
-	CutKind               string = "Cut"
-	DealWithIncrementKind string = "DealWithIncrement"
+	DealNewStack      = "new_stack"
+	Cut               = "cut"
+	DealWithIncrement = "increment"
 )
 
 type Instruction struct {
-	kind string
-	arg  int64
+	Kind string
+	Arg  int64
 }
 
-func InputToInstructions(year, day int) []Instruction {
-	var instructions []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		var argument int64
-
-		if _, err := fmt.Sscanf(line, "deal with increment %d", &argument); err == nil {
-			instructions = append(instructions, Instruction{
-				kind: DealWithIncrementKind,
-				arg:  argument,
-			})
-			continue
+func InputToInstructions() []Instruction {
+	return aoc.InputLinesTo(2019, 22, func(line string) (Instruction, error) {
+		if strings.HasPrefix(line, "deal into new stack") {
+			return Instruction{Kind: DealNewStack}, nil
+		} else if strings.HasPrefix(line, "cut") {
+			arg := aoc.ParseInt(strings.Split(line, " ")[1])
+			return Instruction{Kind: Cut, Arg: int64(arg)}, nil
+		} else if strings.HasPrefix(line, "deal with increment") {
+			arg := aoc.ParseInt(strings.Split(line, " ")[3])
+			return Instruction{Kind: DealWithIncrement, Arg: int64(arg)}, nil
+		} else {
+			return Instruction{}, fmt.Errorf("unrecognized line: %s", line)
 		}
-
-		if line == "deal into new stack" {
-			instructions = append(instructions, Instruction{
-				kind: DealNewStackKind,
-			})
-			continue
-		}
-
-		if _, err := fmt.Sscanf(line, "cut %d", &argument); err == nil {
-			instructions = append(instructions, Instruction{
-				kind: CutKind,
-				arg:  argument,
-			})
-			continue
-		}
-
-		log.Fatalf("unable to parse line: %s", line)
-	}
-
-	return instructions
+	})
 }

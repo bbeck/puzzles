@@ -43,9 +43,21 @@ func (fc *FrequencyCounter[T]) Add(value T) {
 	heap.Push(fc.heap, entry)
 }
 
+// GetCount returns the count of a specific value within the frequency counter.
+func (fc *FrequencyCounter[T]) GetCount(value T) int {
+	if fc.entries == nil {
+		fc.entries = make(map[T]*Entry[T])
+	}
+
+	if entry, found := fc.entries[value]; found {
+		return entry.Count
+	}
+	return 0
+}
+
 // Entries returns the entries within the frequency counter in order of
 // frequency from most frequent to least frequent.
-func (fc FrequencyCounter[T]) Entries() []Entry[T] {
+func (fc *FrequencyCounter[T]) Entries() []Entry[T] {
 	if fc.heap == nil {
 		return nil
 	}

@@ -2,131 +2,104 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math/rand"
-
 	"github.com/bbeck/advent-of-code/aoc"
 	"github.com/bbeck/advent-of-code/aoc/cpus"
 )
 
-const (
-	_ int = iota
-	Empty
-	Wall
-	Goal
-)
-
-var grid map[aoc.Point2D]int
-
 func main() {
-	grid = Explore(2_000_000)
+	open, goal := Explore()
 
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		var children []aoc.Point2D
+		for _, child := range p.OrthogonalNeighbors() {
+			if open.Contains(child) {
+				children = append(children, child)
+			}
+		}
+		return children
+	}
+
+	isGoal := func(p aoc.Point2D) bool {
+		return p == goal
+	}
+
+	if path, ok := aoc.BreadthFirstSearch(aoc.Origin2D, children, isGoal); ok {
+		fmt.Println(len(path) - 1) // The path includes the starting point.
+	}
+}
+
+var Headings = []aoc.Heading{aoc.Up, aoc.Down, aoc.Left, aoc.Right}
+var Reverse = map[aoc.Heading]aoc.Heading{
+	aoc.Up:    aoc.Down,
+	aoc.Down:  aoc.Up,
+	aoc.Left:  aoc.Right,
+	aoc.Right: aoc.Left,
+}
+
+func Explore() (aoc.Set[aoc.Point2D], aoc.Point2D) {
+	var open aoc.Set[aoc.Point2D]
 	var goal aoc.Point2D
-	for k, v := range grid {
-		if v == Goal {
-			goal = k
+
+	robot := NewRobot()
+	current := aoc.Origin2D
+
+	var helper func()
+	helper = func() {
+		for _, heading := range Headings {
+			status := robot.Move(heading)
+			if status == 0 {
+				continue
+			}
+
+			current = current.Move(heading)
+			if status == 2 {
+				goal = current
+			}
+
+			if open.Add(current) {
+				helper()
+			}
+
+			robot.Move(Reverse[heading])
+			current = current.Move(Reverse[heading])
 		}
 	}
+	helper()
 
-	start := Location{}
-
-	isGoal := func(node aoc.Node) bool {
-		p := node.(Location).Point2D
-		return grid[p] == Goal
-	}
-
-	cost := func(from, to aoc.Node) int {
-		return 1
-	}
-
-	heuristic := func(node aoc.Node) int {
-		p := node.(Location).Point2D
-		return p.ManhattanDistance(goal)
-	}
-
-	_, distance, found := aoc.AStarSearch(start, isGoal, cost, heuristic)
-	if !found {
-		fmt.Println("no path found")
-		return
-	}
-
-	fmt.Printf("shortest path: %d\n", distance)
+	return open, goal
 }
 
-func Explore(steps int) map[aoc.Point2D]int {
-	grid := make(map[aoc.Point2D]int)
-
-	// The currently location we're at as well as the next location we'll be at
-	// if our move succeeds.
-	var location, next aoc.Point2D
-
-	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 15),
-	}
-
-	cpu.Input = func(int) int {
-		dir := rand.Intn(4) + 1
-		switch dir {
-		case 1:
-			next = location.Up()
-		case 2:
-			next = location.Down()
-		case 3:
-			next = location.Left()
-		case 4:
-			next = location.Right()
-		default:
-			log.Fatalf("invalid direction chosen: %d", dir)
-		}
-
-		return dir
-	}
-
-	cpu.Output = func(value int) {
-		switch value {
-		case 0:
-			grid[next] = Wall
-		case 1:
-			grid[next] = Empty
-			location = next
-		case 2:
-			grid[next] = Goal
-			location = next
-		}
-
-		// If we've captured the amount of data that we've wanted to we can
-		// terminate the program and return our data.
-		steps--
-		if steps <= 0 {
-			cpu.Stop()
-		}
-	}
-
-	cpu.Execute()
-	return grid
+type Robot struct {
+	CPU      cpus.IntcodeCPU
+	Commands chan int
+	Status   chan int
 }
 
-type Location struct {
-	aoc.Point2D
+func NewRobot() *Robot {
+	commands := make(chan int)
+	status := make(chan int)
+
+	robot := &Robot{
+		CPU: cpus.IntcodeCPU{
+			Memory: cpus.InputToIntcodeMemory(2019, 15),
+			Input:  func() int { return <-commands },
+			Output: func(value int) { status <- value },
+		},
+		Commands: commands,
+		Status:   status,
+	}
+	go robot.CPU.Execute()
+	return robot
 }
 
-func (l Location) ID() string {
-	return l.String()
-}
+func (r *Robot) Move(h aoc.Heading) int {
+	mapping := map[aoc.Heading]int{
+		aoc.Up:    1,
+		aoc.Down:  2,
+		aoc.Left:  3,
+		aoc.Right: 4,
+	}
 
-func (l Location) Children() []aoc.Node {
-	var children []aoc.Node
-	if grid[l.Up()] != Wall {
-		children = append(children, Location{l.Up()})
-	}
-	if grid[l.Down()] != Wall {
-		children = append(children, Location{l.Down()})
-	}
-	if grid[l.Left()] != Wall {
-		children = append(children, Location{l.Left()})
-	}
-	if grid[l.Right()] != Wall {
-		children = append(children, Location{l.Right()})
-	}
-	return children
+	r.Commands <- mapping[h]
+	return <-r.Status
 }

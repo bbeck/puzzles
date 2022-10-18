@@ -2,110 +2,85 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	// This part asks us to determine when a repeat state will occur among the
-	// moon states and implies that a direct computation won't be computationally
-	// feasible.
-	//
-	// We're going to decompose the problem into three parts, one for each axis.
-	// This is possible because the adjustment of a moon's position or velocity
-	// along an axis is dependent only on the data from that axis.  We will
-	// compute the length of the cycle along each axis for position and velocity
-	// pairs.  We will also make sure that the cycle repeats at the first pair so
-	// that there's no initial offsetting that needs to happen.
-	//
-	// Once we've determined the cycle lengths, we can compute the least common
-	// multiple of them to determine how many steps it takes to get back to
-	// (0, 0, 0).
-	cycle := func(pv func(Moon) (int, int)) (int, int) {
-		var ps, vs []int
-		for _, moon := range InputToMoons(2019, 12) {
-			p, v := pv(moon)
-			ps = append(ps, p)
-			vs = append(vs, v)
+	var xs, ys, zs []int
+	for _, p := range InputToPositions() {
+		xs = append(xs, p.X)
+		ys = append(ys, p.Y)
+		zs = append(zs, p.Z)
+	}
+
+	lenY := CycleLength(xs)
+	lenZ := CycleLength(ys)
+	lenX := CycleLength(zs)
+	fmt.Println(aoc.LCM(lenX, aoc.LCM(lenY, lenZ)))
+}
+
+func CycleLength(ps []int) int {
+	vs := make([]int, len(ps)) // Velocities always start at 0
+
+	// Since there's a cycle, we should eventually return to our original
+	// positions and velocities.
+	ops := append([]int{}, ps...)
+	ovs := append([]int{}, vs...)
+
+	var n int
+	for {
+		Update(ps, vs)
+		n++
+
+		if Equal(ps, ops) && Equal(vs, ovs) {
+			break
 		}
+	}
+	return n
+}
 
-		seen := make(map[string]int)
-
-		var step int
-		for step = 0; ; step++ {
-			// update the velocities
-			for i := 0; i < len(ps); i++ {
-				for j := i + 1; j < len(ps); j++ {
-					if ps[i] < ps[j] {
-						vs[i]++
-						vs[j]--
-					} else if ps[j] < ps[i] {
-						vs[i]--
-						vs[j]++
-					}
-				}
-			}
-
-			// update the positions
-			for i := 0; i < len(ps); i++ {
-				ps[i] += vs[i]
-			}
-
-			// check if this new state has been seen before
-			key := fmt.Sprintf("p:%+v,v:%+v", ps, vs)
-			if s, ok := seen[key]; ok {
-				return s, step - s
-			}
-			seen[key] = step
+func Update(p, v []int) {
+	deltas := func(a, b int) (int, int) {
+		switch {
+		case a < b:
+			return 1, -1
+		case a > b:
+			return -1, 1
+		default:
+			return 0, 0
 		}
 	}
 
-	tailX, lengthX := cycle(func(m Moon) (int, int) { return m.position.X, m.velocity.X })
-	tailY, lengthY := cycle(func(m Moon) (int, int) { return m.position.Y, m.velocity.Y })
-	tailZ, lengthZ := cycle(func(m Moon) (int, int) { return m.position.Z, m.velocity.Z })
-	if tailX != 0 || tailY != 0 || tailZ != 0 {
-		log.Fatalf("tail is not zero, x: %d, y: %d, z: %d", tailX, tailY, tailZ)
-	}
-
-	fmt.Println(LCM(LCM(lengthX, lengthY), lengthZ))
-}
-
-func GCD(a, b int) int {
-	if a == 0 {
-		return b
-	}
-	return GCD(b%a, a)
-}
-
-func LCM(a, b int) int {
-	return (a * b) / GCD(a, b)
-}
-
-type Moon struct {
-	position Point
-	velocity Point
-}
-
-func (m Moon) String() string {
-	return fmt.Sprintf("pos=<x=%d, y=%d, z=%d>, vel=<x=%d, y=%d, z=%d>",
-		m.position.X, m.position.Y, m.position.Z, m.velocity.X, m.velocity.Y, m.velocity.Z)
-}
-
-type Point struct {
-	X, Y, Z int
-}
-
-func InputToMoons(year, day int) []Moon {
-	var moons []Moon
-	for _, line := range aoc.InputToLines(year, day) {
-		var x, y, z int
-		if _, err := fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &x, &y, &z); err != nil {
-			log.Fatalf("unable to parse input line: %s\n", line)
+	for i := 0; i < len(p); i++ {
+		for j := i + 1; j < len(p); j++ {
+			di, dj := deltas(p[i], p[j])
+			v[i] += di
+			v[j] += dj
 		}
-
-		moons = append(moons, Moon{position: Point{x, y, z}})
 	}
 
-	return moons
+	for i := 0; i < len(p); i++ {
+		p[i] += v[i]
+	}
+}
+
+func Equal[T comparable](a, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func InputToPositions() []aoc.Point3D {
+	return aoc.InputLinesTo(2019, 12, func(line string) (aoc.Point3D, error) {
+		var p aoc.Point3D
+		_, err := fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
+		return p, err
+	})
 }

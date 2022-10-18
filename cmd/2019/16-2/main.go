@@ -3,82 +3,43 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"log"
 )
 
 func main() {
-	input := InputToDigits(2019, 16)
+	ds := InputToDigits()
+	offset := aoc.JoinDigits(ds[:7])
 
-	var digits []int8
+	// The specified offset is >91% of the way through the list of repeated
+	// digits, implying that we're focusing on the tail of the transform.
+	//
+	// By observing the examples in the problem statement we can see that
+	// within the tail the n-th digit of a phase is just the sum of the
+	// n-1 digits (mod 10) from the previous phase.  This ends up being true
+	// because the coefficients of the tail end up all being 1.
+	//
+	// This observation leads to a dynamic programming based solution
+	// for directly computing the value of a specific tail digit.
+
+	// Build the tail of the digits starting at our offset.
+	digits := make([]int, 0, len(ds)*10000)
 	for i := 0; i < 10000; i++ {
-		digits = append(digits, input...)
+		digits = append(digits, ds...)
 	}
-	if digits == nil {
-		log.Fatal("digits is nil")
-	}
-
-	// Working through the example given in the problem statement we can see that
-	// the last digit of each phase is the last digit from the previous phase.  We
-	// can also see that the next to last digit becomes the sum of the previous
-	// phases last two digits, and so on.
-	//
-	// This works because the coefficients of the pattern this deep in the matrix
-	// are all 1's.
-	//
-	// So with this information and the assumption that the coefficients are
-	// always 1's we can write a recurrence to compute any digit we care about.
-	//
-	// Let N = the length of the input
-	// Let P = the number of phases
-	//
-	//   digit(P, N)     = digit(P-1, N)
-	//   digit(P, N-1)   = digit(P-1, N) + digit(P-1, N-1)
-	//   digit(P, N-2)   = digit(P-1, N) + digit(P-1, N-1) + digit(P-1, N-2)
-	//   ...
-	//   digit(P-1, N)   = digit(P-2, N)
-	//   digit(P-1, N-1) = digit(P-2, N) + digit(P-2, N-1)
-	//   digit(P-1, N-2) = digit(P-2, N) + digit(P-2, N-1) + digit(P-2, N-2)
-	//   ...
-	//   digit(1, N)     = digit(0, N)
-	//   digit(1, N-1)   = digit(0, N) + digit(0, N-1)
-	//   digit(1, N-2)   = digit(0, N) + digit(0, N-1) + digit(0, N-2)
-	//   ...
-	//
-	// So armed with this information, we can start with the original digits and
-	// then keep summing the tail of the array to compute the result from the
-	// rightmost position towards the left.
-
-	s := ""
-	for i := 0; i < 7; i++ {
-		s = s + fmt.Sprintf("%d", digits[i])
-	}
-	offset := aoc.ParseInt(s)
-
-	var output []int8
-	for i := offset; i < len(digits); i++ {
-		output = append(output, digits[i])
-	}
-	if output == nil {
-		log.Fatal("output is nil")
-	}
+	digits = digits[offset:]
 
 	for phase := 0; phase < 100; phase++ {
-		for i := len(output) - 2; i >= 0; i-- {
-			output[i] = (output[i] + output[i+1]) % 10
+		for i := len(digits) - 2; i >= 0; i-- {
+			digits[i] = (digits[i] + digits[i+1]) % 10
 		}
 	}
 
-	fmt.Print("output: ")
-	for i := 0; i < 8; i++ {
-		fmt.Print(output[i])
-	}
-	fmt.Println()
+	fmt.Println(aoc.JoinDigits(digits[:8]))
 }
 
-func InputToDigits(year, day int) []int8 {
-	var digits []int8
-	for _, b := range aoc.InputToString(year, day) {
-		digits = append(digits, int8(aoc.ParseInt(string(b))))
+func InputToDigits() []int {
+	var digits []int
+	for _, s := range aoc.InputToString(2019, 16) {
+		digits = append(digits, aoc.ParseInt(string(s)))
 	}
 
 	return digits

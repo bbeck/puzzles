@@ -2,54 +2,73 @@ package main
 
 import (
 	"fmt"
-
-	aoc "github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"runtime"
 )
 
 func main() {
-	c := make(chan int)
+	inputs := map[int]chan aoc.Point2D{255: make(chan aoc.Point2D)}
+	var computers []*cpus.IntcodeCPU
 
-	var cpus []*aoc.IntcodeCPU
-	var inputs []chan int
-	for i := 0; i < 50; i++ {
-		input := make(chan int, 1024)
-		input <- i // Seed with the network address
-		inputs = append(inputs, input)
-
-		var buffer []int
-
-		cpu := aoc.IntcodeCPU{
-			Memory: aoc.InputToIntcodeMemory(2019, 23),
-			Input: func(addr int) int {
-				select {
-				case value := <-input:
-					return value
-				default:
-					return -1
-				}
-			},
-			Output: func(value int) {
-				buffer = append(buffer, value)
-				if len(buffer) == 3 {
-					destination, x, y := buffer[0], buffer[1], buffer[2]
-					buffer = nil
-
-					if destination == 255 {
-						fmt.Printf("writing to 255: x=%d, y=%d\n", x, y)
-						close(c)
-						return
-					}
-
-					inputs[destination] <- x
-					inputs[destination] <- y
-				}
-			},
-		}
-		cpus = append(cpus, &cpu)
-	}
-	for i := 0; i < len(cpus); i++ {
-		go cpus[i].Execute()
+	for n := 0; n < 50; n++ {
+		inputs[n] = make(chan aoc.Point2D)
+		computers = append(computers, NewComputer(n, inputs))
 	}
 
-	<-c
+	for _, computer := range computers {
+		go computer.Execute()
+	}
+
+	p := <-inputs[255]
+	for _, computer := range computers {
+		computer.Stop()
+	}
+
+	fmt.Println(p.Y)
+}
+
+func NewComputer(id int, inputs map[int]chan aoc.Point2D) *cpus.IntcodeCPU {
+	var buffer []int
+
+	var hasSentId bool
+	var point *aoc.Point2D
+
+	return &cpus.IntcodeCPU{
+		Memory: cpus.InputToIntcodeMemory(2019, 23),
+		Input: func() int {
+			if !hasSentId {
+				hasSentId = true
+				return id
+			}
+
+			if point != nil {
+				y := point.Y
+				point = nil
+				return y
+			}
+
+			select {
+			case value := <-inputs[id]:
+				point = &value
+				return point.X
+			default:
+				// yield the cpu when there's no data available so that another
+				// goroutine can hopefully generate data for this CPU.  While not
+				// strictly necessary, this drastically reduces wasted cycles and makes
+				// things run faster overall.
+				runtime.Gosched()
+				return -1
+			}
+		},
+		Output: func(value int) {
+			buffer = append(buffer, value)
+			if len(buffer) == 3 {
+				addr, x, y := buffer[0], buffer[1], buffer[2]
+				buffer = nil
+
+				inputs[addr] <- aoc.Point2D{X: x, Y: y}
+			}
+		},
+	}
 }

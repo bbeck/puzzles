@@ -2,72 +2,62 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"math"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	grid := make(map[aoc.Point2D]int)
-	intersections := make([]aoc.Point2D, 0)
+	paths := InputToPaths()
+	ps0, ps1 := paths[0].Points(), paths[1].Points()
 
-	for id, path := range InputToWirePaths(2019, 3) {
-		location := aoc.Point2D{}
-		for step := 0; step < len(path.dirs); step++ {
-			dir := path.dirs[step]
-			length := path.lengths[step]
+	best := math.MaxInt
+	for _, p := range ps0.Entries() {
+		if ps1.Contains(p) {
+			best = aoc.Min(best, aoc.Origin2D.ManhattanDistance(p))
+		}
+	}
+	fmt.Println(best)
+}
 
-			for n := 0; n < length; n++ {
-				switch dir {
-				case "U":
-					location = location.Up()
-				case "D":
-					location = location.Down()
-				case "L":
-					location = location.Left()
-				case "R":
-					location = location.Right()
-				}
+type Path struct {
+	Dirs    []string
+	Lengths []int
+}
 
-				if grid[location] != 0 && grid[location] != id+1 {
-					intersections = append(intersections, location)
-				}
-				grid[location] = id + 1
+func (p Path) Points() aoc.Set[aoc.Point2D] {
+	var ps aoc.Set[aoc.Point2D]
+
+	var current aoc.Point2D
+	for i := 0; i < len(p.Dirs); i++ {
+		for n := 0; n < p.Lengths[i]; n++ {
+			switch p.Dirs[i] {
+			case "U":
+				current = current.Up()
+			case "D":
+				current = current.Down()
+			case "L":
+				current = current.Left()
+			case "R":
+				current = current.Right()
 			}
+
+			ps.Add(current)
 		}
 	}
 
-	origin := aoc.Point2D{}
-	sort.Slice(intersections, func(i, j int) bool {
-		a := intersections[i]
-		b := intersections[j]
-		return a.ManhattanDistance(origin) < b.ManhattanDistance(origin)
-	})
-
-	fmt.Printf("closest intersection: %+v, distance: %d\n",
-		intersections[0], intersections[0].ManhattanDistance(origin))
+	return ps
 }
 
-type WirePath struct {
-	dirs    []string
-	lengths []int
-}
-
-func InputToWirePaths(year, day int) []WirePath {
-	var paths []WirePath
-
-	for _, line := range aoc.InputToLines(year, day) {
-		var dirs []string
-		var lengths []int
-
+func InputToPaths() []Path {
+	return aoc.InputLinesTo(2019, 3, func(line string) (Path, error) {
+		var path Path
 		for _, part := range strings.Split(line, ",") {
-			dirs = append(dirs, string(part[0]))
-			lengths = append(lengths, aoc.ParseInt(part[1:]))
+			path.Dirs = append(path.Dirs, string(part[0]))
+			path.Lengths = append(path.Lengths, aoc.ParseInt(part[1:]))
 		}
 
-		paths = append(paths, WirePath{dirs: dirs, lengths: lengths})
-	}
-
-	return paths
+		return path, nil
+	})
 }

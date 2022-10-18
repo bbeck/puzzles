@@ -12,53 +12,21 @@ func main() {
 
 	var count int
 	for pw := low; pw <= high; pw++ {
-		if IsPossiblePassword(pw) {
+		if IsPossiblePassword(aoc.Digits(pw)) {
 			count++
 		}
 	}
-
-	fmt.Printf("number of possible passwords: %d\n", count)
+	fmt.Println(count)
 }
 
-func IsPossiblePassword(pw int) bool {
-	if pw < 100000 || pw > 999999 {
-		return false
-	}
-
-	digits := []int{
-		pw / 100000 % 10,
-		pw / 10000 % 10,
-		pw / 1000 % 10,
-		pw / 100 % 10,
-		pw / 10 % 10,
-		pw % 10,
-	}
-
-	return HasDoubleDigit(digits) && IsNonDecreasing(digits)
-}
-
-func HasDoubleDigit(digits []int) bool {
-	last := digits[0]
+func IsPossiblePassword(digits []int) bool {
+	hasDouble, isNonDecreasing := false, true
 	for i := 1; i < len(digits); i++ {
-		if digits[i] == last {
-			return true
-		}
-		last = digits[i]
+		hasDouble = hasDouble || (digits[i-1] == digits[i])
+		isNonDecreasing = isNonDecreasing && (digits[i-1] <= digits[i])
 	}
 
-	return false
-}
-
-func IsNonDecreasing(digits []int) bool {
-	last := digits[0]
-	for i := 1; i < len(digits); i++ {
-		if digits[i] < last {
-			return false
-		}
-		last = digits[i]
-	}
-
-	return true
+	return len(digits) == 6 && hasDouble && isNonDecreasing
 }
 
 func InputToRange(year, day int) (int, int) {

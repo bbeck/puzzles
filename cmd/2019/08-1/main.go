@@ -2,54 +2,44 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 const (
-	Width  int = 25
-	Height     = 6
+	Width  = 25
+	Height = 6
 )
 
 func main() {
-	layers := InputToLayers(2019, 8)
+	layers := InputToLayers()
 
-	count := func(l Layer, digit int) int {
-		var count int
-		for _, p := range l.pixels {
-			if p == digit {
-				count++
-			}
-		}
-		return count
-	}
-
-	var bestCount = Width * Height
-	var bestLayer Layer
-	for _, layer := range layers {
-		numZeroes := count(layer, 0)
-		if numZeroes < bestCount {
-			bestCount = numZeroes
-			bestLayer = layer
+	counters := make([]aoc.FrequencyCounter[int], len(layers))
+	for i, layer := range layers {
+		for _, b := range layer {
+			counters[i].Add(b)
 		}
 	}
 
-	fmt.Printf("product: %d\n", count(bestLayer, 1)*count(bestLayer, 2))
+	sort.Slice(counters, func(i, j int) bool {
+		return counters[i].GetCount(0) < counters[j].GetCount(0)
+	})
+
+	fmt.Println(counters[0].GetCount(1) * counters[0].GetCount(2))
 }
 
-type Layer struct {
-	pixels []int
-}
+type Layer []int
 
-func InputToLayers(year, day int) []Layer {
+func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range aoc.InputToString(year, day) {
+	for _, b := range aoc.InputToString(2019, 8) {
 		digits = append(digits, aoc.ParseInt(string(b)))
 	}
 
 	var layers []Layer
 	for start := 0; start < len(digits); start += Width * Height {
-		layers = append(layers, Layer{pixels: digits[start : start+Width*Height]})
+		layers = append(layers, digits[start:start+Width*Height])
 	}
 	return layers
 }

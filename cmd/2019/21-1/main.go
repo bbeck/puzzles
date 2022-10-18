@@ -8,17 +8,18 @@ import (
 
 func main() {
 	program := []string{
-		// If there's a hole right in front of me, jump
+		// Jump if there's a hole @1
 		"NOT A T",
 		"OR T J",
 
-		// If there's a hole 3 steps in front and land 4 steps
+		// Jump if there's a hole @3 and land @4
 		"NOT C T",
 		"AND D T",
 		"OR T J",
 
 		"WALK",
 	}
+
 	inputs := make(chan int, 1024)
 	for _, line := range program {
 		for _, c := range line {
@@ -30,12 +31,10 @@ func main() {
 
 	cpu := cpus.IntcodeCPU{
 		Memory: cpus.InputToIntcodeMemory(2019, 21),
-		Input:  func(addr int) int { return <-inputs },
+		Input:  func() int { return <-inputs },
 		Output: func(value int) {
-			if value <= 255 {
-				fmt.Printf("%c", value)
-			} else {
-				fmt.Printf("output: %d\n", value)
+			if value > 255 {
+				fmt.Println(value)
 			}
 		},
 	}

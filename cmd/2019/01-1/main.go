@@ -8,10 +8,9 @@ import (
 
 func main() {
 	var fuel int
-	for _, line := range aoc.InputToLines(2019, 1) {
-		mass := aoc.ParseInt(line)
+	for _, mass := range aoc.InputToInts(2019, 1) {
 		fuel += mass/3 - 2
 	}
 
-	fmt.Printf("fuel: %d\n", fuel)
+	fmt.Println(fuel)
 }

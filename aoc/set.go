@@ -2,6 +2,7 @@ package aoc
 
 import (
 	"fmt"
+	"math/bits"
 	"sort"
 	"strings"
 )
@@ -122,8 +123,8 @@ func (s Set[T]) Difference(other Set[T]) Set[T] {
 }
 
 // BitSet is a representation of a set that can hold up to 64 elements.  BitSet
-// operates different from a generic Set in that its elements must be integers
-// on the range of 0 to 63 (inclusive).  This is because a BitSet is
+// operates differently from a generic set in that its elements must be
+// integers on the range of 0 to 63 (inclusive).  This is because a BitSet is
 // represented by a 64-bit integer.  Additionally, as a consequence of this
 // representation, BitSet instances are always passed by value.
 type BitSet uint64
@@ -133,8 +134,17 @@ func (bs BitSet) Add(elem int) BitSet {
 	return bs | (1 << elem)
 }
 
+// Remove returns a new BitSet that doesn't include the specified element.
+func (bs BitSet) Remove(elem int) BitSet {
+	return bs & ^(1 << elem)
+}
+
 // Contains returns true if the current BitSet contains the specified element.
 func (bs BitSet) Contains(elem int) bool {
 	return bs&(1<<elem) != 0
 }
 
+// Size returns the number of elements in the BitSet.
+func (bs BitSet) Size() int {
+	return bits.OnesCount64(uint64(bs))
+}
