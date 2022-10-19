@@ -182,15 +182,9 @@ type Unit struct {
 }
 
 func InputToCavern() aoc.Grid2D[bool] {
-	lines := aoc.InputToLines(2018, 15)
-
-	grid := aoc.NewGrid2D[bool](len(lines[0]), len(lines))
-	for y := 0; y < len(lines); y++ {
-		for x, c := range lines[y] {
-			grid.AddXY(x, y, c != '#')
-		}
-	}
-	return grid
+	return aoc.InputToGrid2D(2018, 15, func(x int, y int, s string) bool {
+		return s != "#"
+	})
 }
 
 func InputToUnits() []Unit {

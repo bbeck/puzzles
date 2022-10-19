@@ -71,12 +71,7 @@ func Key(area Area) string {
 type Area struct{ aoc.Grid2D[string] }
 
 func InputToArea() Area {
-	grid := aoc.NewGrid2D[string](50, 50)
-	for y, line := range aoc.InputToLines(2018, 18) {
-		for x, c := range line {
-			grid.AddXY(x, y, string(c))
-		}
-	}
-
-	return Area{grid}
+	return Area{aoc.InputToGrid2D(2018, 18, func(x int, y int, s string) string {
+		return s
+	})}
 }

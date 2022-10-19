@@ -82,8 +82,8 @@ const (
 
 func IsKey(v int) bool            { return 0 <= v && v < 26 }
 func IsDoor(v int) bool           { return 26 <= v && v < 52 }
-func KeyID(c rune) int            { return int(c - 'a') }
-func DoorID(c rune) int           { return int(c - 'A' + 26) }
+func KeyID(s string) int          { return int(s[0] - 'a') }
+func DoorID(s string) int         { return int(s[0] - 'A' + 26) }
 func KeyIDForDoorID(door int) int { return door - 26 }
 
 func GridToGraph(grid aoc.Grid2D[int], entrances [4]aoc.Point2D) map[aoc.Point2D]map[aoc.Point2D]int {
@@ -136,25 +136,18 @@ func GridToGraph(grid aoc.Grid2D[int], entrances [4]aoc.Point2D) map[aoc.Point2D
 }
 
 func InputToGrid() (aoc.Grid2D[int], aoc.Point2D) {
-	lines := aoc.InputToLines(2019, 18)
-
-	grid := aoc.NewGrid2D[int](len(lines[0]), len(lines))
-	entrance := aoc.Origin2D
-	for y, line := range lines {
-		for x, c := range line {
-			value := Empty
-			if c == '@' {
-				entrance = aoc.Point2D{X: x, Y: y}
-			} else if c == '#' {
-				value = Wall
-			} else if c >= 'a' && c <= 'z' {
-				value = KeyID(c)
-			} else if c >= 'A' && c <= 'Z' {
-				value = DoorID(c)
-			}
-			grid.AddXY(x, y, value)
+	var entrance aoc.Point2D
+	return aoc.InputToGrid2D(2019, 18, func(x int, y int, s string) int {
+		if s == "@" {
+			entrance = aoc.Point2D{X: x, Y: y}
+		} else if s == "#" {
+			return Wall
+		} else if s >= "a" && s <= "z" {
+			return KeyID(s)
+		} else if s >= "A" && s <= "Z" {
+			return DoorID(s)
 		}
-	}
 
-	return grid, entrance
+		return Empty
+	}), entrance
 }

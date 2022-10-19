@@ -41,16 +41,8 @@ func main() {
 	fmt.Println(visited.String())
 }
 
-var Deltas = map[aoc.Heading]aoc.Point2D{
-	aoc.Up:    {X: 0, Y: -1},
-	aoc.Right: {X: 1, Y: 0},
-	aoc.Down:  {X: 0, Y: 1},
-	aoc.Left:  {X: -1, Y: 0},
-}
-
 func CanMoveForward(g aoc.Grid2D[string], t aoc.Turtle) bool {
-	delta := Deltas[t.Heading]
-	next := aoc.Point2D{X: t.Location.X + delta.X, Y: t.Location.Y + delta.Y}
+	next := t.Location.Move(t.Heading)
 	return g.InBounds(next) && g.Get(next) != Empty
 }
 
@@ -66,14 +58,7 @@ func FindStart(g aoc.Grid2D[string]) aoc.Point2D {
 const Empty string = " "
 
 func InputToGrid() aoc.Grid2D[string] {
-	lines := aoc.InputToLines(2017, 19)
-
-	grid := aoc.NewGrid2D[string](len(lines[0]), len(lines))
-	for y := 0; y < grid.Height; y++ {
-		for x := 0; x < grid.Width; x++ {
-			grid.AddXY(x, y, string(lines[y][x]))
-		}
-	}
-
-	return grid
+	return aoc.InputToGrid2D[string](2017, 19, func(x int, y int, s string) string {
+		return s
+	})
 }
