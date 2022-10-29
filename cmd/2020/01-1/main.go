@@ -8,10 +8,10 @@ import (
 
 func main() {
 	ns := aoc.InputToInts(2020, 1)
-	for i := 0; i < len(ns); i++ {
-		for j := i + 1; j < len(ns); j++ {
-			if ns[i]+ns[j] == 2020 {
-				fmt.Println(ns[i] * ns[j])
+	for i, a := range ns {
+		for _, b := range ns[i+1:] {
+			if a+b == 2020 {
+				fmt.Println(a * b)
 			}
 		}
 	}

@@ -10,13 +10,13 @@ import (
 func main() {
 	adapters := aoc.InputToInts(2020, 10)
 	adapters = append(adapters, 0)
-	adapters = append(adapters, aoc.MaxInt(0, adapters...)+3)
+	adapters = append(adapters, aoc.Max(adapters...)+3)
 	sort.Ints(adapters)
 
-	differences := make(map[int]int)
+	var fc aoc.FrequencyCounter[int]
 	for i := 1; i < len(adapters); i++ {
-		differences[adapters[i]-adapters[i-1]]++
+		fc.Add(adapters[i] - adapters[i-1])
 	}
 
-	fmt.Println(differences[1] * differences[3])
+	fmt.Println(fc.GetCount(1) * fc.GetCount(3))
 }

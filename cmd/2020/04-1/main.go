@@ -9,50 +9,34 @@ import (
 
 func main() {
 	var count int
-	for _, passport := range InputToPassports(2020, 4) {
-		if IsValid(passport) {
+	for _, p := range InputToPassports() {
+		delete(p, "cid")
+		if len(p) == 7 {
 			count++
 		}
 	}
-
 	fmt.Println(count)
-}
-
-func IsValid(passport Passport) bool {
-	if len(passport) == 8 {
-		return true
-	}
-
-	if len(passport) == 7 {
-		_, found := passport["cid"]
-		return !found
-	}
-
-	return false
 }
 
 type Passport map[string]string
 
-func InputToPassports(year, day int) []Passport {
+func InputToPassports() []Passport {
 	var passports []Passport
 
-	passport := make(Passport)
-	for _, line := range aoc.InputToLines(year, day) {
+	current := make(Passport)
+	for _, line := range aoc.InputToLines(2020, 4) {
 		if len(line) == 0 {
-			passports = append(passports, passport)
-			passport = make(Passport)
+			passports = append(passports, current)
+			current = make(Passport)
 			continue
 		}
 
-		for _, field := range strings.Split(line, " ") {
-			parts := strings.Split(field, ":")
-			key := parts[0]
-			value := parts[1]
-
-			passport[key] = value
+		for _, field := range strings.Fields(line) {
+			key, value, _ := strings.Cut(field, ":")
+			current[key] = value
 		}
 	}
-	passports = append(passports, passport)
+	passports = append(passports, current)
 
 	return passports
 }

@@ -253,6 +253,9 @@ func (d *Deque[T]) Rotate(n int) {
 // This method doesn't modify the deque.
 func (d *Deque[T]) Entries() []T {
 	d.initialize()
+	if d.len == 0 {
+		return nil
+	}
 
 	entries := make([]T, 0, d.len)
 

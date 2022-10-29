@@ -2,45 +2,37 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-const p = 20201227 // prime
-
 func main() {
-	cardKey, doorKey := InputToKeys(2020, 25)
+	card, door := InputToKeys()
 
-	// Compute the card's loop size
-	var cardLoop int
-	for loop := 1; ; loop++ {
-		if PowMod(7, loop, p) == cardKey {
-			cardLoop = loop
+	var loop int
+	for loop = 1; ; loop++ {
+		if ModPow(7, loop, 20201227) == card {
 			break
 		}
 	}
-
-	// Use the card's loop size with the door key to compute the secret
-	// encryption key
-	fmt.Println(PowMod(doorKey, cardLoop, p))
+	fmt.Println(ModPow(door, loop, 20201227))
 }
 
-// Compute x^y mod p using Fermat's Little Theorem.
-func PowMod(x, y, p int) int {
-	value := 1
-	for y > 0 {
-		if y%2 == 1 {
-			value = (value * x) % p
-		}
+func ModPow(b, e, m int) int {
+	b = b % m
 
-		y = y >> 1
-		x = (x * x) % p
+	result := 1
+	for e > 0 {
+		if e%2 == 1 {
+			result = (result * b) % m
+		}
+		e >>= 1
+		b = (b * b) % m
 	}
 
-	return value
+	return result
 }
 
-func InputToKeys(year, day int) (int, int) {
-	ns := aoc.InputToInts(year, day)
+func InputToKeys() (int, int) {
+	ns := aoc.InputToInts(2020, 25)
 	return ns[0], ns[1]
 }

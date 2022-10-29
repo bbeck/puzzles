@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -11,114 +10,89 @@ import (
 
 func main() {
 	var count int
-	for _, passport := range InputToPassports(2020, 4) {
-		if IsValid(passport) {
+	for _, p := range InputToPassports() {
+		if IsValid(p) {
 			count++
 		}
 	}
-
 	fmt.Println(count)
 }
 
-func IsValid(passport Passport) bool {
-	isInRange := func(name string, min, max int) bool {
-		value, ok := passport[name]
-		if !ok {
-			return false
-		}
-
-		n, err := strconv.Atoi(value)
-		if err != nil {
-			return false
-		}
-
-		return min <= n && n <= max
+func IsValid(p Passport) bool {
+	delete(p, "cid")
+	if len(p) != 7 {
+		return false
 	}
 
-	isHeight := func(name string) bool {
-		value, ok := passport[name]
-		if !ok {
-			return false
-		}
-
-		L := len(value)
-
-		switch {
-		case strings.HasSuffix(value, "cm"):
-			n := aoc.ParseInt(value[0 : L-2])
-			return 150 <= n && n <= 193
-		case strings.HasSuffix(value, "in"):
-			n := aoc.ParseInt(value[0 : L-2])
-			return 59 <= n && n <= 76
-		default:
-			return false
-		}
+	if byr := aoc.ParseInt(p["byr"]); byr < 1920 || byr > 2002 {
+		return false
 	}
 
-	isColor := func(name string) bool {
-		value, ok := passport[name]
-		if !ok {
+	if iyr := aoc.ParseInt(p["iyr"]); iyr < 2010 || iyr > 2020 {
+		return false
+	}
+
+	if eyr := aoc.ParseInt(p["eyr"]); eyr < 2020 || eyr > 2030 {
+		return false
+	}
+
+	switch hgt := p["hgt"]; {
+	case strings.HasSuffix(hgt, "cm"):
+		if value := aoc.ParseInt(hgt[:len(hgt)-2]); value < 150 || value > 193 {
 			return false
 		}
 
-		match, _ := regexp.MatchString("^#[0-9a-f]{6}$", value)
-		return match
-	}
-
-	isEyeColor := func(name string) bool {
-		value, ok := passport[name]
-		if !ok {
+	case strings.HasSuffix(hgt, "in"):
+		if value := aoc.ParseInt(hgt[:len(hgt)-2]); value < 59 || value > 76 {
 			return false
 		}
 
-		colors := map[string]bool{
-			"amb": true, "blu": true, "brn": true, "gry": true,
-			"grn": true, "hzl": true, "oth": true,
-		}
-		return colors[value]
+	default:
+		return false
 	}
 
-	isPassportId := func(name string) bool {
-		value, ok := passport[name]
-		if !ok {
-			return false
-		}
-
-		match, _ := regexp.MatchString("^[0-9]{9}$", value)
-		return match
+	if matched, err := regexp.MatchString("^#[0-9a-f]{6}$", p["hcl"]); err != nil || !matched {
+		return false
 	}
 
-	return isInRange("byr", 1920, 2002) &&
-		isInRange("iyr", 2010, 2020) &&
-		isInRange("eyr", 2020, 2030) &&
-		isHeight("hgt") &&
-		isColor("hcl") &&
-		isEyeColor("ecl") &&
-		isPassportId("pid")
+	switch ecl := p["ecl"]; ecl {
+	case "amb":
+	case "blu":
+	case "brn":
+	case "gry":
+	case "grn":
+	case "hzl":
+	case "oth":
+	default:
+		return false
+	}
+
+	if matched, err := regexp.MatchString("^[0-9]{9}$", p["pid"]); err != nil || !matched {
+		return false
+	}
+
+	return true
 }
 
 type Passport map[string]string
 
-func InputToPassports(year, day int) []Passport {
+func InputToPassports() []Passport {
 	var passports []Passport
 
-	passport := make(Passport)
-	for _, line := range aoc.InputToLines(year, day) {
+	current := make(Passport)
+	for _, line := range aoc.InputToLines(2020, 4) {
 		if len(line) == 0 {
-			passports = append(passports, passport)
-			passport = make(Passport)
+			passports = append(passports, current)
+			current = make(Passport)
 			continue
 		}
 
-		for _, field := range strings.Split(line, " ") {
-			parts := strings.Split(field, ":")
-			key := parts[0]
-			value := parts[1]
-
-			passport[key] = value
+		for _, field := range strings.Fields(line) {
+			key, value, _ := strings.Cut(field, ":")
+			current[key] = value
 		}
 	}
-	passports = append(passports, passport)
+	passports = append(passports, current)
 
 	return passports
 }

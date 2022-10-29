@@ -2,46 +2,40 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	nums := InputToInts(2020, 15)
-	goal := 30000000
-
-	// Mapping of a number to the last time it was spoken, initialized with our
-	// input.
-	spoken := make(map[int]int)
-	for turn, num := range nums {
-		spoken[num] = turn
+	memory := make([]int, 30000000)
+	for i := 0; i < len(memory); i++ {
+		memory[i] = -1
 	}
 
-	for turn := len(nums); turn <= goal; turn++ {
-		last := nums[turn-1]
+	ns := InputToInts()
 
-		var num int
-		if lastTurn, found := spoken[last]; found {
-			// This number has been spoken before, so speak the difference between
-			// this turn and the turn it was last spoken
-			num = turn - lastTurn - 1
+	var last int
+	for turn := 0; turn < 30000000; turn++ {
+		var next int
+		if turn < len(ns) {
+			next = ns[turn]
+		} else if when := memory[last]; when != -1 {
+			next = turn - when
+		} else {
+			next = 0
 		}
 
-		spoken[last] = turn - 1
-		nums = append(nums, num)
+		memory[last] = turn
+		last = next
 	}
 
-	fmt.Println(nums[goal])
+	fmt.Println(last)
 }
 
-func InputToInts(year, day int) []int {
-	ns := []int{-1} // padding to make 1-based
-	for _, line := range aoc.InputToLines(year, day) {
-		for _, s := range strings.Split(line, ",") {
-			ns = append(ns, aoc.ParseInt(s))
-		}
+func InputToInts() []int {
+	var ns []int
+	for _, s := range strings.Split(aoc.InputToString(2020, 15), ",") {
+		ns = append(ns, aoc.ParseInt(s))
 	}
-
 	return ns
 }

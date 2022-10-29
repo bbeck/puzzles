@@ -8,63 +8,37 @@ import (
 )
 
 func main() {
-	d1, d2 := InputToDecks(2020, 22)
-
+	d1, d2 := InputToDecks()
 	for !d1.Empty() && !d2.Empty() {
-		c1, c2 := d1.Deal(), d2.Deal()
-
-		switch {
-		case c1 < c2:
-			d2.Add(c2, c1)
-
-		case c1 > c2:
-			d1.Add(c1, c2)
+		c1, c2 := d1.PopFront(), d2.PopFront()
+		if c1 > c2 {
+			d1.PushBack(c1)
+			d1.PushBack(c2)
+		} else {
+			d2.PushBack(c2)
+			d2.PushBack(c1)
 		}
 	}
 
-	var deck Deck
-	if d1.Empty() {
-		deck = d2
-	} else {
-		deck = d1
+	var winner = d1
+	if !d2.Empty() {
+		winner = d2
 	}
-	fmt.Println(deck.Score())
-}
 
-type Deck []int
-
-func (d Deck) Empty() bool {
-	return len(d) == 0
-}
-
-func (d Deck) Score() int {
-	N := len(d)
-
-	var score int
-	for i, c := range d {
-		score += (N - i) * c
+	var sum int
+	for i, c := range winner.Entries() {
+		sum += (winner.Len() - i) * c
 	}
-	return score
+	fmt.Println(sum)
 }
 
-func (d *Deck) Deal() int {
-	c := (*d)[0]
-	*d = (*d)[1:]
-	return c
-}
+type Deck struct{ aoc.Deque[int] }
 
-func (d *Deck) Add(cards ...int) {
-	*d = append(*d, cards...)
-}
-
-func InputToDecks(year, day int) (Deck, Deck) {
-	decks := []Deck{
-		make(Deck, 0),
-		make(Deck, 0),
-	}
+func InputToDecks() (Deck, Deck) {
+	var decks [2]aoc.Deque[int]
 
 	current := -1
-	for _, line := range aoc.InputToLines(year, day) {
+	for _, line := range aoc.InputToLines(2020, 22) {
 		if len(line) == 0 {
 			continue
 		}
@@ -74,8 +48,8 @@ func InputToDecks(year, day int) (Deck, Deck) {
 			continue
 		}
 
-		decks[current].Add(aoc.ParseInt(line))
+		decks[current].PushBack(aoc.ParseInt(line))
 	}
 
-	return decks[0], decks[1]
+	return Deck{decks[0]}, Deck{decks[1]}
 }

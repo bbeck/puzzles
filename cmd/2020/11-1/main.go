@@ -2,126 +2,68 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	ferry := InputToFerry(2020, 11)
-
-	last := ferry.String()
+	seats := InputToSeats()
 	for {
-		ferry = Next(ferry)
-		current := ferry.String()
-		if current == last {
+		next := Next(seats)
+		if Equals(seats, next) {
 			break
 		}
-		last = current
+
+		seats = next
 	}
 
 	var count int
-	for _, status := range ferry.seats {
-		if status == Occupied {
+	seats.ForEach(func(_ aoc.Point2D, value uint8) {
+		if value == Occupied {
 			count++
 		}
-	}
+	})
 	fmt.Println(count)
 }
 
-func Next(f Ferry) Ferry {
-	next := Ferry{
-		seats:  make(map[aoc.Point2D]string),
-		width:  f.width,
-		height: f.height,
-	}
+const (
+	Empty    = 'L'
+	Occupied = '#'
+)
 
-	for seat, status := range f.seats {
-		var occupied int
-		for _, neighbor := range f.Neighbors(seat) {
-			if f.seats[neighbor] == Occupied {
-				occupied++
+func Next(seats aoc.Grid2D[uint8]) aoc.Grid2D[uint8] {
+	next := aoc.NewGrid2D[uint8](seats.Width, seats.Height)
+	seats.ForEach(func(p aoc.Point2D, value uint8) {
+		var count int
+		seats.ForEachNeighbor(p, func(n aoc.Point2D, v uint8) {
+			if v == Occupied {
+				count++
 			}
-		}
+		})
 
-		if status != Occupied && occupied == 0 {
-			next.seats[seat] = Occupied
-		} else if status == Occupied && occupied >= 4 {
-			next.seats[seat] = Empty
+		if value == Empty && count == 0 {
+			next.Add(p, Occupied)
+		} else if value == Occupied && count >= 4 {
+			next.Add(p, Empty)
 		} else {
-			next.seats[seat] = status
+			next.Add(p, value)
 		}
-	}
-
+	})
 	return next
 }
 
-var (
-	Floor    = ""
-	Empty    = "L"
-	Occupied = "#"
-)
-
-type Ferry struct {
-	seats         map[aoc.Point2D]string
-	width, height int
-}
-
-func (f Ferry) Neighbors(seat aoc.Point2D) []aoc.Point2D {
-	var neighbors []aoc.Point2D
-	for dx := -1; dx <= 1; dx++ {
-		for dy := -1; dy <= 1; dy++ {
-			if dx == 0 && dy == 0 {
-				continue
-			}
-
-			p := aoc.Point2D{X: seat.X + dx, Y: seat.Y + dy}
-			if f.seats[p] != Floor {
-				neighbors = append(neighbors, p)
+func Equals(a, b aoc.Grid2D[uint8]) bool {
+	for y := 0; y < a.Height; y++ {
+		for x := 0; x < a.Width; x++ {
+			if a.GetXY(x, y) != b.GetXY(x, y) {
+				return false
 			}
 		}
 	}
-
-	return neighbors
+	return true
 }
 
-func (f Ferry) String() string {
-	var sb strings.Builder
-	for y := 0; y < f.height; y++ {
-		for x := 0; x < f.width; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-			switch f.seats[p] {
-			case Floor:
-				sb.WriteString(".")
-			case Empty:
-				sb.WriteString("L")
-			case Occupied:
-				sb.WriteString("#")
-			}
-		}
-		sb.WriteString("\n")
-	}
-
-	return sb.String()
-}
-
-func InputToFerry(year, day int) Ferry {
-	seats := make(map[aoc.Point2D]string)
-	positions := make([]aoc.Point2D, 0)
-	for y, line := range aoc.InputToLines(year, day) {
-		for x, c := range line {
-			p := aoc.Point2D{X: x, Y: y}
-			if c == 'L' {
-				seats[p] = Empty
-			}
-			positions = append(positions, p)
-		}
-	}
-
-	_, _, width, height := aoc.GetBounds(positions)
-	return Ferry{
-		seats:  seats,
-		width:  width,
-		height: height,
-	}
+func InputToSeats() aoc.Grid2D[uint8] {
+	return aoc.InputToGrid2D(2020, 11, func(x int, y int, s string) uint8 {
+		return s[0]
+	})
 }

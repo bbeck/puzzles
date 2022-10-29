@@ -2,175 +2,122 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-var N int
-
 func main() {
-	tiles := InputToTiles(2020, 20)
-	N = int(math.Sqrt(float64(len(tiles[0].data))))
+	tiles := InputToTiles()
 
 	product := 1
-	for _, tile := range tiles {
-		if IsCorner(tile, tiles) {
-			product *= tile.id
+	for _, t := range tiles {
+		if IsCorner(t, tiles) {
+			product *= t.ID
 		}
 	}
 	fmt.Println(product)
 }
 
-func IsCorner(tile Tile, tiles []Tile) bool {
-	// A tile is a corner only if we can only find 2 other tiles to fit adjacent
-	// to it.
-	neighbors := aoc.NewSet()
-	for _, t := range tiles {
-		if tile.id == t.id {
+func IsCorner(t Tile, tiles []Tile) bool {
+	// A tile is a corner piece if only 2 other tiles are compatible with it
+	var count int
+	for _, o := range tiles {
+		if t.ID == o.ID {
 			continue
 		}
 
-		for _, other := range t.Transformed() {
-			if FitsHorizontally(tile, other) || FitsHorizontally(other, tile) ||
-				FitsVertically(tile, other) || FitsVertically(other, tile) {
-				neighbors.Add(other.id)
+		for _, s := range o.Orientations() {
+			if t.FitsOnTop(s) || t.FitsOnRight(s) || t.FitsOnBottom(s) || t.FitsOnLeft(s) {
+				count++
 			}
 		}
 	}
 
-	return neighbors.Size() == 2
-}
-
-func FitsHorizontally(l, r Tile) bool {
-	for y := 0; y < N; y++ {
-		if l.data[y*N+N-1] != r.data[y*N] {
-			return false
-		}
-	}
-	return true
-}
-
-func FitsVertically(t, b Tile) bool {
-	for x := 0; x < N; x++ {
-		if t.data[(N-1)*N+x] != b.data[x] {
-			return false
-		}
-	}
-	return true
+	return count == 2
 }
 
 type Tile struct {
-	id   int
-	data []bool
+	ID int
+	aoc.Grid2D[bool]
 }
 
-func (t Tile) RotateRight() Tile {
-	transformed := make([]bool, len(t.data))
+func (t Tile) Orientations() []Tile {
+	A := t.Rotate()
+	B := A.Rotate()
+	C := B.Rotate()
+	D := t.Flip()
+	E := D.Rotate()
+	F := E.Rotate()
+	G := F.Rotate()
+	return []Tile{t, A, B, C, D, E, F, G}
+}
+
+func (t Tile) Flip() Tile {
+	N := t.Width
+	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			transformed[x*N+N-y-1] = t.data[y*N+x]
+			s.AddXY(x, y, t.GetXY(N-x-1, y))
 		}
 	}
-
-	return Tile{
-		id:   t.id,
-		data: transformed,
-	}
+	return s
 }
 
-func (t Tile) FlipH() Tile {
-	transformed := make([]bool, len(t.data))
+func (t Tile) Rotate() Tile {
+	N := t.Width
+	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			transformed[y*N+x] = t.data[y*N+N-x-1]
+			s.AddXY(x, y, t.GetXY(N-y-1, x))
 		}
 	}
-
-	return Tile{
-		id:   t.id,
-		data: transformed,
-	}
+	return s
 }
 
-func (t Tile) FlipV() Tile {
-	transformed := make([]bool, len(t.data))
-	for y := 0; y < N; y++ {
-		for x := 0; x < N; x++ {
-			transformed[y*N+x] = t.data[(N-y-1)*N+x]
+func (t Tile) FitsOnTop(s Tile) bool {
+	N := t.Width
+	for n := 0; n < N; n++ {
+		if t.GetXY(n, 0) != s.GetXY(n, N-1) {
+			return false
 		}
 	}
-
-	return Tile{
-		id:   t.id,
-		data: transformed,
-	}
+	return true
 }
 
-func (t Tile) Transformed() []Tile {
-	A := t
-	B := A.RotateRight()
-	C := B.RotateRight()
-	D := C.RotateRight()
-	E := A.FlipH()
-	F := E.RotateRight()
-	G := F.RotateRight()
-	H := G.RotateRight()
-	I := A.FlipV()
-	J := I.RotateRight() // Probably not needed from here on
-	K := J.RotateRight()
-	L := K.RotateRight()
-	return []Tile{A, B, C, D, E, F, G, H, I, J, K, L}
+func (t Tile) FitsOnBottom(s Tile) bool {
+	return s.FitsOnTop(t)
 }
 
-func (t Tile) String() string {
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Tile: %d\n", t.id))
-	for y := 0; y < N; y++ {
-		for x := 0; x < N; x++ {
-			if t.data[y*N+x] {
-				sb.WriteRune('#')
-			} else {
-				sb.WriteRune('.')
-			}
+func (t Tile) FitsOnRight(s Tile) bool {
+	N := t.Width
+	for n := 0; n < N; n++ {
+		if t.GetXY(N-1, n) != s.GetXY(0, n) {
+			return false
 		}
-		sb.WriteRune('\n')
 	}
-	return sb.String()
+	return true
 }
 
-func InputToTiles(year, day int) []Tile {
-	blocks := make(map[int][]string)
+func (t Tile) FitsOnLeft(s Tile) bool {
+	return s.FitsOnRight(t)
+}
 
-	var current int
-	for _, line := range aoc.InputToLines(year, day) {
-		if len(line) == 0 {
-			continue
-		}
-
-		var id int
-		if _, err := fmt.Sscanf(line, "Tile %d:", &id); err == nil {
-			current = id
-			continue
-		}
-
-		blocks[current] = append(blocks[current], line)
-	}
+func InputToTiles() []Tile {
+	lines := aoc.InputToLines(2020, 20)
+	N := len(lines[1])
 
 	var tiles []Tile
-	for id, lines := range blocks {
-		var data []bool
-		for _, line := range lines {
-			for _, c := range line {
-				data = append(data, c == '#')
+	for base := 0; base < len(lines); base += 12 {
+		var id int
+		fmt.Sscanf(lines[base], "Tile %d:", &id)
+
+		grid := aoc.NewGrid2D[bool](N, N)
+		for y := 0; y < N; y++ {
+			for x := 0; x < N; x++ {
+				grid.AddXY(x, y, lines[base+y+1][x] == '#')
 			}
 		}
 
-		tiles = append(tiles, Tile{
-			id:   id,
-			data: data,
-		})
+		tiles = append(tiles, Tile{ID: id, Grid2D: grid})
 	}
 
 	return tiles

@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
 	ns := aoc.InputToInts(2020, 9)
-	preamble := 25
 
-	for i := preamble; i < len(ns); i++ {
-		if !SumExists(ns[i-preamble:i], ns[i]) {
+	for i := 25; i < len(ns); i++ {
+		if !SumExists(ns[i-25:i], ns[i]) {
 			fmt.Println(ns[i])
 			break
 		}
@@ -19,12 +17,12 @@ func main() {
 }
 
 func SumExists(ns []int, target int) bool {
-	seen := make(map[int]bool)
+	var seen aoc.Set[int]
 	for _, n := range ns {
-		if seen[target-n] {
+		if seen.Contains(target - n) {
 			return true
 		}
-		seen[n] = true
+		seen.Add(n)
 	}
 	return false
 }

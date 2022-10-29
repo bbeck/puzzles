@@ -2,71 +2,57 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	instructions := InputToProgram(2020, 14)
-
-	memory := make(map[int]int)
-	for _, instruction := range instructions {
-		value := (instruction.value & instruction.andMask) | instruction.orMask
-		memory[instruction.address] = value
+	memory := make(map[uint64]uint64)
+	for _, i := range InputToInstructions() {
+		memory[i.Address] = (i.Value & i.And) | i.Or
 	}
 
-	var sum int
-	for _, v := range memory {
-		sum += v
+	var sum uint64
+	for _, value := range memory {
+		sum += value
 	}
 	fmt.Println(sum)
 }
 
 type Instruction struct {
-	andMask int
-	orMask  int
-	address int
-	value   int
+	Address, Value, And, Or uint64
 }
 
-func InputToProgram(year, day int) []Instruction {
+func InputToInstructions() []Instruction {
+	lines := aoc.InputToLines(2020, 14)
+
+	var and, or uint64
 	var instructions []Instruction
+	for _, line := range lines {
+		if strings.HasPrefix(line, "mask") {
+			for _, c := range line[7:] { // len("mask = ") == 7
+				and <<= 1
+				or <<= 1
 
-	var andMask, orMask int
-	for _, line := range aoc.InputToLines(year, day) {
-		var mask string
-		if _, err := fmt.Sscanf(line, "mask = %s", &mask); err == nil {
-			andMask = 0
-			orMask = 0
-
-			for _, c := range mask {
-				andMask <<= 1
-				orMask <<= 1
-
-				switch c {
-				case '0':
-					andMask |= 0
-				case '1':
-					orMask |= 1
-				case 'X':
-					andMask |= 1
-					orMask |= 0
+				if c == 'X' {
+					and |= 1
+				} else if c == '0' {
+					and |= 0
+				} else if c == '1' {
+					or |= 1
 				}
 			}
 			continue
 		}
 
-		var address, value int
-		if _, err := fmt.Sscanf(line, "mem[%d] = %d", &address, &value); err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
+		var address, value uint64
+		fmt.Sscanf(line, "mem[%d] = %d", &address, &value)
 
 		instructions = append(instructions, Instruction{
-			andMask: andMask,
-			orMask:  orMask,
-			address: address,
-			value:   value,
+			Address: address,
+			Value:   value,
+			And:     and & 0xFFFFFFFFF,
+			Or:      or & 0xFFFFFFFFF,
 		})
 	}
 

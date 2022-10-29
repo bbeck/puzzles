@@ -2,335 +2,256 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
 )
 
-var N int // The dimension of a tile, including the border (10)
-var D int // The dimension, in number of tiles, of the image along one axis (12)
-var B int // The dimension, in pixels, of the image along one axis (96)
-
 func main() {
-	tiles := InputToTiles(2020, 20)
-	N = tiles[0].width
-	D = int(math.Sqrt(float64(len(tiles))))
-	B = (N - 2) * D
+	tiles := InputToTiles()
+	image := AssembleImage(tiles)
 
-	image := BuildBitmap(BuildImage(tiles))
+	var in aoc.Set[aoc.Point2D] // The points in the image in a monster
 
-	// Attempt to find sea monsters in the image, keeping track of which cells
-	// were occupied by a found sea monster.
-	occupied := aoc.NewSet()
-	for y := 0; y < B; y++ {
-		for x := 0; x < B; x++ {
-			for _, monster := range SeaMonster.Transformed() {
-				var found = true
-				var ps []aoc.Point2D
+	for _, m := range GetSeaMonster().Orientations() {
+		for y := 0; y < image.Height-m.Height; y++ {
+		next:
+			for x := 0; x < image.Width-m.Width; x++ {
+				var ps []aoc.Point2D // Points in the image for this monster
 
-				for dy := 0; dy < monster.height; dy++ {
-					for dx := 0; dx < monster.width; dx++ {
-						p := aoc.Point2D{X: x + dx, Y: y + dy}
-						if monster.Get(dx, dy) {
+				for my := 0; my < m.Height; my++ {
+					for mx := 0; mx < m.Width; mx++ {
+						if m.GetXY(mx, my) {
+							p := aoc.Point2D{X: x + mx, Y: y + my}
 							ps = append(ps, p)
-							if !image[p] {
-								found = false
+
+							if !image.Get(p) {
+								continue next
 							}
 						}
 					}
 				}
-				if found {
-					for _, p := range ps {
-						occupied.Add(p)
-					}
-				}
+
+				in.Add(ps...)
 			}
 		}
 	}
 
-	// Now that we know where the sea monsters are, count the number of active
-	// cells that don't have a sea monster in them.
-	var roughness int
-	for p, bit := range image {
-		if bit && !occupied.Contains(p) {
-			roughness++
+	var count int
+	image.ForEach(func(p aoc.Point2D, value bool) {
+		if value && !in.Contains(p) {
+			count++
 		}
-	}
-	fmt.Println(roughness)
+	})
+
+	fmt.Println(count)
 }
 
-const (
-	T = true
-	F = false
-)
-
-var SeaMonster = Tile{
-	id: "Monster",
-	data: []bool{
-		F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, T, F,
-		F, T, F, F, F, F, T, T, F, F, F, F, T, T, F, F, F, F, T, T, T,
-		F, F, T, F, F, T, F, F, T, F, F, T, F, F, T, F, F, T, F, F, F,
-	},
-	width:  21,
-	height: 3,
-}
-
-// Convert the bits of the image into a bitmap being sure to remove the bits
-// corresponding to the tile borders.
-func BuildBitmap(image map[aoc.Point2D]*Tile) map[aoc.Point2D]bool {
-	bitmap := make(map[aoc.Point2D]bool)
-	for y := 0; y < D; y++ {
-		for x := 0; x < D; x++ {
-			tile := image[aoc.Point2D{X: x, Y: y}]
-
-			for dy := 1; dy < N-1; dy++ {
-				for dx := 1; dx < N-1; dx++ {
-					p := aoc.Point2D{
-						X: (N-2)*x + dx - 1,
-						Y: (N-2)*y + dy - 1,
-					}
-
-					bitmap[p] = tile.Get(dx, dy)
-				}
-			}
-		}
-	}
-
-	return bitmap
-}
-
-func BuildImage(tiles []Tile) map[aoc.Point2D]*Tile {
-	// First, find a corner of the image.
-	var c Tile
-	for _, tile := range tiles {
-		if IsCorner(tile, tiles) {
-			c = tile
+func AssembleImage(ts []Tile) Tile {
+	var corner Tile
+	for _, t := range ts {
+		if IsCorner(t, ts) {
+			corner = t
 			break
 		}
 	}
 
-	// Now that we know a corner, use it to build up the rest of the image.  We'll
-	// start with this being the top left corner, and then keep filling in
-	// neighbors until we have a complete image.  We'll have to try each
-	// transformed version of this corner piece though to ensure that we find the
-	// version of it that works as the top left corner of the image.
-outer:
-	for _, corner := range c.Transformed() {
-		image := map[aoc.Point2D]*Tile{
-			aoc.Point2D{X: 0, Y: 0}: &corner,
+	// The resulting image will be DxD tiles.
+	D := int(math.Sqrt(float64(len(ts))))
+	tiles := aoc.Make2D[Tile](D, D)
+
+	// Helper to determine if a tile fits in a specific location in the grid.  If
+	// the tile fits, then a copy of the tile in the proper orientation is
+	// returned.
+	fits := func(x, y int, t Tile) (Tile, bool) {
+		for _, o := range t.Orientations() {
+			if x > 0 && !tiles[y][x-1].FitsOnRight(o) {
+				continue
+			}
+			if y > 0 && !tiles[y-1][x].FitsOnBottom(o) {
+				continue
+			}
+			return o, true
 		}
 
-		used := aoc.NewSet()
-		used.Add(corner.id)
+		return t, false
+	}
+
+	// The corner we found might not be in the right orientation to be the top
+	// left corner of the image, so we'll have to try all possible orientations.
+outer:
+	for _, tl := range corner.Orientations() {
+		used := aoc.SingletonSet(tl.ID)
+		tiles[0][0] = tl
 
 		for y := 0; y < D; y++ {
 			for x := 0; x < D; x++ {
-				p := aoc.Point2D{X: x, Y: y}
-				if image[p] != nil {
+				if x == 0 && y == 0 {
 					continue
 				}
 
-				tile := FindTile(image[p.Left()], image[p.Up()], tiles, used)
-				if tile == nil {
-					continue outer
+				var found bool
+				for _, t := range ts {
+					if used.Contains(t.ID) {
+						continue
+					}
+
+					if s, ok := fits(x, y, t); ok {
+						tiles[y][x] = s
+						used.Add(s.ID)
+						found = true
+						break
+					}
 				}
 
-				image[p] = tile
-				used.Add(tile.id)
+				if !found {
+					// We weren't able to find a tile for this location, the orientation
+					// of the corner piece must be at fault.  Try another orientation.
+					continue outer
+				}
 			}
 		}
 
-		return image
+		break
 	}
 
-	return nil
+	// Now that we have the arrangement of tiles, piece them together into one
+	// big tile ignoring the borders of each tile.
+	N := corner.Width
+	I := D * (N - 2)
+	image := aoc.NewGrid2D[bool](I, I)
+	for ty := 0; ty < D; ty++ {
+		for tx := 0; tx < D; tx++ {
+			tile := tiles[ty][tx]
+
+			for y := 1; y < N-1; y++ {
+				for x := 1; x < N-1; x++ {
+					image.AddXY(tx*(N-2)+x-1, ty*(N-2)+y-1, tile.GetXY(x, y))
+				}
+			}
+		}
+	}
+	return Tile{Grid2D: image}
 }
 
-func FindTile(left, above *Tile, tiles []Tile, used aoc.Set) *Tile {
-	for _, tile := range tiles {
-		if used.Contains(tile.id) {
+func IsCorner(t Tile, tiles []Tile) bool {
+	// A tile is a corner piece if only 2 other tiles are compatible with it
+	var count int
+	for _, o := range tiles {
+		if t.ID == o.ID {
 			continue
 		}
 
-		for _, transformed := range tile.Transformed() {
-			if left != nil && !FitsHorizontally(*left, transformed) {
-				continue
-			}
-
-			if above != nil && !FitsVertically(*above, transformed) {
-				continue
-			}
-
-			return &transformed
-		}
-	}
-
-	return nil
-}
-
-func IsCorner(tile Tile, tiles []Tile) bool {
-	// A tile is a corner only if we can only find 2 other tiles to fit adjacent
-	// to it.
-	neighbors := aoc.NewSet()
-	for _, t := range tiles {
-		if tile.id == t.id {
-			continue
-		}
-
-		for _, other := range t.Transformed() {
-			if FitsHorizontally(tile, other) || FitsHorizontally(other, tile) ||
-				FitsVertically(tile, other) || FitsVertically(other, tile) {
-				neighbors.Add(other.id)
+		for _, s := range o.Orientations() {
+			if t.FitsOnTop(s) || t.FitsOnRight(s) || t.FitsOnBottom(s) || t.FitsOnLeft(s) {
+				count++
 			}
 		}
 	}
 
-	return neighbors.Size() == 2
+	return count == 2
 }
 
-func FitsHorizontally(l, r Tile) bool {
-	for y := 0; y < N; y++ {
-		if l.Get(N-1, y) != r.Get(0, y) {
-			return false
-		}
+func GetSeaMonster() Tile {
+	lines := []string{
+		"                  # ",
+		"#    ##    ##    ###",
+		" #  #  #  #  #  #   ",
 	}
-	return true
-}
 
-func FitsVertically(t, b Tile) bool {
-	for x := 0; x < N; x++ {
-		if t.Get(x, N-1) != b.Get(x, 0) {
-			return false
+	grid := aoc.NewGrid2D[bool](len(lines[0]), len(lines))
+	for y, line := range lines {
+		for x, c := range line {
+			if c == '#' {
+				grid.AddXY(x, y, true)
+			}
 		}
 	}
-	return true
+	return Tile{Grid2D: grid}
 }
 
 type Tile struct {
-	id            string
-	data          []bool
-	width, height int
+	ID int
+	aoc.Grid2D[bool]
 }
 
-func (t Tile) Get(x, y int) bool {
-	return t.data[y*t.width+x]
+func (t Tile) Orientations() []Tile {
+	A := t.Rotate()
+	B := A.Rotate()
+	C := B.Rotate()
+	D := t.Flip()
+	E := D.Rotate()
+	F := E.Rotate()
+	G := F.Rotate()
+	return []Tile{t, A, B, C, D, E, F, G}
 }
 
-func (t Tile) RotateLeft() Tile {
-	W, H := t.width, t.height
-
-	transformed := make([]bool, len(t.data))
+func (t Tile) Flip() Tile {
+	W, H := t.Width, t.Height
+	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](W, H)}
 	for y := 0; y < H; y++ {
 		for x := 0; x < W; x++ {
-			transformed[x*H+y] = t.Get(W-x-1, y)
+			s.AddXY(x, y, t.GetXY(W-x-1, y))
 		}
 	}
-
-	return Tile{
-		id:     t.id,
-		data:   transformed,
-		width:  t.height,
-		height: t.width,
-	}
+	return s
 }
 
-func (t Tile) FlipH() Tile {
-	transformed := make([]bool, len(t.data))
-	for y := 0; y < t.height; y++ {
-		for x := 0; x < t.width; x++ {
-			transformed[y*t.width+x] = t.Get(t.width-x-1, y)
+func (t Tile) Rotate() Tile {
+	W, H := t.Width, t.Height
+	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](H, W)}
+	for y := 0; y < W; y++ {
+		for x := 0; x < H; x++ {
+			s.AddXY(x, y, t.GetXY(W-y-1, x))
 		}
 	}
-
-	return Tile{
-		id:     t.id,
-		data:   transformed,
-		width:  t.width,
-		height: t.height,
-	}
+	return s
 }
 
-func (t Tile) FlipV() Tile {
-	transformed := make([]bool, len(t.data))
-	for y := 0; y < t.height; y++ {
-		for x := 0; x < t.width; x++ {
-			transformed[y*t.width+x] = t.Get(x, t.height-y-1)
+func (t Tile) FitsOnTop(s Tile) bool {
+	N := t.Width
+	for n := 0; n < N; n++ {
+		if t.GetXY(n, 0) != s.GetXY(n, N-1) {
+			return false
 		}
 	}
-
-	return Tile{
-		id:     t.id,
-		data:   transformed,
-		width:  t.width,
-		height: t.height,
-	}
+	return true
 }
 
-func (t Tile) Transformed() []Tile {
-	A := t
-	B := A.RotateLeft()
-	C := B.RotateLeft()
-	D := C.RotateLeft()
-	E := A.FlipH()
-	F := E.RotateLeft()
-	G := F.RotateLeft()
-	H := G.RotateLeft()
-	I := A.FlipV()
-	J := I.RotateLeft()
-	K := J.RotateLeft()
-	L := K.RotateLeft()
-	return []Tile{A, B, C, D, E, F, G, H, I, J, K, L}
+func (t Tile) FitsOnBottom(s Tile) bool {
+	return s.FitsOnTop(t)
 }
 
-func (t Tile) String() string {
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Tile: %s\n", t.id))
-	for y := 0; y < t.height; y++ {
-		for x := 0; x < t.width; x++ {
-			if t.Get(x, y) {
-				sb.WriteRune('#')
-			} else {
-				sb.WriteRune('.')
-			}
+func (t Tile) FitsOnRight(s Tile) bool {
+	N := t.Width
+	for n := 0; n < N; n++ {
+		if t.GetXY(N-1, n) != s.GetXY(0, n) {
+			return false
 		}
-		sb.WriteRune('\n')
 	}
-	return sb.String()
+	return true
 }
 
-func InputToTiles(year, day int) []Tile {
-	blocks := make(map[string][]string)
+func (t Tile) FitsOnLeft(s Tile) bool {
+	return s.FitsOnRight(t)
+}
 
-	var current string
-	for _, line := range aoc.InputToLines(year, day) {
-		if len(line) == 0 {
-			continue
-		}
-
-		if strings.HasPrefix(line, "Tile") {
-			current = strings.ReplaceAll(strings.ReplaceAll(line, "Tile ", ""), ":", "")
-			continue
-		}
-
-		blocks[current] = append(blocks[current], line)
-	}
+func InputToTiles() []Tile {
+	lines := aoc.InputToLines(2020, 20)
+	N := len(lines[1])
 
 	var tiles []Tile
-	for id, lines := range blocks {
-		var data []bool
-		for _, line := range lines {
-			for _, c := range line {
-				data = append(data, c == '#')
+	for base := 0; base < len(lines); base += 12 {
+		var id int
+		fmt.Sscanf(lines[base], "Tile %d:", &id)
+
+		grid := aoc.NewGrid2D[bool](N, N)
+		for y := 0; y < N; y++ {
+			for x := 0; x < N; x++ {
+				grid.AddXY(x, y, lines[base+y+1][x] == '#')
 			}
 		}
 
-		tiles = append(tiles, Tile{
-			id:     id,
-			data:   data,
-			width:  len(lines[0]),
-			height: len(lines),
-		})
+		tiles = append(tiles, Tile{ID: id, Grid2D: grid})
 	}
 
 	return tiles

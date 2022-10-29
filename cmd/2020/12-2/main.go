@@ -2,79 +2,50 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	ship := aoc.Point2D{X: 0, Y: 0}
-	waypoint := aoc.Point2D{X: ship.X + 10, Y: ship.Y - 1}
+	ship := aoc.Point2D{}
+	waypoint := aoc.Point2D{X: 10, Y: 1}
 
-	for _, instruction := range InputToInstructions(2020, 12) {
-		switch instruction.action {
+	for _, instruction := range InputToInstructions() {
+		switch instruction.Action {
 		case "N":
-			waypoint.Y -= instruction.value
-
+			waypoint.Y += instruction.Value
 		case "S":
-			waypoint.Y += instruction.value
-
+			waypoint.Y -= instruction.Value
 		case "E":
-			waypoint.X += instruction.value
-
+			waypoint.X += instruction.Value
 		case "W":
-			waypoint.X -= instruction.value
-
+			waypoint.X -= instruction.Value
 		case "L":
-			waypoint = RotateClockwise(waypoint, ship, 360-instruction.value)
-
+			for n := 0; n < instruction.Value/90; n++ {
+				waypoint = aoc.Point2D{X: -waypoint.Y, Y: waypoint.X}
+			}
 		case "R":
-			waypoint = RotateClockwise(waypoint, ship, instruction.value)
-
+			for n := 0; n < instruction.Value/90; n++ {
+				waypoint = aoc.Point2D{X: waypoint.Y, Y: -waypoint.X}
+			}
 		case "F":
-			dx := waypoint.X - ship.X
-			dy := waypoint.Y - ship.Y
-			ship.X += dx * instruction.value
-			ship.Y += dy * instruction.value
-			waypoint.X = ship.X + dx
-			waypoint.Y = ship.Y + dy
+			ship.X += instruction.Value * waypoint.X
+			ship.Y += instruction.Value * waypoint.Y
 		}
 	}
 
-	fmt.Println(ship.ManhattanDistance(aoc.Point2D{}))
-}
-
-func RotateClockwise(point aoc.Point2D, origin aoc.Point2D, theta int) aoc.Point2D {
-	// Clockwise rotation about the origin
-	//   x' = x*cos(theta) - y*sin(theta)
-	//   y' = y*cos(theta) + x*sin(theta)
-	//
-	//   theta  sin(theta)  cos(theta)
-	//       0          0           1
-	//      90          1           0
-	//     180          0          -1
-	//     270         -1           0
-	sin := map[int]int{90: 1, 180: 0, 270: -1}
-	cos := map[int]int{90: 0, 180: -1, 270: 0}
-
-	return aoc.Point2D{
-		X: (point.X-origin.X)*cos[theta] - (point.Y-origin.Y)*sin[theta] + origin.X,
-		Y: (point.Y-origin.Y)*cos[theta] + (point.X-origin.X)*sin[theta] + origin.Y,
-	}
+	fmt.Println(aoc.Origin2D.ManhattanDistance(ship))
 }
 
 type Instruction struct {
-	action string
-	value  int
+	Action string
+	Value  int
 }
 
-func InputToInstructions(year, day int) []Instruction {
-	var instructions []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		instructions = append(instructions, Instruction{
-			action: string(line[0]),
-			value:  aoc.ParseInt(line[1:]),
-		})
-	}
-
-	return instructions
+func InputToInstructions() []Instruction {
+	return aoc.InputLinesTo(2020, 12, func(line string) (Instruction, error) {
+		return Instruction{
+			Action: string(line[0]),
+			Value:  aoc.ParseInt(line[1:]),
+		}, nil
+	})
 }

@@ -14,27 +14,24 @@ func main() {
 			intersection = intersection.Intersect(answers)
 		}
 
-		count += intersection.Size()
+		count += len(intersection)
 	}
-
 	fmt.Println(count)
 }
 
-type Group []aoc.Set
+func InputToGroups(year, day int) [][]aoc.Set[string] {
+	var groups [][]aoc.Set[string]
 
-func InputToGroups(year, day int) []Group {
-	var groups []Group
-
-	var current Group
+	var current []aoc.Set[string]
 	for _, line := range aoc.InputToLines(year, day) {
 		if len(line) == 0 {
 			groups = append(groups, current)
-			current = make(Group, 0)
+			current = []aoc.Set[string]{}
 			continue
 		}
 
 		// Each line is a single person's answers
-		answers := aoc.NewSet()
+		var answers aoc.Set[string]
 		for _, question := range line {
 			answers.Add(string(question))
 		}

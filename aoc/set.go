@@ -16,6 +16,13 @@ func SingletonSet[T comparable](elem T) Set[T] {
 	return map[T]struct{}{elem: present}
 }
 
+// SetFrom creates a new set with the arguments as elements.
+func SetFrom[T comparable](elems ...T) Set[T] {
+	var s Set[T]
+	s.Add(elems...)
+	return s
+}
+
 // Add adds a new element to the set.  Returns true if the set was modified.
 func (s *Set[T]) Add(elems ...T) bool {
 	if *s == nil {

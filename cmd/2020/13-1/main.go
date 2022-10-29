@@ -2,41 +2,37 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
+	"strings"
 )
 
 func main() {
-	start, buses := InputToBuses(2020, 13)
-	for tm := start; ; tm++ {
-		if bus := FindDepartingBus(tm, buses); bus != -1 {
-			fmt.Println(bus * (tm - start))
-			break
-		}
-	}
-}
+	tm, buses := InputToBuses()
 
-func FindDepartingBus(tm int, buses []int) int {
+	bestWait := math.MaxInt
+	bestBus := 0
 	for _, bus := range buses {
-		if tm%bus == 0 {
-			return bus
+		wait := (bus - tm%bus) % bus
+		if wait < bestWait {
+			bestWait = wait
+			bestBus = bus
 		}
 	}
 
-	return -1
+	fmt.Println(bestWait * bestBus)
 }
 
-func InputToBuses(year, day int) (int, []int) {
-	lines := aoc.InputToLines(year, day)
+func InputToBuses() (int, []int) {
+	lines := aoc.InputToLines(2020, 13)
 	tm := aoc.ParseInt(lines[0])
 
-	var ids []int
-	for _, id := range strings.Split(lines[1], ",") {
-		if id != "x" {
-			ids = append(ids, aoc.ParseInt(id))
+	var buses []int
+	for _, s := range strings.Split(lines[1], ",") {
+		if s != "x" {
+			buses = append(buses, aoc.ParseInt(s))
 		}
 	}
 
-	return tm, ids
+	return tm, buses
 }

@@ -51,6 +51,39 @@ func Max[T Ordered](elems ...T) T {
 	return max
 }
 
+func Pow[T Number, U Unsigned](base T, exp U) T {
+	var result T = 1
+	for {
+		if exp&1 == 1 {
+			result *= base
+		}
+		exp >>= 1
+
+		if exp == 0 {
+			break
+		}
+
+		base *= base
+	}
+
+	return result
+}
+
+func ModPow[T Integer](base, exp, mod T) T {
+	base = base % mod
+
+	var result T = 1
+	for exp > 0 {
+		if exp%2 == 1 {
+			result = (result * base) % mod
+		}
+		exp >>= 1
+		base = (base * base) % mod
+	}
+
+	return result
+}
+
 // Digits returns the individual digits of the provided number in order from
 // left to right.  If the provided number is negative, then the sign will be
 // ignored.
@@ -76,4 +109,45 @@ func JoinDigits[T Integer](ds []T) T {
 		n = n*10 + d
 	}
 	return n
+}
+
+// ChineseRemainderTheorem solves a system of congruences for x.
+//
+//	x = a_i (mod n_i) for all i
+//
+// See: https://shainer.github.io/crypto/math/2017/10/22/chinese-remainder-theorem.html
+func ChineseRemainderTheorem(as, ns []int) int {
+	N := 1
+	for _, n := range ns {
+		N *= n
+	}
+
+	result := 0
+	for i := 0; i < len(as); i++ {
+		ai, ni := as[i], ns[i]
+		_, _, si := ExtendedEuclid(ni, N/ni)
+		result += ai * si * (N / ni)
+	}
+
+	for result < 0 {
+		result = result + N
+	}
+	return result % N
+}
+
+// ExtendedEuclid computes the GCD of x and y as well as coefficients a and b
+// such that:
+//
+//	a*x + b*y = gcd(a, b).
+func ExtendedEuclid(x, y int) (int, int, int) {
+	x0, x1, y0, y1 := 1, 0, 0, 1
+
+	var q int
+	for y > 0 {
+		q, x, y = x/y, y, x%y
+		x0, x1 = x1, x0-q*x1
+		y0, y1 = y1, y0-q*y1
+	}
+
+	return q, x0, y0
 }

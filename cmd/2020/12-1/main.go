@@ -2,75 +2,47 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	location := aoc.Point2D{X: 0, Y: 0}
-	direction := aoc.Point2D{X: 1, Y: 0}
-
-	for _, instruction := range InputToInstructions(2020, 12) {
-		switch {
-		case instruction.action == "N":
-			location.Y -= instruction.value
-
-		case instruction.action == "S":
-			location.Y += instruction.value
-
-		case instruction.action == "E":
-			location.X += instruction.value
-
-		case instruction.action == "W":
-			location.X -= instruction.value
-
-		case instruction.action == "L":
-			direction = RotateClockwise(direction, 360-instruction.value)
-
-		case instruction.action == "R":
-			direction = RotateClockwise(direction, instruction.value)
-
-		case instruction.action == "F":
-			location.X += direction.X * instruction.value
-			location.Y += direction.Y * instruction.value
+	ship := aoc.Turtle{Heading: aoc.Right}
+	for _, instruction := range InputToInstructions() {
+		switch instruction.Action {
+		case "N":
+			ship.Location.Y -= instruction.Value
+		case "S":
+			ship.Location.Y += instruction.Value
+		case "E":
+			ship.Location.X += instruction.Value
+		case "W":
+			ship.Location.X -= instruction.Value
+		case "L":
+			for n := 0; n < instruction.Value/90; n++ {
+				ship.TurnLeft()
+			}
+		case "R":
+			for n := 0; n < instruction.Value/90; n++ {
+				ship.TurnRight()
+			}
+		case "F":
+			ship.Forward(instruction.Value)
 		}
 	}
 
-	fmt.Println(location.ManhattanDistance(aoc.Point2D{}))
-}
-
-func RotateClockwise(point aoc.Point2D, theta int) aoc.Point2D {
-	// Clockwise rotation about the origin
-	//   x' = x*cos(theta) - y*sin(theta)
-	//   y' = y*cos(theta) + x*sin(theta)
-	//
-	//   theta  sin(theta)  cos(theta)
-	//       0          0           1
-	//      90          1           0
-	//     180          0          -1
-	//     270         -1           0
-	sin := map[int]int{90: 1, 180: 0, 270: -1}
-	cos := map[int]int{90: 0, 180: -1, 270: 0}
-
-	return aoc.Point2D{
-		X: point.X*cos[theta] - point.Y*sin[theta],
-		Y: point.Y*cos[theta] + point.X*sin[theta],
-	}
+	fmt.Println(aoc.Origin2D.ManhattanDistance(ship.Location))
 }
 
 type Instruction struct {
-	action string
-	value  int
+	Action string
+	Value  int
 }
 
-func InputToInstructions(year, day int) []Instruction {
-	var instructions []Instruction
-	for _, line := range aoc.InputToLines(year, day) {
-		instructions = append(instructions, Instruction{
-			action: string(line[0]),
-			value:  aoc.ParseInt(line[1:]),
-		})
-	}
-
-	return instructions
+func InputToInstructions() []Instruction {
+	return aoc.InputLinesTo(2020, 12, func(line string) (Instruction, error) {
+		return Instruction{
+			Action: string(line[0]),
+			Value:  aoc.ParseInt(line[1:]),
+		}, nil
+	})
 }

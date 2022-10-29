@@ -2,126 +2,84 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/advent-of-code/aoc"
 	"regexp"
 	"strings"
-
-	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	rules, messages := Input(2020, 19)
+	rules, tests := InputToRulesAndTests()
 
-	// Apply overrides from puzzle statement.
-	rules[8].clauses = [][]int{
-		{42},
-		{42, 42},
-		{42, 42, 42},
-		{42, 42, 42, 42},
-		{42, 42, 42, 42, 42},
+	// Apply overrides from the puzzle statement.  Because this introduces cycles
+	// we can't introduce them as defined as that would cause ToRegex to
+	// infinitely loop.  Instead, we'll manually unroll them to prevent the
+	// infinite recursion.
+	//
+	// 8: 42 | 42 8
+	// 11: 42 31 | 42 11 31
+	rules["8"] = []Clause{
+		{"42"},
+		{"42", "42"},
+		{"42", "42", "42"},
+		{"42", "42", "42", "42"},
+		{"42", "42", "42", "42", "42"},
 	}
-
-	rules[11].clauses = [][]int{
-		{42, 31},
-		{42, 42, 31, 31},
-		{42, 42, 42, 31, 31, 31},
-		{42, 42, 42, 42, 31, 31, 31, 31},
-		{42, 42, 42, 42, 42, 31, 31, 31, 31, 31},
+	rules["11"] = []Clause{
+		{"42", "31"},
+		{"42", "42", "31", "31"},
+		{"42", "42", "42", "31", "31", "31"},
+		{"42", "42", "42", "42", "31", "31", "31", "31"},
+		{"42", "42", "42", "42", "42", "31", "31", "31", "31", "31"},
 	}
+	regex := regexp.MustCompile("^" + ToRegex(rules, "0") + "$")
 
-	regex := regexp.MustCompile("^" + ToRegexp(rules, 0) + "$")
-
-	var sum int
-	for _, message := range messages {
-		if regex.MatchString(message) {
-			sum++
+	var count int
+	for _, test := range tests {
+		if regex.MatchString(test) {
+			count++
 		}
 	}
-	fmt.Println(sum)
+	fmt.Println(count)
 }
 
-// Walk a tree of rules converting them into a regular expression string.
-func ToRegexp(rules map[int]*Rule, id int) string {
-	rule := rules[id]
-
-	if rule.literal != 0 {
-		return string(rule.literal)
-	}
-
-	// Each clause is a potential sequence of rules that need to be met one after
-	// the other, thus we'll concatenate the rules within a clause together.  When
-	// there are multiple clauses only one has to match at a time, so we'll OR
-	// different clauses together.
+func ToRegex(rules map[string][]Clause, id string) string {
 	var clauses []string
-	for _, clause := range rule.clauses {
-		var s string
-		for _, part := range clause {
-			s += ToRegexp(rules, part)
-		}
-		clauses = append(clauses, s)
-	}
-
-	return "(?:" + strings.Join(clauses, "|") + ")"
-}
-
-type Rule struct {
-	literal byte
-	clauses [][]int
-}
-
-func Input(year, day int) (map[int]*Rule, []string) {
-	rules := make(map[int]*Rule)
-	messages := make([]string, 0)
-
-	for _, line := range aoc.InputToLines(year, day) {
-		if len(line) == 0 {
-			continue
-		}
-
-		if strings.Contains(line, ":") {
-			colon := strings.IndexRune(line, ':')
-			pipe := strings.IndexRune(line, '|')
-			quote := strings.IndexRune(line, '"')
-
-			id := aoc.ParseInt(line[:colon])
-
-			// If there's a quote character then the RHS is a literal.
-			if quote != -1 {
-				rules[id] = &Rule{literal: line[quote+1]}
-				continue
-			}
-
-			// There was no quote, so this is a clause based rule.
-			var clauses [][]int
-			if pipe == -1 {
-				clauses = [][]int{
-					ParseInts(line[colon+1:]),
-				}
+	for _, c := range rules[id] {
+		var sb strings.Builder
+		for _, cid := range c {
+			if cid == "a" || cid == "b" {
+				sb.WriteString(cid)
 			} else {
-				clauses = [][]int{
-					ParseInts(line[colon+1 : pipe]),
-					ParseInts(line[pipe+1:]),
-				}
+				sb.WriteString(ToRegex(rules, cid))
 			}
-
-			rules[id] = &Rule{clauses: clauses}
-			continue
 		}
 
-		messages = append(messages, line)
+		clauses = append(clauses, sb.String())
 	}
 
-	return rules, messages
+	return "(" + strings.Join(clauses, "|") + ")"
 }
 
-// ParseInts parses a string containing one or more space separated integers
-// into the integer values.
-func ParseInts(s string) []int {
-	var ns []int
-	for _, n := range strings.Split(s, " ") {
-		if len(n) > 0 {
-			ns = append(ns, aoc.ParseInt(n))
+type Clause []string
+
+func InputToRulesAndTests() (map[string][]Clause, []string) {
+	lines := aoc.InputToLines(2020, 19)
+	rules := make(map[string][]Clause)
+
+	var index int
+	for ; lines[index] != ""; index++ {
+		id, rhs, _ := strings.Cut(lines[index], ": ")
+		rhs = strings.ReplaceAll(rhs, "\"", "")
+
+		var clauses []Clause
+		for _, clause := range strings.Split(rhs, " | ") {
+			clauses = append(clauses, strings.Fields(clause))
 		}
+
+		rules[id] = clauses
 	}
 
-	return ns
+	index++
+
+	return rules, lines[index:]
 }

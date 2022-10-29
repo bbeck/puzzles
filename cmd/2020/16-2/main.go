@@ -2,164 +2,120 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	ranges, myTicket, nearbyTickets := Input(2020, 16)
+	fields, ticket, tickets := InputToFieldsAndTickets()
 
-	// Use the nearby tickets along with the valid ranges for fields to determine
-	// which indices of a ticket correspond to which field.  We'll do this by
-	// eliminating possibilities when a ticket index falls out of bounds of a
-	// field's valid range.
-
-	// Initialize every index to all possible field names.
-	possibilities := make(map[int]*aoc.Set)
-	for i := 0; i < len(myTicket); i++ {
-		s := aoc.NewSet()
-		for name := range ranges {
-			s.Add(name)
+	// Create a set of allowed values for each field.
+	allowed := make(map[string]aoc.Set[int])
+	for name, ranges := range fields {
+		for _, r := range ranges {
+			for v := r.Min; v <= r.Max; v++ {
+				set := allowed[name]
+				set.Add(v)
+				allowed[name] = set
+			}
 		}
-
-		possibilities[i] = &s
 	}
 
-	// Go through each valid nearby ticket and use it to limit the possible fields
-	// for each index based on the valid ranges the field.
-	for _, ticket := range nearbyTickets {
-		if !IsValid(ticket, ranges) {
+	// Put every seen example value for a field into that field's set.
+	examples := make([]aoc.Set[int], len(ticket))
+	for _, t := range tickets {
+		if !IsValid(t, allowed) {
 			continue
 		}
 
-		for index, value := range ticket {
-			for name, r := range ranges {
-				if !r.Contains(value) {
-					possibilities[index].Remove(name)
-				}
-			}
+		for i, v := range t {
+			examples[i].Add(v)
 		}
 	}
 
-	// At this point we can go through and make assignments when a possibility set
-	// ends up with just a single field in it.  Once a field is assigned it needs
-	// to be removed from any other possibility.  This process will require
-	// multiple passes through the sets.
-	assigned := aoc.NewSet()
-	assignments := map[string]int{}
-	for len(assignments) < len(possibilities) {
-		for index, ps := range possibilities {
-			entries := ps.Difference(assigned).Entries()
-			if len(entries) == 1 {
-				entry := entries[0].(string)
-				assigned.Add(entry)
-				assignments[entry] = index
-			}
-		}
-	}
-
-	// Now find the departure fields and the values from my ticket and multiply
-	// them together.
-	var product = 1
-	for name, index := range assignments {
+	product := 1
+	for index, name := range DeriveFieldMapping(allowed, examples) {
 		if strings.HasPrefix(name, "departure") {
-			product *= myTicket[index]
+			product *= ticket[index]
 		}
 	}
 	fmt.Println(product)
 }
 
-func IsValid(ticket Ticket, ranges Ranges) bool {
-	var isValid = true
+func IsValid(ticket []int, fields map[string]aoc.Set[int]) bool {
+	var vs aoc.Set[int]
+	vs.Add(ticket...)
 
-	for _, n := range ticket {
-		var ok bool
-		for _, r := range ranges {
-			if r.Contains(n) {
-				ok = true
-				break
+	for _, s := range fields {
+		vs = vs.Difference(s)
+	}
+
+	return len(vs) == 0
+}
+
+func DeriveFieldMapping(fields map[string]aoc.Set[int], values []aoc.Set[int]) []string {
+	// Determine possible fields for each set of values.
+	choices := make([]aoc.Set[string], len(values))
+	for i := 0; i < len(values); i++ {
+		for name, possible := range fields {
+			if len(values[i].Difference(possible)) == 0 {
+				choices[i].Add(name)
 			}
 		}
+	}
 
-		if !ok {
-			isValid = false
+	var assigned aoc.Set[string]
+	mapping := make([]string, len(values))
+
+	for len(assigned) < len(fields) {
+		for i := 0; i < len(choices); i++ {
+			choices[i] = choices[i].Difference(assigned)
+
+			if len(choices[i]) == 1 {
+				mapping[i] = choices[i].Entries()[0]
+				assigned.Add(mapping[i])
+			}
 		}
 	}
 
-	return isValid
+	return mapping
 }
 
-type Ranges map[string]aoc.Set
-type Ticket []int
-
-func ParseRange(s string) (string, aoc.Set) {
-	fields := strings.Split(s, ": ")
-	name := fields[0]
-	rhs := strings.ReplaceAll(fields[1], "-", " ")
-
-	var min1, max1, min2, max2 int
-	_, err := fmt.Sscanf(rhs, "%d %d or %d %d", &min1, &max1, &min2, &max2)
-	if err != nil {
-		log.Fatalf("unable to parse range: %s", s)
-	}
-
-	set := aoc.NewSet()
-	for i := min1; i <= max1; i++ {
-		set.Add(i)
-	}
-	for i := min2; i <= max2; i++ {
-		set.Add(i)
-	}
-
-	return name, set
+type Range struct {
+	Min, Max int
 }
 
-func ParseTicket(s string) []int {
+func InputToFieldsAndTickets() (map[string][]Range, []int, [][]int) {
+	lines := aoc.InputToLines(2020, 16)
+	fields := make(map[string][]Range)
+
+	var index int
+	for ; lines[index] != ""; index++ {
+		key, rest, _ := strings.Cut(lines[index], ": ")
+		r1, r2, _ := strings.Cut(rest, " or ")
+		min1, max1, _ := strings.Cut(r1, "-")
+		min2, max2, _ := strings.Cut(r2, "-")
+
+		fields[key] = append(fields[key], Range{Min: aoc.ParseInt(min1), Max: aoc.ParseInt(max1)})
+		fields[key] = append(fields[key], Range{Min: aoc.ParseInt(min2), Max: aoc.ParseInt(max2)})
+	}
+
+	index += 2
 	var ticket []int
-	for _, n := range strings.Split(s, ",") {
-		ticket = append(ticket, aoc.ParseInt(n))
+	for _, s := range strings.Split(lines[index], ",") {
+		ticket = append(ticket, aoc.ParseInt(s))
 	}
 
-	return ticket
-}
-
-func Input(year, day int) (Ranges, Ticket, []Ticket) {
-	lines := aoc.InputToLines(year, day)
-
-	var current int
-
-	var ranges = make(Ranges)
-	for {
-		if len(lines[current]) == 0 {
-			break
+	index += 3
+	var tickets [][]int
+	for ; index < len(lines); index++ {
+		var values []int
+		for _, s := range strings.Split(lines[index], ",") {
+			values = append(values, aoc.ParseInt(s))
 		}
 
-		name, set := ParseRange(lines[current])
-		ranges[name] = set
-
-		current++
-	}
-	current++ // blank line
-	current++ // 'your ticket:' line
-
-	// Parse my ticket (skipping the "your ticket:" line)
-	var myTicket = ParseTicket(lines[current])
-
-	current++ // my ticket
-	current++ // blank line
-	current++ // 'nearby tickets:' line
-
-	var nearbyTickets []Ticket
-	for {
-		if current >= len(lines) {
-			break
-		}
-
-		nearbyTickets = append(nearbyTickets, ParseTicket(lines[current]))
-		current++
+		tickets = append(tickets, values)
 	}
 
-	return ranges, myTicket, nearbyTickets
+	return fields, ticket, tickets
 }

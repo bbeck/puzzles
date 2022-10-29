@@ -2,83 +2,55 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	grid := make(map[HexPoint]bool)
-	for _, p := range InputToCoordinates(2020, 24) {
-		grid[p] = !grid[p]
-	}
+	var black aoc.Set[HexPoint]
+	for _, steps := range InputToSteps() {
+		var current HexPoint
+		for _, step := range steps {
+			current = current.Step(step)
+		}
 
-	var sum int
-	for _, value := range grid {
-		if value {
-			sum++
+		if !black.Add(current) {
+			black.Remove(current)
 		}
 	}
-	fmt.Println(sum)
+
+	fmt.Println(len(black))
 }
 
-func InputToCoordinates(year, day int) []HexPoint {
-	var coordinates []HexPoint
-	for _, line := range aoc.InputToLines(year, day) {
-		var p HexPoint
-
-		for i := 0; i < len(line); {
-			switch {
-			case line[i:i+1] == "e":
-				p = p.East()
-				i += 1
-			case i+2 <= len(line) && line[i:i+2] == "se":
-				p = p.SouthEast()
-				i += 2
-			case i+2 <= len(line) && line[i:i+2] == "sw":
-				p = p.SouthWest()
-				i += 2
-			case line[i:i+1] == "w":
-				p = p.West()
-				i += 1
-			case i+2 <= len(line) && line[i:i+2] == "nw":
-				p = p.NorthWest()
-				i += 2
-			case i+2 <= len(line) && line[i:i+2] == "ne":
-				p = p.NorthEast()
-				i += 2
+func InputToSteps() [][]string {
+	return aoc.InputLinesTo(2020, 24, func(line string) ([]string, error) {
+		var steps []string
+		for len(line) > 0 {
+			if line[0] == 'n' || line[0] == 's' {
+				steps = append(steps, line[:2])
+				line = line[2:]
+			} else {
+				steps = append(steps, line[:1])
+				line = line[1:]
 			}
 		}
 
-		coordinates = append(coordinates, p)
-	}
-
-	return coordinates
+		return steps, nil
+	})
 }
 
-type HexPoint struct {
-	X, Y, Z int
+// https://www.redblobgames.com/grids/hexagons/
+var Deltas = map[string]HexPoint{
+	"ne": {1, -1},
+	"e":  {1, 0},
+	"se": {0, 1},
+	"sw": {-1, 1},
+	"w":  {-1, 0},
+	"nw": {0, -1},
 }
 
-func (p HexPoint) East() HexPoint {
-	return HexPoint{X: p.X + 1, Y: p.Y - 1, Z: p.Z}
-}
+type HexPoint struct{ Q, R int }
 
-func (p HexPoint) SouthEast() HexPoint {
-	return HexPoint{X: p.X, Y: p.Y - 1, Z: p.Z + 1}
-}
-
-func (p HexPoint) SouthWest() HexPoint {
-	return HexPoint{X: p.X - 1, Y: p.Y, Z: p.Z + 1}
-}
-
-func (p HexPoint) West() HexPoint {
-	return HexPoint{X: p.X - 1, Y: p.Y + 1, Z: p.Z}
-}
-
-func (p HexPoint) NorthWest() HexPoint {
-	return HexPoint{X: p.X, Y: p.Y + 1, Z: p.Z - 1}
-}
-
-func (p HexPoint) NorthEast() HexPoint {
-	return HexPoint{X: p.X + 1, Y: p.Y, Z: p.Z - 1}
+func (p HexPoint) Step(dir string) HexPoint {
+	delta := Deltas[dir]
+	return HexPoint{Q: p.Q + delta.Q, R: p.R + delta.R}
 }

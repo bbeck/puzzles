@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -15,7 +13,7 @@ func main() {
 
 	var ids []int
 	for _, line := range aoc.InputToLines(2020, 5) {
-		ids = append(ids, ParseBinary(replacer.Replace(line)))
+		ids = append(ids, aoc.ParseIntWithBase(replacer.Replace(line), 2))
 	}
 
 	sort.Ints(ids)
@@ -25,13 +23,4 @@ func main() {
 			fmt.Println(ids[i] + 1)
 		}
 	}
-}
-
-func ParseBinary(s string) int {
-	n, err := strconv.ParseInt(s, 2, 16)
-	if err != nil {
-		log.Fatalf("unable to parse binary number: %s", s)
-	}
-
-	return int(n)
 }

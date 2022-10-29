@@ -106,10 +106,8 @@ func (p Point2D) String() string {
 func GetBounds(ps []Point2D) (Point2D, Point2D) {
 	minX, minY, maxX, maxY := math.MaxInt, math.MaxInt, math.MinInt, math.MinInt
 	for _, p := range ps {
-		minX = Min(minX, p.X)
-		maxX = Max(maxX, p.X)
-		minY = Min(minY, p.Y)
-		maxY = Max(maxY, p.Y)
+		minX, maxX = Min(minX, p.X), Max(maxX, p.X)
+		minY, maxY = Min(minY, p.Y), Max(maxY, p.Y)
 	}
 
 	return Point2D{X: minX, Y: minY}, Point2D{X: maxX, Y: maxY}
@@ -123,6 +121,25 @@ type Point3D struct {
 // Origin3D is the point that lies on the origin.
 var Origin3D = Point3D{X: 0, Y: 0, Z: 0}
 
+// Neighbors returns a slice of all neighbors to the current point.
+func (p Point3D) Neighbors() []Point3D {
+	var neighbors []Point3D
+	for dx := -1; dx <= 1; dx++ {
+		for dy := -1; dy <= 1; dy++ {
+			for dz := -1; dz <= 1; dz++ {
+				if dx == 0 && dy == 0 && dz == 0 {
+					continue
+				}
+
+				n := Point3D{X: p.X + dx, Y: p.Y + dy, Z: p.Z + dz}
+				neighbors = append(neighbors, n)
+			}
+		}
+	}
+
+	return neighbors
+}
+
 // ManhattanDistance computes the distance between the current point and the
 // provided point when traveling along a rectilinear path between the points.
 func (p Point3D) ManhattanDistance(q Point3D) int {
@@ -131,4 +148,18 @@ func (p Point3D) ManhattanDistance(q Point3D) int {
 
 func (p Point3D) String() string {
 	return fmt.Sprintf("(%d, %d, %d)", p.X, p.Y, p.Z)
+}
+
+// GetBounds3D determines the corners of the bounding box that contains all
+// specified points.  The bounding box corners returned are the top left and
+// bottom right corners.
+func GetBounds3D(ps []Point3D) (Point3D, Point3D) {
+	minX, minY, minZ, maxX, maxY, maxZ := math.MaxInt, math.MaxInt, math.MaxInt, math.MinInt, math.MinInt, math.MinInt
+	for _, p := range ps {
+		minX, maxX = Min(minX, p.X), Max(maxX, p.X)
+		minY, maxY = Min(minY, p.Y), Max(maxY, p.Y)
+		minZ, maxZ = Min(minZ, p.Z), Max(maxZ, p.Z)
+	}
+
+	return Point3D{X: minX, Y: minY, Z: minZ}, Point3D{X: maxX, Y: maxY, Z: maxZ}
 }

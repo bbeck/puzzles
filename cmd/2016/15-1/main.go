@@ -21,42 +21,8 @@ func main() {
 		positions = append(positions, disc.Size)
 	}
 
-	tm := ChineseRemainderTheorem(offsets, positions)
+	tm := aoc.ChineseRemainderTheorem(offsets, positions)
 	fmt.Println(tm)
-}
-
-func ChineseRemainderTheorem(as, ns []int) int {
-	var prod = 1
-	for _, n := range ns {
-		prod *= n
-	}
-
-	var sum int
-	for i := 0; i < len(as); i++ {
-		p := prod / ns[i]
-		sum += as[i] * MulInv(p, ns[i]) * p
-	}
-
-	for sum < 0 {
-		sum += prod
-	}
-
-	return sum % prod
-}
-
-func MulInv(a, b int) int {
-	if b == 1 {
-		return 1
-	}
-
-	x0, x1 := 0, 1
-	for a > 1 {
-		q := a / b
-		a, b = b, a%b
-		x0, x1 = x1-q*x0, x0
-	}
-
-	return x1
 }
 
 type Disc struct {

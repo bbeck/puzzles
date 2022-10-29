@@ -53,16 +53,41 @@ func (g Grid2D[T]) InBoundsXY(x, y int) bool {
 	return x >= 0 && x < g.Width && y >= 0 && y < g.Height
 }
 
+// ForEach invokes a callback for every point in the grid.  The point in the
+// grid along with the value is passed into the callback.
 func (g Grid2D[T]) ForEach(fn func(Point2D, T)) {
 	g.ForEachXY(func(x, y int, value T) {
 		fn(Point2D{X: x, Y: y}, value)
 	})
 }
 
+// ForEachXY invokes a callback for every point in the grid.  The x and y
+// coordinates of the point along with the value are passed into the callback.
 func (g Grid2D[T]) ForEachXY(fn func(int, int, T)) {
 	for y := 0; y < g.Height; y++ {
 		for x := 0; x < g.Width; x++ {
 			fn(x, y, g.GetXY(x, y))
+		}
+	}
+}
+
+// ForEachNeighbor invokes a callback for all 8 neighbors of a point.  The
+// neighboring point along with the value are passed into the callback.
+func (g Grid2D[T]) ForEachNeighbor(p Point2D, fn func(Point2D, T)) {
+	for _, n := range p.Neighbors() {
+		if g.InBounds(n) {
+			fn(n, g.Get(n))
+		}
+	}
+}
+
+// ForEachOrthogonalNeighbor invokes a callback for each orthogonal neighbor
+// of a point.  The neighboring point along with the value are passed into the
+// callback.
+func (g Grid2D[T]) ForEachOrthogonalNeighbor(p Point2D, fn func(Point2D, T)) {
+	for _, n := range p.OrthogonalNeighbors() {
+		if g.InBounds(n) {
+			fn(n, g.Get(n))
 		}
 	}
 }

@@ -2,72 +2,60 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	rules := InputToRules(2020, 7)
-	target := "shiny gold"
+	rules := InputToRules()
 
 	var count int
 	for color := range rules {
-		if Contains(color, target, rules) {
+		if Contains(color, "shiny gold", rules) {
 			count++
 		}
 	}
-
 	fmt.Println(count)
 }
 
-func Contains(color, target string, rules Rules) bool {
-	var found bool
-	for _, contents := range rules[color] {
-		if contents.color == target || Contains(contents.color, target, rules) {
-			found = true
-			break
+func Contains(color, target string, rules map[string]Contents) bool {
+	for other := range rules[color] {
+		if other == target || Contains(other, target, rules) {
+			return true
 		}
 	}
 
-	return found
+	return false
 }
 
-type Rules map[string][]Contents
+type Contents map[string]int
 
-type Contents struct {
-	count int
-	color string
-}
-
-func InputToRules(year, day int) Rules {
-	rules := make(Rules)
-	for _, line := range aoc.InputToLines(year, day) {
-		line = strings.ReplaceAll(line, ".", "")
-		line = strings.ReplaceAll(line, " bags", "")
-		line = strings.ReplaceAll(line, " bag", "")
-
-		fields := strings.Split(line, " contain ")
-		color := fields[0]
-
-		rhs := fields[1]
-		if rhs == "no other" {
-			rules[color] = nil
-			continue
-		}
-
-		var contents []Contents
-		for _, child := range strings.Split(rhs, ", ") {
-			parts := strings.SplitN(child, " ", 2)
-
-			contents = append(contents, Contents{
-				count: aoc.ParseInt(parts[0]),
-				color: parts[1],
-			})
-		}
-
-		rules[color] = contents
+func InputToRules() map[string]Contents {
+	type Rule struct {
+		Color    string
+		Contents Contents
 	}
 
+	rs := aoc.InputLinesTo(2020, 7, func(line string) (Rule, error) {
+		lhs, rhs, _ := strings.Cut(line, " bags contain ")
+		rhs = strings.ReplaceAll(rhs, ".", "")
+		rhs = strings.ReplaceAll(rhs, " bags", "")
+		rhs = strings.ReplaceAll(rhs, " bag", "")
+
+		contents := make(map[string]int)
+		if rhs != "no other" {
+			for _, child := range strings.Split(rhs, ", ") {
+				parts := strings.SplitN(child, " ", 2)
+				contents[parts[1]] = aoc.ParseInt(parts[0])
+			}
+		}
+
+		return Rule{Color: lhs, Contents: contents}, nil
+	})
+
+	rules := make(map[string]Contents)
+	for _, rule := range rs {
+		rules[rule.Color] = rule.Contents
+	}
 	return rules
 }

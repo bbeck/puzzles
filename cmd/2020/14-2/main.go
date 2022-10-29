@@ -2,105 +2,79 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
-	instructions := InputToProgram(2020, 14)
-
-	memory := make(map[int]int)
-	for _, instruction := range instructions {
-		// Each instruction can target multiple addresses
-		for _, address := range EnumerateAddresses(instruction) {
-			memory[address] = instruction.value
-		}
+	memory := make(map[uint64]uint64)
+	for _, i := range InputToInstructions() {
+		EnumerateAddresses(i.Address|i.Or, i.Floating, func(address uint64) {
+			memory[address] = i.Value
+		})
 	}
 
-	var sum int
-	for _, v := range memory {
-		sum += v
+	var sum uint64
+	for _, value := range memory {
+		sum += value
 	}
 	fmt.Println(sum)
 }
 
-func EnumerateAddresses(instruction Instruction) []int {
-	// First build an and-mask and or-mask for the address.  Everywhere in the
-	// mask that has a 1 will need to appear as part of the or-mask and everywhere
-	// in the mask that has an 0 will need to appear as a 1 in the and-mask.
-	var andMask, orMask int
-	for _, c := range instruction.mask {
-		andMask <<= 1
-		orMask <<= 1
-
-		switch c {
-		case '0':
-			andMask |= 1
-
-		case '1':
-			orMask |= 1
-		}
-	}
-	address := (instruction.address & andMask) | orMask
-
-	// Build a bit vector with a single bit set that corresponds to each position
-	// in the mask that contains an X.
-	var bitvectors []int
-	for index, c := range instruction.mask {
-		if c == 'X' {
-			bitvectors = append(bitvectors, 1<<(len(instruction.mask)-index-1))
+func EnumerateAddresses(address, floating uint64, fn func(uint64)) {
+	var ones []int
+	for b := 0; b < 36; b++ {
+		if floating&(1<<b) > 0 {
+			ones = append(ones, b)
 		}
 	}
 
-	// Next, for each bit vector generate 2 addresses based on the existing set
-	// of addresses.  One that has a 0 in the set bit and one that has a 1 in the
-	// set bit.
-	set := map[int]struct{}{
-		address: {},
-	}
-	for _, bv := range bitvectors {
-		newSet := make(map[int]struct{})
-		for address := range set {
-			newSet[address|bv] = struct{}{}
-			newSet[address & ^bv] = struct{}{}
+	n := uint(len(ones))
+	for bits := 0; bits < aoc.Pow(2, n); bits++ {
+		for i, bit := range ones {
+			if bits&(1<<i) == 0 {
+				address &= ^(1 << bit)
+			} else {
+				address |= 1 << bit
+			}
 		}
 
-		set = newSet
+		fn(address)
 	}
-
-	// Finally convert the address set into a list of addresses
-	var addresses []int
-	for address := range set {
-		addresses = append(addresses, address)
-	}
-	return addresses
 }
 
 type Instruction struct {
-	mask    string
-	address int
-	value   int
+	Address, Value, Or, Floating uint64
 }
 
-func InputToProgram(year, day int) []Instruction {
-	var instructions []Instruction
+func InputToInstructions() []Instruction {
+	lines := aoc.InputToLines(2020, 14)
 
-	var mask string
-	for _, line := range aoc.InputToLines(year, day) {
-		if _, err := fmt.Sscanf(line, "mask = %s", &mask); err == nil {
+	var or, floating uint64
+	var instructions []Instruction
+	for _, line := range lines {
+		if strings.HasPrefix(line, "mask") {
+			for _, c := range line[7:] { // len("mask = ") == 7
+				or <<= 1
+				floating <<= 1
+
+				if c == 'X' {
+					floating |= 1
+				} else if c == '1' {
+					or |= 1
+				}
+			}
 			continue
 		}
 
-		var address, value int
-		if _, err := fmt.Sscanf(line, "mem[%d] = %d", &address, &value); err != nil {
-			log.Fatalf("unable to parse line: %s", line)
-		}
+		var address, value uint64
+		fmt.Sscanf(line, "mem[%d] = %d", &address, &value)
 
 		instructions = append(instructions, Instruction{
-			mask:    mask,
-			address: address,
-			value:   value,
+			Address:  address,
+			Value:    value,
+			Or:       or & 0xFFFFFFFFF,
+			Floating: floating & 0xFFFFFFFFF,
 		})
 	}
 

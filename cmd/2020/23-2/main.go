@@ -2,63 +2,71 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-const N = 1000000
-const MOVES = 10000000
+const N = 1_000_000
+const MOVES = 10_000_000
 
 func main() {
-	cups := aoc.NewRing()
+	circle, current := InputToCircle()
 
-	var size int
-	for _, c := range aoc.InputToString(2020, 23) {
-		digit := aoc.ParseInt(string(c))
-		cups.InsertAfter(digit)
-		size++
+	for i := 1; i <= MOVES; i++ {
+		// We start with the following
+		//   ... current v1 v2 v3 x ... destination y ...
+		//
+		// Then we remove v1, v2, and v3, and place them after destination.
+		//   ... current x ... destination v1 v2 v3 y ...
+		v1 := circle[current]
+		v2 := circle[v1]
+		v3 := circle[v2]
+		x := circle[v3]
+
+		destination := Destination(current, v1, v2, v3)
+		y := circle[destination]
+
+		circle[current] = x
+		circle[destination] = v1
+		circle[v3] = y
+		current = x
 	}
-	for n := size + 1; n <= N; n++ {
-		cups.InsertAfter(n)
-	}
 
-	// Move back to the beginning of the ring
-	cups.Next()
+	a := circle[1]
+	b := circle[a]
+	fmt.Println(a * b)
+}
 
-	for move := 1; move <= MOVES; move++ {
-		current := cups.Current().(int)
-
-		// Remove the next 3 elements.
-		cups.Next()
-		c1 := cups.Remove()
-		c2 := cups.Remove()
-		c3 := cups.Remove()
-
-		// Remember where to jump back to after we finish our insertion.
-		next := cups.Current()
-
-		// Determine where we're going to add the removed elements back.
-		destination := current - 1
-		for destination == c1 || destination == c2 || destination == c3 || destination < 1 {
-			destination--
-			if destination < 1 {
-				destination = N
-			}
+func Destination(current, r1, r2, r3 int) int {
+	destination := current
+	for {
+		destination -= 1
+		if destination == 0 {
+			destination = N
 		}
 
-		// Go to the destination and add back our removed elements.
-		cups.JumpTo(destination)
-		cups.InsertAfter(c1)
-		cups.InsertAfter(c2)
-		cups.InsertAfter(c3)
-
-		// Return back to where we started.
-		cups.JumpTo(next)
+		if destination != r1 && destination != r2 && destination != r3 {
+			break
+		}
 	}
 
-	// Find the 2 numbers after the 1 and multiply their values together.
-	cups.JumpTo(1)
-	n1 := cups.Next().(int)
-	n2 := cups.Next().(int)
-	fmt.Println(n1 * n2)
+	return destination
+}
+
+func InputToCircle() ([]int, int) {
+	digits := aoc.Digits(aoc.InputToInt(2020, 23))
+
+	circle := make([]int, N+1)
+
+	current := N
+	for _, d := range digits {
+		circle[current] = d
+		current = d
+	}
+	for d := 10; d <= N; d++ {
+		circle[current] = d
+		current = d
+	}
+	circle[current] = digits[0]
+
+	return circle, digits[0]
 }

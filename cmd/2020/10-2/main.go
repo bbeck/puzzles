@@ -2,35 +2,38 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	adapters := aoc.InputToInts(2020, 10)
+	var adapters aoc.Set[int]
+	adapters.Add(aoc.InputToInts(2020, 10)...)
 
-	start := 0
-	adapters = append(adapters, start)
+	start, end := 0, aoc.Max(adapters.Entries()...)
+	adapters.Add(start, end)
 
-	end := aoc.MaxInt(0, adapters...) + 3
-	adapters = append(adapters, end)
-
-	count := Count(adapters, start, end, map[int]int{end: 1})
-	fmt.Println(count)
+	fmt.Println(Count(adapters, start, end))
 }
 
-func Count(adapters []int, start, end int, memo map[int]int) int {
-	if memo[start] != 0 {
-		return memo[start]
-	}
+func Count(adapters aoc.Set[int], start, end int) int {
+	memo := map[int]int{end: 1}
 
-	var ways int
-	for _, adapter := range adapters {
-		if adapter > start && adapter-start <= 3 {
-			ways += Count(adapters, adapter, end, memo)
+	var helper func(start int) int
+	helper = func(start int) int {
+		if count, found := memo[start]; found {
+			return count
 		}
+
+		var ways int
+		for adapter := start + 1; adapter <= start+3; adapter++ {
+			if adapters.Contains(adapter) {
+				ways += helper(adapter)
+			}
+		}
+
+		memo[start] = ways
+		return ways
 	}
 
-	memo[start] = ways
-	return ways
+	return helper(start)
 }
