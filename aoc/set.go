@@ -11,11 +11,6 @@ var present = struct{}{}
 
 type Set[T comparable] map[T]struct{}
 
-// SingletonSet creates a new set with a single element.
-func SingletonSet[T comparable](elem T) Set[T] {
-	return map[T]struct{}{elem: present}
-}
-
 // SetFrom creates a new set with the arguments as elements.
 func SetFrom[T comparable](elems ...T) Set[T] {
 	var s Set[T]

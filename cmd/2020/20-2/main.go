@@ -80,7 +80,7 @@ func AssembleImage(ts []Tile) Tile {
 	// left corner of the image, so we'll have to try all possible orientations.
 outer:
 	for _, tl := range corner.Orientations() {
-		used := aoc.SingletonSet(tl.ID)
+		used := aoc.SetFrom(tl.ID)
 		tiles[0][0] = tl
 
 		for y := 0; y < D; y++ {

@@ -100,7 +100,7 @@ func Explore(ignore aoc.Set[string]) ([]aoc.Heading, []string) {
 		doors := current.Doors
 		if current.ID == "Security Checkpoint" {
 			// The pressure sensitive floor is to the east.  Avoid it.
-			doors = doors.Difference(aoc.SingletonSet(aoc.Right))
+			doors = doors.Difference(aoc.SetFrom(aoc.Right))
 		}
 
 		choices := doors.Entries()

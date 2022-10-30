@@ -22,7 +22,7 @@ type GoalFunc[T any] func(node T) bool
 func BreadthFirstSearch[T comparable](root T, children ChildrenFunc[T], goal GoalFunc[T]) ([]T, bool) {
 	queue := []T{root}
 	parents := make(map[T]T)
-	seen := SingletonSet(root)
+	seen := SetFrom(root)
 
 	for len(queue) > 0 {
 		current := queue[0]
@@ -71,7 +71,7 @@ func AStarSearch[T comparable](start T, children ChildrenFunc[T], g GoalFunc[T],
 	costs := make(map[T]int)
 	costs[start] = 0
 
-	seen := SingletonSet(start)
+	seen := SetFrom(start)
 
 	for !frontier.Empty() {
 		current := frontier.Pop()
