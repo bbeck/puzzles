@@ -40,13 +40,7 @@ func main() {
 }
 
 func InputToCave() aoc.Grid2D[int] {
-	lines := aoc.InputToLines(2021, 15)
-
-	cave := aoc.NewGrid2D[int](len(lines[0]), len(lines))
-	for y, line := range lines {
-		for x, c := range line {
-			cave.AddXY(x, y, int(c-'0'))
-		}
-	}
-	return cave
+	return aoc.InputToGrid2D(2021, 15, func(x int, y int, s string) int {
+		return aoc.ParseInt(s)
+	})
 }

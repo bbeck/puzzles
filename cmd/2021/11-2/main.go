@@ -51,12 +51,9 @@ func (o *Octopus) Reset() bool {
 }
 
 func InputToGrid() aoc.Grid2D[*Octopus] {
-	grid := aoc.NewGrid2D[*Octopus](10, 10)
-	for y, line := range aoc.InputToLines(2021, 11) {
-		for x, c := range line {
-			grid.AddXY(x, y, &Octopus{Energy: int(c - '0')})
-		}
-	}
+	grid := aoc.InputToGrid2D(2021, 11, func(x int, y int, s string) *Octopus {
+		return &Octopus{Energy: aoc.ParseInt(s)}
+	})
 
 	grid.ForEach(func(p aoc.Point2D, o *Octopus) {
 		grid.ForEachNeighbor(p, func(np aoc.Point2D, no *Octopus) {

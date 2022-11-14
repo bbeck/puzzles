@@ -63,14 +63,7 @@ func Next(grid aoc.Grid2D[string]) (aoc.Grid2D[string], bool) {
 }
 
 func InputToGrid() aoc.Grid2D[string] {
-	lines := aoc.InputToLines(2021, 25)
-
-	grid := aoc.NewGrid2D[string](len(lines[0]), len(lines))
-	for y, line := range lines {
-		for x, c := range line {
-			grid.AddXY(x, y, string(c))
-		}
-	}
-
-	return grid
+	return aoc.InputToGrid2D(2021, 25, func(x int, y int, s string) string {
+		return s
+	})
 }

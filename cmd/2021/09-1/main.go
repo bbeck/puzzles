@@ -28,14 +28,7 @@ func main() {
 }
 
 func InputToHeightMap() aoc.Grid2D[int] {
-	lines := aoc.InputToLines(2021, 9)
-
-	grid := aoc.NewGrid2D[int](len(lines[0]), len(lines))
-	for y := 0; y < grid.Height; y++ {
-		for x := 0; x < grid.Width; x++ {
-			grid.AddXY(x, y, aoc.ParseInt(string(lines[y][x])))
-		}
-	}
-
-	return grid
+	return aoc.InputToGrid2D(2021, 9, func(x int, y int, s string) int {
+		return aoc.ParseInt(s)
+	})
 }
