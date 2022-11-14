@@ -6,7 +6,14 @@ import (
 	"sort"
 )
 
-var Points = map[int32]int{
+var Closing = map[rune]rune{
+	'(': ')',
+	'[': ']',
+	'{': '}',
+	'<': '>',
+}
+
+var Points = map[rune]int{
 	')': 1,
 	']': 2,
 	'}': 3,
@@ -16,46 +23,31 @@ var Points = map[int32]int{
 func main() {
 	var scores []int
 	for _, line := range aoc.InputToLines(2021, 10) {
-		ok, missing := Validate(line)
-		if !ok {
+		stack, isCorrupted := Check(line)
+		if isCorrupted {
 			continue
 		}
 
 		var score int
-		for _, c := range missing {
-			score = 5*score + Points[c]
+		for !stack.Empty() {
+			score = 5*score + Points[stack.Pop()]
 		}
 
 		scores = append(scores, score)
 	}
-
 	sort.Ints(scores)
 	fmt.Println(scores[len(scores)/2])
 }
 
-var Closing = map[int32]int32{
-	'(': ')',
-	'[': ']',
-	'{': '}',
-	'<': '>',
-}
-
-func Validate(s string) (bool, []int32) {
-	stack := aoc.NewStack()
-	for _, c := range s {
-		if closing, ok := Closing[c]; ok {
+func Check(line string) (aoc.Stack[rune], bool) {
+	var stack aoc.Stack[rune]
+	for _, c := range line {
+		if closing, isOpening := Closing[c]; isOpening {
 			stack.Push(closing)
-			continue
-		}
-
-		if top := stack.Pop().(int32); c != top {
-			return false, nil
+		} else if expected := stack.Pop(); c != expected {
+			return stack, true
 		}
 	}
 
-	var missing []int32
-	for !stack.Empty() {
-		missing = append(missing, stack.Pop().(int32))
-	}
-	return true, missing
+	return stack, false
 }

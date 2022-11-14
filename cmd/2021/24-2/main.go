@@ -2,15 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
-	"strings"
 )
 
 func main() {
 	// The input is a sequence of assembly language instructions performing some complex
-	// calculation on an 14-digit input number and returning a.  The goal is to determine
-	// which inputs will cause the value returned to be zero and to find the largest such
-	// input.
+	// calculation on an 14-digit input number and returning a number.  The goal is to
+	// determine which inputs will cause the value returned to be zero and to find the
+	// largest such input.
 	//
 	// Analyzing the assembly by hand shows that it has a regular structure to it.  There
 	// are 14 copies of the same block of code, parameterized differently.  Each block
@@ -29,8 +27,8 @@ func main() {
 	//
 	// Analyzing the 14 different copies of this block shows that parameter B only ever
 	// takes on values 1 and 26 and each value occurs in exactly half of the blocks.
-	// Using this information as well as analyzing line 5 help to provide insight into
-	// what the algorithm is doing.
+	// Using this information as well as analyzing lines 4 and 5 help to provide insight
+	// into what the algorithm is doing.
 	//
 	// When A=26, line 4 will remove some of the least significant bits of the previous
 	// block's z.
@@ -87,28 +85,27 @@ func main() {
 	// in13 = in2 + 7  => in2 = [1, 2]
 	// in14 = in1 + 8  => in1 = [1]
 
-	var solutions [][]int
-	for _, in1 := range []int{1} {
-		for _, in2 := range []int{1, 2} {
-			for _, in3 := range []int{7, 8, 9} {
-				in4 := in3 - 6
-				for _, in5 := range []int{1, 2, 3, 4} {
-					in6 := in5 + 5
-					for _, in7 := range []int{9} {
-						for _, in8 := range []int{1, 2, 3, 4, 5, 6, 7, 8} {
-							for _, in9 := range []int{6, 7, 8, 9} {
-								in10 := in9 - 5
-								in11 := in8 + 1
-								in12 := in7 - 8
-								in13 := in2 + 7
-								in14 := in1 + 8
+	var solution int
+outer:
+	for _, in01 := range []int{1} {
+		for _, in02 := range []int{1, 2} {
+			for _, in03 := range []int{7, 8, 9} {
+				for _, in05 := range []int{1, 2, 3, 4} {
+					for _, in07 := range []int{9} {
+						for _, in08 := range []int{1, 2, 3, 4, 5, 6, 7, 8} {
+							for _, in09 := range []int{6, 7, 8, 9} {
+								in04 := in03 - 6
+								in06 := in05 + 5
+								in10 := in09 - 5
+								in11 := in08 + 1
+								in12 := in07 - 8
+								in13 := in02 + 7
+								in14 := in01 + 8
 
-								// This series of digits should always be a solution, but
-								// double check just in case.
-								inputs := []int{in1, in2, in3, in4, in5, in6, in7, in8, in9, in10, in11, in12, in13, in14}
-								if Run(inputs) == 0 {
-									solutions = append(solutions, inputs)
-								}
+								solution = 0 +
+									in01*1e13 + in02*1e12 + in03*1e11 + in04*1e10 + in05*1e09 + in06*1e08 + in07*1e07 +
+									in08*1e06 + in09*1e05 + in10*1e04 + in11*1e03 + in12*1e02 + in13*1e01 + in14*1e00
+								break outer
 							}
 						}
 					}
@@ -117,80 +114,5 @@ func main() {
 		}
 	}
 
-	// The solutions are already sorted, just show the first entry
-	solution := solutions[0]
-	for _, d := range solution {
-		fmt.Print(d)
-	}
-	fmt.Println()
-}
-
-func Run(inputs []int) int {
-	inp := func() int {
-		i := inputs[0]
-		inputs = inputs[1:]
-		return i
-	}
-
-	eql := func(a, b int) int {
-		if a == b {
-			return 1
-		}
-		return 0
-	}
-
-	registers := map[string]int{
-		"w": 0,
-		"x": 0,
-		"y": 0,
-		"z": 0,
-	}
-
-	get := func(s string) int {
-		if v, ok := registers[s]; ok {
-			return v
-		}
-		return aoc.ParseInt(s)
-	}
-
-	for _, i := range InputToInstructions() {
-		switch i.op {
-		case "inp":
-			registers[i.args[0]] = inp()
-		case "add":
-			registers[i.args[0]] = get(i.args[0]) + get(i.args[1])
-		case "mul":
-			registers[i.args[0]] = get(i.args[0]) * get(i.args[1])
-		case "div":
-			registers[i.args[0]] = get(i.args[0]) / get(i.args[1])
-		case "mod":
-			registers[i.args[0]] = get(i.args[0]) % get(i.args[1])
-		case "eql":
-			registers[i.args[0]] = eql(get(i.args[0]), get(i.args[1]))
-		}
-	}
-
-	return registers["z"]
-}
-
-type Instruction struct {
-	op   string
-	args []string
-}
-
-func (i Instruction) String() string {
-	return i.op + " " + strings.Join(i.args, " ")
-}
-
-func InputToInstructions() []Instruction {
-	var instructions []Instruction
-	for _, line := range aoc.InputToLines(2021, 24) {
-		parts := strings.Split(line, " ")
-		instructions = append(instructions, Instruction{
-			op:   parts[0],
-			args: parts[1:],
-		})
-	}
-
-	return instructions
+	fmt.Println(solution)
 }

@@ -7,22 +7,25 @@ import (
 )
 
 func main() {
-	fish := InputToFish()
-
-	for day := 1; day <= 80; day++ {
-		N := len(fish)
-		for i := 0; i < N; i++ {
-			if fish[i] == 0 {
-				fish[i] = 6
-				fish = append(fish, 8)
-				continue
-			}
-
-			fish[i]--
-		}
+	counts := make(map[int]int)
+	for _, fish := range InputToFish() {
+		counts[fish]++
 	}
 
-	fmt.Println(len(fish))
+	for day := 1; day <= 80; day++ {
+		next := make(map[int]int)
+		for tm, count := range counts {
+			if tm == 0 {
+				next[6] += count
+				next[8] += count
+				continue
+			}
+			next[tm-1] += count
+		}
+		counts = next
+	}
+
+	fmt.Println(aoc.Sum(aoc.GetMapValues(counts)...))
 }
 
 func InputToFish() []int {

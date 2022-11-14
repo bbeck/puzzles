@@ -11,21 +11,14 @@ import (
 func main() {
 	positions := InputToPositions()
 
-	choices := make(map[int]interface{})
-	for _, position := range positions {
-		choices[position] = nil
-	}
-
 	best := math.MaxInt
-	for choice := range choices {
+	for _, target := range aoc.SetFrom(positions...).Entries() {
 		var cost int
-		for _, position := range positions {
-			cost += aoc.AbsInt(choice - position)
+		for _, p := range positions {
+			cost += aoc.Abs(target - p)
 		}
-
-		best = aoc.MinInt(best, cost)
+		best = aoc.Min(best, cost)
 	}
-
 	fmt.Println(best)
 }
 

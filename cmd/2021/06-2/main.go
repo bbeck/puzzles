@@ -7,32 +7,25 @@ import (
 )
 
 func main() {
-	// mapping of fish timer to the count of fish with that timer
-	fish := make(map[int]int)
-	for _, f := range InputToFish() {
-		fish[f]++
+	counts := make(map[int]int)
+	for _, fish := range InputToFish() {
+		counts[fish]++
 	}
 
 	for day := 1; day <= 256; day++ {
 		next := make(map[int]int)
-		for f, count := range fish {
-			if f == 0 {
+		for tm, count := range counts {
+			if tm == 0 {
 				next[6] += count
 				next[8] += count
 				continue
 			}
-			next[f-1] += count
+			next[tm-1] += count
 		}
-
-		fish = next
+		counts = next
 	}
 
-	var count int
-	for _, c := range fish {
-		count += c
-	}
-
-	fmt.Println(count)
+	fmt.Println(aoc.Sum(aoc.GetMapValues(counts)...))
 }
 
 func InputToFish() []int {

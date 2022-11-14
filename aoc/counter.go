@@ -12,9 +12,10 @@ type FrequencyCounter[T comparable] struct {
 	heap *Heap[T]
 }
 
-// Add adds a value to the frequency counter.  If the value already exists in
-// the frequency counter then it's count will be incremented by 1.
-func (fc *FrequencyCounter[T]) Add(value T) {
+// AddWithCount adds a value to the frequency counter with a specific count.
+// If the value already exists in the frequency counter then it's count will be
+// incremented by the count.
+func (fc *FrequencyCounter[T]) AddWithCount(value T, count int) {
 	// Lazily initialize the entries map.
 	if fc.entries == nil {
 		fc.entries = make(map[T]*Entry[T])
@@ -27,7 +28,7 @@ func (fc *FrequencyCounter[T]) Add(value T) {
 	// First check if this value is already in the frequency counter, if it is
 	// then just update its count and repair the heap.
 	if entry, found := fc.entries[value]; found {
-		entry.Count++
+		entry.Count += count
 		heap.Fix(fc.heap, entry.index)
 		return
 	}
@@ -36,11 +37,17 @@ func (fc *FrequencyCounter[T]) Add(value T) {
 	// and add it to the heap.
 	entry := &Entry[T]{
 		Value: value,
-		Count: 1,
+		Count: count,
 		index: fc.heap.Len(),
 	}
 	fc.entries[value] = entry
 	heap.Push(fc.heap, entry)
+}
+
+// Add adds a value to the frequency counter.  If the value already exists in
+// the frequency counter then it's count will be incremented by 1.
+func (fc *FrequencyCounter[T]) Add(value T) {
+	fc.AddWithCount(value, 1)
 }
 
 // GetCount returns the count of a specific value within the frequency counter.

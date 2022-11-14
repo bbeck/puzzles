@@ -2,52 +2,32 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
 	template, rules := InputToTemplateAndRules()
 
-	for step := 0; step < 10; step++ {
+	for iter := 0; iter < 10; iter++ {
 		var sb strings.Builder
-
-		// Take the characters from the template in pairs, looking up the character
-		// to insert between them from the rules.  When emitting the new string it's
-		// important to not emit the RHS of the pair.  If we emitted it then we'd
-		// be duplicating that character since it's about to be the LHS of the next
-		// pair that's processed.
 		for i := 0; i < len(template)-1; i++ {
-			lhs, rhs := string(template[i]), string(template[i+1])
-			insertion := rules[lhs+rhs]
-
+			lhs, mid := template[i:i+1], rules[template[i:i+2]]
 			sb.WriteString(lhs)
-			sb.WriteString(insertion)
+			sb.WriteString(mid)
 		}
 
-		// The very last character of the template never appears as an LHS, because
-		// of this it was lost from the template.  This fixes that and adds it back.
-		sb.WriteByte(template[len(template)-1])
-
+		sb.WriteString(template[len(template)-1:])
 		template = sb.String()
 	}
 
-	counts := make(map[string]int)
+	var fc aoc.FrequencyCounter[rune]
 	for _, c := range template {
-		s := string(c)
-		counts[s]++
+		fc.Add(c)
 	}
 
-	min, max := math.MaxInt, math.MinInt
-	for _, count := range counts {
-		min = aoc.MinInt(min, count)
-		max = aoc.MaxInt(max, count)
-	}
-
-	fmt.Println(max - min)
+	entries := fc.Entries()
+	fmt.Println(entries[0].Count - entries[len(entries)-1].Count)
 }
 
 func InputToTemplateAndRules() (string, map[string]string) {
@@ -57,10 +37,7 @@ func InputToTemplateAndRules() (string, map[string]string) {
 
 	rules := make(map[string]string)
 	for i := 2; i < len(lines); i++ {
-		var lhs, rhs string
-		if _, err := fmt.Sscanf(lines[i], "%s -> %s", &lhs, &rhs); err != nil {
-			log.Fatal(err)
-		}
+		lhs, rhs, _ := strings.Cut(lines[i], " -> ")
 		rules[lhs] = rhs
 	}
 	return template, rules

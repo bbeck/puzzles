@@ -21,6 +21,10 @@ func NumVisible(p aoc.Point2D, qs []aoc.Point2D) int {
 	// the coordinate system only a single point with a slope can be seen by p.
 	var slopes [4]aoc.Set[Slope]
 	for _, q := range qs {
+		if p == q {
+			continue
+		}
+		
 		var quadrant int
 		if q.X < p.X {
 			quadrant += 1
@@ -29,7 +33,7 @@ func NumVisible(p aoc.Point2D, qs []aoc.Point2D) int {
 			quadrant += 2
 		}
 
-		dx, dy := p.Slope(q)
+		dy, dx := p.Slope(q)
 		slopes[quadrant].Add(Slope{dx: dx, dy: dy})
 	}
 

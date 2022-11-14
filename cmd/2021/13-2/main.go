@@ -3,25 +3,18 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"log"
+	"strings"
 )
 
 func main() {
 	points, instructions := InputToPaper()
-	for _, instruction := range instructions {
-		points = Fold(points, instruction.axis, instruction.offset)
+	for _, i := range instructions {
+		points = Fold(points, i)
 	}
 
-	var maxX, maxY int
-	for _, o := range points.Entries() {
-		point := o.(aoc.Point2D)
-
-		maxX = aoc.MaxInt(maxX, point.X)
-		maxY = aoc.MaxInt(maxY, point.Y)
-	}
-
-	for y := 0; y <= maxY; y++ {
-		for x := 0; x <= maxX; x++ {
+	tl, br := aoc.GetBounds(points.Entries())
+	for y := tl.Y; y <= br.Y; y++ {
+		for x := tl.X; x <= br.X; x++ {
 			if points.Contains(aoc.Point2D{X: x, Y: y}) {
 				fmt.Print("█")
 			} else {
@@ -32,15 +25,13 @@ func main() {
 	}
 }
 
-func Fold(points aoc.Set, axis string, offset int) aoc.Set {
-	next := aoc.NewSet()
-	for _, o := range points.Entries() {
-		point := o.(aoc.Point2D)
-
-		if axis == "x" && point.X >= offset {
-			point = aoc.Point2D{X: 2*offset - point.X, Y: point.Y}
-		} else if axis == "y" && point.Y >= offset {
-			point = aoc.Point2D{X: point.X, Y: 2*offset - point.Y}
+func Fold(points aoc.Set[aoc.Point2D], instr Instruction) aoc.Set[aoc.Point2D] {
+	var next aoc.Set[aoc.Point2D]
+	for point := range points {
+		if instr.Axis == "x" && point.X >= instr.Offset {
+			point = aoc.Point2D{X: 2*instr.Offset - point.X, Y: point.Y}
+		} else if instr.Axis == "y" && point.Y >= instr.Offset {
+			point = aoc.Point2D{X: point.X, Y: 2*instr.Offset - point.Y}
 		}
 
 		next.Add(point)
@@ -50,38 +41,31 @@ func Fold(points aoc.Set, axis string, offset int) aoc.Set {
 }
 
 type Instruction struct {
-	axis   string
-	offset int
+	Axis   string
+	Offset int
 }
 
-func InputToPaper() (aoc.Set, []Instruction) {
-	var points = aoc.NewSet()
+func InputToPaper() (aoc.Set[aoc.Point2D], []Instruction) {
+	var points aoc.Set[aoc.Point2D]
 	var instructions []Instruction
 	for _, line := range aoc.InputToLines(2021, 13) {
 		if line == "" {
 			continue
 		}
 
-		var point aoc.Point2D
-		if _, err := fmt.Sscanf(line, "%d,%d", &point.X, &point.Y); err == nil {
-			points.Add(point)
-			continue
+		if !strings.HasPrefix(line, "fold") {
+			var p aoc.Point2D
+			fmt.Sscanf(line, "%d,%d", &p.X, &p.Y)
+			points.Add(p)
 		}
 
-		var instruction Instruction
-		if _, err := fmt.Sscanf(line, "fold along x=%d", &instruction.offset); err == nil {
-			instruction.axis = "x"
-			instructions = append(instructions, instruction)
-			continue
-		}
+		if strings.HasPrefix(line, "fold") {
+			line = strings.ReplaceAll(line, "=", " ")
 
-		if _, err := fmt.Sscanf(line, "fold along y=%d", &instruction.offset); err == nil {
-			instruction.axis = "y"
-			instructions = append(instructions, instruction)
-			continue
+			var i Instruction
+			fmt.Sscanf(line, "fold along %s %d", &i.Axis, &i.Offset)
+			instructions = append(instructions, i)
 		}
-
-		log.Fatalf("unable to parse line: %s", line)
 	}
 
 	return points, instructions

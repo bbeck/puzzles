@@ -2,101 +2,75 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 const N = 5
 
 func main() {
-	numbers, cards := InputToBingoGame()
-	finished := make([]bool, len(cards))
+	nums, boards := InputToGame()
 
-	var scores []int
-	for _, n := range numbers {
-		for i, c := range cards {
-			if !finished[i] && c.Cover(n) {
-				scores = append(scores, c.Score()*n)
-				finished[i] = true
+	var called aoc.Set[int]
+	var winner Board
+	var last int
+
+outer:
+	for _, n := range nums {
+		called.Add(n)
+		last = n
+
+		for _, board := range boards {
+			for _, line := range board.Lines {
+				if len(called.Intersect(line)) == N {
+					winner = board
+					break outer
+				}
 			}
 		}
 	}
 
-	fmt.Println(scores[0])
-}
-
-type Card struct {
-	numbers [N][N]int
-	covered [N][N]bool
-
-	// counts of how many numbers are covered in each row/column.
-	rows [N]int
-	cols [N]int
-}
-
-func (c *Card) Cover(n int) bool {
-	for row := 0; row < N; row++ {
-		for col := 0; col < N; col++ {
-			if c.numbers[row][col] == n {
-				c.covered[row][col] = true
-				c.rows[row]++
-				c.cols[col]++
-
-				return c.rows[row] == N || c.cols[col] == N
-			}
-		}
+	var all aoc.Set[int]
+	for _, line := range winner.Lines {
+		all = all.Union(line)
 	}
 
-	return false
+	remaining := all.Difference(called)
+	fmt.Println(last * aoc.Sum(remaining.Entries()...))
 }
 
-func (c *Card) Score() int {
-	var score int
-	for row := 0; row < N; row++ {
-		for col := 0; col < N; col++ {
-			if !c.covered[row][col] {
-				score += c.numbers[row][col]
-			}
-		}
-	}
-
-	return score
+type Board struct {
+	Lines []aoc.Set[int]
 }
 
-func InputToBingoGame() ([]int, []*Card) {
+func InputToGame() ([]int, []Board) {
 	lines := aoc.InputToLines(2021, 4)
 
-	// First line is a comma separated list of the numbers that are going to be called.
-	var numbers []int
+	var nums []int
 	for _, s := range strings.Split(lines[0], ",") {
-		numbers = append(numbers, aoc.ParseInt(s))
+		nums = append(nums, aoc.ParseInt(s))
 	}
 
-	// Remaining lines are the cards, each card is 5 lines followed by a blank line.
-	var cards []*Card
-	for i := 2; i < len(lines); i += N + 1 {
-		cards = append(cards, &Card{
-			numbers: [N][N]int{
-				ParseRow(lines[i]),
-				ParseRow(lines[i+1]),
-				ParseRow(lines[i+2]),
-				ParseRow(lines[i+3]),
-				ParseRow(lines[i+4]),
-			},
-		})
-	}
+	var boards []Board
+	for base := 2; base < len(lines); base += 6 {
+		board := Board{Lines: make([]aoc.Set[int], 2*N)}
+		for y := 0; y < N; y++ {
+			for x, s := range strings.Fields(lines[base+y]) {
+				n := aoc.ParseInt(s)
+				board.Lines[y].Add(n)
+				board.Lines[x+N].Add(n)
+			}
+		}
 
-	return numbers, cards
+		boards = append(boards, board)
+	}
+	return nums, boards
 }
 
-func ParseRow(s string) [5]int {
-	// Single digit numbers are padded with a space
-	s = strings.ReplaceAll(strings.TrimSpace(s), "  ", " ")
-
-	var ns [5]int
-	for i, s := range strings.Split(s, " ") {
-		ns[i] = aoc.ParseInt(s)
+func ParseLine(line string) []int {
+	var ns []int
+	for _, s := range strings.Fields(line) {
+		ns = append(ns, aoc.ParseInt(s))
 	}
 	return ns
 }

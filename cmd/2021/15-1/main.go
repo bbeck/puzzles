@@ -6,65 +6,33 @@ import (
 )
 
 func main() {
-	cave, width, height := InputToCave()
+	cave := InputToCave()
 
-	start := State{position: aoc.Point2D{}, cave: cave}
-	goal := aoc.Point2D{X: width - 1, Y: height - 1}
+	start, end := aoc.Origin2D, aoc.Point2D{X: cave.Width - 1, Y: cave.Height - 1}
 
-	isGoal := func(node aoc.Node) bool {
-		return node.(State).position == goal
-	}
-
-	cost := func(from, to aoc.Node) int {
-		state := to.(State)
-		return cave[state.position]
-	}
-
-	heuristic := func(node aoc.Node) int {
-		return node.(State).position.ManhattanDistance(goal)
-	}
-
-	_, distance, found := aoc.AStarSearch(start, isGoal, cost, heuristic)
-	if found {
-		fmt.Println(distance)
-	}
-}
-
-type State struct {
-	position aoc.Point2D
-	cave     map[aoc.Point2D]int
-}
-
-func (s State) ID() string {
-	return s.position.String()
-}
-
-func (s State) Children() []aoc.Node {
-	var children []aoc.Node
-	for _, neighbor := range s.position.OrthogonalNeighbors() {
-		if _, ok := s.cave[neighbor]; !ok {
-			continue
-		}
-
-		children = append(children, State{
-			position: neighbor,
-			cave:     s.cave,
+	children := func(p aoc.Point2D) []aoc.Point2D {
+		var children []aoc.Point2D
+		cave.ForEachOrthogonalNeighbor(p, func(q aoc.Point2D, _ int) {
+			children = append(children, q)
 		})
+		return children
 	}
+	goal := func(p aoc.Point2D) bool { return p == end }
+	cost := func(from, to aoc.Point2D) int { return cave.Get(to) }
+	heuristic := func(p aoc.Point2D) int { return end.ManhattanDistance(p) }
 
-	return children
+	_, risk, _ := aoc.AStarSearch(start, children, goal, cost, heuristic)
+	fmt.Println(risk)
 }
 
-func InputToCave() (map[aoc.Point2D]int, int, int) {
-	var cave = make(map[aoc.Point2D]int)
-	var width, height int
+func InputToCave() aoc.Grid2D[int] {
+	lines := aoc.InputToLines(2021, 15)
 
-	for y, line := range aoc.InputToLines(2021, 15) {
+	cave := aoc.NewGrid2D[int](len(lines[0]), len(lines))
+	for y, line := range lines {
 		for x, c := range line {
-			cave[aoc.Point2D{X: x, Y: y}] = aoc.ParseInt(string(c))
-			width = x + 1
+			cave.AddXY(x, y, int(c-'0'))
 		}
-		height = y + 1
 	}
-	return cave, width, height
+	return cave
 }

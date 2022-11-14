@@ -3,60 +3,46 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"log"
-	"math"
+	"strings"
 )
 
 func main() {
 	template, rules := InputToTemplateAndRules()
 
-	// For part 2 we need to perform 40 steps of the insertion algorithm which will
-	// result in a massive string.  Instead of building a string we'll just keep
-	// track of the pairs that exist as well as how many times they appear.  This
-	// representation loses the ordering of the pairs, but that's not needed in
-	// order to compute the final answer.
-	//
-	// An insertion operation will take one pair, remove it, and add in two new
-	// pairs.
-	//
-	// Finally, as we proceed we'll also keep track of the count of each character
-	// that's been used.  This is straightforward as each insertion adds a single
-	// character to the overall "string" being generated.
-
-	// Seed the counts with the characters we have in the original template.
-	counts := make(map[string]int)
-	for _, c := range template {
-		counts[string(c)]++
-	}
-
-	// Seed the list of pairs from the original template.
-	pairs := make(map[string]int)
+	// The string grows way too long to keep building at higher iteration counts.
+	// Instead, we'll keep all present pairs in a frequency counter and deal with
+	// all pairs of the same letters at one time.
+	var counts aoc.FrequencyCounter[string]
 	for i := 0; i < len(template)-1; i++ {
-		pairs[template[i:i+2]]++
+		counts.Add(template[i : i+2])
 	}
 
-	for step := 1; step <= 40; step++ {
-		next := make(map[string]int)
-		for pair, count := range pairs {
-			lhs, rhs := string(pair[0]), string(pair[1])
-			insertion := rules[pair]
+	for iter := 0; iter < 40; iter++ {
+		var next aoc.FrequencyCounter[string]
+		for _, entry := range counts.Entries() {
+			mid := rules[entry.Value]
+			lhs := entry.Value[:1] + mid
+			rhs := mid + entry.Value[1:]
 
-			// Add the new pairs
-			next[lhs+insertion] += count
-			next[insertion+rhs] += count
-
-			// Count the new character we just inserted
-			counts[insertion] += count
+			next.AddWithCount(lhs, entry.Count)
+			next.AddWithCount(rhs, entry.Count)
 		}
-		pairs = next
+		counts = next
 	}
 
-	min, max := math.MaxInt, math.MinInt
-	for _, count := range counts {
-		min = aoc.MinInt(min, count)
-		max = aoc.MaxInt(max, count)
+	// Count the elements keeping in mind that each is going to be double counted
+	// due to appearing as the first and second character in a pair.  The very
+	// first and last character of the template will be off by one due to
+	// appearing as only one character of a pair.
+	var elements aoc.FrequencyCounter[string]
+	for _, entry := range counts.Entries() {
+		elements.AddWithCount(string(entry.Value[0]), entry.Count)
+		elements.AddWithCount(string(entry.Value[1]), entry.Count)
 	}
-	fmt.Println(max - min)
+
+	entries := elements.Entries()
+	first, last := entries[0], entries[len(entries)-1]
+	fmt.Println((first.Count+1)/2 - (last.Count+1)/2)
 }
 
 func InputToTemplateAndRules() (string, map[string]string) {
@@ -66,10 +52,7 @@ func InputToTemplateAndRules() (string, map[string]string) {
 
 	rules := make(map[string]string)
 	for i := 2; i < len(lines); i++ {
-		var lhs, rhs string
-		if _, err := fmt.Sscanf(lines[i], "%s -> %s", &lhs, &rhs); err != nil {
-			log.Fatal(err)
-		}
+		lhs, rhs, _ := strings.Cut(lines[i], " -> ")
 		rules[lhs] = rhs
 	}
 	return template, rules

@@ -20,9 +20,9 @@ func GetMapValues[K comparable, V any](m map[K]V) []V {
 
 // Make2D creates a two-dimensional slice with the passed in dimensions.
 func Make2D[T any](width, height int) [][]T {
-	a := make([][]T, height)
-	for y := 0; y < height; y++ {
-		a[y] = make([]T, width)
+	a := make([][]T, width)
+	for x := 0; x < width; x++ {
+		a[x] = make([]T, height)
 	}
 	return a
 }

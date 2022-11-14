@@ -2,58 +2,37 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-	counts := make(map[aoc.Point2D]int)
-	for _, s := range InputToSegments() {
-		dx, dy := Slope(s.Start, s.End)
-		if dx != 0 && dy != 0 {
+	ps := make(map[aoc.Point2D]int)
+	for _, segment := range InputToSegments() {
+		dx, dy := Interpolate(segment.Start, segment.End)
+		if dy != 0 && dx != 0 {
 			continue
 		}
 
-		for p := s.Start; p != s.End; {
-			counts[p]++
+		p := segment.Start
+		for {
+			ps[p]++
+			if p == segment.End {
+				break
+			}
 			p = aoc.Point2D{X: p.X + dx, Y: p.Y + dy}
 		}
-		counts[s.End]++
 	}
 
 	var count int
-	for _, c := range counts {
-		if c > 1 {
+	for _, v := range aoc.GetMapValues(ps) {
+		if v > 1 {
 			count++
 		}
 	}
 	fmt.Println(count)
 }
 
-type Segment struct {
-	Start aoc.Point2D
-	End   aoc.Point2D
-}
-
-func InputToSegments() []Segment {
-	var segments []Segment
-	for _, line := range aoc.InputToLines(2021, 5) {
-		var a, b, c, d int
-		if _, err := fmt.Sscanf(line, "%d,%d -> %d,%d", &a, &b, &c, &d); err != nil {
-			log.Fatal(err)
-		}
-
-		segments = append(segments, Segment{
-			Start: aoc.Point2D{X: a, Y: b},
-			End:   aoc.Point2D{X: c, Y: d},
-		})
-	}
-
-	return segments
-}
-
-func Slope(p, q aoc.Point2D) (int, int) {
+func Interpolate(p, q aoc.Point2D) (int, int) {
 	var dx, dy int
 	if p.X < q.X {
 		dx = 1
@@ -68,4 +47,16 @@ func Slope(p, q aoc.Point2D) (int, int) {
 	}
 
 	return dx, dy
+}
+
+type Segment struct {
+	Start, End aoc.Point2D
+}
+
+func InputToSegments() []Segment {
+	return aoc.InputLinesTo(2021, 5, func(line string) (Segment, error) {
+		var s Segment
+		_, err := fmt.Sscanf(line, "%d,%d -> %d,%d", &s.Start.X, &s.Start.Y, &s.End.X, &s.End.Y)
+		return s, err
+	})
 }

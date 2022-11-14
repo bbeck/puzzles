@@ -3,319 +3,197 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"log"
-	"sort"
-	"strings"
 )
 
-var board = InputToBoard()
+const (
+	W = 13
+	H = 5
+)
 
 func main() {
-	players := make(map[aoc.Point2D]Player)
-	for _, p := range InputToPlayers() {
-		players[p.Point2D] = p
-	}
-	start := State{
-		Players: players,
-	}
+	start := InputToInitialState()
 
-	isGoal := func(n aoc.Node) bool {
-		state := n.(State)
-		for _, player := range state.Players {
-			if !state.IsDone(player) {
-				return false
+	heuristic := func(s State) int {
+		var cost int
+		for _, p := range Hallway {
+			if kind := s.Board[p.X][p.Y]; kind != '.' {
+				cost += aoc.Abs(Rooms[kind][0].X-p.X) * Energy[kind]
 			}
 		}
-		return true
+		for _, rs := range Rooms {
+			for _, p := range rs {
+				if kind := s.Board[p.X][p.Y]; kind != '.' {
+					cost += (aoc.Abs(Rooms[kind][0].X-p.X) + 2) * Energy[kind]
+				}
+			}
+		}
+
+		return cost
 	}
 
-	cost := func(from, to aoc.Node) int {
-		return to.(State).Energy - from.(State).Energy
+	cost := func(from, to State) int {
+		return to.Energy - from.Energy
 	}
 
-	heuristic := func(n aoc.Node) int {
-		return 1
+	id := func(s State) [W][H]byte {
+		return s.Board
 	}
 
-	_, energy, found := aoc.AStarSearch(start, isGoal, cost, heuristic)
-	if !found {
-		log.Fatal("no solution found")
-	}
+	_, energy, _ := aoc.AStarSearchWithIdentity(start, Children, IsGoal, cost, heuristic, id)
 	fmt.Println(energy)
 }
 
-type State struct {
-	Players map[aoc.Point2D]Player
-	Energy  int
+var Hallway = []aoc.Point2D{
+	{X: 1, Y: 1},
+	{X: 2, Y: 1},
+	{X: 4, Y: 1},
+	{X: 6, Y: 1},
+	{X: 8, Y: 1},
+	{X: 10, Y: 1},
+	{X: 11, Y: 1},
 }
 
-func (s State) ID() string {
-	var players []Player
-	for _, p := range s.Players {
-		players = append(players, p)
-	}
-
-	sort.Slice(players, func(i, j int) bool {
-		if players[i].Kind != players[j].Kind {
-			return players[i].Kind < players[j].Kind
-		}
-		if players[i].Y != players[j].Y {
-			return players[i].Y < players[j].Y
-		}
-		return players[i].X < players[j].X
-	})
-
-	var sb strings.Builder
-	for i, p := range players {
-		sb.WriteString(p.Kind)
-		sb.WriteRune('@')
-		sb.WriteString(p.String())
-		if i < len(players)-1 {
-			sb.WriteRune('|')
-		}
-	}
-	return sb.String()
+var Rooms = map[byte][]aoc.Point2D{
+	'A': {{X: 3, Y: 2}, {X: 3, Y: 3}},
+	'B': {{X: 5, Y: 2}, {X: 5, Y: 3}},
+	'C': {{X: 7, Y: 2}, {X: 7, Y: 3}},
+	'D': {{X: 9, Y: 2}, {X: 9, Y: 3}},
 }
 
-var RoomX = map[string]int{
-	"A": 3,
-	"B": 5,
-	"C": 7,
-	"D": 9,
-}
+var Energy = map[byte]int{'A': 1, 'B': 10, 'C': 100, 'D': 1000}
 
-var RoomY = []int{
-	2,
-	3,
-}
-
-// HallwayX contains the x-coordinates in the hallway that a player can stop at.
-var HallwayX = []int{1, 2, 4, 6, 8, 10, 11}
-
-func (s State) Children() []aoc.Node {
-	var children []aoc.Node
-	for _, p := range s.Players {
-		// Consider moving the player if:
-		//   - they are in the hallway
-		//   - they are in a different player's room
-		//   - they are in their room, but they are blocking another player
-		isInHallway := p.Y == 1
-		isInWrongRoom := p.X != RoomX[p.Kind]
-		isBlocking := s.Players[p.Down()].Kind != "" && s.Players[p.Down()].Kind != p.Kind
-		if !isInHallway && !isInWrongRoom && !isBlocking {
-			continue
-		}
-
-		if !isInHallway {
-			// This player is in a room, consider moving them into any hallway space that
-			// isn't occupied and is reachable.
-			for _, x := range HallwayX {
-				target := aoc.Point2D{X: x, Y: 1}
-				if _, occupied := s.Players[target]; occupied {
-					continue
-				}
-
-				path := Path(p.Point2D, target)
-				if !s.IsTraversable(path) {
-					continue
-				}
-
-				children = append(children, s.Move(p, path[len(path)-1], len(path)))
-			}
-		}
-
-		if isInHallway {
-			// This player is in the hallway, their next move needs to be into their room.
-			for _, y := range RoomY {
-				target := aoc.Point2D{X: RoomX[p.Kind], Y: y}
-				if _, occupied := s.Players[target]; occupied {
-					continue
-				}
-
-				path := Path(p.Point2D, target)
-				if !s.IsTraversable(path) {
-					continue
-				}
-
-				pNext := Player{Point2D: target, Kind: p.Kind}
-				if !s.IsDone(pNext) {
-					continue
-				}
-
-				children = append(children, s.Move(p, path[len(path)-1], len(path)))
-			}
-		}
-
-	}
-	return children
-}
-
-var StepEnergy = map[string]int{
-	"A": 1,
-	"B": 10,
-	"C": 100,
-	"D": 1000,
-}
-
-func (s State) Move(player Player, point aoc.Point2D, steps int) State {
-	players := map[aoc.Point2D]Player{
-		point: {Point2D: point, Kind: player.Kind},
-	}
-	for opoint, oplayer := range s.Players {
-		if oplayer == player {
-			continue
-		}
-
-		players[opoint] = oplayer
-	}
-
-	return State{
-		Players: players,
-		Energy:  s.Energy + steps*StepEnergy[player.Kind],
-	}
-}
-
-func (s State) String() string {
-	var points []aoc.Point2D
-	for p := range board {
-		points = append(points, p)
-	}
-	minX, minY, maxX, maxY := aoc.GetBounds(points)
-
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("energy: %d\n", s.Energy))
-	for y := minY; y <= maxY; y++ {
-		for x := minX; x <= maxX; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-
-			if player, found := s.Players[p]; found {
-				sb.WriteString(player.Kind)
-			} else if board[p] {
-				sb.WriteString(" ")
-			} else {
-				sb.WriteString("░")
-			}
-		}
-		sb.WriteRune('\n')
-	}
-
-	return sb.String()
-}
-
-func (s State) IsTraversable(path []aoc.Point2D) bool {
-	// A path is traversable if there are no other players on it.
-	for _, p := range path {
-		if _, found := s.Players[p]; found {
-			return false
-		}
-	}
-	return true
-}
-
-// IsDone determines if the specified player is in a goal state for them.
-func (s State) IsDone(p Player) bool {
-	// They can't be in a hallway
-	if p.Y == 1 {
-		return false
-	}
-
-	// They have to be in their assigned room
-	if p.X != RoomX[p.Kind] {
-		return false
-	}
-
-	// There shouldn't be any other player kinds in their room with them
-	for _, y := range RoomY {
-		if other, found := s.Players[aoc.Point2D{X: p.X, Y: y}]; found {
-			if other.Kind != p.Kind {
+func IsGoal(s State) bool {
+	for kind, ps := range Rooms {
+		for _, p := range ps {
+			if s.Board[p.X][p.Y] != kind {
 				return false
 			}
 		}
 	}
-
-	// There shouldn't be any blank spots below them
-	for _, y := range RoomY {
-		if y <= p.Y {
-			continue
-		}
-
-		if _, found := s.Players[aoc.Point2D{X: p.X, Y: y}]; !found {
-			return false
-		}
-	}
-
 	return true
 }
 
-type Player struct {
-	aoc.Point2D
-	Kind string
-}
+func Children(s State) []State {
+	var children []State
 
-func InputToPlayers() []Player {
-	var players []Player
-	for y, line := range aoc.InputToLines(2021, 23) {
-		for x, c := range line {
-			if c == 'A' || c == 'B' || c == 'C' || c == 'D' {
-				players = append(players, Player{aoc.Point2D{X: x, Y: y}, string(c)})
+	// Consider moving from the hallway into a room
+	for _, p := range Hallway {
+		kind := s.Board[p.X][p.Y]
+		if kind == '.' {
+			continue
+		}
+
+		var occupied bool
+		var target aoc.Point2D
+		for _, r := range Rooms[kind] {
+			k := s.Board[r.X][r.Y]
+			if k == '.' {
+				target = r
+			} else if k != kind {
+				occupied = true
+			}
+		}
+
+		if ok, length := HasPath(s, p, target); !occupied && ok {
+			children = append(children, State{
+				Board:  Move(s.Board, p, target),
+				Energy: s.Energy + length*Energy[kind],
+			})
+		}
+	}
+
+	// Consider moving the topmost entry in a room into the hallway, but only
+	// if it's the wrong kind or is blocking a wrong kind.
+	for kind, rs := range Rooms {
+		var top *aoc.Point2D
+		var blocking bool
+
+		for _, r := range rs {
+			if s.Board[r.X][r.Y] != '.' && top == nil {
+				cpy := r
+				top = &cpy
+				continue
+			}
+
+			if top != nil && s.Board[r.X][r.Y] != kind {
+				blocking = true
+				break
+			}
+		}
+
+		if top == nil {
+			continue
+		}
+
+		if blocking || s.Board[top.X][top.Y] != kind {
+			for _, target := range Hallway {
+				if ok, length := HasPath(s, *top, target); ok && s.Board[target.X][target.Y] == '.' {
+					children = append(children, State{
+						Board:  Move(s.Board, *top, target),
+						Energy: s.Energy + length*Energy[s.Board[top.X][top.Y]],
+					})
+				}
 			}
 		}
 	}
 
-	return players
+	return children
 }
 
-func Path(p, end aoc.Point2D) []aoc.Point2D {
-	dx := 1
-	if p.X > end.X {
-		dx = -1
-	}
+func HasPath(s State, a, b aoc.Point2D) (bool, int) {
+	var length int
+	for a.Y != 1 {
+		a = a.Up()
+		length++
 
-	dy := 1
-	if p.Y > end.Y {
-		dy = -1
-	}
-
-	var path []aoc.Point2D
-	moveLR := func() {
-		for p.X != end.X {
-			p = aoc.Point2D{X: p.X + dx, Y: p.Y}
-			path = append(path, p)
-		}
-	}
-	moveUD := func() {
-		for p.Y != end.Y {
-			p = aoc.Point2D{X: p.X, Y: p.Y + dy}
-			path = append(path, p)
+		if s.Board[a.X][a.Y] != '.' {
+			return false, 0
 		}
 	}
 
-	if p.Y == 1 {
-		// The starting point is in the hallway, first move left/right
-		moveLR()
-		moveUD()
-	} else {
-		// The starting point is in a room, first move up/down
-		moveUD()
-		moveLR()
+	for a.X != b.X {
+		if a.X < b.X {
+			a = a.Right()
+		} else {
+			a = a.Left()
+		}
+		length++
+
+		if s.Board[a.X][a.Y] != '.' {
+			return false, 0
+		}
 	}
 
-	return path
+	for a.Y != b.Y {
+		a = a.Down()
+		length++
+
+		if s.Board[a.X][a.Y] != '.' {
+			return false, 0
+		}
+	}
+
+	return true, length
 }
 
-type Board map[aoc.Point2D]bool
-
-func InputToBoard() Board {
-	board := make(Board)
-	for y, line := range aoc.InputToLines(2021, 23) {
-		for x, c := range line {
-			if c == '.' || c == 'A' || c == 'B' || c == 'C' || c == 'D' {
-				board[aoc.Point2D{X: x, Y: y}] = true
-			} else {
-				board[aoc.Point2D{X: x, Y: y}] = false
-			}
-		}
-	}
-
+func Move(board [W][H]byte, a, b aoc.Point2D) [W][H]byte {
+	board[b.X][b.Y] = board[a.X][a.Y]
+	board[a.X][a.Y] = '.'
 	return board
+}
+
+type State struct {
+	Board  [W][H]byte
+	Energy int
+}
+
+func InputToInitialState() State {
+	var board [W][H]byte
+	for y, line := range aoc.InputToLines(2021, 23) {
+		for x, c := range line {
+			board[x][y] = byte(c)
+		}
+	}
+
+	return State{Board: board}
 }

@@ -6,91 +6,58 @@ import (
 )
 
 func main() {
-	os := InputToOctopus()
+	grid := InputToGrid()
 
-	var flashes int
-	for step := 1; step <= 100; step++ {
-		for _, o := range os {
-			o.Add()
-		}
+	var count int
+	for tm := 1; tm <= 100; tm++ {
+		grid.ForEach(func(_ aoc.Point2D, o *Octopus) {
+			o.Increase()
+		})
 
-		for _, o := range os {
-			if o.Flashed {
-				flashes++
+		grid.ForEach(func(_ aoc.Point2D, o *Octopus) {
+			if o.Reset() {
+				count++
 			}
-			o.Reset()
-		}
+		})
 	}
-
-	fmt.Println(flashes)
+	fmt.Println(count)
 }
 
 type Octopus struct {
 	Energy    int
 	Neighbors []*Octopus
-	Flashed   bool
 }
 
-func (o *Octopus) Add() {
-	// If this octopus has already flashed this step then it can't flash again
-	if o.Flashed {
-		return
-	}
-
+func (o *Octopus) Increase() {
 	o.Energy++
-	if o.Energy > 9 {
-		if !o.Flashed {
-			o.Flashed = true
-
-			// Propagate to neighbors
-			for _, n := range o.Neighbors {
-				n.Add()
-			}
+	if o.Energy == 10 {
+		for _, n := range o.Neighbors {
+			n.Increase()
 		}
 	}
 }
 
-func (o *Octopus) Reset() {
-	if o.Flashed {
+func (o *Octopus) Reset() bool {
+	if o.Energy > 9 {
 		o.Energy = 0
-		o.Flashed = false
+		return true
 	}
+	return false
 }
 
-func InputToOctopus() map[aoc.Point2D]*Octopus {
-	os := make(map[aoc.Point2D]*Octopus)
+func InputToGrid() aoc.Grid2D[*Octopus] {
+	grid := aoc.NewGrid2D[*Octopus](10, 10)
 	for y, line := range aoc.InputToLines(2021, 11) {
 		for x, c := range line {
-			p := aoc.Point2D{X: x, Y: y}
-			os[p] = &Octopus{Energy: aoc.ParseInt(string(c))}
+			grid.AddXY(x, y, &Octopus{Energy: int(c - '0')})
 		}
 	}
 
-	for p, o := range os {
-		o.Neighbors = Neighbors(p, os)
-	}
+	grid.ForEach(func(p aoc.Point2D, o *Octopus) {
+		grid.ForEachNeighbor(p, func(np aoc.Point2D, no *Octopus) {
+			o.Neighbors = append(o.Neighbors, no)
+		})
+	})
 
-	return os
-}
-
-func Neighbors(p aoc.Point2D, os map[aoc.Point2D]*Octopus) []*Octopus {
-	candidates := []aoc.Point2D{
-		p.Up(),
-		p.Up().Right(),
-		p.Right(),
-		p.Right().Down(),
-		p.Down(),
-		p.Down().Left(),
-		p.Left(),
-		p.Left().Up(),
-	}
-
-	var neighbors []*Octopus
-	for _, c := range candidates {
-		if o, ok := os[c]; ok {
-			neighbors = append(neighbors, o)
-		}
-	}
-
-	return neighbors
+	return grid
 }

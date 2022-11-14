@@ -3,122 +3,95 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"sort"
 	"strings"
 )
 
-var Letters = []rune{'a', 'b', 'c', 'd', 'e', 'f', 'g'}
-
-type Mapping map[string]int
-
-var StandardMapping = Mapping{
-	"abcefg":  0,
-	"cf":      1,
-	"acdeg":   2,
-	"acdfg":   3,
-	"bcdf":    4,
-	"abdfg":   5,
-	"abdefg":  6,
-	"acf":     7,
-	"abcdefg": 8,
-	"abcdfg":  9,
+var StandardDigits = map[Digit]int{
+	DigitFrom("abcefg"):  0,
+	DigitFrom("cf"):      1,
+	DigitFrom("acdeg"):   2,
+	DigitFrom("acdfg"):   3,
+	DigitFrom("bcdf"):    4,
+	DigitFrom("abdfg"):   5,
+	DigitFrom("abdefg"):  6,
+	DigitFrom("acf"):     7,
+	DigitFrom("abcdefg"): 8,
+	DigitFrom("abcdfg"):  9,
 }
 
 func main() {
-	// We're going to brute force this by trying all possible mappings because there are only
-	// 7! == 5040 possibilities.  We'll precompute all the mappings and then figure out which
-	// should be used for each entry.
-	var mappings []Mapping
-	aoc.EnumeratePermutations(len(Letters), func(perm []int) {
-		mapper := NewMapper(perm)
+	// Build a list of all possible mappers
+	var mappers []Mapper
+	aoc.EnumeratePermutations(7, func(perm []int) bool {
+		p := append([]int(nil), perm...)
 
-		mapping := make(Mapping)
-		for s, n := range StandardMapping {
-			mapping[Canonicalize(strings.Map(mapper, s))] = n
-		}
-		mappings = append(mappings, mapping)
+		mappers = append(mappers, func(from Digit) Digit {
+			var to aoc.BitSet
+			for i, n := range p {
+				if from.Contains(i) {
+					to = to.Add(n)
+				}
+			}
+			return Digit{to}
+		})
+		return false
 	})
 
-	// Now process each entry, summing the outputs
 	var sum int
 	for _, entry := range InputToEntries() {
-		mapping := FindMapping(mappings, entry)
+		mapper := FindMapper(mappers, entry.Digits)
 
-		var n int
-		for _, output := range entry.Outputs {
-			n = n*10 + mapping[output]
+		var ns []int
+		for _, digit := range entry.Outputs {
+			ns = append(ns, StandardDigits[mapper(digit)])
 		}
-		sum += n
+		sum += aoc.JoinDigits(ns)
 	}
+
 	fmt.Println(sum)
 }
 
-func NewMapper(perm []int) func(rune) rune {
-	mapping := make(map[rune]rune)
-	for from, to := range perm {
-		mapping[Letters[from]] = Letters[to]
-	}
-
-	return func(r rune) rune {
-		return mapping[r]
-	}
-}
-
-func FindMapping(mappings []Mapping, entry Entry) Mapping {
-	for _, mapping := range mappings {
-		works := true
-		for _, digit := range entry.Digits {
-			if _, ok := mapping[digit]; !ok {
-				works = false
-				break
+func FindMapper(mappers []Mapper, digits []Digit) Mapper {
+outer:
+	for _, mapper := range mappers {
+		for _, digit := range digits {
+			if _, ok := StandardDigits[mapper(digit)]; !ok {
+				continue outer
 			}
 		}
-
-		if works {
-			return mapping
-		}
+		return mapper
 	}
 
 	return nil
 }
 
+type Mapper func(Digit) Digit
+type Digit struct{ aoc.BitSet }
+
+func DigitFrom(s string) Digit {
+	var bs aoc.BitSet
+	for _, c := range s {
+		bs = bs.Add(int(c - 'a'))
+	}
+	return Digit{bs}
+}
+
+func DigitsFrom(s string) []Digit {
+	var digits []Digit
+	for _, d := range strings.Fields(s) {
+		digits = append(digits, DigitFrom(d))
+	}
+	return digits
+}
+
 type Entry struct {
-	Digits  []string // All digits, both inputs and outputs
-	Outputs []string // Only the outputs
+	Digits  []Digit // All digits, both inputs and outputs
+	Outputs []Digit // Only the outputs
 }
 
 func InputToEntries() []Entry {
-	var entries []Entry
-	for _, line := range aoc.InputToLines(2021, 8) {
-		fields := strings.Split(line, " | ")
-
-		var inputs []string
-		for _, s := range strings.Split(fields[0], " ") {
-			inputs = append(inputs, Canonicalize(s))
-		}
-
-		var outputs []string
-		for _, s := range strings.Split(fields[1], " ") {
-			outputs = append(outputs, Canonicalize(s))
-		}
-
-		entries = append(entries, Entry{
-			Digits:  append(inputs, outputs...),
-			Outputs: outputs,
-		})
-	}
-	return entries
-}
-
-func Canonicalize(s string) string {
-	var letters []rune
-	for _, r := range s {
-		letters = append(letters, r)
-	}
-
-	sort.Slice(letters, func(i, j int) bool {
-		return letters[i] < letters[j]
+	return aoc.InputLinesTo(2021, 8, func(line string) (Entry, error) {
+		lhs, rhs, _ := strings.Cut(line, " | ")
+		return Entry{Digits: DigitsFrom(lhs + " " + rhs), Outputs: DigitsFrom(rhs)}, nil
 	})
-
-	return string(letters)
 }

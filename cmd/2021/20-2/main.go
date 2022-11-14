@@ -7,80 +7,67 @@ import (
 
 func main() {
 	algorithm, image := InputToAlgorithmAndImage()
+	border := false
 
-	// The border is infinite, so depending on the value of the algorithm when you have
-	// a solid block of '.' or '#' it might toggle for each step.
-	toggles := algorithm[0] == '#' && algorithm[511] == '.'
-
-	for step := 0; step < 50; step++ {
-		image = Enhance(image, algorithm, toggles && step%2 == 1)
+	for n := 0; n < 50; n++ {
+		image, border = Enhance(image, algorithm, border)
 	}
 
-	var count int
-	for _, v := range image {
-		if v {
-			count++
-		}
-	}
-	fmt.Println(count)
+	fmt.Println(len(image))
 }
 
-func GetBounds(image map[aoc.Point2D]bool) (int, int, int, int) {
-	var points []aoc.Point2D
-	for p := range image {
-		points = append(points, p)
-	}
-	return aoc.GetBounds(points)
-}
+func Enhance(image aoc.Set[aoc.Point2D], algorithm []bool, border bool) (aoc.Set[aoc.Point2D], bool) {
+	tl, br := aoc.GetBounds(image.Entries())
 
-func Enhance(image map[aoc.Point2D]bool, algorithm string, border bool) map[aoc.Point2D]bool {
-	minX, minY, maxX, maxY := GetBounds(image)
+	index := func(x, y int) int {
+		var n int
+		for dy := -1; dy <= 1; dy++ {
+			for dx := -1; dx <= 1; dx++ {
+				var value bool
+				if tl.X <= x+dx && x+dx <= br.X && tl.Y <= y+dy && y+dy <= br.Y {
+					value = image.Contains(aoc.Point2D{X: x + dx, Y: y + dy})
+				} else {
+					value = border
+				}
 
-	output := make(map[aoc.Point2D]bool)
-	for x := minX - 2; x <= maxX+2; x++ {
-		for y := minY - 2; y <= maxY+2; y++ {
-			p := aoc.Point2D{X: x, Y: y}
-			index := GetIndex(p, image, border)
-
-			output[p] = algorithm[index] == '#'
-		}
-	}
-
-	return output
-}
-
-func GetIndex(p aoc.Point2D, image map[aoc.Point2D]bool, border bool) int {
-	var n int
-	for dy := -1; dy <= 1; dy++ {
-		for dx := -1; dx <= 1; dx++ {
-			q := aoc.Point2D{X: p.X + dx, Y: p.Y + dy}
-
-			var value, ok bool
-			if value, ok = image[q]; !ok {
-				value = border
+				n <<= 1
+				if value {
+					n |= 1
+				}
 			}
+		}
+		return n
+	}
 
-			n = n << 1
-			if value {
-				n |= 1
+	var next aoc.Set[aoc.Point2D]
+	for y := tl.Y - 2; y <= br.Y+2; y++ {
+		for x := tl.X - 2; x <= br.X+2; x++ {
+			if algorithm[index(x, y)] {
+				next.Add(aoc.Point2D{X: x, Y: y})
 			}
 		}
 	}
-	return n
+
+	// Toggle the border if the all 0's rule and all 1's rule say to
+	if toggle := algorithm[0] && !algorithm[len(algorithm)-1]; toggle {
+		border = !border
+	}
+	return next, border
 }
 
-func InputToAlgorithmAndImage() (string, map[aoc.Point2D]bool) {
+func InputToAlgorithmAndImage() ([]bool, aoc.Set[aoc.Point2D]) {
 	lines := aoc.InputToLines(2021, 20)
 
-	algorithm := lines[0]
+	var algorithm []bool
+	for _, c := range lines[0] {
+		algorithm = append(algorithm, c == '#')
+	}
 
-	image := make(map[aoc.Point2D]bool)
+	var image aoc.Set[aoc.Point2D]
 	for y := 2; y < len(lines); y++ {
 		for x, c := range lines[y] {
 			if c == '#' {
-				image[aoc.Point2D{X: x, Y: y - 2}] = true
-			} else {
-				image[aoc.Point2D{X: x, Y: y - 2}] = false
+				image.Add(aoc.Point2D{X: x, Y: y - 2})
 			}
 		}
 	}

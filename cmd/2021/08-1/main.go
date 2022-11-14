@@ -8,22 +8,20 @@ import (
 
 func main() {
 	var count int
-	for _, digit := range InputToOutputDigits() {
-		n := len(digit)
-		if n == 2 || n == 3 || n == 4 || n == 7 {
-			count++
+	for _, digits := range InputToOutputDigits() {
+		for _, digit := range digits {
+			n := len(digit)
+			if n == 2 || n == 3 || n == 4 || n == 7 {
+				count++
+			}
 		}
 	}
 	fmt.Println(count)
 }
 
-func InputToOutputDigits() []string {
-	var digits []string
-	for _, line := range aoc.InputToLines(2021, 8) {
-		fields := strings.Split(line, " | ")
-		outputs := strings.Split(fields[1], " ")
-
-		digits = append(digits, outputs...)
-	}
-	return digits
+func InputToOutputDigits() [][]string {
+	return aoc.InputLinesTo(2021, 8, func(line string) ([]string, error) {
+		_, rhs, _ := strings.Cut(line, " | ")
+		return strings.Fields(rhs), nil
+	})
 }

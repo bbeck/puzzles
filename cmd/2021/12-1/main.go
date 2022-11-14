@@ -2,72 +2,39 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
 
 func main() {
 	caves := InputToCaves()
-
-	count := CountPaths(
-		caves["start"],
-		caves["end"],
-		aoc.NewSingletonSet("start"),
-	)
+	count := CountPaths("start", "end", caves, aoc.SetFrom("start"))
 	fmt.Println(count)
 }
 
-func CountPaths(current *Cave, goal *Cave, seen aoc.Set) int {
+func CountPaths(current, goal string, caves map[string][]string, seen aoc.Set[string]) int {
 	if current == goal {
 		return 1
 	}
 
 	var count int
-	for _, neighbor := range current.Neighbors {
-		if seen.Contains(neighbor.Name) {
+	for _, n := range caves[current] {
+		if n == strings.ToLower(n) && seen.Contains(n) {
 			continue
 		}
 
-		if !neighbor.IsSmall {
-			count += CountPaths(neighbor, goal, seen)
-		} else {
-			count += CountPaths(neighbor, goal, seen.Union(aoc.NewSingletonSet(neighbor.Name)))
-		}
+		count += CountPaths(n, goal, caves, seen.Union(aoc.SetFrom(n)))
 	}
+
 	return count
 }
 
-type Cave struct {
-	Name      string
-	IsSmall   bool
-	Neighbors []*Cave
-}
-
-func InputToCaves() map[string]*Cave {
-	caves := make(map[string]*Cave)
-
-	get := func(name string) *Cave {
-		cave := caves[name]
-		if cave == nil {
-			cave = &Cave{
-				Name:    name,
-				IsSmall: strings.ToLower(name) == name,
-			}
-			caves[name] = cave
-		}
-
-		return cave
-	}
-
+func InputToCaves() map[string][]string {
+	caves := make(map[string][]string)
 	for _, line := range aoc.InputToLines(2021, 12) {
-		parts := strings.Split(line, "-")
-		lhs := get(parts[0])
-		rhs := get(parts[1])
-
-		lhs.Neighbors = append(lhs.Neighbors, rhs)
-		rhs.Neighbors = append(rhs.Neighbors, lhs)
+		lhs, rhs, _ := strings.Cut(line, "-")
+		caves[lhs] = append(caves[lhs], rhs)
+		caves[rhs] = append(caves[rhs], lhs)
 	}
-
 	return caves
 }

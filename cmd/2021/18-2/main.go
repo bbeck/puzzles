@@ -8,153 +8,130 @@ import (
 func main() {
 	ns := InputToNumbers()
 
-	var max int
+	var best int
 	for i := 0; i < len(ns); i++ {
 		for j := i + 1; j < len(ns); j++ {
-			// Addition isn't commutative, so try both orders
-			max = aoc.MaxInt(max, Magnitude(Add(ns[i], ns[j])))
-			max = aoc.MaxInt(max, Magnitude(Add(ns[j], ns[i])))
+			best = aoc.Max(best, Magnitude(Add(ns[i], ns[j])), Magnitude(Add(ns[j], ns[i])))
 		}
 	}
-	fmt.Println(max)
+	fmt.Println(best)
+}
+
+func Magnitude(n *Number) int {
+	if n == nil {
+		return 0
+	}
+	if n.Left == nil && n.Right == nil {
+		return n.Value
+	}
+	return 3*Magnitude(n.Left) + 2*Magnitude(n.Right)
 }
 
 func Add(a, b *Number) *Number {
-	// To add two snailfish numbers, form a pair from the left and right parameters
-	// of the addition operator.
-	sum := &Number{
-		Kind:  "pair",
-		Left:  a,
-		Right: b,
-	}
+	return Reduce(&Number{
+		Left:  a.Copy(),
+		Right: b.Copy(),
+	})
+}
 
-	// After adding the numbers must be reduced.  To reduce a snailfish number, you
-	// must repeatedly do the first action in this list that applies to the
-	// snailfish number:
-	//
-	// - If any pair is nested inside four pairs, the leftmost such pair explodes.
-	// - If any regular number is 10 or greater, the leftmost such regular number splits.
+func Reduce(n *Number) *Number {
 	for {
-		if changed, s := Explode(sum); changed {
-			sum = s
+		var changed bool
+		if changed = Explode(n); changed {
 			continue
 		}
-		if changed, s := Split(sum); changed {
-			sum = s
+
+		if changed = Split(n); changed {
 			continue
 		}
 
 		break
 	}
 
-	return sum
+	return n
 }
 
-func Magnitude(x *Number) int {
-	if x.Kind == "regular" {
-		return x.Value
+func Explode(root *Number) bool {
+	var ordering []*Number
+
+	var traverse func(*Number)
+	traverse = func(n *Number) {
+		if n.Left == nil && n.Right == nil {
+			ordering = append(ordering, n)
+		}
+		if n.Left != nil {
+			traverse(n.Left)
+		}
+		if n.Right != nil {
+			traverse(n.Right)
+		}
 	}
-	return 3*Magnitude(x.Left) + 2*Magnitude(x.Right)
+	traverse(root)
+
+	var neighbors func(*Number) (*Number, *Number)
+	neighbors = func(n *Number) (*Number, *Number) {
+		for i := 0; i < len(ordering); i++ {
+			if ordering[i] == n {
+				var left, right *Number
+				if i > 0 {
+					left = ordering[i-1]
+				}
+				if i < len(ordering)-1 {
+					right = ordering[i+1]
+				}
+				return left, right
+			}
+		}
+		return nil, nil
+	}
+
+	var explode func(n *Number, depth int) bool
+	explode = func(n *Number, depth int) bool {
+		if n.Left == nil && n.Right == nil {
+			return false
+		}
+
+		if depth < 4 {
+			if changed := explode(n.Left, depth+1); changed {
+				return true
+			}
+
+			if changed := explode(n.Right, depth+1); changed {
+				return true
+			}
+
+			return false
+		}
+
+		if left, _ := neighbors(n.Left); left != nil {
+			left.Value += n.Left.Value
+		}
+
+		if _, right := neighbors(n.Right); right != nil {
+			right.Value += n.Right.Value
+		}
+
+		n.Value = 0
+		n.Left = nil
+		n.Right = nil
+		return true
+	}
+
+	return explode(root, 0)
 }
 
-func Explode(x *Number) (bool, *Number) {
-	// Helper that finds the leftmost regular number within x and adds the regular number n to it.
-	var addLeft func(x, n *Number) *Number
-	addLeft = func(x, n *Number) *Number {
-		if n == nil {
-			return x
-		}
-
-		if x.Kind == "regular" {
-			return &Number{Kind: "regular", Value: x.Value + n.Value}
-		}
-
-		return &Number{Kind: "pair", Left: addLeft(x.Left, n), Right: x.Right}
+func Split(n *Number) bool {
+	if n.Value >= 10 {
+		n.Left = &Number{Value: n.Value / 2}
+		n.Right = &Number{Value: n.Value/2 + n.Value%2}
+		n.Value = 0
+		return true
 	}
 
-	// Helper that finds the rightmost regular number within x and adds the regular number n to it.
-	var addRight func(x, n *Number) *Number
-	addRight = func(x, n *Number) *Number {
-		if n == nil {
-			return x
-		}
-
-		if x.Kind == "regular" {
-			return &Number{Kind: "regular", Value: x.Value + n.Value}
-		}
-
-		return &Number{Kind: "pair", Left: x.Left, Right: addRight(x.Right, n)}
-	}
-
-	var explode func(x *Number, n int) (bool, *Number, *Number, *Number)
-	explode = func(x *Number, n int) (bool, *Number, *Number, *Number) {
-		// If we reach a single value before getting to a depth of 4, then there's
-		// nothing to explode.  Return no change.
-		if x.Kind == "regular" {
-			return false, nil, x, nil
-		}
-
-		// We've reached the desired depth, explode this number.  We'll replace
-		// the current pair with a 0 and return the regular number at the left and
-		// right to be dealt with at the previous layer of the recursion.
-		if n == 0 {
-			return true, x.Left, &Number{Kind: "regular", Value: 0}, x.Right
-		}
-
-		// Try exploding the leftmost pair first.
-		if changed, left, nx, right := explode(x.Left, n-1); changed {
-			return true, left, &Number{Kind: "pair", Left: nx, Right: addLeft(x.Right, right)}, nil
-		}
-
-		// Try exploding the rightmost pair.
-		if changed, left, nx, right := explode(x.Right, n-1); changed {
-			return true, nil, &Number{Kind: "pair", Left: addRight(x.Left, left), Right: nx}, right
-		}
-
-		// We weren't able to explode, return no change.
-		return false, nil, x, nil
-	}
-
-	// Any values that need to be added to the leftmost or rightmost regular node that
-	// propagate here can be ignored.  If they made it this far it means there were no
-	// regular nodes to add them to.
-	changed, _, x, _ := explode(x, 4)
-	return changed, x
-}
-
-func Split(x *Number) (bool, *Number) {
-	// Only regular numbers with a value of 10 or greater split.  To split a regular number,
-	// replace it with a pair; the left element of the pair should be the regular number
-	// divided by two and rounded down, while the right element of the pair should be the
-	// regular number divided by two and rounded up.
-	if x.Kind == "regular" {
-		if x.Value < 10 {
-			return false, x
-		}
-
-		left := &Number{Kind: "regular", Value: x.Value / 2}
-		right := &Number{Kind: "regular", Value: (x.Value + 1) / 2}
-		return true, &Number{Kind: "pair", Left: left, Right: right}
-	}
-
-	// This is a pair, try to recursively split their sub-numbers.  We'll only split one
-	// at a time because addition says that once you perform a split operation you have
-	// to then check for explodes that can be done.
-	if changed, left := Split(x.Left); changed {
-		return true, &Number{Kind: "pair", Left: left, Right: x.Right}
-	}
-
-	if changed, right := Split(x.Right); changed {
-		return true, &Number{Kind: "pair", Left: x.Left, Right: right}
-	}
-
-	// We were unable to split this number or any of its sub-numbers.
-	return false, x
+	return (n.Left != nil && Split(n.Left)) || (n.Right != nil && Split(n.Right))
 }
 
 type Number struct {
-	Kind string
-
 	// Leaf
 	Value int
 
@@ -163,11 +140,15 @@ type Number struct {
 	Right *Number
 }
 
-func (n *Number) String() string {
-	if n.Kind == "regular" {
-		return fmt.Sprintf("%d", n.Value)
+func (n *Number) Copy() *Number {
+	c := &Number{Value: n.Value}
+	if n.Left != nil {
+		c.Left = n.Left.Copy()
 	}
-	return fmt.Sprintf("[%s,%s]", n.Left, n.Right)
+	if n.Right != nil {
+		c.Right = n.Right.Copy()
+	}
+	return c
 }
 
 func ParseNumber(input string) (string, *Number) {
@@ -183,19 +164,17 @@ func ParseNumber(input string) (string, *Number) {
 		input, right := ParseNumber(input)
 		input = input[1:] // skip ]
 
-		return input, &Number{Kind: "pair", Left: left, Right: right}
+		return input, &Number{Left: left, Right: right}
 	}
 
-	// Regular
+	// Left
 	value, input := aoc.ParseInt(input[0:1]), input[1:]
-	return input, &Number{Kind: "regular", Value: value}
+	return input, &Number{Value: value}
 }
 
 func InputToNumbers() []*Number {
-	var ns []*Number
-	for _, line := range aoc.InputToLines(2021, 18) {
+	return aoc.InputLinesTo(2021, 18, func(line string) (*Number, error) {
 		_, n := ParseNumber(line)
-		ns = append(ns, n)
-	}
-	return ns
+		return n, nil
+	})
 }
