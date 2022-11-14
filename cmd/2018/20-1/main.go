@@ -39,7 +39,7 @@ func main() {
 
 	var longest int
 	for _, d := range distances {
-		longest = aoc.MaxInt(longest, d)
+		longest = aoc.Max(longest, d)
 	}
 
 	// Every 2nd location is a doorway.

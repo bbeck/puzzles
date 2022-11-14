@@ -27,7 +27,7 @@ func StrongestBridge(components []Component) int {
 				continue
 			}
 
-			best = aoc.MaxInt(best, c.L+c.R+helper(next, used.Add(i)))
+			best = aoc.Max(best, c.L+c.R+helper(next, used.Add(i)))
 		}
 
 		return best

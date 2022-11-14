@@ -19,40 +19,6 @@ func ParseInt(s string) int {
 	return ParseIntWithBase(s, 10)
 }
 
-// MinInt determines the minimum integer of a set of integers passed as
-// arguments to the function.
-func MinInt(i int, is ...int) int {
-	min := i
-	for _, i := range is {
-		if i < min {
-			min = i
-		}
-	}
-
-	return min
-}
-
-// MaxInt determines the maximum integer of a set of integers passed as
-// arguments to the function.
-func MaxInt(i int, is ...int) int {
-	max := i
-	for _, i := range is {
-		if i > max {
-			max = i
-		}
-	}
-
-	return max
-}
-
-// AbsInt returns the absolute value of the passed in integer.
-func AbsInt(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
-}
-
 // GCD returns the greatest common divisor of two integers.
 func GCD(a, b int) int {
 	if a == 0 {
