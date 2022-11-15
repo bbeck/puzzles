@@ -17,7 +17,7 @@ func main() {
 	}
 
 	var count int
-	seats.ForEach(func(_ aoc.Point2D, value uint8) {
+	seats.ForEach(func(_, _ int, value uint8) {
 		if value == Occupied {
 			count++
 		}
@@ -32,20 +32,20 @@ const (
 
 func Next(seats aoc.Grid2D[uint8]) aoc.Grid2D[uint8] {
 	next := aoc.NewGrid2D[uint8](seats.Width, seats.Height)
-	seats.ForEach(func(p aoc.Point2D, value uint8) {
+	seats.ForEach(func(x, y int, value uint8) {
 		var count int
-		seats.ForEachNeighbor(p, func(n aoc.Point2D, v uint8) {
+		seats.ForEachNeighbor(x, y, func(_, _ int, v uint8) {
 			if v == Occupied {
 				count++
 			}
 		})
 
 		if value == Empty && count == 0 {
-			next.Add(p, Occupied)
+			next.Add(x, y, Occupied)
 		} else if value == Occupied && count >= 4 {
-			next.Add(p, Empty)
+			next.Add(x, y, Empty)
 		} else {
-			next.Add(p, value)
+			next.Add(x, y, value)
 		}
 	})
 	return next
@@ -54,7 +54,7 @@ func Next(seats aoc.Grid2D[uint8]) aoc.Grid2D[uint8] {
 func Equals(a, b aoc.Grid2D[uint8]) bool {
 	for y := 0; y < a.Height; y++ {
 		for x := 0; x < a.Width; x++ {
-			if a.GetXY(x, y) != b.GetXY(x, y) {
+			if a.Get(x, y) != b.Get(x, y) {
 				return false
 			}
 		}

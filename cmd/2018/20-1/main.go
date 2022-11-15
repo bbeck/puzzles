@@ -20,7 +20,7 @@ func main() {
 	children := func(p aoc.Point2D) []aoc.Point2D {
 		var children []aoc.Point2D
 		for _, child := range p.OrthogonalNeighbors() {
-			if !world.InBounds(child) || !world.Get(child) {
+			if !world.InBoundsPoint(child) || !world.GetPoint(child) {
 				continue
 			}
 
@@ -129,7 +129,7 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 	tl, br := aoc.GetBounds(open.Entries())
 	grid := aoc.NewGrid2D[bool](br.X-tl.X+1, br.Y-tl.Y+1)
 	for _, p := range open.Entries() {
-		grid.AddXY(p.X-tl.X, p.Y-tl.Y, true)
+		grid.Add(p.X-tl.X, p.Y-tl.Y, true)
 	}
 
 	return grid, aoc.Point2D{X: -tl.X, Y: -tl.Y}

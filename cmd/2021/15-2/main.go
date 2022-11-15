@@ -14,11 +14,11 @@ func main() {
 			tx, ty := x%tile.Width, y%tile.Height
 			offset := x/tile.Width + y/tile.Height
 
-			value := tile.GetXY(tx, ty) + offset
+			value := tile.Get(tx, ty) + offset
 			for value > 9 {
 				value -= 9
 			}
-			cave.AddXY(x, y, value)
+			cave.Add(x, y, value)
 		}
 	}
 
@@ -32,7 +32,7 @@ func main() {
 		return children
 	}
 	goal := func(p aoc.Point2D) bool { return p == end }
-	cost := func(from, to aoc.Point2D) int { return cave.Get(to) }
+	cost := func(from, to aoc.Point2D) int { return cave.GetPoint(to) }
 	heuristic := func(p aoc.Point2D) int { return end.ManhattanDistance(p) }
 
 	_, risk, _ := aoc.AStarSearch(start, children, goal, cost, heuristic)

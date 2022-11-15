@@ -10,12 +10,12 @@ func main() {
 
 	var tm int
 	for tm = 1; ; tm++ {
-		grid.ForEach(func(_ aoc.Point2D, o *Octopus) {
+		grid.ForEachPoint(func(_ aoc.Point2D, o *Octopus) {
 			o.Increase()
 		})
 
 		var count int
-		grid.ForEach(func(_ aoc.Point2D, o *Octopus) {
+		grid.ForEachPoint(func(_ aoc.Point2D, o *Octopus) {
 			if o.Reset() {
 				count++
 			}
@@ -55,8 +55,8 @@ func InputToGrid() aoc.Grid2D[*Octopus] {
 		return &Octopus{Energy: aoc.ParseInt(s)}
 	})
 
-	grid.ForEach(func(p aoc.Point2D, o *Octopus) {
-		grid.ForEachNeighbor(p, func(np aoc.Point2D, no *Octopus) {
+	grid.ForEachPoint(func(p aoc.Point2D, o *Octopus) {
+		grid.ForEachNeighborPoint(p, func(np aoc.Point2D, no *Octopus) {
 			o.Neighbors = append(o.Neighbors, no)
 		})
 	})

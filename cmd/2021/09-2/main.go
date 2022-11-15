@@ -10,7 +10,7 @@ func main() {
 	m := InputToHeightMap()
 
 	var ds aoc.DisjointSet[aoc.Point2D]
-	m.ForEach(func(p aoc.Point2D, height int) {
+	m.ForEachPoint(func(p aoc.Point2D, height int) {
 		if height == 9 {
 			return
 		}
@@ -25,7 +25,7 @@ func main() {
 	})
 
 	index := make(map[aoc.Point2D]int)
-	m.ForEach(func(p aoc.Point2D, height int) {
+	m.ForEachPoint(func(p aoc.Point2D, height int) {
 		if root, ok := ds.Find(p); ok {
 			index[root] = ds.Size(root)
 		}

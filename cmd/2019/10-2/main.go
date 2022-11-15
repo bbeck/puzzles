@@ -20,7 +20,7 @@ func main() {
 	for _, p := range locations {
 		dx, dy := p.X-station.X, p.Y-station.Y
 
-		// Add pi/2 to the angle to measure relative to positive y-axis.
+		// AddPoint pi/2 to the angle to measure relative to positive y-axis.
 		angle := math.Atan2(float64(dy), float64(dx)) + math.Pi/2
 		if angle < 0 {
 			angle += 2 * math.Pi

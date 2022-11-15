@@ -17,7 +17,7 @@ func main() {
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
 			cell := aoc.Point2D{X: x, Y: y}
-			grid.Add(cell, -1) // initialize
+			grid.AddPoint(cell, -1) // initialize
 
 			var best = math.MaxInt // how far away the closest point is
 			var closest []int      // index of points that are closest
@@ -35,7 +35,7 @@ func main() {
 			}
 
 			if len(closest) == 1 {
-				grid.Add(cell, closest[0])
+				grid.AddPoint(cell, closest[0])
 			}
 		}
 	}
@@ -43,17 +43,17 @@ func main() {
 	// An area is infinite if it touches the edge
 	var infinite aoc.Set[int]
 	for x := tl.X; x <= br.X; x++ {
-		infinite.Add(grid.GetXY(x, tl.Y), grid.GetXY(x, br.Y))
+		infinite.Add(grid.Get(x, tl.Y), grid.Get(x, br.Y))
 	}
 	for y := tl.Y; y <= br.Y; y++ {
-		infinite.Add(grid.GetXY(tl.X, y), grid.GetXY(br.X, y))
+		infinite.Add(grid.Get(tl.X, y), grid.Get(br.X, y))
 	}
 
 	var largest int
 	sizes := make(map[int]int)
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			n := grid.GetXY(x, y)
+			n := grid.Get(x, y)
 			if !infinite.Contains(n) {
 				sizes[n]++
 				largest = aoc.Max(largest, sizes[n])

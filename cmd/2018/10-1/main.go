@@ -25,12 +25,12 @@ func main() {
 
 	grid := aoc.NewGrid2D[bool](br.X+1, br.Y+1)
 	for _, p := range points {
-		grid.Add(p, true)
+		grid.AddPoint(p, true)
 	}
 
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			if grid.GetXY(x, y) {
+			if grid.Get(x, y) {
 				fmt.Print("█")
 			} else {
 				fmt.Print(" ")

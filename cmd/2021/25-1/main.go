@@ -19,21 +19,21 @@ func Next(grid aoc.Grid2D[string]) (aoc.Grid2D[string], bool) {
 	changed := false
 
 	// Right
-	grid.ForEachXY(func(x, y int, value string) {
+	grid.ForEach(func(x, y int, value string) {
 		if value != ">" {
-			if next.GetXY(x, y) == "" {
-				next.AddXY(x, y, value)
+			if next.Get(x, y) == "" {
+				next.Add(x, y, value)
 			}
 			return
 		}
 
 		nx := (x + 1) % grid.Width
-		if grid.GetXY(nx, y) == "." {
-			next.AddXY(x, y, ".")
-			next.AddXY(nx, y, ">")
+		if grid.Get(nx, y) == "." {
+			next.Add(x, y, ".")
+			next.Add(nx, y, ">")
 			changed = true
 		} else {
-			next.AddXY(x, y, ">")
+			next.Add(x, y, ">")
 		}
 	})
 
@@ -41,21 +41,21 @@ func Next(grid aoc.Grid2D[string]) (aoc.Grid2D[string], bool) {
 	next = aoc.NewGrid2D[string](grid.Width, grid.Height)
 
 	// Down
-	grid.ForEachXY(func(x, y int, value string) {
+	grid.ForEach(func(x, y int, value string) {
 		if value != "v" {
-			if next.GetXY(x, y) == "" {
-				next.AddXY(x, y, value)
+			if next.Get(x, y) == "" {
+				next.Add(x, y, value)
 			}
 			return
 		}
 
 		ny := (y + 1) % grid.Height
-		if grid.GetXY(x, ny) == "." {
-			next.AddXY(x, y, ".")
-			next.AddXY(x, ny, "v")
+		if grid.Get(x, ny) == "." {
+			next.Add(x, y, ".")
+			next.Add(x, ny, "v")
 			changed = true
 		} else {
-			next.AddXY(x, y, "v")
+			next.Add(x, y, "v")
 		}
 	})
 

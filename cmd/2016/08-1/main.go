@@ -20,21 +20,18 @@ func main() {
 	}
 
 	var count int
-	for y := 0; y < screen.Height; y++ {
-		for x := 0; x < screen.Width; x++ {
-			if screen.GetXY(x, y) {
-				count++
-			}
+	screen.ForEach(func(x, y int, value bool) {
+		if value {
+			count++
 		}
-	}
-
+	})
 	fmt.Println(count)
 }
 
 func Rect(screen aoc.Grid2D[bool], width, height int) {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			screen.AddXY(x, y, true)
+			screen.Add(x, y, true)
 		}
 	}
 }
@@ -42,22 +39,22 @@ func Rect(screen aoc.Grid2D[bool], width, height int) {
 func RotateRow(screen aoc.Grid2D[bool], y int, distance int) {
 	var row []bool
 	for x := 0; x < screen.Width; x++ {
-		row = append(row, screen.GetXY(x, y))
+		row = append(row, screen.Get(x, y))
 	}
 
 	for x := 0; x < screen.Width; x++ {
-		screen.AddXY(x, y, row[(x-distance+screen.Width)%screen.Width])
+		screen.Add(x, y, row[(x-distance+screen.Width)%screen.Width])
 	}
 }
 
 func RotateCol(screen aoc.Grid2D[bool], x int, distance int) {
 	var col []bool
 	for y := 0; y < screen.Height; y++ {
-		col = append(col, screen.GetXY(x, y))
+		col = append(col, screen.Get(x, y))
 	}
 
 	for y := 0; y < screen.Height; y++ {
-		screen.AddXY(x, y, col[(y-distance+screen.Height)%screen.Height])
+		screen.Add(x, y, col[(y-distance+screen.Height)%screen.Height])
 	}
 }
 

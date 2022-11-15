@@ -23,17 +23,17 @@ func main() {
 			case y == 0:
 				geologic = x * 16807
 			default:
-				geologic = cave.GetXY(x-1, y) * cave.GetXY(x, y-1)
+				geologic = cave.Get(x-1, y) * cave.Get(x, y-1)
 			}
 
-			cave.AddXY(x, y, (geologic+depth)%20183)
+			cave.Add(x, y, (geologic+depth)%20183)
 		}
 	}
 
 	var risk int
 	for y := 0; y <= target.Y; y++ {
 		for x := 0; x <= target.X; x++ {
-			risk += cave.GetXY(x, y) % 3
+			risk += cave.Get(x, y) % 3
 		}
 	}
 	fmt.Println(risk)

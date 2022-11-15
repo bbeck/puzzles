@@ -56,7 +56,7 @@ func (t Tile) Flip() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			s.AddXY(x, y, t.GetXY(N-x-1, y))
+			s.Add(x, y, t.Get(N-x-1, y))
 		}
 	}
 	return s
@@ -67,7 +67,7 @@ func (t Tile) Rotate() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			s.AddXY(x, y, t.GetXY(N-y-1, x))
+			s.Add(x, y, t.Get(N-y-1, x))
 		}
 	}
 	return s
@@ -76,7 +76,7 @@ func (t Tile) Rotate() Tile {
 func (t Tile) FitsOnTop(s Tile) bool {
 	N := t.Width
 	for n := 0; n < N; n++ {
-		if t.GetXY(n, 0) != s.GetXY(n, N-1) {
+		if t.Get(n, 0) != s.Get(n, N-1) {
 			return false
 		}
 	}
@@ -90,7 +90,7 @@ func (t Tile) FitsOnBottom(s Tile) bool {
 func (t Tile) FitsOnRight(s Tile) bool {
 	N := t.Width
 	for n := 0; n < N; n++ {
-		if t.GetXY(N-1, n) != s.GetXY(0, n) {
+		if t.Get(N-1, n) != s.Get(0, n) {
 			return false
 		}
 	}
@@ -113,7 +113,7 @@ func InputToTiles() []Tile {
 		grid := aoc.NewGrid2D[bool](N, N)
 		for y := 0; y < N; y++ {
 			for x := 0; x < N; x++ {
-				grid.AddXY(x, y, lines[base+y+1][x] == '#')
+				grid.Add(x, y, lines[base+y+1][x] == '#')
 			}
 		}
 

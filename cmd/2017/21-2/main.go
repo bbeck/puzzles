@@ -26,7 +26,7 @@ func main() {
 	var count int
 	for y := 0; y < g.Height; y++ {
 		for x := 0; x < g.Width; x++ {
-			if g.GetXY(x, y) {
+			if g.Get(x, y) {
 				count++
 			}
 		}
@@ -51,7 +51,7 @@ func Enhance(g Grid, rules map[uint64]Grid) Grid {
 			c := rules[g.GetChunk(cx, cy).ID()]
 			for dy := 0; dy < c.Height; dy++ {
 				for dx := 0; dx < c.Width; dx++ {
-					next.AddXY(x0+dx, y0+dy, c.GetXY(dx, dy))
+					next.Add(x0+dx, y0+dy, c.Get(dx, dy))
 				}
 			}
 		}
@@ -66,14 +66,12 @@ type Grid struct {
 
 func (g Grid) ID() uint64 {
 	id := uint64(g.Width)
-	for y := 0; y < g.Height; y++ {
-		for x := 0; x < g.Width; x++ {
-			id <<= 1
-			if g.GetXY(x, y) {
-				id |= 1
-			}
+	g.ForEach(func(x, y int, value bool) {
+		id <<= 1
+		if value {
+			id |= 1
 		}
-	}
+	})
 	return id
 }
 
@@ -95,7 +93,7 @@ func (g Grid) GetChunk(cx, cy int) Grid {
 	chunk := aoc.NewGrid2D[bool](N, N)
 	for dy := 0; dy < N; dy++ {
 		for dx := 0; dx < N; dx++ {
-			chunk.AddXY(dx, dy, g.GetXY(cx*N+dx, cy*N+dy))
+			chunk.Add(dx, dy, g.Get(cx*N+dx, cy*N+dy))
 		}
 	}
 
@@ -107,7 +105,7 @@ func (g Grid) Transformations() []Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
-				r.AddXY(x, y, g.GetXY(y, g.Width-x-1))
+				r.Add(x, y, g.Get(y, g.Width-x-1))
 			}
 		}
 		return Grid{r}
@@ -116,7 +114,7 @@ func (g Grid) Transformations() []Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
-				r.AddXY(x, y, g.GetXY(g.Width-x-1, y))
+				r.Add(x, y, g.Get(g.Width-x-1, y))
 			}
 		}
 		return Grid{r}
@@ -125,7 +123,7 @@ func (g Grid) Transformations() []Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
-				r.AddXY(x, y, g.GetXY(x, g.Height-y-1))
+				r.Add(x, y, g.Get(x, g.Height-y-1))
 			}
 		}
 		return Grid{r}

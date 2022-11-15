@@ -9,76 +9,74 @@ func main() {
 	world := InputToWorld()
 
 	// Find the initial spring of water.
-	var spring aoc.Point2D
+	var springX int
 	for x := 0; x < world.Width; x++ {
-		if world.GetXY(x, 0) == Flow {
-			spring = aoc.Point2D{X: x, Y: 0}
+		if world.Get(x, 0) == Flow {
+			springX = x
 		}
 	}
 
-	Down(world, spring.Down())
+	Down(world, springX, 1)
 
 	var wet int
-	for y := 0; y < world.Height; y++ {
-		for x := 0; x < world.Width; x++ {
-			if current := world.GetXY(x, y); current == Flow || current == Water {
-				wet++
-			}
+	world.ForEach(func(x, y int, value int) {
+		if value == Flow || value == Water {
+			wet++
 		}
-	}
+	})
 	fmt.Println(wet)
 }
 
-func Down(world World, p aoc.Point2D) {
-	if world.Get(p) != Empty {
+func Down(world World, x, y int) {
+	if world.Get(x, y) != Empty {
 		return
 	}
 
 	// Start by making our new point water flow.
-	world.Add(p, Flow)
+	world.Add(x, y, Flow)
 
-	down := p.Down()
-	if !world.InBounds(down) {
+	downY := y + 1
+	if !world.InBounds(x, downY) {
 		return
 	}
 
 	// If below us is empty, then flow down into it.
-	if world.Get(down) == Empty {
-		Down(world, down)
+	if world.Get(x, downY) == Empty {
+		Down(world, x, downY)
 	}
 
 	// At this point everything below us has been determined.  If we're
 	// sitting on top of water or a wall, then we should spread out to the
 	// sides.
-	if below := world.Get(down); below == Wall || below == Water {
-		cl := Side(world, p, -1)
-		cr := Side(world, p, +1)
+	if below := world.Get(x, downY); below == Wall || below == Water {
+		cl := Side(world, x, y, -1)
+		cr := Side(world, x, y, +1)
 
 		// If the flow at this level is contained on both sides by a wall, then
 		// convert it into standing water.
 		if cl && cr {
-			for q := p; world.InBounds(q) && world.Get(q) != Wall; q = q.Left() {
-				world.Add(q, Water)
+			for q := x; world.InBounds(q, y) && world.Get(q, y) != Wall; q-- {
+				world.Add(q, y, Water)
 			}
-			for q := p; world.InBounds(q) && world.Get(q) != Wall; q = q.Right() {
-				world.Add(q, Water)
+			for q := x; world.InBounds(q, y) && world.Get(q, y) != Wall; q++ {
+				world.Add(q, y, Water)
 			}
 		}
 	}
 }
 
-func Side(world World, p aoc.Point2D, dx int) bool {
-	if current := world.Get(p); current == Wall || current == Water {
+func Side(world World, x, y, dx int) bool {
+	if current := world.Get(x, y); current == Wall || current == Water {
 		return true
 	}
 
-	below := world.Get(p.Down())
+	below := world.Get(x, y+1)
 	switch {
 	case below == Wall || below == Water:
-		world.Add(p, Flow)
-		return Side(world, aoc.Point2D{X: p.X + dx, Y: p.Y}, dx)
+		world.Add(x, y, Flow)
+		return Side(world, x+dx, y, dx)
 	case below == Empty:
-		Down(world, p)
+		Down(world, x, y)
 	}
 
 	return false
@@ -129,13 +127,13 @@ func InputToWorld() World {
 	world := aoc.NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
 	for _, line := range lines {
 		for _, p := range line {
-			world.AddXY(p.X-x0, p.Y-y0, Wall)
+			world.Add(p.X-x0, p.Y-y0, Wall)
 		}
 	}
 
 	// Lastly, since we've shifted the coordinates around also compute the new
 	// X coordinate of the spring.  We know the y coordinate will be 0.
-	world.AddXY(500-x0, 0, Flow)
+	world.Add(500-x0, 0, Flow)
 
 	return World{world}
 }

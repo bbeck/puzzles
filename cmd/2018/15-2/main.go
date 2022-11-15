@@ -135,7 +135,7 @@ func TakeTurn(unit *Unit, cavern aoc.Grid2D[bool], units []Unit) {
 	var candidates aoc.Set[aoc.Point2D]
 	for target := range enemies {
 		for _, p := range target.OrthogonalNeighbors() {
-			if cavern.Get(p) && !occupied.Contains(p) {
+			if cavern.GetPoint(p) && !occupied.Contains(p) {
 				candidates.Add(p)
 			}
 		}
@@ -155,7 +155,7 @@ func TakeTurn(unit *Unit, cavern aoc.Grid2D[bool], units []Unit) {
 	best := math.MaxInt
 	for _, end := range targets {
 		for _, start := range []aoc.Point2D{unit.Up(), unit.Left(), unit.Right(), unit.Down()} {
-			if !cavern.Get(start) || occupied.Contains(start) {
+			if !cavern.GetPoint(start) || occupied.Contains(start) {
 				continue
 			}
 
@@ -188,7 +188,7 @@ func Distance(start, end aoc.Point2D, cavern aoc.Grid2D[bool], occupied aoc.Set[
 	children := func(p aoc.Point2D) []aoc.Point2D {
 		var children []aoc.Point2D
 		for _, neighbor := range []aoc.Point2D{p.Up(), p.Left(), p.Right(), p.Down()} {
-			if cavern.InBounds(neighbor) && cavern.Get(neighbor) && !occupied.Contains(neighbor) {
+			if cavern.InBoundsPoint(neighbor) && cavern.GetPoint(neighbor) && !occupied.Contains(neighbor) {
 				children = append(children, neighbor)
 			}
 		}

@@ -17,8 +17,8 @@ func main() {
 			cell := (rack*y + serial) * rack
 			cell = (cell%1000)/100 - 5
 
-			sum := cell + grid.GetXY(x-1, y) + grid.GetXY(x, y-1) - grid.GetXY(x-1, y-1)
-			grid.AddXY(x, y, sum)
+			sum := cell + grid.Get(x-1, y) + grid.Get(x, y-1) - grid.Get(x-1, y-1)
+			grid.Add(x, y, sum)
 		}
 	}
 
@@ -28,7 +28,7 @@ func main() {
 	for n := 1; n <= grid.Width; n++ {
 		for x := 1; x < grid.Width-n; x++ {
 			for y := 1; y < grid.Height-n; y++ {
-				total := grid.GetXY(x+n-1, y+n-1) - grid.GetXY(x-1, y+n-1) - grid.GetXY(x+n-1, y-1) + grid.GetXY(x-1, y-1)
+				total := grid.Get(x+n-1, y+n-1) - grid.Get(x-1, y+n-1) - grid.Get(x+n-1, y-1) + grid.Get(x-1, y-1)
 				if total > best {
 					best = total
 					p = aoc.Point2D{X: x, Y: y}

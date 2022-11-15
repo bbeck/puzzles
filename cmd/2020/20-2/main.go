@@ -20,11 +20,11 @@ func main() {
 
 				for my := 0; my < m.Height; my++ {
 					for mx := 0; mx < m.Width; mx++ {
-						if m.GetXY(mx, my) {
+						if m.Get(mx, my) {
 							p := aoc.Point2D{X: x + mx, Y: y + my}
 							ps = append(ps, p)
 
-							if !image.Get(p) {
+							if !image.GetPoint(p) {
 								continue next
 							}
 						}
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	var count int
-	image.ForEach(func(p aoc.Point2D, value bool) {
+	image.ForEachPoint(func(p aoc.Point2D, value bool) {
 		if value && !in.Contains(p) {
 			count++
 		}
@@ -125,7 +125,7 @@ outer:
 
 			for y := 1; y < N-1; y++ {
 				for x := 1; x < N-1; x++ {
-					image.AddXY(tx*(N-2)+x-1, ty*(N-2)+y-1, tile.GetXY(x, y))
+					image.Add(tx*(N-2)+x-1, ty*(N-2)+y-1, tile.Get(x, y))
 				}
 			}
 		}
@@ -159,13 +159,9 @@ func GetSeaMonster() Tile {
 	}
 
 	grid := aoc.NewGrid2D[bool](len(lines[0]), len(lines))
-	for y, line := range lines {
-		for x, c := range line {
-			if c == '#' {
-				grid.AddXY(x, y, true)
-			}
-		}
-	}
+	grid.ForEach(func(x, y int, _ bool) {
+		grid.Add(x, y, lines[y][x] == '#')
+	})
 	return Tile{Grid2D: grid}
 }
 
@@ -190,7 +186,7 @@ func (t Tile) Flip() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](W, H)}
 	for y := 0; y < H; y++ {
 		for x := 0; x < W; x++ {
-			s.AddXY(x, y, t.GetXY(W-x-1, y))
+			s.Add(x, y, t.Get(W-x-1, y))
 		}
 	}
 	return s
@@ -201,7 +197,7 @@ func (t Tile) Rotate() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](H, W)}
 	for y := 0; y < W; y++ {
 		for x := 0; x < H; x++ {
-			s.AddXY(x, y, t.GetXY(W-y-1, x))
+			s.Add(x, y, t.Get(W-y-1, x))
 		}
 	}
 	return s
@@ -210,7 +206,7 @@ func (t Tile) Rotate() Tile {
 func (t Tile) FitsOnTop(s Tile) bool {
 	N := t.Width
 	for n := 0; n < N; n++ {
-		if t.GetXY(n, 0) != s.GetXY(n, N-1) {
+		if t.Get(n, 0) != s.Get(n, N-1) {
 			return false
 		}
 	}
@@ -224,7 +220,7 @@ func (t Tile) FitsOnBottom(s Tile) bool {
 func (t Tile) FitsOnRight(s Tile) bool {
 	N := t.Width
 	for n := 0; n < N; n++ {
-		if t.GetXY(N-1, n) != s.GetXY(0, n) {
+		if t.Get(N-1, n) != s.Get(0, n) {
 			return false
 		}
 	}
@@ -245,11 +241,9 @@ func InputToTiles() []Tile {
 		fmt.Sscanf(lines[base], "Tile %d:", &id)
 
 		grid := aoc.NewGrid2D[bool](N, N)
-		for y := 0; y < N; y++ {
-			for x := 0; x < N; x++ {
-				grid.AddXY(x, y, lines[base+y+1][x] == '#')
-			}
-		}
+		grid.ForEach(func(x, y int, _ bool) {
+			grid.Add(x, y, lines[base+y+1][x] == '#')
+		})
 
 		tiles = append(tiles, Tile{ID: id, Grid2D: grid})
 	}

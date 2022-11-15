@@ -18,7 +18,7 @@ func main() {
 		return children
 	}
 	goal := func(p aoc.Point2D) bool { return p == end }
-	cost := func(from, to aoc.Point2D) int { return cave.Get(to) }
+	cost := func(from, to aoc.Point2D) int { return cave.GetPoint(to) }
 	heuristic := func(p aoc.Point2D) int { return end.ManhattanDistance(p) }
 
 	_, risk, _ := aoc.AStarSearch(start, children, goal, cost, heuristic)

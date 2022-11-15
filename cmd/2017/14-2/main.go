@@ -17,7 +17,7 @@ func main() {
 		for i, c := range hash {
 			for bit := 0; bit < 8; bit++ {
 				col := 8*i + (8 - bit - 1)
-				grid.AddXY(col, row, c&(1<<bit) > 0)
+				grid.Add(col, row, c&(1<<bit) > 0)
 			}
 		}
 	}
@@ -26,7 +26,7 @@ func main() {
 	var ds aoc.DisjointSet[aoc.Point2D]
 	for row := 0; row < grid.Height; row++ {
 		for col := 0; col < grid.Width; col++ {
-			if !grid.GetXY(col, row) {
+			if !grid.Get(col, row) {
 				continue
 			}
 
@@ -38,7 +38,7 @@ func main() {
 					continue
 				}
 
-				if grid.Get(neighbor) {
+				if grid.GetPoint(neighbor) {
 					ds.UnionWithAdd(p, neighbor)
 				}
 			}

@@ -11,7 +11,7 @@ func main() {
 	var count int
 	for y := 0; y < grid.Height; y++ {
 		x := 3 * y % grid.Width
-		if grid.GetXY(x, y) {
+		if grid.Get(x, y) {
 			count++
 		}
 	}

@@ -15,7 +15,7 @@ func main() {
 		for y := 1; y < grid.Height; y++ {
 			power := (rack*y + serial) * rack
 			power = (power%1000)/100 - 5
-			grid.AddXY(x, y, power)
+			grid.Add(x, y, power)
 		}
 	}
 
@@ -26,7 +26,7 @@ func main() {
 			var total int
 			for dx := 0; dx < 3; dx++ {
 				for dy := 0; dy < 3; dy++ {
-					total += grid.GetXY(x+dx, y+dy)
+					total += grid.Get(x+dx, y+dy)
 				}
 			}
 

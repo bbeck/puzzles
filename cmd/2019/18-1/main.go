@@ -12,7 +12,7 @@ func main() {
 	children := func(s State) []State {
 		var children []State
 		for p := range graph[s.Point2D] {
-			value := grid.Get(p)
+			value := grid.GetPoint(p)
 
 			// We need to have the key if this child location is a door
 			if IsDoor(value) && !s.Keys.Contains(KeyIDForDoorID(value)) {
@@ -67,7 +67,7 @@ func KeyIDForDoorID(door int) int { return door - 26 }
 func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map[aoc.Point2D]int {
 	// Collect the key/door locations along with the entrance location.
 	ps := []aoc.Point2D{entrance}
-	grid.ForEach(func(p aoc.Point2D, value int) {
+	grid.ForEachPoint(func(p aoc.Point2D, value int) {
 		if value != Empty && value != Wall {
 			ps = append(ps, p)
 		}
@@ -82,11 +82,11 @@ func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map
 
 	children := func(p aoc.Point2D) []aoc.Point2D {
 		var children []aoc.Point2D
-		for _, child := range p.OrthogonalNeighbors() {
-			if grid.Get(child) != Wall {
+		grid.ForEachOrthogonalNeighbor(p, func(child aoc.Point2D, value int) {
+			if value != Wall {
 				children = append(children, child)
 			}
-		}
+		})
 		return children
 	}
 
@@ -94,7 +94,7 @@ func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map
 		for j := i + 1; j < len(ps); j++ {
 			path, ok := aoc.BreadthFirstSearch(ps[i], children, func(p aoc.Point2D) bool { return p == ps[j] })
 			for _, p := range path[1 : len(path)-2] {
-				if grid.Get(p) != Empty {
+				if grid.GetPoint(p) != Empty {
 					ok = false
 					break
 				}

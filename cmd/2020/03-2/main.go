@@ -25,12 +25,13 @@ func main() {
 func CountTrees(grid aoc.Grid2D[bool], slope aoc.Point2D) int {
 	var count int
 
-	var p aoc.Point2D
-	for p.Y < grid.Height {
-		if grid.Get(p) {
+	var x, y int
+	for y < grid.Height {
+		if grid.Get(x, y) {
 			count++
 		}
-		p = aoc.Point2D{X: (p.X + slope.X) % grid.Width, Y: p.Y + slope.Y}
+		x = (x + slope.X) % grid.Width
+		y += slope.Y
 	}
 
 	return count

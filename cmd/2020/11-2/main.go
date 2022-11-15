@@ -9,12 +9,9 @@ func main() {
 	seats := InputToSeats()
 
 	neighbors := make(map[aoc.Point2D][]aoc.Point2D)
-	for y := 0; y < seats.Height; y++ {
-		for x := 0; x < seats.Width; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-			neighbors[p] = GetVisibleNeighbors(p, seats)
-		}
-	}
+	seats.ForEachPoint(func(p aoc.Point2D, value uint8) {
+		neighbors[p] = GetVisibleNeighbors(p, seats)
+	})
 
 	for {
 		next := Next(seats, neighbors)
@@ -26,7 +23,7 @@ func main() {
 	}
 
 	var count int
-	seats.ForEach(func(_ aoc.Point2D, value uint8) {
+	seats.ForEach(func(_, _ int, value uint8) {
 		if value == Occupied {
 			count++
 		}
@@ -42,20 +39,20 @@ const (
 
 func Next(seats aoc.Grid2D[uint8], neighbors map[aoc.Point2D][]aoc.Point2D) aoc.Grid2D[uint8] {
 	next := aoc.NewGrid2D[uint8](seats.Width, seats.Height)
-	seats.ForEach(func(p aoc.Point2D, value uint8) {
+	seats.ForEachPoint(func(p aoc.Point2D, value uint8) {
 		var count int
 		for _, neighbor := range neighbors[p] {
-			if seats.Get(neighbor) == Occupied {
+			if seats.GetPoint(neighbor) == Occupied {
 				count++
 			}
 		}
 
 		if value == Empty && count == 0 {
-			next.Add(p, Occupied)
+			next.AddPoint(p, Occupied)
 		} else if value == Occupied && count >= 5 {
-			next.Add(p, Empty)
+			next.AddPoint(p, Empty)
 		} else {
-			next.Add(p, value)
+			next.AddPoint(p, value)
 		}
 	})
 	return next
@@ -70,12 +67,12 @@ func GetVisibleNeighbors(p aoc.Point2D, seats aoc.Grid2D[uint8]) []aoc.Point2D {
 			}
 
 			q := aoc.Point2D{X: p.X + dx, Y: p.Y + dy}
-			for seats.InBounds(q) && seats.Get(q) == NotASeat {
+			for seats.InBoundsPoint(q) && seats.GetPoint(q) == NotASeat {
 				q.X += dx
 				q.Y += dy
 			}
 
-			if seats.InBounds(q) {
+			if seats.InBoundsPoint(q) {
 				neighbors = append(neighbors, q)
 			}
 		}
@@ -87,7 +84,7 @@ func GetVisibleNeighbors(p aoc.Point2D, seats aoc.Grid2D[uint8]) []aoc.Point2D {
 func Equals(a, b aoc.Grid2D[uint8]) bool {
 	for y := 0; y < a.Height; y++ {
 		for x := 0; x < a.Width; x++ {
-			if a.GetXY(x, y) != b.GetXY(x, y) {
+			if a.Get(x, y) != b.Get(x, y) {
 				return false
 			}
 		}

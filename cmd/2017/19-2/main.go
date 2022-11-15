@@ -39,12 +39,12 @@ func main() {
 
 func CanMoveForward(g aoc.Grid2D[string], t aoc.Turtle) bool {
 	next := t.Location.Move(t.Heading)
-	return g.InBounds(next) && g.Get(next) != Empty
+	return g.InBoundsPoint(next) && g.GetPoint(next) != Empty
 }
 
 func FindStart(g aoc.Grid2D[string]) aoc.Point2D {
 	for x := 0; x < g.Width; x++ {
-		if g.GetXY(x, 0) != Empty {
+		if g.Get(x, 0) != Empty {
 			return aoc.Point2D{X: x, Y: 0}
 		}
 	}

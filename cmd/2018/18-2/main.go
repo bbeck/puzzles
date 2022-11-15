@@ -33,7 +33,7 @@ func main() {
 	previous.Rotate(cycle - remainder)
 
 	counts := make(map[string]int)
-	previous.PeekFront().ForEach(func(p aoc.Point2D, value string) {
+	previous.PeekFront().ForEach(func(_, _ int, value string) {
 		counts[value]++
 	})
 	fmt.Println(counts["|"] * counts["#"])
@@ -41,13 +41,11 @@ func main() {
 
 func Next(area Area) Area {
 	next := Area{aoc.NewGrid2D[string](area.Width, area.Height)}
-	area.ForEach(func(p aoc.Point2D, value string) {
+	area.ForEach(func(x, y int, value string) {
 		counts := make(map[string]int)
-		for _, n := range p.Neighbors() {
-			if area.InBounds(n) {
-				counts[area.Get(n)]++
-			}
-		}
+		area.ForEachNeighbor(x, y, func(_, _ int, value string) {
+			counts[value]++
+		})
 
 		if value == "." && counts["|"] >= 3 {
 			value = "|"
@@ -56,7 +54,7 @@ func Next(area Area) Area {
 		} else if value == "#" && (counts["#"] < 1 || counts["|"] < 1) {
 			value = "."
 		}
-		next.Add(p, value)
+		next.Add(x, y, value)
 	})
 
 	return next
@@ -64,7 +62,7 @@ func Next(area Area) Area {
 
 func Key(area Area) string {
 	var sb strings.Builder
-	area.ForEach(func(p aoc.Point2D, value string) { sb.WriteString(value) })
+	area.ForEach(func(x, y int, value string) { sb.WriteString(value) })
 	return sb.String()
 }
 

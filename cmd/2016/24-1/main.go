@@ -66,7 +66,7 @@ func distance(p1, p2 aoc.Point2D, g aoc.Grid2D[bool]) int {
 	children := func(p aoc.Point2D) []aoc.Point2D {
 		var children []aoc.Point2D
 		for _, c := range p.OrthogonalNeighbors() {
-			if g.Get(c) {
+			if g.GetPoint(c) {
 				children = append(children, c)
 			}
 		}

@@ -18,7 +18,7 @@ func main() {
 	var count int
 	for y := 0; y < lights.Height; y++ {
 		for x := 0; x < lights.Width; x++ {
-			if lights.GetXY(x, y) {
+			if lights.Get(x, y) {
 				count++
 			}
 		}
@@ -27,32 +27,28 @@ func main() {
 }
 
 func TurnOnCorners(lights aoc.Grid2D[bool]) {
-	lights.AddXY(0, 0, true)
-	lights.AddXY(lights.Width-1, 0, true)
-	lights.AddXY(0, lights.Height-1, true)
-	lights.AddXY(lights.Width-1, lights.Height-1, true)
+	lights.Add(0, 0, true)
+	lights.Add(lights.Width-1, 0, true)
+	lights.Add(0, lights.Height-1, true)
+	lights.Add(lights.Width-1, lights.Height-1, true)
 }
 
 func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
 	next := aoc.NewGrid2D[bool](lights.Width, lights.Height)
-	for y := 0; y < 100; y++ {
-		for x := 0; x < 100; x++ {
-			p := aoc.Point2D{X: x, Y: y}
-
-			var count int
-			for _, neighbor := range p.Neighbors() {
-				if lights.InBounds(neighbor) && lights.Get(neighbor) {
-					count++
-				}
+	lights.ForEach(func(x, y int, value bool) {
+		var count int
+		lights.ForEachNeighbor(x, y, func(x, y int, value bool) {
+			if value {
+				count++
 			}
+		})
 
-			// If light==on and count in (2, 3)
-			// If light==off and count==3
-			if count == 3 || (lights.Get(p) && count == 2) {
-				next.Add(p, true)
-			}
+		// If light==on and count in (2, 3)
+		// If light==off and count==3
+		if count == 3 || (lights.Get(x, y) && count == 2) {
+			next.Add(x, y, true)
 		}
-	}
+	})
 
 	return next
 }
