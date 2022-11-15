@@ -51,6 +51,20 @@ NEXT_DAY_NO_ZERO := $(shell printf '%d' $$((10\#$(NEXT_DAY))))
 run: cmd/$(YEAR)/$(DAY)-1/input.txt
 	@go run cmd/$(YEAR)/$(DAY)-$(PART)/*.go
 
+## run all solutions for the specified YEAR
+.PHONY: run-year
+run-year:
+	@for day in {01..25}; do                                       \
+	  for part in 1 2; do                                          \
+	    if [[ "$${day}" == "25" && "$${part}" == "2" ]]; then      \
+	      continue;                                                \
+	    fi;                                                        \
+	    printf "YEAR=%d DAY=%d PART=%d " $(YEAR) $${day} $${part}; \
+	    make --no-print-directory                                  \
+	      run YEAR=$(YEAR) DAY=$${day} PART=$${part};              \
+	  done                                                         \
+	done
+
 # Download the input file for a particular day
 cmd/$(YEAR)/$(DAY)-1/input.txt:
 	@curl                                                          \
