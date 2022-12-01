@@ -71,6 +71,7 @@ cmd/$(YEAR)/$(DAY)-1/input.txt:
 	  --fail                                                       \
 	  --silent                                                     \
 	  --cookie "session=$(SESSION)"                                \
+	  --user-agent "curl/7.79.1 run by bmbeck@gmail.com"           \
 	  --output cmd/$(YEAR)/$(DAY)-1/input.txt                      \
 	  https://adventofcode.com/$(YEAR)/day/$(DAY_NO_ZERO)/input || \
 	(echo "input.txt file not available" >&2; false)
