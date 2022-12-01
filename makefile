@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
 # What editor to open a new file in.
-EDITOR := goland
+EDITOR := "/Applications/IntelliJ IDEA.app/Contents/MacOS/idea"
 
 # Retrieve our session cookie so that we can automatically download inputs.
 SESSION := $(shell cat .session)
