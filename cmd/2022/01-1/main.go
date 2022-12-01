@@ -6,15 +6,16 @@ import (
 )
 
 func main() {
-	var best, group int
-	for _, line := range aoc.InputToLines(2022, 1) {
-		if line != "" {
-			group += aoc.ParseInt(line)
-			continue
+	calories := aoc.InputLinesTo(2022, 1, func(line string) (int, error) {
+		if line == "" {
+			return 0, nil
 		}
+		return aoc.ParseInt(line), nil
+	})
 
-		best = aoc.Max(best, group)
-		group = 0
+	var best int
+	for _, group := range aoc.Split(calories, func(n int) bool { return n != 0 }) {
+		best = aoc.Max(best, aoc.Sum(group...))
 	}
 	fmt.Println(best)
 }

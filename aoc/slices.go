@@ -26,3 +26,23 @@ func Make2D[T any](width, height int) [][]T {
 	}
 	return a
 }
+
+// Split partitions a slice into chunks using a partition function.  Elements of
+// the slice are passed into the partition function and runs of true return
+// values are grouped together into a chunk.
+func Split[T any](ts []T, fn func(T) bool) [][]T {
+	var partitions [][]T
+
+	var current []T
+	for _, t := range ts {
+		if !fn(t) {
+			partitions = append(partitions, current)
+			current = nil
+			continue
+		}
+
+		current = append(current, t)
+	}
+
+	return partitions
+}
