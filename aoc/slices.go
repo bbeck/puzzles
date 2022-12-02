@@ -44,5 +44,9 @@ func Split[T any](ts []T, fn func(T) bool) [][]T {
 		current = append(current, t)
 	}
 
+	if current != nil {
+		partitions = append(partitions, current)
+	}
+
 	return partitions
 }
