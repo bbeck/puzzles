@@ -2,34 +2,25 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-var Scores = map[string]map[string]int{
-	"A": { // rock
-		"X": 1 + 3, // rock     (draw)
-		"Y": 2 + 6, // paper    (win)
-		"Z": 3 + 0, // scissors (lose)
-	},
-	"B": { // paper
-		"X": 1 + 0, // rock     (lose)
-		"Y": 2 + 3, // paper    (draw)
-		"Z": 3 + 6, // scissors (win)
-	},
-	"C": { // scissors
-		"X": 1 + 6, // rock     (win)
-		"Y": 2 + 0, // paper    (lose)
-		"Z": 3 + 3, // scissors (draw)
-	},
+var Scores = map[string]int{
+	"A X": 1 + 3, // rock     rock     (draw)
+	"A Y": 2 + 6, // rock     paper    (win)
+	"A Z": 3 + 0, // rock     scissors (lose)
+	"B X": 1 + 0, // paper    rock     (lose)
+	"B Y": 2 + 3, // paper    paper    (draw)
+	"B Z": 3 + 6, // paper    scissors (win)
+	"C X": 1 + 6, // scissors rock     (win)
+	"C Y": 2 + 0, // scissors paper    (lose)
+	"C Z": 3 + 3, // scissors scissors (draw)
 }
 
 func main() {
 	var score int
 	for _, line := range aoc.InputToLines(2022, 2) {
-		a, b, _ := strings.Cut(line, " ")
-		score += Scores[a][b]
+		score += Scores[line]
 	}
 	fmt.Println(score)
 }
