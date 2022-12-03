@@ -50,3 +50,15 @@ func Split[T any](ts []T, fn func(T) bool) [][]T {
 
 	return partitions
 }
+
+// Chunk breaks a slice into chunks with the specified size.  If the number of
+// elements in the slice isn't evenly divisible by n, then the last chunk will
+// container fewer than n elements.
+func Chunk[T any](ts []T, n int) [][]T {
+	var chunks [][]T
+	for start := 0; start < len(ts); start += n {
+		end := Min(len(ts), start+n)
+		chunks = append(chunks, ts[start:end])
+	}
+	return chunks
+}
