@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"strings"
 )
+
+const AllItems = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func main() {
 	var sum int
@@ -12,12 +15,7 @@ func main() {
 		lhs, rhs := SetFrom(sack[:N/2]), SetFrom(sack[N/2:])
 
 		common := lhs.Intersect(rhs).Entries()[0]
-		switch {
-		case 'a' <= common && common <= 'z':
-			sum += int(common-'a') + 1
-		case 'A' <= common && common <= 'Z':
-			sum += int(common-'A') + 27
-		}
+		sum += strings.IndexByte(AllItems, common)
 	}
 	fmt.Println(sum)
 }
