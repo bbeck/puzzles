@@ -2,101 +2,46 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"strings"
-
 	"github.com/bbeck/advent-of-code/aoc"
+	"math"
+	"path/filepath"
+	"strings"
 )
 
 func main() {
-	dir := InputToFilesystem()
-
-	sizes := make(map[*Directory]int)
-	dir.DFS(func(d *Directory) {
-		size := aoc.Sum(aoc.GetMapValues(d.Files)...)
-		for _, child := range d.Dirs {
-			size += sizes[child]
-		}
-		sizes[d] = size
-	})
-
-	free := math.MaxInt
-	for _, size := range sizes {
-		if 40000000-sizes[dir]+size >= 0 {
-			free = aoc.Min(free, size)
-		}
-	}
-	fmt.Println(free)
-}
-
-type Directory struct {
-	Name  string
-	Dirs  map[string]*Directory
-	Files map[string]int
-}
-
-func NewDirectory(name string) *Directory {
-	return &Directory{
-		Name:  name,
-		Dirs:  make(map[string]*Directory),
-		Files: make(map[string]int),
-	}
-}
-
-func (d *Directory) DFS(fn func(*Directory)) {
-	for _, child := range d.Dirs {
-		child.DFS(fn)
-	}
-	fn(d)
-}
-
-func InputToFilesystem() *Directory {
-	var lines aoc.Deque[string]
-	for _, line := range aoc.InputToLines(2022, 7) {
-		lines.PushBack(line)
-	}
-
-	root := NewDirectory("/")
+	sizes := make(map[string]int)
 
 	var path []string
-	for !lines.Empty() {
-		line := lines.PopFront()
+	for _, line := range aoc.InputToLines(2022, 7) {
+		words := strings.Fields(line)
 
 		switch {
-		case line == "$ cd /":
+		case words[0] == "$" && words[1] == "cd" && words[2] == "/":
 			path = nil
 
-		case line == "$ cd ..":
+		case words[0] == "$" && words[1] == "cd" && words[2] == "..":
 			path = path[:len(path)-1]
 
-		case strings.HasPrefix(line, "$ cd"):
-			path = append(path, line[5:])
+		case words[0] == "$" && words[1] == "cd":
+			path = append(path, words[2])
 
-		case line == "$ ls":
-			dir := GetDirectory(root, path)
-			for !lines.Empty() {
-				if line := lines.PeekFront(); line[0] == '$' {
-					break
-				}
+		case words[0] != "$" && words[0] != "dir":
+			size := aoc.ParseInt(words[0])
 
-				line := lines.PopFront()
-				size, name, _ := strings.Cut(line, " ")
-				if size != "dir" {
-					dir.Files[name] = aoc.ParseInt(size)
-				}
+			// Add this size to the current directory and all parents
+			sizes[filepath.Join(path...)] += size
+			for end := 0; end < len(path); end++ {
+				sizes[filepath.Join(path[:end]...)] += size
 			}
 		}
 	}
 
-	return root
-}
-
-func GetDirectory(root *Directory, path []string) *Directory {
-	for _, part := range path {
-		if _, ok := root.Dirs[part]; !ok {
-			root.Dirs[part] = NewDirectory(part)
+	toRemove := math.MaxInt
+	for _, size := range sizes {
+		free := 70000000 - sizes[""] + size
+		if free >= 30000000 {
+			toRemove = aoc.Min(toRemove, size)
 		}
-		root = root.Dirs[part]
 	}
-	return root
+	fmt.Println(toRemove)
 }
