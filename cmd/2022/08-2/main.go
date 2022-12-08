@@ -10,27 +10,28 @@ func main() {
 		return aoc.ParseInt(value)
 	})
 
-	var score int
-	for x := 0; x < grid.Width; x++ {
-		for y := 0; y < grid.Height; y++ {
-			score = aoc.Max(score, Score(grid, x, y))
+	var best int
+	grid.ForEachPoint(func(p aoc.Point2D, _ int) {
+		counts := []int{
+			Count(grid, p, aoc.Left),
+			Count(grid, p, aoc.Right),
+			Count(grid, p, aoc.Up),
+			Count(grid, p, aoc.Down),
 		}
-	}
-	fmt.Println(score)
+		best = aoc.Max(best, aoc.Product(counts...))
+	})
+	fmt.Println(best)
 }
 
-func Score(g aoc.Grid2D[int], x, y int) int {
-	count := func(p aoc.Point2D, h aoc.Heading) int {
-		var n int
-		for p = p.Move(h); g.InBoundsPoint(p); p = p.Move(h) {
-			n++
-			if g.GetPoint(p) >= g.Get(x, y) {
-				break
-			}
-		}
-		return n
-	}
+func Count(g aoc.Grid2D[int], p aoc.Point2D, h aoc.Heading) int {
+	height := g.GetPoint(p)
 
-	p := aoc.Point2D{X: x, Y: y}
-	return count(p, aoc.Left) * count(p, aoc.Right) * count(p, aoc.Up) * count(p, aoc.Down)
+	var count int
+	for p = p.Move(h); g.InBoundsPoint(p); p = p.Move(h) {
+		count++
+		if g.GetPoint(p) >= height {
+			break
+		}
+	}
+	return count
 }

@@ -62,3 +62,26 @@ func Chunk[T any](ts []T, n int) [][]T {
 	}
 	return chunks
 }
+
+// Identity is a predicate that returns it's argument unmodified.
+func Identity[T any](t T) T { return t }
+
+// All determines if every element in the specified slice meets a predicate.
+func All[T any](elems []T, fn func(T) bool) bool {
+	for _, elem := range elems {
+		if !fn(elem) {
+			return false
+		}
+	}
+	return true
+}
+
+// Any determines if any element in the specified slice meets a predicate.
+func Any[T any](elems []T, fn func(T) bool) bool {
+	for _, elem := range elems {
+		if fn(elem) {
+			return true
+		}
+	}
+	return false
+}

@@ -11,26 +11,26 @@ func main() {
 	})
 
 	var count int
-	for x := 0; x < grid.Width; x++ {
-		for y := 0; y < grid.Height; y++ {
-			if IsVisible(grid, x, y) {
-				count++
-			}
+	grid.ForEachPoint(func(p aoc.Point2D, _ int) {
+		visible := []bool{
+			IsVisible(grid, p, aoc.Left),
+			IsVisible(grid, p, aoc.Right),
+			IsVisible(grid, p, aoc.Up),
+			IsVisible(grid, p, aoc.Down),
 		}
-	}
+		if aoc.Any(visible, aoc.Identity[bool]) {
+			count++
+		}
+	})
 	fmt.Println(count)
 }
 
-func IsVisible(g aoc.Grid2D[int], x, y int) bool {
-	visible := func(p aoc.Point2D, h aoc.Heading) bool {
-		for p := p.Move(h); g.InBoundsPoint(p); p = p.Move(h) {
-			if g.GetPoint(p) >= g.Get(x, y) {
-				return false
-			}
+func IsVisible(g aoc.Grid2D[int], p aoc.Point2D, h aoc.Heading) bool {
+	height := g.GetPoint(p)
+	for p = p.Move(h); g.InBoundsPoint(p); p = p.Move(h) {
+		if g.GetPoint(p) >= height {
+			return false
 		}
-		return true
 	}
-
-	p := aoc.Point2D{X: x, Y: y}
-	return visible(p, aoc.Left) || visible(p, aoc.Right) || visible(p, aoc.Up) || visible(p, aoc.Down)
+	return true
 }
