@@ -55,6 +55,15 @@ func (p Point2D) Move(h Heading) Point2D {
 	}
 }
 
+// MoveN returns the point after moving along the specified heading n times.
+func (p Point2D) MoveN(h Heading, n int) Point2D {
+	for n > 0 {
+		p = p.Move(h)
+		n--
+	}
+	return p
+}
+
 // OrthogonalNeighbors returns a slice of neighbors that are orthogonal to
 // the current point.
 func (p Point2D) OrthogonalNeighbors() []Point2D {
