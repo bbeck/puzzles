@@ -13,29 +13,23 @@ var Headings = map[byte]aoc.Heading{
 }
 
 func main() {
-	var head aoc.Point2D
-	var tails [9]aoc.Point2D
+	var knots [10]aoc.Point2D
 
-	seen := aoc.SetFrom(tails[8])
+	seen := aoc.SetFrom(knots[9])
 	for _, line := range aoc.InputToLines(2022, 9) {
 		dir := Headings[line[0]]
 		n := aoc.ParseInt(line[2:])
-		head = head.MoveN(dir, n)
+		knots[0] = knots[0].MoveN(dir, n)
 
 		for {
 			var changed bool
-			for i, tail := range tails {
-				target := head
-				if i != 0 {
-					target = tails[i-1]
-				}
-
-				next := MoveTowards(target, tail)
-				changed = changed || tail != next
-				tails[i] = next
+			for i := 1; i < len(knots); i++ {
+				next := MoveTowards(knots[i-1], knots[i])
+				changed = changed || knots[i] != next
+				knots[i] = next
 			}
 
-			seen.Add(tails[8])
+			seen.Add(knots[9])
 
 			if !changed {
 				break
@@ -48,17 +42,10 @@ func main() {
 
 func MoveTowards(head, tail aoc.Point2D) aoc.Point2D {
 	neighbors := aoc.SetFrom(head.Neighbors()...)
-	if head == tail || neighbors.Contains(tail) {
+	if neighbors.Contains(tail) {
 		return tail
 	}
 
-	dx, dy := head.X-tail.X, head.Y-tail.Y
-	if dx != 0 {
-		dx = aoc.Abs(dx) / dx
-	}
-	if dy != 0 {
-		dy = aoc.Abs(dy) / dy
-	}
-
+	dx, dy := aoc.Sign(head.X-tail.X), aoc.Sign(head.Y-tail.Y)
 	return aoc.Point2D{X: tail.X + dx, Y: tail.Y + dy}
 }

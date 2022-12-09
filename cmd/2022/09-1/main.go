@@ -37,17 +37,10 @@ func main() {
 
 func MoveTowards(head, tail aoc.Point2D) aoc.Point2D {
 	neighbors := aoc.SetFrom(head.Neighbors()...)
-	if head == tail || neighbors.Contains(tail) {
+	if neighbors.Contains(tail) {
 		return tail
 	}
 
-	dx, dy := head.X-tail.X, head.Y-tail.Y
-	if dx != 0 {
-		dx = aoc.Abs(dx) / dx
-	}
-	if dy != 0 {
-		dy = aoc.Abs(dy) / dy
-	}
-
+	dx, dy := aoc.Sign(head.X-tail.X), aoc.Sign(head.Y-tail.Y)
 	return aoc.Point2D{X: tail.X + dx, Y: tail.Y + dy}
 }

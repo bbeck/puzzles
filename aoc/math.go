@@ -10,6 +10,17 @@ func Abs[T Integer | Float](n T) T {
 	return n
 }
 
+// Sign returns the sign of the provided number.
+func Sign[T Integer](n T) T {
+	if n == 0 {
+		return 0
+	}
+	if n < 0 {
+		return -n / n
+	}
+	return n / n
+}
+
 // Sum adds together each of the provided elements.
 func Sum[T Number](elems ...T) T {
 	var sum T
