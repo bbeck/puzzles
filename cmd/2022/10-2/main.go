@@ -8,30 +8,24 @@ import (
 )
 
 func main() {
-	crt := aoc.NewGrid2D[bool](40, 6)
-	cycle, x := 0, 1
-
-	draw := func() {
-		value := x-1 <= cycle%40 && cycle%40 <= x+1
-		crt.Add(cycle%40, cycle/40, value)
-		cycle++
-	}
+	// The signal value for each cycle.  Seeded with 1 since x starts at 1.
+	signals := []int{1}
 
 	for _, line := range aoc.InputToLines(2022, 10) {
-		op, arg, _ := strings.Cut(line, " ")
-		switch op {
+		x := signals[len(signals)-1]
+
+		switch op, arg, _ := strings.Cut(line, " "); op {
 		case "addx":
-			draw()
-			draw()
-			x += aoc.ParseInt(arg)
+			signals = append(signals, []int{x, x + aoc.ParseInt(arg)}...)
+
 		case "noop":
-			draw()
+			signals = append(signals, x)
 		}
 	}
 
-	for y := 0; y < crt.Height; y++ {
-		for x := 0; x < crt.Width; x++ {
-			if crt.Get(x, y) {
+	for y := 0; y < 6; y++ {
+		for x := 0; x < 40; x++ {
+			if cycle := y*40 + x; x-1 <= signals[cycle] && signals[cycle] <= x+1 {
 				fmt.Print("█")
 			} else {
 				fmt.Print(" ")
