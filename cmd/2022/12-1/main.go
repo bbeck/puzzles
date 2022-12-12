@@ -10,11 +10,11 @@ func main() {
 	grid := aoc.InputToGrid2D(2022, 12, func(x, y int, s string) byte {
 		if s == "S" {
 			start = aoc.Point2D{X: x, Y: y}
-			s = "a"
+			return 'a'
 		}
 		if s == "E" {
 			end = aoc.Point2D{X: x, Y: y}
-			s = "z"
+			return 'z'
 		}
 		return s[0]
 	})
@@ -24,7 +24,7 @@ func main() {
 
 		var children []aoc.Point2D
 		grid.ForEachOrthogonalNeighbor(p, func(child aoc.Point2D, cv byte) {
-			if cv <= pv || cv-pv == 1 {
+			if cv <= pv+1 {
 				children = append(children, child)
 			}
 		})
