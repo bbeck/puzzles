@@ -4,79 +4,67 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
-	"strings"
 )
 
 func main() {
-	lines := aoc.InputToLines(2022, 13)
+	numbers := InputToNumbers()
 
 	var sum int
-	index := 1
-	for i := 0; i < len(lines); i += 3 {
-		lhs, rhs := ParseNumber(lines[i]), ParseNumber(lines[i+1])
-		if a, _ := Compare(lhs, rhs, 0); a {
-			sum += index
-			fmt.Println(true)
-		} else {
-			fmt.Println(false)
+	for i := 0; i < len(numbers); i += 2 {
+		cmp := Compare(numbers[i], numbers[i+1])
+		if cmp < 0 {
+			sum += 1 + (i+1)/2
 		}
-		fmt.Println()
-		index++
-		// break
 	}
 	fmt.Println(sum)
 }
 
-func Indent(n int) string {
-	var sb strings.Builder
-	for n > 0 {
-		sb.WriteString("  ")
-		n--
-	}
-	return sb.String()
-}
+func Compare(lhs, rhs any) int {
+	switch {
+	case IsInt(lhs) && IsInt(rhs):
+		lhs, rhs := int(lhs.(float64)), int(rhs.(float64))
+		return lhs - rhs
 
-type Answer bool
-type KeepGoing bool
-
-func Compare(lhs, rhs any, indent int) (Answer, KeepGoing) {
-	fmt.Printf(Indent(indent)+"Compare %v vs %v\n", lhs, rhs)
-	_, isLeftInt := lhs.(float64)
-	_, isRightInt := rhs.(float64)
-	if isLeftInt && isRightInt {
-		if lhs.(float64) == rhs.(float64) {
-			return Answer(false), KeepGoing(true)
-		}
-		return Answer(lhs.(float64) < rhs.(float64)), KeepGoing(false)
-	}
-
-	_, isLeftList := lhs.([]any)
-	_, isRightList := rhs.([]any)
-	if isLeftList && isRightList {
-		left := lhs.([]any)
-		right := rhs.([]any)
-		for i := 0; i < aoc.Min(len(left), len(right)); i++ {
-			a, kg := Compare(left[i], right[i], indent+1)
-			if !kg {
-				return a, kg
+	case IsList(lhs) && IsList(rhs):
+		lhs, rhs := lhs.([]any), rhs.([]any)
+		for i := 0; i < aoc.Min(len(lhs), len(rhs)); i++ {
+			cmp := Compare(lhs[i], rhs[i])
+			if cmp != 0 {
+				return cmp
 			}
 		}
-		if len(left) < len(right) {
-			return Answer(true), KeepGoing(false)
-		} else if len(left) == len(right) {
-			return Answer(true), KeepGoing(true)
-		}
-		return Answer(false), KeepGoing(false)
+		return len(lhs) - len(rhs)
+
+	case IsInt(lhs):
+		return Compare([]any{lhs}, rhs)
+
+	case IsInt(rhs):
+		return Compare(lhs, []any{rhs})
 	}
 
-	if isLeftInt {
-		return Compare([]any{lhs}, rhs, indent+1)
-	}
-	return Compare(lhs, []any{rhs}, indent+1)
+	return 0 // This should never happen
 }
 
-func ParseNumber(input string) any {
-	var f any
-	json.Unmarshal([]byte(input), &f)
-	return f
+func IsInt(n any) bool {
+	_, ok := n.(float64)
+	return ok
+}
+func IsList(n any) bool {
+	_, ok := n.([]any)
+	return ok
+}
+
+func InputToNumbers() []any {
+	var numbers []any
+	for _, line := range aoc.InputToLines(2022, 13) {
+		if len(line) == 0 {
+			continue
+		}
+
+		var number any
+		_ = json.Unmarshal([]byte(line), &number)
+		numbers = append(numbers, number)
+	}
+
+	return numbers
 }
