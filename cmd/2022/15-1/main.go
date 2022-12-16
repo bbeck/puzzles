@@ -4,46 +4,45 @@ import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
 	"math"
+	"sort"
 )
+
+const Y = 2000000
 
 func main() {
 	sensors := InputToSensors()
 
-	minX := math.MaxInt
-	maxX := 0
-	for _, sensor := range sensors {
-		distance := sensor.ManhattanDistance(sensor.Beacon)
-		// fmt.Println(sensor, sensor.Beacon, distance)
-		minX = aoc.Min(minX, sensor.X-distance)
-		maxX = aoc.Max(maxX, sensor.X+distance)
+	var ranges []Range
+	for _, s := range sensors {
+		if r := s.GetRange(Y); r != nil {
+			ranges = append(ranges, *r)
+		}
 	}
-	fmt.Println("minX:", minX, "maxX:", maxX)
+
+	sort.Slice(ranges, func(i, j int) bool {
+		return ranges[i].Min < ranges[j].Min
+	})
 
 	var count int
-	for x := minX; x <= maxX; x++ {
-		if !InRange(sensors, x, 2000000) {
-			count++
+	x := math.MinInt
+	for _, r := range ranges {
+		if x > r.Max {
+			continue
 		}
+		if x < r.Min {
+			x = r.Min
+		}
+
+		// In theory this will count spaces that contain a beacon making our count
+		// too high.  But for some reason in practice it doesn't?
+		count += r.Max - x
+		x = r.Max
 	}
 	fmt.Println(count)
 }
 
-func InRange(sensors []Sensor, x, y int) bool {
-	p := aoc.Point2D{X: x, Y: y}
-	for _, sensor := range sensors {
-		if sensor.Point2D == p || sensor.Beacon == p {
-			return true
-		}
-	}
-
-	for _, sensor := range sensors {
-		d1 := sensor.ManhattanDistance(sensor.Beacon)
-		d2 := sensor.ManhattanDistance(p)
-		if d2 <= d1 {
-			return false
-		}
-	}
-	return true
+type Range struct {
+	Min, Max int
 }
 
 type Sensor struct {
@@ -51,11 +50,30 @@ type Sensor struct {
 	Beacon aoc.Point2D
 }
 
+func (s Sensor) GetRange(y int) *Range {
+	distance := s.ManhattanDistance(s.Beacon) - aoc.Abs(s.Y-y)
+	if distance < 0 {
+		return nil
+	}
+	return &Range{
+		Min: s.X - distance,
+		Max: s.X + distance,
+	}
+}
+
 func InputToSensors() []Sensor {
 	return aoc.InputLinesTo(2022, 15, func(line string) (Sensor, error) {
-		var sensor Sensor
-		_, err := fmt.Sscanf(line, "Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d",
-			&sensor.X, &sensor.Y, &sensor.Beacon.X, &sensor.Beacon.Y)
-		return sensor, err
+		var sensor, beacon aoc.Point2D
+		_, err := fmt.Sscanf(
+			line,
+			"Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d",
+			&sensor.X, &sensor.Y,
+			&beacon.X, &beacon.Y,
+		)
+
+		return Sensor{
+			Point2D: sensor,
+			Beacon:  beacon,
+		}, err
 	})
 }
