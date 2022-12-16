@@ -33,7 +33,8 @@ func main() {
 	previous.Rotate(cycle - remainder)
 
 	counts := make(map[string]int)
-	previous.PeekFront().ForEach(func(_, _ int, value string) {
+	front := previous.PeekFront()
+	front.ForEach(func(_, _ int, value string) {
 		counts[value]++
 	})
 	fmt.Println(counts["|"] * counts["#"])
