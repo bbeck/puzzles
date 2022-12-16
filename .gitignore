@@ -19,5 +19,8 @@ vendor/
 .idea/
 .vscode/
 
+# Input files
+input.txt
+
 # Session cookie file
 .session
