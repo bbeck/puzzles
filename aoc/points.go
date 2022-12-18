@@ -130,6 +130,19 @@ type Point3D struct {
 // Origin3D is the point that lies on the origin.
 var Origin3D = Point3D{X: 0, Y: 0, Z: 0}
 
+// OrthogonalNeighbors returns a slice of neighbors that are orthogonal to
+// the current point.
+func (p Point3D) OrthogonalNeighbors() []Point3D {
+	return []Point3D{
+		{p.X - 1, p.Y, p.Z},
+		{p.X + 1, p.Y, p.Z},
+		{p.X, p.Y - 1, p.Z},
+		{p.X, p.Y + 1, p.Z},
+		{p.X, p.Y, p.Z - 1},
+		{p.X, p.Y, p.Z + 1},
+	}
+}
+
 // Neighbors returns a slice of all neighbors to the current point.
 func (p Point3D) Neighbors() []Point3D {
 	var neighbors []Point3D
