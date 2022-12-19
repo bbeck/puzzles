@@ -7,104 +7,99 @@ import (
 	"github.com/bbeck/advent-of-code/aoc"
 )
 
-var valves map[string]Valve
-
 func main() {
-	var zero string
-	valves = make(map[string]Valve)
-	for _, v := range InputToValves() {
-		valves[v.ID] = v
-		if v.Index == 0 {
-			zero = v.ID
-		}
-	}
-
-	valves[zero] = Valve{
-		ID:        zero,
-		Index:     valves["AA"].Index,
-		Rate:      valves[zero].Rate,
-		Neighbors: valves[zero].Neighbors,
-	}
-	valves["AA"] = Valve{
-		ID:        "AA",
-		Index:     0,
-		Rate:      valves["AA"].Rate,
-		Neighbors: valves["AA"].Neighbors,
-	}
-
-	for _, v := range valves {
-		fmt.Printf("%+v\n", v)
-	}
-
-	N := uint64(len(valves))
-	MASK := aoc.Pow(uint64(2), N) - 2
-	L := MASK + 2
+	valves, start := InputToValves()
+	partitions := GetPartitions(valves, start)
 
 	var best int
-	for n := uint64(0); n < L; n++ {
-		meTargets := aoc.BitSet(n & MASK)
-		elTargets := aoc.BitSet(^uint64(meTargets) & MASK)
-
-		best = aoc.Max(best,
-			Run(valves["AA"], 0, meTargets, 26)+
-				Run(valves["AA"], 0, elTargets, 26),
-		)
-
-		fmt.Println(n, "/", L, best)
-		memo = make(map[Key]int)
+	for _, partition := range partitions {
+		state1 := NewState(26, start, uint16(partition.First|(1<<start)&0xFFFF))
+		state2 := NewState(26, start, uint16(partition.Second|(1<<start)&0xFFFF))
+		best = aoc.Max(best, Run(state1, valves)+Run(state2, valves))
 	}
-	fmt.Println("best:", best)
+	fmt.Println(best)
 }
 
-type Key struct {
-	current string
-	opened  aoc.BitSet
-	targets aoc.BitSet
-	tm      int
-}
+// GetPartitions returns all unique partitions of the valves among the two
+// users.  This function ignores the order of the partitions, having player 1
+// open valves [1, 2, 3] and player 2 open valves [4, 5] is identical to having
+// player 1 open valves [4, 5] and player 2 open valves [1, 2, 3].
+func GetPartitions(valves []Valve, start int) []Partition {
+	MASK := uint64(0)
+	for n := 0; n < len(valves); n++ {
+		MASK |= 1 << n
+	}
+	MASK &= ^(1 << start)
 
-var memo = make(map[Key]int)
+	N := aoc.Pow(uint64(2), uint64(len(valves)))
 
-func Run(current Valve, opened aoc.BitSet, targets aoc.BitSet, tm int) int {
-	if tm <= 0 || opened.Contains(current.Index) {
-		return 0
+	var partitions aoc.Set[Partition]
+	for n := uint64(0); n < N; n++ {
+		a, b := n&MASK, (^n)&MASK
+		a, b = aoc.Min(a, b), aoc.Max(a, b)
+		partitions.Add(Partition{First: a, Second: b})
 	}
 
-	key := Key{current.ID, opened, targets, tm}
-	if best, ok := memo[key]; ok {
+	return partitions.Entries()
+}
+
+type Partition struct {
+	First, Second uint64
+}
+
+var memo = make(map[State]int)
+
+func Run(state State, valves []Valve) int {
+	if best, ok := memo[state]; ok {
 		return best
 	}
 
+	tm := state.Time()
+	valve := valves[state.Current()]
+	opened := state.Opened()
+
 	var best int
-	for nid, cost := range current.Neighbors {
-		// We can open the current valve and accrue its rate for the remaining time
-		if current.Rate > 0 && targets.Contains(current.Index) {
-			val := (tm - 1) * current.Rate
-			best = aoc.Max(best, Run(valves[nid], opened.Add(current.Index), targets, tm-cost-1)+val)
+	for nid, cost := range valve.Neighbors {
+		if cost >= tm || state.IsOpened(nid) {
+			continue
 		}
 
-		// Or we can leave it shut
-		best = aoc.Max(best, Run(valves[nid], opened, targets, tm-cost))
+		next := NewState(tm-cost-1, nid, opened|(1<<nid))
+		rate := (tm - cost - 1) * valves[nid].Rate
+		best = aoc.Max(best, Run(next, valves)+rate)
 	}
 
-	memo[key] = best
+	memo[state] = best
 	return best
 }
 
+// State represents the current state packed into a single uint64.  From MSB to
+// LSB we have:
+//   - Remaining time (5-bits)
+//   - Current location (4-bits)
+//   - Opened valves (16-bits)
+type State uint64
+
+func NewState(tm int, current int, opened uint16) State {
+	return State((tm&0x1F)<<20 | (current&0xF)<<16 | int(opened))
+}
+func (s State) Time() int           { return int((s >> 20) & 0x1F) }
+func (s State) Current() int        { return int(s>>16) & 0xF }
+func (s State) Opened() uint16      { return uint16(s & 0xFFFF) }
+func (s State) IsOpened(n int) bool { return s.Opened()&(1<<n) > 0 }
+
 type Valve struct {
 	ID        string
-	Index     int
 	Rate      int
-	Neighbors map[string]int
+	Neighbors map[int]int
 }
 
-func InputToValves() []Valve {
-	var ids []string
-	var rates []int
-	var neighbors [][]string
-	indices := make(map[string]int)
+func InputToValves() ([]Valve, int) {
+	ids := make([]string, 0)
+	rates := make(map[string]int)
+	neighbors := make(map[string][]string)
 
-	for i, line := range aoc.InputToLines(2022, 16) {
+	for _, line := range aoc.InputToLines(2022, 16) {
 		line = strings.ReplaceAll(line, "Valve ", "")
 		line = strings.ReplaceAll(line, "has flow rate=", "")
 		line = strings.ReplaceAll(line, "; tunnels lead to valves", "")
@@ -112,59 +107,67 @@ func InputToValves() []Valve {
 		line = strings.ReplaceAll(line, ",", "")
 		fields := strings.Fields(line)
 
-		ids = append(ids, fields[0])
-		rates = append(rates, aoc.ParseInt(fields[1]))
-		neighbors = append(neighbors, fields[2:])
-		indices[fields[0]] = i
+		id := fields[0]
+		ids = append(ids, id)
+		rates[id] = aoc.ParseInt(fields[1])
+		neighbors[id] = fields[2:]
 	}
 
 	// Floyd-Warshall
-	N := len(ids)
-	cost := aoc.Make2D[int](N, N)
-	for i := 0; i < N; i++ {
-		for j := 0; j < N; j++ {
+	cost := make(map[string]map[string]int)
+	for _, i := range ids {
+		cost[i] = make(map[string]int)
+		for _, j := range ids {
 			cost[i][j] = 10000
 		}
-	}
-	for i := 0; i < N; i++ {
+
 		cost[i][i] = 0
 		for _, n := range neighbors[i] {
-			cost[i][indices[n]] = 1
+			cost[i][n] = 1
 		}
 	}
-
-	for k := 0; k < N; k++ {
-		for i := 0; i < N; i++ {
-			for j := 0; j < N; j++ {
-				if cost[i][k]+cost[k][j] < cost[i][j] {
-					cost[i][j] = cost[i][k] + cost[k][j]
+	for _, k := range ids {
+		for _, i := range ids {
+			for _, j := range ids {
+				if ck := cost[i][k] + cost[k][j]; ck < cost[i][j] {
+					cost[i][j] = ck
 				}
 			}
 		}
 	}
 
-	var valves []Valve
-	for i := 0; i < N; i++ {
-		if rates[i] == 0 && ids[i] != "AA" {
+	// We're going to keep the valves that have a non-zero rate along with valve
+	// AA because it's our starting location.  Assign each of these an index.
+	indices := make(map[string]int)
+
+	var N int
+	for _, id := range ids {
+		if rates[id] > 0 || id == "AA" {
+			indices[id] = N
+			N++
+		}
+	}
+
+	// Finally, build the valves.
+	valves := make([]Valve, N)
+	for _, id := range ids {
+		index, ok := indices[id]
+		if !ok {
 			continue
 		}
 
-		ns := make(map[string]int)
-		for j := 0; j < N; j++ {
-			if i == j {
-				continue
-			}
-			if rates[j] > 0 {
-				ns[ids[j]] = cost[i][indices[ids[j]]]
+		ns := make(map[int]int)
+		for nid, nindex := range indices {
+			if c := cost[id][nid]; c > 0 && rates[nid] > 0 {
+				ns[nindex] = c
 			}
 		}
 
-		valves = append(valves, Valve{
-			ID:        ids[i],
-			Index:     len(valves),
-			Rate:      rates[i],
+		valves[index] = Valve{
+			ID:        id,
+			Rate:      rates[id],
 			Neighbors: ns,
-		})
+		}
 	}
-	return valves
+	return valves, indices["AA"]
 }
