@@ -63,7 +63,7 @@ func Chunk[T any](ts []T, n int) [][]T {
 	return chunks
 }
 
-// Identity is a predicate that returns it's argument unmodified.
+// Identity is a predicate that returns its argument unmodified.
 func Identity[T any](t T) T { return t }
 
 // All determines if every element in the specified slice meets a predicate.
