@@ -16,94 +16,102 @@ func main() {
 }
 
 func Run(bp Blueprint) int {
-	maxCosts := []int{
+	// We shouldn't ever build more robot of a given type than the most we can
+	// spend in a round.  That's because even if we spent everything in the round
+	// the very next round we'll already be at max.  More than that is just a
+	// waste.
+	maxNeeded := [4]int{
 		aoc.Max(bp.Costs[0][0], bp.Costs[1][0], bp.Costs[2][0], bp.Costs[3][0]),
 		aoc.Max(bp.Costs[0][1], bp.Costs[1][1], bp.Costs[2][1], bp.Costs[3][1]),
 		aoc.Max(bp.Costs[0][2], bp.Costs[1][2], bp.Costs[2][2], bp.Costs[3][2]),
 		math.MaxInt,
 	}
 
-	add := [][]int{
+	add := [4][4]int{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
 		{0, 0, 1, 0},
 		{0, 0, 0, 1},
 	}
 
-	compress := func(s State) State {
-		// Don't keep around more ore than we can spend for the rest of the time
-		// TODO: Make this even tighter since robots are going to keep mining
-		s.Ores[0] = aoc.Min(s.Ores[0], s.Time*maxCosts[0])
-		s.Ores[1] = aoc.Min(s.Ores[1], s.Time*maxCosts[1])
-		s.Ores[2] = aoc.Min(s.Ores[2], s.Time*maxCosts[2])
-		return s
-	}
+	memo := make(map[State]int)
 
-	children := func(s State) []State {
-		if s.Time <= 0 {
-			return nil
+	var helper func(State) int
+	helper = func(s State) int {
+		if s.Time == 0 {
+			return s.Ores[3]
 		}
 
-		var children []State
+		if best, ok := memo[s]; ok {
+			return best
+		}
 
-		// Build a robot
-		for i := 3; i >= 0; i-- {
-			if s.Robots[i] < maxCosts[i] &&
-				s.Ores[0] >= bp.Costs[i][0] &&
-				s.Ores[1] >= bp.Costs[i][1] &&
-				s.Ores[2] >= bp.Costs[i][2] &&
-				s.Ores[3] >= bp.Costs[i][3] {
-				children = append(children, compress(State{
-					Time: s.Time - 1,
-					Ores: [4]int{
-						s.Ores[0] + s.Robots[0] - bp.Costs[i][0],
-						s.Ores[1] + s.Robots[1] - bp.Costs[i][1],
-						s.Ores[2] + s.Robots[2] - bp.Costs[i][2],
-						s.Ores[3] + s.Robots[3] - bp.Costs[i][3],
-					},
-					Robots: [4]int{
-						s.Robots[0] + add[i][0],
-						s.Robots[1] + add[i][1],
-						s.Robots[2] + add[i][2],
-						s.Robots[3] + add[i][3],
-					},
-				}))
+		// If we do nothing then we end up with as much geode as we already have
+		// plus whatever our geode robots can mine in the remaining time.
+		best := s.Ores[3] + s.Robots[3]*s.Time
 
-				// If we were able to build a geode robot, then do it and don't consider
-				// anything else.
-				if i == 3 {
-					return children
-				}
+		// Alternatively we can build a robot.  We may not yet have the resources
+		// needed so will have to wait for them to be mined.
+		for b := 0; b < 4; b++ {
+			// Don't consider building a robot if we already have the maximum.
+			if s.Robots[b] >= maxNeeded[b] {
+				continue
 			}
+
+			// Figure out how long we have to wait to get enough of each ore to build
+			// this robot.
+			var wait int
+			for ore := 0; ore < 4; ore++ {
+				needed := bp.Costs[b][ore] - s.Ores[ore]
+				if needed <= 0 {
+					continue
+				}
+
+				if s.Robots[ore] == 0 {
+					// We can't make this robot because we can't make an ingredient.
+					wait = math.MaxInt
+					break
+				}
+
+				// Integer division might round down, so take the integer ceiling.
+				dt := needed / s.Robots[ore]
+				if needed%s.Robots[ore] != 0 {
+					dt++
+				}
+				wait = aoc.Max(wait, dt)
+			}
+
+			// Make sure we don't have to wait longer than we have.
+			remaining := s.Time - wait - 1
+			if remaining <= 0 {
+				continue
+			}
+
+			// Jump to the time when we can build the robot.
+			best = aoc.Max(best, helper(State{
+				Time: remaining,
+				Ores: [4]int{
+					// For the non-geode ores, don't allow them to accumulate beyond the
+					// amount we can spend in the remaining time.
+					aoc.Min(s.Ores[0]+s.Robots[0]*(wait+1)-bp.Costs[b][0], remaining*maxNeeded[0]),
+					aoc.Min(s.Ores[1]+s.Robots[1]*(wait+1)-bp.Costs[b][1], remaining*maxNeeded[1]),
+					aoc.Min(s.Ores[2]+s.Robots[2]*(wait+1)-bp.Costs[b][2], remaining*maxNeeded[2]),
+					s.Ores[3] + s.Robots[3]*(wait+1) - bp.Costs[b][3],
+				},
+				Robots: [4]int{
+					s.Robots[0] + add[b][0],
+					s.Robots[1] + add[b][1],
+					s.Robots[2] + add[b][2],
+					s.Robots[3] + add[b][3],
+				},
+			}))
 		}
 
-		// Build nothing
-		children = append(children, compress(State{
-			Time: s.Time - 1,
-			Ores: [4]int{
-				s.Ores[0] + s.Robots[0],
-				s.Ores[1] + s.Robots[1],
-				s.Ores[2] + s.Robots[2],
-				s.Ores[3] + s.Robots[3],
-			},
-			Robots: s.Robots,
-		}))
-
-		return children
+		memo[s] = best
+		return best
 	}
 
-	start := State{Time: 24, Robots: [4]int{1, 0, 0, 0}}
-
-	var best int
-	goal := func(state State) bool {
-		if state.Time == 0 {
-			best = aoc.Max(best, state.Ores[3])
-		}
-		return false
-	}
-
-	aoc.BreadthFirstSearch(start, children, goal)
-	return best
+	return helper(State{Time: 24, Robots: [4]int{1, 0, 0, 0}})
 }
 
 type State struct {
@@ -111,8 +119,6 @@ type State struct {
 	Ores   [4]int
 	Robots [4]int
 }
-
-func (s State) Copy() State { return s }
 
 type Blueprint struct {
 	ID    int
