@@ -34,16 +34,10 @@ func Run(bp Blueprint) int {
 		{0, 0, 0, 1},
 	}
 
-	memo := make(map[State]int)
-
 	var helper func(State) int
 	helper = func(s State) int {
 		if s.Time == 0 {
 			return s.Ores[3]
-		}
-
-		if best, ok := memo[s]; ok {
-			return best
 		}
 
 		// If we do nothing then we end up with as much geode as we already have
@@ -107,7 +101,6 @@ func Run(bp Blueprint) int {
 			}))
 		}
 
-		memo[s] = best
 		return best
 	}
 
