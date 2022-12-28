@@ -15,7 +15,7 @@ func main() {
 		for y := 1; y < grid.Height; y++ {
 			power := (rack*y + serial) * rack
 			power = (power%1000)/100 - 5
-			grid.Add(x, y, power)
+			grid.Set(x, y, power)
 		}
 	}
 

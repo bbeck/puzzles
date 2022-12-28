@@ -52,7 +52,7 @@ func InputToMaze() (aoc.Grid2D[bool], map[aoc.Point2D]aoc.Point2D, aoc.Point2D, 
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
 			c := get(x, y)
-			grid.Add(x, y, c == '.')
+			grid.Set(x, y, c == '.')
 
 			if c1, c2, c3 := c, get(x, y+1), get(x, y+2); isLetter(c1) && isLetter(c2) && c3 == '.' {
 				label := string(c1) + string(c2)

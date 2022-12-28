@@ -25,7 +25,7 @@ func main() {
 
 	grid := aoc.NewGrid2D[bool](br.X+1, br.Y+1)
 	for _, p := range points {
-		grid.AddPoint(p, true)
+		grid.SetPoint(p, true)
 	}
 
 	for y := tl.Y; y <= br.Y; y++ {

@@ -34,7 +34,7 @@ func Pour(world World) bool {
 			continue
 		}
 
-		world.AddPoint(p, Sand)
+		world.SetPoint(p, Sand)
 		break
 	}
 
@@ -75,7 +75,7 @@ func InputToWorld() World {
 
 	grid := aoc.NewGrid2D[int](br.X+1, br.Y+1)
 	for p := range walls {
-		grid.AddPoint(p, Wall)
+		grid.SetPoint(p, Wall)
 	}
 
 	return World{grid}

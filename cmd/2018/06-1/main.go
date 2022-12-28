@@ -17,7 +17,7 @@ func main() {
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
 			cell := aoc.Point2D{X: x, Y: y}
-			grid.AddPoint(cell, -1) // initialize
+			grid.SetPoint(cell, -1) // initialize
 
 			var best = math.MaxInt // how far away the closest point is
 			var closest []int      // index of points that are closest
@@ -35,7 +35,7 @@ func main() {
 			}
 
 			if len(closest) == 1 {
-				grid.AddPoint(cell, closest[0])
+				grid.SetPoint(cell, closest[0])
 			}
 		}
 	}

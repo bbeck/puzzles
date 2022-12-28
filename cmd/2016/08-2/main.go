@@ -38,7 +38,7 @@ func Show(screen aoc.Grid2D[bool]) {
 func Rect(screen aoc.Grid2D[bool], width, height int) {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			screen.Add(x, y, true)
+			screen.Set(x, y, true)
 		}
 	}
 }
@@ -50,7 +50,7 @@ func RotateRow(screen aoc.Grid2D[bool], y int, distance int) {
 	}
 
 	for x := 0; x < screen.Width; x++ {
-		screen.Add(x, y, row[(x-distance+screen.Width)%screen.Width])
+		screen.Set(x, y, row[(x-distance+screen.Width)%screen.Width])
 	}
 }
 
@@ -61,7 +61,7 @@ func RotateCol(screen aoc.Grid2D[bool], x int, distance int) {
 	}
 
 	for y := 0; y < screen.Height; y++ {
-		screen.Add(x, y, col[(y-distance+screen.Height)%screen.Height])
+		screen.Set(x, y, col[(y-distance+screen.Height)%screen.Height])
 	}
 }
 

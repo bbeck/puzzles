@@ -18,7 +18,7 @@ func main() {
 			cell = (cell%1000)/100 - 5
 
 			sum := cell + grid.Get(x-1, y) + grid.Get(x, y-1) - grid.Get(x-1, y-1)
-			grid.Add(x, y, sum)
+			grid.Set(x, y, sum)
 		}
 	}
 

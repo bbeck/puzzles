@@ -18,14 +18,14 @@ func NewGrid2D[T any](width, height int) Grid2D[T] {
 	}
 }
 
-// Add adds a new value at the location specified by the X and Y coordinate.
-func (g *Grid2D[T]) Add(x, y int, value T) {
+// Set sets the value at the location specified by the X and Y coordinate.
+func (g *Grid2D[T]) Set(x, y int, value T) {
 	g.Cells[y*g.Width+x] = value
 }
 
-// AddPoint adds a new value to the grid at the specified location.
-func (g *Grid2D[T]) AddPoint(p Point2D, value T) {
-	g.Add(p.X, p.Y, value)
+// SetPoint sets the value at the location specified by a point.
+func (g *Grid2D[T]) SetPoint(p Point2D, value T) {
+	g.Set(p.X, p.Y, value)
 }
 
 // Get retrieves the value in the grid at the location specified by the X

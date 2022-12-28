@@ -56,7 +56,7 @@ func (t Tile) Flip() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			s.Add(x, y, t.Get(N-x-1, y))
+			s.Set(x, y, t.Get(N-x-1, y))
 		}
 	}
 	return s
@@ -67,7 +67,7 @@ func (t Tile) Rotate() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
-			s.Add(x, y, t.Get(N-y-1, x))
+			s.Set(x, y, t.Get(N-y-1, x))
 		}
 	}
 	return s
@@ -113,7 +113,7 @@ func InputToTiles() []Tile {
 		grid := aoc.NewGrid2D[bool](N, N)
 		for y := 0; y < N; y++ {
 			for x := 0; x < N; x++ {
-				grid.Add(x, y, lines[base+y+1][x] == '#')
+				grid.Set(x, y, lines[base+y+1][x] == '#')
 			}
 		}
 

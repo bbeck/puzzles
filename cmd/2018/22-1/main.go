@@ -26,7 +26,7 @@ func main() {
 				geologic = cave.Get(x-1, y) * cave.Get(x, y-1)
 			}
 
-			cave.Add(x, y, (geologic+depth)%20183)
+			cave.Set(x, y, (geologic+depth)%20183)
 		}
 	}
 

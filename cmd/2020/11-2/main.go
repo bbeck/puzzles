@@ -48,11 +48,11 @@ func Next(seats aoc.Grid2D[uint8], neighbors map[aoc.Point2D][]aoc.Point2D) aoc.
 		}
 
 		if value == Empty && count == 0 {
-			next.AddPoint(p, Occupied)
+			next.SetPoint(p, Occupied)
 		} else if value == Occupied && count >= 5 {
-			next.AddPoint(p, Empty)
+			next.SetPoint(p, Empty)
 		} else {
-			next.AddPoint(p, value)
+			next.SetPoint(p, value)
 		}
 	})
 	return next

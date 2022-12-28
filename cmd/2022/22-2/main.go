@@ -178,7 +178,7 @@ func InputToBoard() (aoc.Grid2D[rune], []string) {
 	for y := 0; y < len(lines)-2; y++ {
 		for x, c := range lines[y] {
 			if c != ' ' {
-				board.Add(x, y, c)
+				board.Set(x, y, c)
 			}
 		}
 	}

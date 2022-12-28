@@ -51,7 +51,7 @@ func Enhance(g Grid, rules map[uint64]Grid) Grid {
 			c := rules[g.GetChunk(cx, cy).ID()]
 			for dy := 0; dy < c.Height; dy++ {
 				for dx := 0; dx < c.Width; dx++ {
-					next.Add(x0+dx, y0+dy, c.Get(dx, dy))
+					next.Set(x0+dx, y0+dy, c.Get(dx, dy))
 				}
 			}
 		}
@@ -93,7 +93,7 @@ func (g Grid) GetChunk(cx, cy int) Grid {
 	chunk := aoc.NewGrid2D[bool](N, N)
 	for dy := 0; dy < N; dy++ {
 		for dx := 0; dx < N; dx++ {
-			chunk.Add(dx, dy, g.Get(cx*N+dx, cy*N+dy))
+			chunk.Set(dx, dy, g.Get(cx*N+dx, cy*N+dy))
 		}
 	}
 
@@ -105,7 +105,7 @@ func (g Grid) Transformations() []Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
-				r.Add(x, y, g.Get(y, g.Width-x-1))
+				r.Set(x, y, g.Get(y, g.Width-x-1))
 			}
 		}
 		return Grid{r}
@@ -114,7 +114,7 @@ func (g Grid) Transformations() []Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
-				r.Add(x, y, g.Get(g.Width-x-1, y))
+				r.Set(x, y, g.Get(g.Width-x-1, y))
 			}
 		}
 		return Grid{r}
@@ -123,7 +123,7 @@ func (g Grid) Transformations() []Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
-				r.Add(x, y, g.Get(x, g.Height-y-1))
+				r.Set(x, y, g.Get(x, g.Height-y-1))
 			}
 		}
 		return Grid{r}

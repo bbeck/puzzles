@@ -22,18 +22,18 @@ func Next(grid aoc.Grid2D[string]) (aoc.Grid2D[string], bool) {
 	grid.ForEach(func(x, y int, value string) {
 		if value != ">" {
 			if next.Get(x, y) == "" {
-				next.Add(x, y, value)
+				next.Set(x, y, value)
 			}
 			return
 		}
 
 		nx := (x + 1) % grid.Width
 		if grid.Get(nx, y) == "." {
-			next.Add(x, y, ".")
-			next.Add(nx, y, ">")
+			next.Set(x, y, ".")
+			next.Set(nx, y, ">")
 			changed = true
 		} else {
-			next.Add(x, y, ">")
+			next.Set(x, y, ">")
 		}
 	})
 
@@ -44,18 +44,18 @@ func Next(grid aoc.Grid2D[string]) (aoc.Grid2D[string], bool) {
 	grid.ForEach(func(x, y int, value string) {
 		if value != "v" {
 			if next.Get(x, y) == "" {
-				next.Add(x, y, value)
+				next.Set(x, y, value)
 			}
 			return
 		}
 
 		ny := (y + 1) % grid.Height
 		if grid.Get(x, ny) == "." {
-			next.Add(x, y, ".")
-			next.Add(x, ny, "v")
+			next.Set(x, y, ".")
+			next.Set(x, ny, "v")
 			changed = true
 		} else {
-			next.Add(x, y, "v")
+			next.Set(x, y, "v")
 		}
 	})
 

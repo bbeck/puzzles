@@ -12,7 +12,7 @@ func main() {
 	for _, instruction := range InputToInstructions() {
 		for x := instruction.TopLeft.X; x <= instruction.BottomRight.X; x++ {
 			for y := instruction.TopLeft.Y; y <= instruction.BottomRight.Y; y++ {
-				lights.Add(x, y, instruction.Op(lights.Get(x, y)))
+				lights.Set(x, y, instruction.Op(lights.Get(x, y)))
 			}
 		}
 	}

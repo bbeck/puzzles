@@ -17,7 +17,7 @@ func main() {
 		for i, c := range hash {
 			for bit := 0; bit < 8; bit++ {
 				col := 8*i + (8 - bit - 1)
-				grid.Add(col, row, c&(1<<bit) > 0)
+				grid.Set(col, row, c&(1<<bit) > 0)
 			}
 		}
 	}

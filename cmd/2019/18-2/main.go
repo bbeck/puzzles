@@ -7,11 +7,11 @@ import (
 
 func main() {
 	grid, entrance := InputToGrid()
-	grid.AddPoint(entrance, Wall)
-	grid.AddPoint(entrance.Up(), Wall)
-	grid.AddPoint(entrance.Down(), Wall)
-	grid.AddPoint(entrance.Left(), Wall)
-	grid.AddPoint(entrance.Right(), Wall)
+	grid.SetPoint(entrance, Wall)
+	grid.SetPoint(entrance.Up(), Wall)
+	grid.SetPoint(entrance.Down(), Wall)
+	grid.SetPoint(entrance.Left(), Wall)
+	grid.SetPoint(entrance.Right(), Wall)
 
 	entrances := [4]aoc.Point2D{
 		entrance.Up().Left(),

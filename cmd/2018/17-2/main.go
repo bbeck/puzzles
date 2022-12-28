@@ -33,7 +33,7 @@ func Down(world World, x, y int) {
 	}
 
 	// Start by making our new point water flow.
-	world.Add(x, y, Flow)
+	world.Set(x, y, Flow)
 
 	downY := y + 1
 	if !world.InBounds(x, downY) {
@@ -56,10 +56,10 @@ func Down(world World, x, y int) {
 		// convert it into standing water.
 		if cl && cr {
 			for q := x; world.InBounds(q, y) && world.Get(q, y) != Wall; q-- {
-				world.Add(q, y, Water)
+				world.Set(q, y, Water)
 			}
 			for q := x; world.InBounds(q, y) && world.Get(q, y) != Wall; q++ {
-				world.Add(q, y, Water)
+				world.Set(q, y, Water)
 			}
 		}
 	}
@@ -73,7 +73,7 @@ func Side(world World, x, y, dx int) bool {
 	below := world.Get(x, y+1)
 	switch {
 	case below == Wall || below == Water:
-		world.Add(x, y, Flow)
+		world.Set(x, y, Flow)
 		return Side(world, x+dx, y, dx)
 	case below == Empty:
 		Down(world, x, y)
@@ -127,13 +127,13 @@ func InputToWorld() World {
 	world := aoc.NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
 	for _, line := range lines {
 		for _, p := range line {
-			world.Add(p.X-x0, p.Y-y0, Wall)
+			world.Set(p.X-x0, p.Y-y0, Wall)
 		}
 	}
 
 	// Lastly, since we've shifted the coordinates around also compute the new
 	// X coordinate of the spring.  We know the y coordinate will be 0.
-	world.Add(500-x0, 0, Flow)
+	world.Set(500-x0, 0, Flow)
 
 	return World{world}
 }

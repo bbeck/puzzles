@@ -41,11 +41,11 @@ func Next(seats aoc.Grid2D[uint8]) aoc.Grid2D[uint8] {
 		})
 
 		if value == Empty && count == 0 {
-			next.Add(x, y, Occupied)
+			next.Set(x, y, Occupied)
 		} else if value == Occupied && count >= 4 {
-			next.Add(x, y, Empty)
+			next.Set(x, y, Empty)
 		} else {
-			next.Add(x, y, value)
+			next.Set(x, y, value)
 		}
 	})
 	return next

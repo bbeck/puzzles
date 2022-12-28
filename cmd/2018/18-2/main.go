@@ -55,7 +55,7 @@ func Next(area Area) Area {
 		} else if value == "#" && (counts["#"] < 1 || counts["|"] < 1) {
 			value = "."
 		}
-		next.Add(x, y, value)
+		next.Set(x, y, value)
 	})
 
 	return next

@@ -18,7 +18,7 @@ func main() {
 			for value > 9 {
 				value -= 9
 			}
-			cave.Add(x, y, value)
+			cave.Set(x, y, value)
 		}
 	}
 

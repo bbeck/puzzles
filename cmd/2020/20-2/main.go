@@ -125,7 +125,7 @@ outer:
 
 			for y := 1; y < N-1; y++ {
 				for x := 1; x < N-1; x++ {
-					image.Add(tx*(N-2)+x-1, ty*(N-2)+y-1, tile.Get(x, y))
+					image.Set(tx*(N-2)+x-1, ty*(N-2)+y-1, tile.Get(x, y))
 				}
 			}
 		}
@@ -160,7 +160,7 @@ func GetSeaMonster() Tile {
 
 	grid := aoc.NewGrid2D[bool](len(lines[0]), len(lines))
 	grid.ForEach(func(x, y int, _ bool) {
-		grid.Add(x, y, lines[y][x] == '#')
+		grid.Set(x, y, lines[y][x] == '#')
 	})
 	return Tile{Grid2D: grid}
 }
@@ -186,7 +186,7 @@ func (t Tile) Flip() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](W, H)}
 	for y := 0; y < H; y++ {
 		for x := 0; x < W; x++ {
-			s.Add(x, y, t.Get(W-x-1, y))
+			s.Set(x, y, t.Get(W-x-1, y))
 		}
 	}
 	return s
@@ -197,7 +197,7 @@ func (t Tile) Rotate() Tile {
 	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](H, W)}
 	for y := 0; y < W; y++ {
 		for x := 0; x < H; x++ {
-			s.Add(x, y, t.Get(W-y-1, x))
+			s.Set(x, y, t.Get(W-y-1, x))
 		}
 	}
 	return s
@@ -242,7 +242,7 @@ func InputToTiles() []Tile {
 
 		grid := aoc.NewGrid2D[bool](N, N)
 		grid.ForEach(func(x, y int, _ bool) {
-			grid.Add(x, y, lines[base+y+1][x] == '#')
+			grid.Set(x, y, lines[base+y+1][x] == '#')
 		})
 
 		tiles = append(tiles, Tile{ID: id, Grid2D: grid})

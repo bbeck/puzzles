@@ -34,7 +34,7 @@ func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
 		// If light==on and count in (2, 3)
 		// If light==off and count==3
 		if count == 3 || (lights.Get(x, y) && count == 2) {
-			next.Add(x, y, true)
+			next.Set(x, y, true)
 		}
 	})
 

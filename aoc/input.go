@@ -87,7 +87,7 @@ func InputToGrid2D[T any](year, day int, fn func(int, int, string) T) Grid2D[T] 
 	grid := NewGrid2D[T](len(lines[0]), len(lines))
 	for y, line := range lines {
 		for x, c := range line {
-			grid.Add(x, y, fn(x, y, string(c)))
+			grid.Set(x, y, fn(x, y, string(c)))
 		}
 	}
 

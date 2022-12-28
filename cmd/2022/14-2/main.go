@@ -37,7 +37,7 @@ func Pour(world World) bool {
 	}
 
 	if world.GetPoint(p) == Empty {
-		world.AddPoint(p, Sand)
+		world.SetPoint(p, Sand)
 		return true
 	}
 	return false
@@ -85,7 +85,7 @@ func InputToWorld() World {
 	_, br = aoc.GetBounds(walls.Entries())
 	grid := aoc.NewGrid2D[int](br.X+1, br.Y+1)
 	for p := range walls {
-		grid.AddPoint(p, Wall)
+		grid.SetPoint(p, Wall)
 	}
 
 	return World{grid}

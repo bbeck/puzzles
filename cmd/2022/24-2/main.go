@@ -70,39 +70,39 @@ func Next(g aoc.Grid2D[aoc.BitSet]) aoc.Grid2D[aoc.BitSet] {
 	next := aoc.NewGrid2D[aoc.BitSet](g.Width, g.Height)
 	g.ForEach(func(x, y int, bs aoc.BitSet) {
 		if bs.Contains(WALL) {
-			next.Add(x, y, next.Get(x, y).Add(WALL))
+			next.Set(x, y, next.Get(x, y).Add(WALL))
 			return
 		}
 
 		if bs.Contains(UP) {
 			if !g.Get(x, y-1).Contains(WALL) {
-				next.Add(x, y-1, next.Get(x, y-1).Add(UP))
+				next.Set(x, y-1, next.Get(x, y-1).Add(UP))
 			} else {
-				next.Add(x, g.Height-2, next.Get(x, g.Height-2).Add(UP))
+				next.Set(x, g.Height-2, next.Get(x, g.Height-2).Add(UP))
 			}
 		}
 
 		if bs.Contains(DOWN) {
 			if !g.Get(x, y+1).Contains(WALL) {
-				next.Add(x, y+1, next.Get(x, y+1).Add(DOWN))
+				next.Set(x, y+1, next.Get(x, y+1).Add(DOWN))
 			} else {
-				next.Add(x, 1, next.Get(x, 1).Add(DOWN))
+				next.Set(x, 1, next.Get(x, 1).Add(DOWN))
 			}
 		}
 
 		if bs.Contains(LEFT) {
 			if !g.Get(x-1, y).Contains(WALL) {
-				next.Add(x-1, y, next.Get(x-1, y).Add(LEFT))
+				next.Set(x-1, y, next.Get(x-1, y).Add(LEFT))
 			} else {
-				next.Add(g.Width-2, y, next.Get(g.Width-2, y).Add(LEFT))
+				next.Set(g.Width-2, y, next.Get(g.Width-2, y).Add(LEFT))
 			}
 		}
 
 		if bs.Contains(RIGHT) {
 			if !g.Get(x+1, y).Contains(WALL) {
-				next.Add(x+1, y, next.Get(x+1, y).Add(RIGHT))
+				next.Set(x+1, y, next.Get(x+1, y).Add(RIGHT))
 			} else {
-				next.Add(1, y, next.Get(1, y).Add(RIGHT))
+				next.Set(1, y, next.Get(1, y).Add(RIGHT))
 			}
 		}
 	})
