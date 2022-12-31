@@ -26,7 +26,7 @@ func main() {
 	// lines b = y+x.
 	var pos, neg []int
 	for _, sensor := range sensors {
-		// We're looking just outside of the diamond, so we bump the radius by 1.
+		// We're looking just outside the diamond, so we bump the radius by 1.
 		x1, x2 := sensor.X-sensor.Radius-1, sensor.X+sensor.Radius+1
 		y := sensor.Y
 
