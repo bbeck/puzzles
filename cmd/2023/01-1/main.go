@@ -1,35 +1,43 @@
 package main
 
 import (
-  "fmt"
+	"fmt"
+	"strings"
 
-  "github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/aoc"
 )
 
 func main() {
-  digits := map[rune]int{
-    '0': 0,
-    '1': 1,
-    '2': 2,
-    '3': 3,
-    '4': 4,
-    '5': 5,
-    '6': 6,
-    '7': 7,
-    '8': 8,
-    '9': 9,
-  }
+	digits := map[string]int{
+		"1": 1,
+		"2": 2,
+		"3": 3,
+		"4": 4,
+		"5": 5,
+		"6": 6,
+		"7": 7,
+		"8": 8,
+		"9": 9,
+	}
 
-  nums := aoc.InputLinesTo[int](2023, 1, func(line string) (int, error) {
-    var nums []int
-    for _, c := range line {
-      if n, ok := digits[c]; ok {
-        nums = append(nums, n)
-      }
-    }
+	nums := aoc.InputLinesTo[int](2023, 1, func(line string) (int, error) {
+		L := len(line)
 
-    return nums[0]*10 + nums[len(nums)-1], nil
-  })
+		var first, last int
+		for i := range line {
+			for prefix, num := range digits {
+				if first == 0 && strings.HasPrefix(line[i:], prefix) {
+					first = num
+				}
 
-  fmt.Println(aoc.Sum(nums...))
+				if last == 0 && strings.HasPrefix(line[L-i-1:], prefix) {
+					last = num
+				}
+			}
+		}
+
+		return 10*first + last, nil
+	})
+
+	fmt.Println(aoc.Sum(nums...))
 }

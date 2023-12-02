@@ -8,39 +8,44 @@ import (
 )
 
 func main() {
-	nums := aoc.InputLinesTo[int](2023, 1, func(line string) (int, error) {
-		numbers := map[string]int{
-			"one":   1,
-			"two":   2,
-			"three": 3,
-			"four":  4,
-			"five":  5,
-			"six":   6,
-			"seven": 7,
-			"eight": 8,
-			"nine":  9,
-			"0":     0,
-			"1":     1,
-			"2":     2,
-			"3":     3,
-			"4":     4,
-			"5":     5,
-			"6":     6,
-			"7":     7,
-			"8":     8,
-			"9":     9,
-		}
+	digits := map[string]int{
+		"one":   1,
+		"two":   2,
+		"three": 3,
+		"four":  4,
+		"five":  5,
+		"six":   6,
+		"seven": 7,
+		"eight": 8,
+		"nine":  9,
+		"1":     1,
+		"2":     2,
+		"3":     3,
+		"4":     4,
+		"5":     5,
+		"6":     6,
+		"7":     7,
+		"8":     8,
+		"9":     9,
+	}
 
-		var nums []int
+	nums := aoc.InputLinesTo[int](2023, 1, func(line string) (int, error) {
+		L := len(line)
+
+		var first, last int
 		for i := range line {
-			for prefix, num := range numbers {
-				if strings.HasPrefix(line[i:], prefix) {
-					nums = append(nums, num)
+			for prefix, num := range digits {
+				if first == 0 && strings.HasPrefix(line[i:], prefix) {
+					first = num
+				}
+
+				if last == 0 && strings.HasPrefix(line[L-i-1:], prefix) {
+					last = num
 				}
 			}
 		}
 
-		return nums[0]*10 + nums[len(nums)-1], nil
+		return 10*first + last, nil
 	})
 
 	fmt.Println(aoc.Sum(nums...))
