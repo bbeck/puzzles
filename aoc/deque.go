@@ -24,6 +24,15 @@ type Block[T any] struct {
 	data        [BlockSize]T
 }
 
+// DequeFrom creates a new deque with the arguments as elements.
+func DequeFrom[T any](elems ...T) Deque[T] {
+	var d Deque[T]
+	for _, elem := range elems {
+		d.PushBack(elem)
+	}
+	return d
+}
+
 // Empty determines if there are any elements in the deque.
 func (d *Deque[T]) Empty() bool {
 	return d.len == 0
