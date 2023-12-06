@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -10,16 +11,24 @@ import (
 func main() {
 	times, distances := InputToTimesAndDistances()
 
-	wins := make([]int, len(times))
+	var wins []int
 	for race := 0; race < len(times); race++ {
-		time, distance := times[race], distances[race]
+		time, distance := float64(times[race]), float64(distances[race])
 
-		for hold := 1; hold < time; hold++ {
-			remaining := distance - hold*(time-hold)
-			if remaining < 0 {
-				wins[race]++
-			}
+		// We want distance - hold*(time - hold) < 0, thus we can solve for hold
+		// using the quadratic formula. hold^2 - time*hold + distance < 0
+		D := math.Sqrt(time*time - 4*distance)
+		h1 := int(math.Ceil(time/2 - D/2))
+		h2 := int(math.Floor(time/2 + D/2))
+
+		// When the discriminant is an integer then we have a case where we tied
+		// the record.  We need to adjust the roots in order to avoid the tie.
+		if D == float64(int(D)) {
+			h1 += 1
+			h2 -= 1
 		}
+
+		wins = append(wins, h2-h1+1)
 	}
 
 	fmt.Println(aoc.Product(wins...))

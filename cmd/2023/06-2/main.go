@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"math"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -11,33 +11,31 @@ import (
 func main() {
 	time, distance := InputToTimeAndDistance()
 
-	win := func(hold int) bool { return distance-hold*(time-hold) < 0 }
-	first := sort.Search(time, win)
+	// We want distance - hold*(time - hold) < 0, thus we can solve for hold
+	// using the quadratic formula. hold^2 - time*hold + distance < 0
+	D := math.Sqrt(time*time - 4*distance)
+	h1 := int(math.Ceil(time/2 - D/2))
+	h2 := int(math.Floor(time/2 + D/2))
 
-	// To binary search for losses we need to make sure we're "to the right" of
-	// the wins.  To do this we'll keep doubling our hold period until we start
-	// holding for too long and lose.
-	var start int
-	for start = first; ; start *= 2 {
-		if !win(start) {
-			break
-		}
+	// When the discriminant is an integer then we have a case where we tied
+	// the record.  We need to adjust the roots in order to avoid the tie.
+	if D == float64(int(D)) {
+		h1 += 1
+		h2 -= 1
 	}
-	lose := func(hold int) bool { return distance-hold*(time-hold) >= 0 }
-	last := sort.Search(start, lose)
 
-	fmt.Println(last - first)
+	fmt.Println(h2 - h1 + 1)
 }
 
-func InputToTimeAndDistance() (int, int) {
-	var time, distance int
+func InputToTimeAndDistance() (float64, float64) {
+	var time, distance float64
 	for _, line := range aoc.InputToLines(2023, 6) {
 		var sb strings.Builder
 		for _, field := range strings.Fields(line)[1:] {
 			sb.WriteString(field)
 		}
 
-		num := aoc.ParseInt(sb.String())
+		num := float64(aoc.ParseInt(sb.String()))
 		if strings.HasPrefix(line, "Time") {
 			time = num
 		} else {
