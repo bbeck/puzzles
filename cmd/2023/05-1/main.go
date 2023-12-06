@@ -21,57 +21,47 @@ func main() {
 	fmt.Println(best)
 }
 
+type Map []Range
 type Range struct {
 	Destination int
 	Source      int
-	Len         int
+	Length      int
 }
 
-type Map []Range
-
-func (m Map) Lookup(n int) int {
+func (m Map) Lookup(target int) int {
 	for _, r := range m {
-		if r.Source <= n && n < r.Source+r.Len {
-			return r.Destination + (n - r.Source)
+		if r.Source <= target && target < r.Source+r.Length {
+			return r.Destination + target - r.Source
 		}
 	}
 
-	return n
+	return target
 }
 
 func InputToSeedsAndMaps() ([]int, []Map) {
+	lines := aoc.InputToLines(2023, 5)
+
 	var seeds []int
-	var maps []Map
-
-	var current Map
-	for _, line := range aoc.InputToLines(2023, 5) {
-		if strings.HasPrefix(line, "seeds:") {
-			for _, seed := range strings.Fields(line[6:]) {
-				seeds = append(seeds, aoc.ParseInt(seed))
-			}
-			continue
-		}
-
-		if line == "" {
-			if current != nil {
-				maps = append(maps, current)
-				current = nil
-			}
-			continue
-		}
-
-		if strings.Contains(line, "-to-") {
-			continue
-		}
-
-		nums := strings.Fields(line)
-		current = append(current, Range{
-			Destination: aoc.ParseInt(nums[0]),
-			Source:      aoc.ParseInt(nums[1]),
-			Len:         aoc.ParseInt(nums[2]),
-		})
+	for _, field := range strings.Fields(lines[0][6:]) {
+		seeds = append(seeds, aoc.ParseInt(field))
 	}
-	maps = append(maps, current)
+
+	groups := aoc.Split(lines[1:], func(line string) bool {
+		return line != "" && !strings.Contains(line, "-to-")
+	})
+
+	var maps []Map
+	for i, group := range groups {
+		maps = append(maps, make([]Range, 0))
+		for _, line := range group {
+			nums := strings.Fields(line)
+			maps[i] = append(maps[i], Range{
+				Destination: aoc.ParseInt(nums[0]),
+				Source:      aoc.ParseInt(nums[1]),
+				Length:      aoc.ParseInt(nums[2]),
+			})
+		}
+	}
 
 	return seeds, maps
 }

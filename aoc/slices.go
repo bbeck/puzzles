@@ -36,8 +36,10 @@ func Split[T any](ts []T, fn func(T) bool) [][]T {
 	var current []T
 	for _, t := range ts {
 		if !fn(t) {
-			partitions = append(partitions, current)
-			current = nil
+			if current != nil {
+				partitions = append(partitions, current)
+				current = nil
+			}
 			continue
 		}
 
