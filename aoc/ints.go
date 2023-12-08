@@ -19,15 +19,36 @@ func ParseInt(s string) int {
 	return ParseIntWithBase(s, 10)
 }
 
-// GCD returns the greatest common divisor of two integers.
-func GCD(a, b int) int {
-	if a == 0 {
-		return b
+// GCD returns the greatest common divisor of a series of integers.
+func GCD(nums ...int) int {
+	if len(nums) == 0 {
+		return 0
 	}
-	return GCD(b%a, a)
+
+	var gcd func(int, int) int
+	gcd = func(a, b int) int {
+		if a == 0 {
+			return b
+		}
+		return gcd(b%a, a)
+	}
+
+	res := nums[0]
+	for i := 1; i < len(nums); i++ {
+		res = gcd(res, nums[i])
+	}
+	return res
 }
 
-// LCM returns the least common multiple of two integers.
-func LCM(a, b int) int {
-	return (a * b) / GCD(a, b)
+// LCM returns the least common multiple of a series of integers.
+func LCM(nums ...int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+
+	res := nums[0]
+	for i := 1; i < len(nums); i++ {
+		res = (res * nums[i]) / GCD(res, nums[i])
+	}
+	return res
 }
