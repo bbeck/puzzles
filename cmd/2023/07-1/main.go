@@ -11,15 +11,15 @@ import (
 func main() {
 	hands := InputToHands()
 	sort.Slice(hands, func(i, j int) bool {
-		ri, rj := Rank(hands[i]), Rank(hands[j])
-		if ri != rj {
-			return ri < rj
+		ti, tj := hands[i].Type, hands[j].Type
+		if ti != tj {
+			return ti < tj
 		}
 
 		for n := 0; n < 5; n++ {
-			si, sj := CardStrengths[hands[i].Text[n]], CardStrengths[hands[j].Text[n]]
-			if si != sj {
-				return si < sj
+			ci, cj := hands[i].Cards[n], hands[j].Cards[n]
+			if ci != cj {
+				return CardStrengths[ci] < CardStrengths[cj]
 			}
 		}
 
@@ -49,61 +49,48 @@ var CardStrengths = map[uint8]int{
 	'2': 0,
 }
 
-func Rank(h Hand) int {
-	entries := h.Cards.Entries()
+func Type(cards string) int {
+	var fc aoc.FrequencyCounter[rune]
+	for _, c := range cards {
+		fc.Add(c)
+	}
+	entries := fc.Entries()
 
-	// 5 of a kind
 	if entries[0].Count == 5 {
 		return 7
 	}
-
-	// 4 of a kind
 	if entries[0].Count == 4 {
 		return 6
 	}
-
-	// full house
 	if entries[0].Count == 3 && entries[1].Count == 2 {
 		return 5
 	}
-
-	// 3 of a kind
 	if entries[0].Count == 3 {
 		return 4
 	}
-
-	// 2 pair
 	if entries[0].Count == 2 && entries[1].Count == 2 {
 		return 3
 	}
-
-	// 1 pair
 	if entries[0].Count == 2 {
 		return 2
 	}
-
 	return 1
 }
 
 type Hand struct {
-	Text  string
-	Cards aoc.FrequencyCounter[rune]
+	Cards string
 	Bid   int
+	Type  int
 }
 
 func InputToHands() []Hand {
 	return aoc.InputLinesTo(2023, 7, func(line string) (Hand, error) {
 		lhs, rhs, _ := strings.Cut(line, " ")
 
-		var fc aoc.FrequencyCounter[rune]
-		for _, c := range lhs {
-			fc.Add(c)
-		}
-
 		return Hand{
-			Text:  lhs,
-			Cards: fc,
+			Cards: lhs,
 			Bid:   aoc.ParseInt(rhs),
+			Type:  Type(lhs),
 		}, nil
 	})
 }

@@ -11,15 +11,15 @@ import (
 func main() {
 	hands := InputToHands()
 	sort.Slice(hands, func(i, j int) bool {
-		ri, rj := Rank(hands[i].Text), Rank(hands[j].Text)
-		if ri != rj {
-			return ri < rj
+		ti, tj := hands[i].Type, hands[j].Type
+		if ti != tj {
+			return ti < tj
 		}
 
 		for n := 0; n < 5; n++ {
-			si, sj := CardStrengths[hands[i].Text[n]], CardStrengths[hands[j].Text[n]]
-			if si != sj {
-				return si < sj
+			ci, cj := hands[i].Cards[n], hands[j].Cards[n]
+			if ci != cj {
+				return CardStrengths[ci] < CardStrengths[cj]
 			}
 		}
 
@@ -49,69 +49,62 @@ var CardStrengths = map[uint8]int{
 	'J': 0,
 }
 
-var Choices = []rune{
-	'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2',
-}
+func Type(cards string) int {
+	c0, c1, j := Counts(cards)
 
-func Rank(h string) int {
-	index := strings.Index(h, "J")
-	if index == -1 {
-		return RankInner(h)
-	}
+	// The strongest hand is always applying the jokers to the most frequently
+	// occurring card.
+	c0 += j
 
-	var ranks []int
-	for _, c := range Choices {
-		ranks = append(ranks,
-			Rank(fmt.Sprintf("%s%c%s", h[:index], c, h[index+1:])),
-		)
-	}
-	return aoc.Max(ranks...)
-}
-
-func RankInner(h string) int {
-	var fc aoc.FrequencyCounter[rune]
-	for _, c := range h {
-		fc.Add(c)
-	}
-
-	entries := fc.Entries()
-
-	// 5 of a kind
-	if entries[0].Count == 5 {
+	if c0 == 5 {
 		return 7
 	}
-
-	// 4 of a kind
-	if entries[0].Count == 4 {
+	if c0 == 4 {
 		return 6
 	}
-
-	// full house
-	if entries[0].Count == 3 && entries[1].Count == 2 {
+	if c0 == 3 && c1 == 2 {
 		return 5
 	}
-
-	// 3 of a kind
-	if entries[0].Count == 3 {
+	if c0 == 3 {
 		return 4
 	}
-
-	// 2 pair
-	if entries[0].Count == 2 && entries[1].Count == 2 {
+	if c0 == 2 && c1 == 2 {
 		return 3
 	}
-
-	// 1 pair
-	if entries[0].Count == 2 {
+	if c0 == 2 {
 		return 2
 	}
-
 	return 1
 }
 
+func Counts(cards string) (int, int, int) {
+	// Count the cards and return the two most frequent counts as well as the
+	// number of jokers.
+	var fc aoc.FrequencyCounter[rune]
+	for _, c := range cards {
+		fc.Add(c)
+	}
+
+	var numJokers int
+	var counts []int
+	for _, entry := range fc.Entries() {
+		if entry.Value == 'J' {
+			numJokers = entry.Count
+			continue
+		}
+		counts = append(counts, entry.Count)
+	}
+	for len(counts) < 2 {
+		counts = append(counts, 0)
+	}
+
+	return counts[0], counts[1], numJokers
+}
+
 type Hand struct {
-	Text string
-	Bid  int
+	Cards string
+	Bid   int
+	Type  int
 }
 
 func InputToHands() []Hand {
@@ -119,8 +112,9 @@ func InputToHands() []Hand {
 		lhs, rhs, _ := strings.Cut(line, " ")
 
 		return Hand{
-			Text: lhs,
-			Bid:  aoc.ParseInt(rhs),
+			Cards: lhs,
+			Bid:   aoc.ParseInt(rhs),
+			Type:  Type(lhs),
 		}, nil
 	})
 }
