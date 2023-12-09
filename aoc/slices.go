@@ -27,6 +27,22 @@ func Make2D[T any](width, height int) [][]T {
 	return a
 }
 
+// Reverse will reverse the order of the elements of a slice in place.
+func Reverse[T any](s []T) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
+
+// Reversed returns a copy of the slice with the order of the elements reversed.
+func Reversed[T any](s []T) []T {
+	t := make([]T, len(s))
+	for i, j := 0, len(s)-1; i < len(s); i, j = i+1, j-1 {
+		t[i] = s[j]
+	}
+	return t
+}
+
 // Split partitions a slice into chunks using a partition function.  Elements of
 // the slice are passed into the partition function and runs of true return
 // values are grouped together into a chunk.
