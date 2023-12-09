@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"log"
 )
 
 func main() {
@@ -72,17 +73,18 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return aoc.InputLinesTo(2016, 8, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2016, 8, func(line string) Instruction {
 		var instruction Instruction
 		if _, err := fmt.Sscanf(line, "%s %dx%d", &instruction.Kind, &instruction.Width, &instruction.Height); err == nil {
-			return instruction, nil
+			return instruction
 		}
 		if _, err := fmt.Sscanf(line, "%s row y=%d by %d", &instruction.Kind, &instruction.Row, &instruction.Width); err == nil {
-			return instruction, nil
+			return instruction
 		}
 		if _, err := fmt.Sscanf(line, "%s column x=%d by %d", &instruction.Kind, &instruction.Col, &instruction.Height); err == nil {
-			return instruction, nil
+			return instruction
 		}
-		return Instruction{}, fmt.Errorf("unable to parse line: %s", line)
+		log.Fatalf("unable to parse line: %s", line)
+		return instruction
 	})
 }

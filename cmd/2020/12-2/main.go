@@ -42,10 +42,10 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return aoc.InputLinesTo(2020, 12, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2020, 12, func(line string) Instruction {
 		return Instruction{
 			Action: string(line[0]),
 			Value:  aoc.ParseInt(line[1:]),
-		}, nil
+		}
 	})
 }

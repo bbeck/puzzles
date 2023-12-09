@@ -34,12 +34,12 @@ func FindEvenlyDivisible(row []int) (int, int) {
 }
 
 func InputToRows() [][]int {
-	return aoc.InputLinesTo(2017, 2, func(line string) ([]int, error) {
+	return aoc.InputLinesTo(2017, 2, func(line string) []int {
 		var row []int
 		for _, s := range strings.Fields(line) {
 			row = append(row, aoc.ParseInt(s))
 		}
 
-		return row, nil
+		return row
 	})
 }

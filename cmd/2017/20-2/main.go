@@ -43,13 +43,13 @@ func (p *Particle) Step() {
 }
 
 func InputToParticles() []Particle {
-	return aoc.InputLinesTo(2017, 20, func(line string) (Particle, error) {
+	return aoc.InputLinesTo(2017, 20, func(line string) Particle {
 		var particle Particle
-		_, err := fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
+		fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
 			&particle.pos.X, &particle.pos.Y, &particle.pos.Z,
 			&particle.vel.X, &particle.vel.Y, &particle.vel.Z,
 			&particle.acc.X, &particle.acc.Y, &particle.acc.Z,
 		)
-		return particle, err
+		return particle
 	})
 }

@@ -30,7 +30,7 @@ type Disc struct {
 }
 
 func InputToDiscs() []Disc {
-	return aoc.InputLinesTo(2016, 15, func(line string) (Disc, error) {
+	return aoc.InputLinesTo(2016, 15, func(line string) Disc {
 		line = strings.ReplaceAll(line, "Disc #", "")
 		line = strings.ReplaceAll(line, "has ", "")
 		line = strings.ReplaceAll(line, "positions; at time=", "")
@@ -41,6 +41,6 @@ func InputToDiscs() []Disc {
 		fmt.Sscanf(line, "%d %d %d %d", &id, &size, &tm, &offset)
 
 		// This only works because all of our disk offsets are specified at tm=0.
-		return Disc{Size: size, Offset: offset}, nil
+		return Disc{Size: size, Offset: offset}
 	})
 }

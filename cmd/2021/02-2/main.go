@@ -27,9 +27,9 @@ type Command struct {
 }
 
 func InputToCommands() []Command {
-	return aoc.InputLinesTo(2021, 2, func(line string) (Command, error) {
+	return aoc.InputLinesTo(2021, 2, func(line string) Command {
 		var command Command
-		_, err := fmt.Sscanf(line, "%s %d", &command.Direction, &command.Distance)
-		return command, err
+		fmt.Sscanf(line, "%s %d", &command.Direction, &command.Distance)
+		return command
 	})
 }

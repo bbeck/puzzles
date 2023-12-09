@@ -27,7 +27,7 @@ func InputToRules() map[string]Contents {
 		Contents Contents
 	}
 
-	rs := aoc.InputLinesTo(2020, 7, func(line string) (Rule, error) {
+	rs := aoc.InputLinesTo(2020, 7, func(line string) Rule {
 		lhs, rhs, _ := strings.Cut(line, " bags contain ")
 		rhs = strings.ReplaceAll(rhs, ".", "")
 		rhs = strings.ReplaceAll(rhs, " bags", "")
@@ -41,7 +41,7 @@ func InputToRules() map[string]Contents {
 			}
 		}
 
-		return Rule{Color: lhs, Contents: contents}, nil
+		return Rule{Color: lhs, Contents: contents}
 	})
 
 	rules := make(map[string]Contents)

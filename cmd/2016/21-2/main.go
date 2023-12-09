@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"log"
 	"strings"
 )
 
@@ -101,41 +102,42 @@ func Move(x, y int) Operation {
 }
 
 func InputToOperations() []Operation {
-	return aoc.InputLinesTo(2016, 21, func(line string) (Operation, error) {
+	return aoc.InputLinesTo(2016, 21, func(line string) Operation {
 		tokens := strings.Fields(line)
 		if tokens[0] == "swap" && tokens[1] == "position" {
 			x := aoc.ParseInt(tokens[2])
 			y := aoc.ParseInt(tokens[5])
-			return SwapPositions(x, y), nil
+			return SwapPositions(x, y)
 		}
 
 		if tokens[0] == "swap" && tokens[1] == "letter" {
 			x := tokens[2]
 			y := tokens[5]
-			return SwapLetters(x, y), nil
+			return SwapLetters(x, y)
 		}
 
 		if tokens[0] == "rotate" && (tokens[1] == "left" || tokens[1] == "right") {
 			x := aoc.ParseInt(tokens[2])
-			return Rotate(tokens[1], x), nil
+			return Rotate(tokens[1], x)
 		}
 
 		if tokens[0] == "rotate" && tokens[1] == "based" {
 			x := tokens[6]
-			return RotateBasedOnPosition(x), nil
+			return RotateBasedOnPosition(x)
 		}
 
 		if tokens[0] == "reverse" {
 			x := aoc.ParseInt(tokens[2])
 			y := aoc.ParseInt(tokens[4])
-			return Reverse(x, y), nil
+			return Reverse(x, y)
 		}
 		if tokens[0] == "move" {
 			x := aoc.ParseInt(tokens[2])
 			y := aoc.ParseInt(tokens[5])
-			return Move(x, y), nil
+			return Move(x, y)
 		}
 
-		return nil, fmt.Errorf("unable to parse line: %s", line)
+		log.Fatalf("unable to parse line: %s", line)
+		return nil
 	})
 }

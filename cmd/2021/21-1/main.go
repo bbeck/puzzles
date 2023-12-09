@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -41,8 +40,8 @@ func (d *Die) Roll() int {
 }
 
 func InputToStartingPositions() []int {
-	return aoc.InputLinesTo(2021, 21, func(line string) (int, error) {
+	return aoc.InputLinesTo(2021, 21, func(line string) int {
 		_, rhs, _ := strings.Cut(line, ": ")
-		return strconv.Atoi(rhs)
+		return aoc.ParseInt(rhs)
 	})
 }

@@ -121,7 +121,7 @@ type Blueprint struct {
 func InputToBlueprints() []Blueprint {
 	regex := regexp.MustCompile(`\d+`)
 
-	return aoc.InputLinesTo(2022, 19, func(s string) (Blueprint, error) {
+	return aoc.InputLinesTo(2022, 19, func(s string) Blueprint {
 		ns := regex.FindAllString(s, -1)
 		return Blueprint{
 			ID: aoc.ParseInt(ns[0]),
@@ -131,6 +131,6 @@ func InputToBlueprints() []Blueprint {
 				{aoc.ParseInt(ns[3]), aoc.ParseInt(ns[4]), 0, 0},
 				{aoc.ParseInt(ns[5]), 0, aoc.ParseInt(ns[6]), 0},
 			},
-		}, nil
+		}
 	})
 }

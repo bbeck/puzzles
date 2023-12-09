@@ -40,9 +40,9 @@ type Orbit struct {
 }
 
 func InputToOrbits() []Orbit {
-	return aoc.InputLinesTo(2019, 6, func(line string) (Orbit, error) {
+	return aoc.InputLinesTo(2019, 6, func(line string) Orbit {
 		var orbit Orbit
 		orbit.Parent, orbit.Child, _ = strings.Cut(line, ")")
-		return orbit, nil
+		return orbit
 	})
 }

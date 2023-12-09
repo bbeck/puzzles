@@ -50,7 +50,7 @@ func (r Room) IsReal() bool {
 }
 
 func InputToRooms() []Room {
-	return aoc.InputLinesTo(2016, 4, func(line string) (Room, error) {
+	return aoc.InputLinesTo(2016, 4, func(line string) Room {
 		hyphen := strings.LastIndex(line, "-")
 		bracket := strings.LastIndex(line, "[")
 
@@ -58,6 +58,6 @@ func InputToRooms() []Room {
 			Name:     line[:hyphen],
 			SectorID: aoc.ParseInt(line[hyphen+1 : bracket]),
 			Checksum: line[bracket+1 : len(line)-1],
-		}, nil
+		}
 	})
 }

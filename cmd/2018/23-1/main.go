@@ -28,9 +28,9 @@ type Nanobot struct {
 }
 
 func InputToNanobots() []Nanobot {
-	return aoc.InputLinesTo(2018, 23, func(line string) (Nanobot, error) {
+	return aoc.InputLinesTo(2018, 23, func(line string) Nanobot {
 		var bot Nanobot
-		_, err := fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &bot.X, &bot.Y, &bot.Z, &bot.R)
-		return bot, err
+		fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &bot.X, &bot.Y, &bot.Z, &bot.R)
+		return bot
 	})
 }

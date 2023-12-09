@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	digits := aoc.InputLinesTo(2016, 2, func(line string) (string, error) {
-		return KeypadDigit(line), nil
+	digits := aoc.InputLinesTo(2016, 2, func(line string) string {
+		return KeypadDigit(line)
 	})
 
 	fmt.Println(strings.Join(digits, ""))

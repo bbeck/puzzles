@@ -160,8 +160,8 @@ func ParseNumber(input string) (string, *Number) {
 }
 
 func InputToNumbers() []*Number {
-	return aoc.InputLinesTo(2021, 18, func(line string) (*Number, error) {
+	return aoc.InputLinesTo(2021, 18, func(line string) *Number {
 		_, n := ParseNumber(line)
-		return n, nil
+		return n
 	})
 }

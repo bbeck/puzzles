@@ -62,9 +62,9 @@ func (s Sensor) GetRange(y int) *Range {
 }
 
 func InputToSensors() []Sensor {
-	return aoc.InputLinesTo(2022, 15, func(line string) (Sensor, error) {
+	return aoc.InputLinesTo(2022, 15, func(line string) Sensor {
 		var sensor, beacon aoc.Point2D
-		_, err := fmt.Sscanf(
+		fmt.Sscanf(
 			line,
 			"Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d",
 			&sensor.X, &sensor.Y,
@@ -74,6 +74,6 @@ func InputToSensors() []Sensor {
 		return Sensor{
 			Point2D: sensor,
 			Beacon:  beacon,
-		}, err
+		}
 	})
 }

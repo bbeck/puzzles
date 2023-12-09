@@ -38,9 +38,9 @@ func (p Point4D) ManhattanDistance(q Point4D) int {
 }
 
 func InputToPoints() []Point4D {
-	return aoc.InputLinesTo(2018, 25, func(line string) (Point4D, error) {
+	return aoc.InputLinesTo(2018, 25, func(line string) Point4D {
 		var p Point4D
-		_, err := fmt.Sscanf(line, "%d,%d,%d,%d", &p.W, &p.X, &p.Y, &p.Z)
-		return p, err
+		fmt.Sscanf(line, "%d,%d,%d,%d", &p.W, &p.X, &p.Y, &p.Z)
+		return p
 	})
 }

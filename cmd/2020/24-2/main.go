@@ -51,7 +51,7 @@ func Next(floor aoc.Set[HexPoint]) aoc.Set[HexPoint] {
 }
 
 func InputToSteps() [][]string {
-	return aoc.InputLinesTo(2020, 24, func(line string) ([]string, error) {
+	return aoc.InputLinesTo(2020, 24, func(line string) []string {
 		var steps []string
 		for len(line) > 0 {
 			if line[0] == 'n' || line[0] == 's' {
@@ -63,7 +63,7 @@ func InputToSteps() [][]string {
 			}
 		}
 
-		return steps, nil
+		return steps
 	})
 }
 

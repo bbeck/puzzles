@@ -22,10 +22,10 @@ func main() {
 }
 
 func InputToPreviousValues() []int {
-	return aoc.InputLinesTo(2017, 15, func(line string) (int, error) {
+	return aoc.InputLinesTo(2017, 15, func(line string) int {
 		var id string
 		var value int
-		_, err := fmt.Sscanf(line, "Generator %s starts with %d", &id, &value)
-		return value, err
+		fmt.Sscanf(line, "Generator %s starts with %d", &id, &value)
+		return value
 	})
 }

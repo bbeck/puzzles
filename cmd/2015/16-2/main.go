@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -44,7 +45,7 @@ type Aunt struct {
 }
 
 func InputToAunts() []Aunt {
-	return aoc.InputLinesTo(2015, 16, func(line string) (Aunt, error) {
+	return aoc.InputLinesTo(2015, 16, func(line string) Aunt {
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, ",", "")
 
@@ -59,7 +60,7 @@ func InputToAunts() []Aunt {
 			&compound3, &value3,
 		)
 		if err != nil {
-			return Aunt{}, err
+			log.Fatalf("unable to parse line: %v", err)
 		}
 
 		return Aunt{
@@ -69,6 +70,6 @@ func InputToAunts() []Aunt {
 				compound2: value2,
 				compound3: value3,
 			},
-		}, nil
+		}
 	})
 }

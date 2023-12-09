@@ -51,9 +51,9 @@ type Segment struct {
 }
 
 func InputToSegments() []Segment {
-	return aoc.InputLinesTo(2021, 5, func(line string) (Segment, error) {
+	return aoc.InputLinesTo(2021, 5, func(line string) Segment {
 		var s Segment
-		_, err := fmt.Sscanf(line, "%d,%d -> %d,%d", &s.Start.X, &s.Start.Y, &s.End.X, &s.End.Y)
-		return s, err
+		fmt.Sscanf(line, "%d,%d -> %d,%d", &s.Start.X, &s.Start.Y, &s.End.X, &s.End.Y)
+		return s
 	})
 }

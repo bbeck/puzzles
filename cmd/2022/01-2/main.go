@@ -7,11 +7,11 @@ import (
 )
 
 func main() {
-	calories := aoc.InputLinesTo(2022, 1, func(line string) (int, error) {
+	calories := aoc.InputLinesTo(2022, 1, func(line string) int {
 		if line == "" {
-			return 0, nil
+			return 0
 		}
-		return aoc.ParseInt(line), nil
+		return aoc.ParseInt(line)
 	})
 
 	var groups []int

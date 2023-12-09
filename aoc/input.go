@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -17,7 +16,7 @@ func InputFilename(year, day int) string {
 
 // InputToBytes reads the entire input file into a slice of bytes.
 func InputToBytes(year, day int) []byte {
-	bs, err := ioutil.ReadFile(InputFilename(year, day))
+	bs, err := os.ReadFile(InputFilename(year, day))
 	if err != nil {
 		log.Fatalf("unable to read input.txt: %+v", err)
 	}
@@ -55,15 +54,10 @@ func InputToLines(year, day int) []string {
 // InputLinesTo transforms each line of the input file into an instance
 // returned by a transform function.  The instances are returned in a
 // slice in the same order as they appear in the file.
-func InputLinesTo[T any](year, day int, parse func(string) (T, error)) []T {
+func InputLinesTo[T any](year, day int, parse func(string) T) []T {
 	var ts []T
 	for _, line := range InputToLines(year, day) {
-		t, err := parse(line)
-		if err != nil {
-			log.Fatalf("unable to parse line '%s': %+v", line, err)
-		}
-
-		ts = append(ts, t)
+		ts = append(ts, parse(line))
 	}
 
 	return ts
@@ -76,7 +70,10 @@ func InputToInt(year, day int) int {
 
 // InputToInts reads the input file into a slice of integers.
 func InputToInts(year, day int) []int {
-	return InputLinesTo(year, day, strconv.Atoi)
+	return InputLinesTo(year, day, func(s string) int {
+		n, _ := strconv.Atoi(s)
+		return n
+	})
 }
 
 // InputToGrid2D builds a Grid2D instance from the input using the provided

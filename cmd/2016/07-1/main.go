@@ -39,7 +39,7 @@ type Address struct {
 }
 
 func InputToAddresses() []Address {
-	return aoc.InputLinesTo(2016, 7, func(line string) (Address, error) {
+	return aoc.InputLinesTo(2016, 7, func(line string) Address {
 		line = strings.ReplaceAll(line, "[", " ")
 		line = strings.ReplaceAll(line, "]", " ")
 		parts := strings.Split(line, " ")
@@ -53,6 +53,6 @@ func InputToAddresses() []Address {
 			}
 		}
 
-		return address, nil
+		return address
 	})
 }

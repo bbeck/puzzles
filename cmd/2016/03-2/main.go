@@ -29,13 +29,13 @@ func (t Triangle) IsValid() bool {
 }
 
 func InputToTriangles() []Triangle {
-	nums := aoc.InputLinesTo(2016, 3, func(line string) ([]int, error) {
+	nums := aoc.InputLinesTo(2016, 3, func(line string) []int {
 		parts := strings.Fields(line)
 		return []int{
 			aoc.ParseInt(parts[0]),
 			aoc.ParseInt(parts[1]),
 			aoc.ParseInt(parts[2]),
-		}, nil
+		}
 	})
 
 	var triangles []Triangle

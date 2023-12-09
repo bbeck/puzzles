@@ -29,12 +29,12 @@ func (t Triangle) IsValid() bool {
 }
 
 func InputToTriangles() []Triangle {
-	return aoc.InputLinesTo(2016, 3, func(line string) (Triangle, error) {
+	return aoc.InputLinesTo(2016, 3, func(line string) Triangle {
 		parts := strings.Fields(line)
 		return Triangle{
 			Side1: aoc.ParseInt(parts[0]),
 			Side2: aoc.ParseInt(parts[1]),
 			Side3: aoc.ParseInt(parts[2]),
-		}, nil
+		}
 	})
 }

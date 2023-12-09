@@ -55,7 +55,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2016, 12, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2016, 12, func(line string) Instruction {
 		opcode, rest, _ := strings.Cut(line, " ")
 		args := strings.Fields(rest)
 
@@ -81,6 +81,6 @@ func InputToProgram() []Instruction {
 			instruction.Offset = aoc.ParseInt(args[1])
 		}
 
-		return instruction, nil
+		return instruction
 	})
 }

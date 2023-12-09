@@ -88,7 +88,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2016, 23, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2016, 23, func(line string) Instruction {
 		fields := strings.Fields(line)
 		opcode := fields[0]
 		args := fields[1:]
@@ -104,6 +104,6 @@ func InputToProgram() []Instruction {
 			OpCode: opcode,
 			Args:   args,
 			Parsed: parsed,
-		}, nil
+		}
 	})
 }

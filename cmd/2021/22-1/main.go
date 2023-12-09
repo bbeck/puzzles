@@ -37,9 +37,9 @@ type Cube struct {
 }
 
 func InputToCubes() []Cube {
-	return aoc.InputLinesTo[Cube](2021, 22, func(line string) (Cube, error) {
+	return aoc.InputLinesTo[Cube](2021, 22, func(line string) Cube {
 		var c Cube
 		fmt.Sscanf(line, "%s x=%d..%d,y=%d..%d,z=%d..%d", &c.State, &c.MinX, &c.MaxX, &c.MinY, &c.MaxY, &c.MinZ, &c.MaxZ)
-		return c, nil
+		return c
 	})
 }

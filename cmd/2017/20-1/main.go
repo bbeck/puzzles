@@ -40,13 +40,13 @@ func (p Particle) Position(t int) aoc.Point3D {
 }
 
 func InputToParticles() []Particle {
-	return aoc.InputLinesTo(2017, 20, func(line string) (Particle, error) {
+	return aoc.InputLinesTo(2017, 20, func(line string) Particle {
 		var particle Particle
-		_, err := fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
+		fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
 			&particle.p.X, &particle.p.Y, &particle.p.Z,
 			&particle.v.X, &particle.v.Y, &particle.v.Z,
 			&particle.a.X, &particle.a.Y, &particle.a.Z,
 		)
-		return particle, err
+		return particle
 	})
 }

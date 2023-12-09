@@ -42,18 +42,18 @@ func main() {
 
 func InputToPoints() []aoc.Point2D {
 	var unused int
-	return aoc.InputLinesTo(2018, 10, func(line string) (aoc.Point2D, error) {
+	return aoc.InputLinesTo(2018, 10, func(line string) aoc.Point2D {
 		var p aoc.Point2D
-		_, err := fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &p.X, &p.Y, &unused, &unused)
-		return p, err
+		fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &p.X, &p.Y, &unused, &unused)
+		return p
 	})
 }
 
 func InputToVelocities() []aoc.Point2D {
 	var unused int
-	return aoc.InputLinesTo(2018, 10, func(line string) (aoc.Point2D, error) {
+	return aoc.InputLinesTo(2018, 10, func(line string) aoc.Point2D {
 		var p aoc.Point2D
-		_, err := fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &unused, &unused, &p.X, &p.Y)
-		return p, err
+		fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &unused, &unused, &p.X, &p.Y)
+		return p
 	})
 }

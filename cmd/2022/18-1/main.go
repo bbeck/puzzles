@@ -20,9 +20,9 @@ func main() {
 }
 
 func InputToPoints() []aoc.Point3D {
-	return aoc.InputLinesTo(2022, 18, func(line string) (aoc.Point3D, error) {
+	return aoc.InputLinesTo(2022, 18, func(line string) aoc.Point3D {
 		var p aoc.Point3D
-		_, err := fmt.Sscanf(line, "%d,%d,%d", &p.X, &p.Y, &p.Z)
-		return p, err
+		fmt.Sscanf(line, "%d,%d,%d", &p.X, &p.Y, &p.Z)
+		return p
 	})
 }

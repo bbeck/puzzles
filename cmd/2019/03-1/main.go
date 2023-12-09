@@ -51,13 +51,13 @@ func (p Path) Points() aoc.Set[aoc.Point2D] {
 }
 
 func InputToPaths() []Path {
-	return aoc.InputLinesTo(2019, 3, func(line string) (Path, error) {
+	return aoc.InputLinesTo(2019, 3, func(line string) Path {
 		var path Path
 		for _, part := range strings.Split(line, ",") {
 			path.Dirs = append(path.Dirs, string(part[0]))
 			path.Lengths = append(path.Lengths, aoc.ParseInt(part[1:]))
 		}
 
-		return path, nil
+		return path
 	})
 }

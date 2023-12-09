@@ -38,12 +38,12 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2020, 8, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2020, 8, func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		return Instruction{
 			OpCode: fields[0],
 			Arg:    aoc.ParseInt(fields[1]),
-		}, nil
+		}
 	})
 }

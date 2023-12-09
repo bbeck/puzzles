@@ -108,13 +108,13 @@ type Hand struct {
 }
 
 func InputToHands() []Hand {
-	return aoc.InputLinesTo(2023, 7, func(line string) (Hand, error) {
+	return aoc.InputLinesTo(2023, 7, func(line string) Hand {
 		lhs, rhs, _ := strings.Cut(line, " ")
 
 		return Hand{
 			Cards: lhs,
 			Bid:   aoc.ParseInt(rhs),
 			Type:  Type(lhs),
-		}, nil
+		}
 	})
 }

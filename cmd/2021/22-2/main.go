@@ -38,7 +38,7 @@ type Command struct {
 }
 
 func InputToCommands() []Command {
-	return aoc.InputLinesTo(2021, 22, func(line string) (Command, error) {
+	return aoc.InputLinesTo(2021, 22, func(line string) Command {
 		var c Command
 		fmt.Sscanf(line, "%s x=%d..%d,y=%d..%d,z=%d..%d", &c.State,
 			&c.Cube.MinX, &c.Cube.MaxX, &c.Cube.MinY,
@@ -51,6 +51,6 @@ func InputToCommands() []Command {
 		c.Cube.MaxY += 1
 		c.Cube.MaxZ += 1
 
-		return c, nil
+		return c
 	})
 }

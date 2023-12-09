@@ -36,11 +36,11 @@ type Range struct {
 }
 
 func InputToRanges() []Range {
-	return aoc.InputLinesTo(2016, 20, func(line string) (Range, error) {
+	return aoc.InputLinesTo(2016, 20, func(line string) Range {
 		start, end, _ := strings.Cut(line, "-")
 		return Range{
 			Start: aoc.ParseInt(start),
 			End:   aoc.ParseInt(end),
-		}, nil
+		}
 	})
 }

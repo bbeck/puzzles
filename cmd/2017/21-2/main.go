@@ -167,8 +167,8 @@ func InputToRules() []Rule {
 		}
 	}
 
-	return aoc.InputLinesTo(2017, 21, func(line string) (Rule, error) {
+	return aoc.InputLinesTo(2017, 21, func(line string) Rule {
 		lhs, rhs, _ := strings.Cut(line, " => ")
-		return Rule{from: parse(lhs), to: parse(rhs)}, nil
+		return Rule{from: parse(lhs), to: parse(rhs)}
 	})
 }

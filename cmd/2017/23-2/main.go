@@ -70,26 +70,22 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2017, 23, func(line string) (Instruction, error) {
-		return ParseInstruction(line), nil
-	})
-}
+	return aoc.InputLinesTo(2017, 23, func(line string) Instruction {
+		fields := strings.Fields(line)
+		opcode := fields[0]
+		args := fields[1:]
+		parsed := make([]int, len(args))
 
-func ParseInstruction(s string) Instruction {
-	fields := strings.Fields(s)
-	opcode := fields[0]
-	args := fields[1:]
-	parsed := make([]int, len(args))
-
-	for i, arg := range args {
-		if n, err := strconv.Atoi(arg); err == nil {
-			parsed[i] = n
+		for i, arg := range args {
+			if n, err := strconv.Atoi(arg); err == nil {
+				parsed[i] = n
+			}
 		}
-	}
 
-	return Instruction{
-		OpCode: opcode,
-		Args:   args,
-		Parsed: parsed,
-	}
+		return Instruction{
+			OpCode: opcode,
+			Args:   args,
+			Parsed: parsed,
+		}
+	})
 }

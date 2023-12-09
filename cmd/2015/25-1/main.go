@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -47,13 +48,15 @@ func main() {
 }
 
 func InputToCoordinate() (int, int) {
-	p := aoc.InputLinesTo(2015, 25, func(line string) (aoc.Point2D, error) {
+	p := aoc.InputLinesTo(2015, 25, func(line string) aoc.Point2D {
 		line = strings.ReplaceAll(line, "To continue, please consult the code grid in the manual.", "")
 		line = strings.TrimSpace(line)
 
 		var p aoc.Point2D
-		_, err := fmt.Sscanf(line, "Enter the code at row %d, column %d.", &p.X, &p.Y)
-		return p, err
+		if _, err := fmt.Sscanf(line, "Enter the code at row %d, column %d.", &p.X, &p.Y); err != nil {
+			log.Fatalf("unable to parse line: %v", err)
+		}
+		return p
 	})[0]
 
 	return p.X, p.Y

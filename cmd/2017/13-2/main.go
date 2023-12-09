@@ -45,13 +45,13 @@ type Layer struct {
 }
 
 func InputToLayers() []Layer {
-	return aoc.InputLinesTo(2017, 13, func(line string) (Layer, error) {
+	return aoc.InputLinesTo(2017, 13, func(line string) Layer {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 
 		return Layer{
 			Depth: aoc.ParseInt(fields[0]),
 			Range: aoc.ParseInt(fields[1]),
-		}, nil
+		}
 	})
 }

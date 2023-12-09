@@ -41,11 +41,11 @@ type Component struct {
 }
 
 func InputToComponents() []Component {
-	return aoc.InputLinesTo(2017, 24, func(line string) (Component, error) {
+	return aoc.InputLinesTo(2017, 24, func(line string) Component {
 		lhs, rhs, _ := strings.Cut(line, "/")
 		return Component{
 			L: aoc.ParseInt(lhs),
 			R: aoc.ParseInt(rhs),
-		}, nil
+		}
 	})
 }

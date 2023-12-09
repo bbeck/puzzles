@@ -20,8 +20,8 @@ func main() {
 }
 
 func InputToOutputDigits() [][]string {
-	return aoc.InputLinesTo(2021, 8, func(line string) ([]string, error) {
+	return aoc.InputLinesTo(2021, 8, func(line string) []string {
 		_, rhs, _ := strings.Cut(line, " | ")
-		return strings.Fields(rhs), nil
+		return strings.Fields(rhs)
 	})
 }

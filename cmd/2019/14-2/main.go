@@ -56,7 +56,7 @@ type Reaction struct {
 }
 
 func InputToReactions() []Reaction {
-	return aoc.InputLinesTo(2019, 14, func(line string) (Reaction, error) {
+	return aoc.InputLinesTo(2019, 14, func(line string) Reaction {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 
 		var reaction Reaction
@@ -72,6 +72,6 @@ func InputToReactions() []Reaction {
 		reaction.Output.Symbol = symbol
 		reaction.Output.Quantity = aoc.ParseInt(quantity)
 
-		return reaction, nil
+		return reaction
 	})
 }

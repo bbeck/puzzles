@@ -29,11 +29,11 @@ type Password struct {
 }
 
 func InputToPasswords() []Password {
-	return aoc.InputLinesTo(2020, 2, func(line string) (Password, error) {
+	return aoc.InputLinesTo(2020, 2, func(line string) Password {
 		line = strings.ReplaceAll(line, ":", "")
 
 		var password Password
-		_, err := fmt.Sscanf(line, "%d-%d %c %s", &password.Min, &password.Max, &password.C, &password.Value)
-		return password, err
+		fmt.Sscanf(line, "%d-%d %c %s", &password.Min, &password.Max, &password.C, &password.Value)
+		return password
 	})
 }

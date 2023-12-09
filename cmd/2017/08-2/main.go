@@ -18,7 +18,7 @@ func main() {
 			case "dec":
 				registers[instruction.Register] -= instruction.Amount
 			}
-			
+
 			for _, value := range registers {
 				max = aoc.Max(max, value)
 			}
@@ -53,7 +53,7 @@ func InputToProgram() []Instruction {
 		}
 	}
 
-	return aoc.InputLinesTo(2017, 8, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2017, 8, func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		return Instruction{
@@ -61,6 +61,6 @@ func InputToProgram() []Instruction {
 			Op:        fields[1],
 			Amount:    aoc.ParseInt(fields[2]),
 			Condition: condition(fields[4], fields[5], fields[6]),
-		}, nil
+		}
 	})
 }

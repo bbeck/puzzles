@@ -39,7 +39,7 @@ func (g *Game) IsOk() bool {
 }
 
 func InputToGames() []Game {
-	return aoc.InputLinesTo(2023, 2, func(line string) (Game, error) {
+	return aoc.InputLinesTo(2023, 2, func(line string) Game {
 		line = strings.ReplaceAll(line, "Game ", "")
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, ",", "")
@@ -60,6 +60,6 @@ func InputToGames() []Game {
 		return Game{
 			ID:      aoc.ParseInt(fields[0]),
 			Subsets: subsets,
-		}, nil
+		}
 	})
 }

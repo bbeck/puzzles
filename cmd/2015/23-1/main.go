@@ -54,7 +54,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2015, 23, func(line string) (Instruction, error) {
+	return aoc.InputLinesTo(2015, 23, func(line string) Instruction {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "+", "")
 		opcode, rest, _ := strings.Cut(line, " ")
@@ -74,6 +74,6 @@ func InputToProgram() []Instruction {
 			instruction.Register = args[0]
 		}
 
-		return instruction, nil
+		return instruction
 	})
 }

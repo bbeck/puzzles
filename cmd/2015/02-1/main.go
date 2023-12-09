@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"log"
 )
 
 type Box struct {
@@ -28,12 +29,12 @@ func main() {
 }
 
 func InputToBoxes() []Box {
-	parser := func(line string) (Box, error) {
+	parser := func(line string) Box {
 		var box Box
 		if _, err := fmt.Sscanf(line, "%dx%dx%d", &box.l, &box.w, &box.h); err != nil {
-			return box, err
+			log.Fatalf("unable to parse line: %v", err)
 		}
-		return box, nil
+		return box
 	}
 	return aoc.InputLinesTo(2015, 2, parser)
 }

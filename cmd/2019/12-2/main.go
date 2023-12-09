@@ -78,9 +78,9 @@ func Equal[T comparable](a, b []T) bool {
 }
 
 func InputToPositions() []aoc.Point3D {
-	return aoc.InputLinesTo(2019, 12, func(line string) (aoc.Point3D, error) {
+	return aoc.InputLinesTo(2019, 12, func(line string) aoc.Point3D {
 		var p aoc.Point3D
-		_, err := fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
-		return p, err
+		fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
+		return p
 	})
 }

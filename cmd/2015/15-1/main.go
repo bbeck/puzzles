@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/bbeck/advent-of-code/aoc"
@@ -58,7 +59,7 @@ type Ingredient struct {
 }
 
 func InputToIngredients() []Ingredient {
-	return aoc.InputLinesTo(2015, 15, func(line string) (Ingredient, error) {
+	return aoc.InputLinesTo(2015, 15, func(line string) Ingredient {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "capacity", "")
 		line = strings.ReplaceAll(line, "durability", "")
@@ -76,6 +77,9 @@ func InputToIngredients() []Ingredient {
 			&ingredient.Texture,
 			&ingredient.Calories,
 		)
-		return ingredient, err
+		if err != nil {
+			log.Fatalf("unable to parse line: %v", err)
+		}
+		return ingredient
 	})
 }

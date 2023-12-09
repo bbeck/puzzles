@@ -29,7 +29,7 @@ func main() {
 		"9":     9,
 	}
 
-	nums := aoc.InputLinesTo[int](2023, 1, func(line string) (int, error) {
+	nums := aoc.InputLinesTo[int](2023, 1, func(line string) int {
 		L := len(line)
 
 		var first, last int
@@ -45,7 +45,7 @@ func main() {
 			}
 		}
 
-		return 10*first + last, nil
+		return 10*first + last
 	})
 
 	fmt.Println(aoc.Sum(nums...))

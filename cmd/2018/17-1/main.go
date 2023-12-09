@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/advent-of-code/aoc"
+	"log"
 )
 
 func main() {
@@ -94,22 +95,23 @@ type World struct{ aoc.Grid2D[int] }
 func InputToWorld() World {
 	// Convert the input into line segments
 	type Line []aoc.Point2D
-	lines := aoc.InputLinesTo(2018, 17, func(s string) (Line, error) {
+	lines := aoc.InputLinesTo(2018, 17, func(s string) Line {
 		var x1, x2, y1, y2 int
 		var line Line
 		if _, err := fmt.Sscanf(s, "x=%d, y=%d..%d", &x1, &y1, &y2); err == nil {
 			for y := y1; y <= y2; y++ {
 				line = append(line, aoc.Point2D{X: x1, Y: y})
 			}
-			return line, nil
+			return line
 		}
 		if _, err := fmt.Sscanf(s, "y=%d, x=%d..%d", &y1, &x1, &x2); err == nil {
 			for x := x1; x <= x2; x++ {
 				line = append(line, aoc.Point2D{X: x, Y: y1})
 			}
-			return line, nil
+			return line
 		}
-		return line, fmt.Errorf("unable to parse line: %s", s)
+		log.Fatalf("unable to parse line: %s", s)
+		return line
 	})
 
 	// Determine the bounding box of the line segments.

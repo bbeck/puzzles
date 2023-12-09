@@ -29,7 +29,7 @@ type Program struct {
 }
 
 func InputToPrograms() []Program {
-	return aoc.InputLinesTo(2017, 7, func(line string) (Program, error) {
+	return aoc.InputLinesTo(2017, 7, func(line string) Program {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "->", "")
 		line = strings.ReplaceAll(line, "(", "")
@@ -40,6 +40,6 @@ func InputToPrograms() []Program {
 			ID:       fields[0],
 			Weight:   aoc.ParseInt(fields[1]),
 			Children: fields[2:],
-		}, nil
+		}
 	})
 }

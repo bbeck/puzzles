@@ -48,7 +48,7 @@ type Food struct {
 }
 
 func InputToFood() []Food {
-	return aoc.InputLinesTo(2020, 21, func(line string) (Food, error) {
+	return aoc.InputLinesTo(2020, 21, func(line string) Food {
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 		line = strings.ReplaceAll(line, ",", "")
@@ -57,6 +57,6 @@ func InputToFood() []Food {
 		return Food{
 			Ingredients: strings.Fields(lhs),
 			Allergens:   strings.Fields(rhs),
-		}, nil
+		}
 	})
 }
