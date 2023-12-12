@@ -43,6 +43,16 @@ func Reversed[T any](s []T) []T {
 	return t
 }
 
+// Repeat repeats a slice multiple times.
+func Repeat[T any](s []T, n int) []T {
+	t := make([]T, 0, n*len(s))
+	for n > 0 {
+		t = append(t, s...)
+		n--
+	}
+	return t
+}
+
 // Split partitions a slice into chunks using a partition function.  Elements of
 // the slice are passed into the partition function and runs of true return
 // values are grouped together into a chunk.
