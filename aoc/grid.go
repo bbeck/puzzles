@@ -1,5 +1,10 @@
 package aoc
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Grid2D is a struct that organizes data into a two-dimensional grid of cells
 // indexed by location.
 type Grid2D[T any] struct {
@@ -106,4 +111,48 @@ func (g *Grid2D[T]) ForEachOrthogonalNeighbor(p Point2D, fn func(Point2D, T)) {
 			fn(n, g.GetPoint(n))
 		}
 	}
+}
+
+// RotateLeft returns a new copy of the grid that has been rotated
+// counterclockwise 90 degrees.
+func (g *Grid2D[T]) RotateLeft() Grid2D[T] {
+	W, H := g.Width, g.Height
+
+	r := NewGrid2D[T](H, W)
+	for y := 0; y < W; y++ {
+		for x := 0; x < H; x++ {
+			r.Set(x, y, g.Get(W-y-1, x))
+		}
+	}
+
+	return r
+}
+
+// RotateRight returns a new copy of the grid that has been rotated clockwise
+// 90 degrees.
+func (g *Grid2D[T]) RotateRight() Grid2D[T] {
+	W, H := g.Width, g.Height
+
+	r := NewGrid2D[T](H, W)
+	for y := 0; y < W; y++ {
+		for x := 0; x < H; x++ {
+			r.Set(x, y, g.Get(y, H-x-1))
+		}
+	}
+
+	return r
+}
+
+// String returns the human readable representation of the grid.
+func (g *Grid2D[T]) String() string {
+	var sb strings.Builder
+	for y := 0; y < g.Height; y++ {
+		for x := 0; x < g.Width; x++ {
+			sb.WriteString(fmt.Sprintf("%s", g.Get(x, y)))
+		}
+		if y+1 < g.Height {
+			sb.WriteString("\n")
+		}
+	}
+	return sb.String()
 }
