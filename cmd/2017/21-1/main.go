@@ -102,13 +102,7 @@ func (g Grid) GetChunk(cx, cy int) Grid {
 
 func (g Grid) Transformations() []Grid {
 	rotate := func(g Grid) Grid {
-		r := aoc.NewGrid2D[bool](g.Width, g.Height)
-		for y := 0; y < g.Height; y++ {
-			for x := 0; x < g.Width; x++ {
-				r.Set(x, y, g.Get(y, g.Width-x-1))
-			}
-		}
-		return Grid{r}
+		return Grid{g.RotateRight()}
 	}
 	flipH := func(g Grid) Grid {
 		r := aoc.NewGrid2D[bool](g.Width, g.Height)

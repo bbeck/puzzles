@@ -63,14 +63,7 @@ func (t Tile) Flip() Tile {
 }
 
 func (t Tile) Rotate() Tile {
-	N := t.Width
-	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](N, N)}
-	for y := 0; y < N; y++ {
-		for x := 0; x < N; x++ {
-			s.Set(x, y, t.Get(N-y-1, x))
-		}
-	}
-	return s
+	return Tile{ID: t.ID, Grid2D: t.RotateRight()}
 }
 
 func (t Tile) FitsOnTop(s Tile) bool {
