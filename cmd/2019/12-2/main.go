@@ -16,7 +16,7 @@ func main() {
 	lenY := CycleLength(xs)
 	lenZ := CycleLength(ys)
 	lenX := CycleLength(zs)
-	fmt.Println(aoc.LCM(lenX, aoc.LCM(lenY, lenZ)))
+	fmt.Println(aoc.LCM(lenX, lenY, lenZ))
 }
 
 func CycleLength(ps []int) int {
