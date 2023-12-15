@@ -21,28 +21,7 @@ func main() {
 
 	start := "abcdefghijklmnop"
 
-	// Assume there's a cycle, keep dancing until we reach the starting state.
-	seen := make(map[string]string)
-	current := start
-	for i := 0; i < 1000; i++ {
-		if _, ok := seen[current]; ok {
-			break
-		}
-
-		next := dance(current)
-		seen[current] = next
-
-		current = next
-		if current == start {
-			break
-		}
-	}
-
-	remainder := 1_000_000_000 % len(seen)
-	for i := 0; i < remainder; i++ {
-		current = dance(current)
-	}
-
+	current := aoc.WalkCycle(start, 1_000_000_000, dance)
 	fmt.Println(current)
 }
 

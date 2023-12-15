@@ -8,33 +8,10 @@ import (
 
 func main() {
 	area := InputToArea()
-
-	// Keep track of each area we've seen along with the time we saw it at.  If
-	// we repeat then we know there was a cycle.
-	var previous aoc.Deque[Area]
-	seen := make(map[string]int) // mapping of area key to the time we last saw it
-
-	var tm int
-	var key string
-	for tm = 1; ; tm++ {
-		area = Next(area)
-		key = Key(area)
-		if _, found := seen[key]; found {
-			break
-		}
-
-		previous.PushBack(area)
-		seen[key] = tm
-	}
-
-	// Move the entry we care about to the front of the deque.
-	cycle := tm - seen[key]
-	remainder := (1_000_000_000 - tm) % cycle
-	previous.Rotate(cycle - remainder)
+	area = aoc.WalkCycleWithIdentity(area, 1_000_000_000, Next, Key)
 
 	counts := make(map[string]int)
-	front := previous.PeekFront()
-	front.ForEach(func(_, _ int, value string) {
+	area.ForEach(func(_, _ int, value string) {
 		counts[value]++
 	})
 	fmt.Println(counts["|"] * counts["#"])
