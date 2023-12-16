@@ -90,3 +90,10 @@ func InputToGrid2D[T any](year, day int, fn func(int, int, string) T) Grid2D[T] 
 
 	return grid
 }
+
+// InputToStringGrid2D builds a Grid2D[string] instance from the input.
+func InputToStringGrid2D(year, day int) Grid2D[string] {
+	return InputToGrid2D(year, day, func(_ int, _ int, s string) string {
+		return s
+	})
+}
