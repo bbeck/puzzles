@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	area := InputToArea()
+	area := Area{aoc.InputToStringGrid2D(2018, 18)}
 	area = aoc.WalkCycleWithIdentity(area, 1_000_000_000, Next, Key)
 
 	counts := make(map[string]int)
@@ -45,9 +45,3 @@ func Key(area Area) string {
 }
 
 type Area struct{ aoc.Grid2D[string] }
-
-func InputToArea() Area {
-	return Area{aoc.InputToGrid2D(2018, 18, func(x int, y int, s string) string {
-		return s
-	})}
-}

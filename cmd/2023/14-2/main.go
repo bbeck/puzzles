@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	dish := InputToDish()
+	dish := aoc.InputToStringGrid2D(2023, 14)
 	dish = aoc.WalkCycleWithIdentity(dish, 1_000_000_000, Cycle, ID)
 
 	var load int
@@ -47,10 +47,4 @@ func Cycle(dish aoc.Grid2D[string]) aoc.Grid2D[string] {
 
 func ID(dish aoc.Grid2D[string]) string {
 	return dish.String()
-}
-
-func InputToDish() aoc.Grid2D[string] {
-	return aoc.InputToGrid2D(2023, 14, func(x int, y int, s string) string {
-		return s
-	})
 }

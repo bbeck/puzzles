@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	grid := aoc.InputToGrid2D(2023, 11, func(x int, y int, s string) string {
-		return s
-	})
+	grid := aoc.InputToStringGrid2D(2023, 11)
 	grid = Expand(grid)
 
 	var seen aoc.Set[aoc.Point2D]

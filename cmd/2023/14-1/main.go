@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	dish := InputToDish()
+	dish := aoc.InputToStringGrid2D(2023, 14)
 	dish = TiltUp(dish)
 
 	var load int
@@ -40,10 +40,4 @@ func TiltUp(dish aoc.Grid2D[string]) aoc.Grid2D[string] {
 	}
 
 	return dish
-}
-
-func InputToDish() aoc.Grid2D[string] {
-	return aoc.InputToGrid2D(2023, 14, func(x int, y int, s string) string {
-		return s
-	})
 }

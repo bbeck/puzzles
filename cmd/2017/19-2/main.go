@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	grid := InputToGrid()
+	grid := aoc.InputToStringGrid2D(2017, 19)
 
 	var steps int
 	turtle := aoc.Turtle{Location: FindStart(grid), Heading: aoc.Down}
@@ -52,9 +52,3 @@ func FindStart(g aoc.Grid2D[string]) aoc.Point2D {
 }
 
 const Empty string = " "
-
-func InputToGrid() aoc.Grid2D[string] {
-	return aoc.InputToGrid2D[string](2017, 19, func(x int, y int, s string) string {
-		return s
-	})
-}

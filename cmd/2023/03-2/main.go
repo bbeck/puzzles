@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	grid := aoc.InputToGrid2D(2023, 3, func(x, y int, s string) string {
-		return s
-	})
+	grid := aoc.InputToStringGrid2D(2023, 3)
 
 	gears := make(map[aoc.Point2D][]int)
 	ForEachNumber(grid, func(x int, y int, n int) {

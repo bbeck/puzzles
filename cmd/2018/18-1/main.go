@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	area := InputToArea()
+	area := Area{aoc.InputToStringGrid2D(2018, 18)}
 	for n := 0; n < 10; n++ {
 		area = Next(area)
 	}
@@ -41,9 +41,3 @@ func Next(area Area) Area {
 }
 
 type Area struct{ aoc.Grid2D[string] }
-
-func InputToArea() Area {
-	return Area{aoc.InputToGrid2D(2018, 18, func(x int, y int, s string) string {
-		return s
-	})}
-}

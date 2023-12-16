@@ -7,8 +7,10 @@ import (
 )
 
 func main() {
+	grid := aoc.InputToStringGrid2D(2021, 25)
+
 	var step int
-	for grid, changed := InputToGrid(), true; changed; step++ {
+	for changed := true; changed; step++ {
 		grid, changed = Next(grid)
 	}
 	fmt.Println(step)
@@ -60,10 +62,4 @@ func Next(grid aoc.Grid2D[string]) (aoc.Grid2D[string], bool) {
 	})
 
 	return next, changed
-}
-
-func InputToGrid() aoc.Grid2D[string] {
-	return aoc.InputToGrid2D(2021, 25, func(x int, y int, s string) string {
-		return s
-	})
 }
