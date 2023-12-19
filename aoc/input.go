@@ -97,3 +97,10 @@ func InputToStringGrid2D(year, day int) Grid2D[string] {
 		return s
 	})
 }
+
+// InputToIntGrid2D builds a Grid2D[int] instance from the input.
+func InputToIntGrid2D(year, day int) Grid2D[int] {
+	return InputToGrid2D(year, day, func(_ int, _ int, s string) int {
+		return ParseInt(s)
+	})
+}
