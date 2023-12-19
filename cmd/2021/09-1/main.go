@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	m := InputToHeightMap()
+	m := aoc.InputToIntGrid2D(2021, 9)
 
 	isLowPoint := func(p aoc.Point2D) bool {
 		hp := m.GetPoint(p)
@@ -25,10 +25,4 @@ func main() {
 		}
 	})
 	fmt.Println(risk)
-}
-
-func InputToHeightMap() aoc.Grid2D[int] {
-	return aoc.InputToGrid2D(2021, 9, func(x int, y int, s string) int {
-		return aoc.ParseInt(s)
-	})
 }

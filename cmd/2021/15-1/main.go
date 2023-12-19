@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	cave := InputToCave()
+	cave := aoc.InputToIntGrid2D(2021, 15)
 
 	start, end := aoc.Origin2D, aoc.Point2D{X: cave.Width - 1, Y: cave.Height - 1}
 
@@ -23,10 +23,4 @@ func main() {
 
 	_, risk, _ := aoc.AStarSearch(start, children, goal, cost, heuristic)
 	fmt.Println(risk)
-}
-
-func InputToCave() aoc.Grid2D[int] {
-	return aoc.InputToGrid2D(2021, 15, func(x int, y int, s string) int {
-		return aoc.ParseInt(s)
-	})
 }

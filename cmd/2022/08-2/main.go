@@ -6,9 +6,7 @@ import (
 )
 
 func main() {
-	grid := aoc.InputToGrid2D[int](2022, 8, func(x, y int, value string) int {
-		return aoc.ParseInt(value)
-	})
+	grid := aoc.InputToIntGrid2D(2022, 8)
 
 	var best int
 	grid.ForEachPoint(func(p aoc.Point2D, _ int) {
