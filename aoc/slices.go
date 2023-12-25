@@ -27,6 +27,18 @@ func Make2D[T any](width, height int) [][]T {
 	return a
 }
 
+// Make3D creates a three-dimensional slice with the passed in dimensions.
+func Make3D[T any](width, height, depth int) [][][]T {
+	a := make([][][]T, width)
+	for x := 0; x < width; x++ {
+		a[x] = make([][]T, height)
+		for y := 0; y < height; y++ {
+			a[x][y] = make([]T, depth)
+		}
+	}
+	return a
+}
+
 // Reverse will reverse the order of the elements of a slice in place.
 func Reverse[T any](s []T) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
