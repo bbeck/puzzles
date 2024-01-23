@@ -60,7 +60,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(collision)
+	fmt.Printf("%d,%d\n", collision.X, collision.Y)
 }
 
 type Cart struct {

@@ -75,7 +75,7 @@ func main() {
 		carts = next
 	}
 
-	fmt.Println(carts[0].Location)
+	fmt.Printf("%d,%d\n", carts[0].Location.X, carts[0].Location.Y)
 }
 
 type Cart struct {
