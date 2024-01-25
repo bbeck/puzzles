@@ -54,36 +54,67 @@ run: cmd/$(YEAR)/$(DAY)-1/input.txt
 ## run all solutions for the specified YEAR
 .PHONY: run-year
 run-year:
-	@for day in {01..25}; do                                       \
-	  for part in 1 2; do                                          \
-	    if [[ "$${day}" == "25" && "$${part}" == "2" ]]; then      \
-	      continue;                                                \
-	    fi;                                                        \
-	    printf "YEAR=%d DAY=%d PART=%d " $(YEAR) $${day} $${part}; \
-	    make --no-print-directory                                  \
-	      run YEAR=$(YEAR) DAY=$${day} PART=$${part};              \
-	  done                                                         \
+	@for day in {01..25}; do                                         \
+	  for part in 1 2; do                                            \
+	    if [[ "$${day}" == "25" && "$${part}" == "2" ]]; then        \
+	      continue;                                                  \
+	    fi;                                                          \
+	    printf "YEAR=%d DAY=%02d PART=%d " $(YEAR) $${day} $${part}; \
+	    make --no-print-directory                                    \
+	      run YEAR=$(YEAR) DAY=$${day} PART=$${part};                \
+	  done                                                           \
 	done
 
-# Download the input file for a particular day
+.PHONY: verify
+verify:
+	@bash -c '                                                       \
+	  diff -w >/dev/null 2>/dev/null                                 \
+	  <(                                                             \
+	    cat .solutions                                             | \
+	    awk "                                                        \
+	      (\$$1 == $(YEAR) && \$$2 == $(DAY) && \$$3 == $(PART))   { \
+	        print                                                    \
+	      }                                                          \
+	    "                                                          | \
+	    cut -f4- -d" "                                               \
+	  )                                                              \
+	  <(                                                             \
+	    make run YEAR=$(YEAR) DAY=$(DAY) PART=$(PART)                \
+	  ) && echo "✅ " || echo "❌ "                                    \
+	'
+
+.PHONY: verify-year
+verify-year:
+	@for day in {01..25}; do                                         \
+	  for part in 1 2; do                                            \
+	    if [[ "$${day}" == "25" && "$${part}" == "2" ]]; then        \
+	      continue;                                                  \
+	    fi;                                                          \
+	    printf "YEAR=%d DAY=%02d PART=%d " $(YEAR) $${day} $${part}; \
+	    make --no-print-directory                                    \
+	      verify YEAR=$(YEAR) DAY=$${day} PART=$${part};             \
+	  done                                                           \
+	done
+
+
 cmd/$(YEAR)/$(DAY)-1/input.txt:
-	@curl                                                          \
-	  --fail                                                       \
-	  --silent                                                     \
-	  --cookie "session=$(SESSION)"                                \
-	  --user-agent "curl/7.79.1 run by bmbeck@gmail.com"           \
-	  --output cmd/$(YEAR)/$(DAY)-1/input.txt                      \
-	  https://adventofcode.com/$(YEAR)/day/$(DAY_NO_ZERO)/input || \
+	@curl                                                            \
+	  --fail                                                         \
+	  --silent                                                       \
+	  --cookie "session=$(SESSION)"                                  \
+	  --user-agent "curl/7.79.1 run by bmbeck@gmail.com"             \
+	  --output cmd/$(YEAR)/$(DAY)-1/input.txt                        \
+	  https://adventofcode.com/$(YEAR)/day/$(DAY_NO_ZERO)/input ||   \
 	(echo "input.txt file not available" >&2; false)
 
-## watch for changes and rerun the solution for the specified YEAR/DAY/PART
+## rerun on changes for a particular YEAR/DAY/PART
 .PHONY: watch
 watch:
-	@find                                                          \
-	    aoc                                                        \
-	    cmd/$(YEAR)/$(DAY)-$(PART)                                 \
-	    cmd/$(YEAR)/$(DAY)-1/input.txt                             \
-	  -type f                                                    | \
+	@find                                                            \
+	    aoc                                                          \
+	    cmd/$(YEAR)/$(DAY)-$(PART)                                   \
+	    cmd/$(YEAR)/$(DAY)-1/input.txt                               \
+	  -type f                                                      | \
 	 entr -c make -s run YEAR=$(YEAR) DAY=$(DAY) PART=$(PART)
 
 ## create the solution template for the next DAY/PART
@@ -113,27 +144,27 @@ next:
 ## display this help message
 .PHONY: help
 help:
-	@awk '                                                      \
-	  BEGIN {                                                   \
-	    printf "Usage:\n"                                       \
-	  }                                                         \
-	                                                            \
-	  /^##@/ {                                                  \
-	    printf "\n\033[1m%s:\033[0m\n", substr($$0, 5)          \
-	  }                                                         \
-	                                                            \
-	  /^##([^@]|$$)/ && $$2 != "" {                             \
-	    $$1 = "";                                               \
-	    if (message == null) {                                  \
-	      message = $$0;                                        \
-	    } else {                                                \
-	      message = message "\n           " $$0;                \
-	    }                                                       \
-	  }                                                         \
-	                                                            \
-	  /^[a-zA-Z_-]+:/ && message != null {                      \
-	    target = substr($$1, 0, length($$1)-1);                 \
-	    printf "  \033[36m%-8s\033[0m %s\n", target, message;   \
-	    message = null;                                         \
-	  }                                                         \
+	@awk '                                                           \
+	  BEGIN {                                                        \
+	    printf "Usage:\n"                                            \
+	  }                                                              \
+	                                                                 \
+	  /^##@/ {                                                       \
+	    printf "\n\033[1m%s:\033[0m\n", substr($$0, 5)               \
+	  }                                                              \
+	                                                                 \
+	  /^##([^@]|$$)/ && $$2 != "" {                                  \
+	    $$1 = "";                                                    \
+	    if (message == null) {                                       \
+	      message = $$0;                                             \
+	    } else {                                                     \
+	      message = message "\n           " $$0;                     \
+	    }                                                            \
+	  }                                                              \
+	                                                                 \
+	  /^[a-zA-Z_-]+:/ && message != null {                           \
+	    target = substr($$1, 0, length($$1)-1);                      \
+	    printf "  \033[36m%-8s\033[0m %s\n", target, message;        \
+	    message = null;                                              \
+	  }                                                              \
 	' $(MAKEFILE_LIST)
