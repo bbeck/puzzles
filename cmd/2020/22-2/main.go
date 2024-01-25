@@ -22,7 +22,7 @@ func Play(d1, d2 Deck) (int, Deck) {
 	var seen aoc.Set[string]
 
 	for !d1.Empty() && !d2.Empty() {
-		if !seen.Add(d1.ID() + d2.ID()) {
+		if !seen.Add(d1.ID() + "|" + d2.ID()) {
 			// Repeated rounds end immediately with a win for player 1
 			return 1, d1
 		}
