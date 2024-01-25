@@ -20,7 +20,7 @@ func Next(cube aoc.Set[Point4D]) aoc.Set[Point4D] {
 
 	minW, minX, minY, minZ := math.MaxInt, math.MaxInt, math.MaxInt, math.MaxInt
 	maxW, maxX, maxY, maxZ := math.MinInt, math.MinInt, math.MinInt, math.MinInt
-	for _, p := range cube.Entries() {
+	for p := range cube {
 		minW, maxW = aoc.Min(minW, p.W), aoc.Max(maxW, p.W)
 		minX, maxX = aoc.Min(minX, p.X), aoc.Max(maxX, p.X)
 		minY, maxY = aoc.Min(minY, p.Y), aoc.Max(maxY, p.Y)

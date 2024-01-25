@@ -12,7 +12,7 @@ func main() {
 	positions := InputToPositions()
 
 	best := math.MaxInt
-	for _, target := range aoc.SetFrom(positions...).Entries() {
+	for _, target := range positions {
 		var cost int
 		for _, p := range positions {
 			cost += aoc.Abs(target - p)
@@ -26,7 +26,7 @@ func InputToPositions() []int {
 	line := aoc.InputToString(2021, 7)
 
 	var fs []int
-	for _, s := range strings.Split(strings.TrimSpace(line), ",") {
+	for _, s := range strings.Split(line, ",") {
 		fs = append(fs, aoc.ParseInt(s))
 	}
 	return fs

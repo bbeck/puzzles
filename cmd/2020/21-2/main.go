@@ -30,7 +30,7 @@ func main() {
 	assignments := make(map[string]string)
 	for len(mapping) > 0 {
 		for a, fs := range mapping {
-			fs = fs.Difference(aoc.SetFrom(aoc.GetMapValues(assignments)...))
+			fs = fs.DifferenceElems(aoc.GetMapValues(assignments)...)
 
 			if len(fs) == 1 {
 				food := fs.Entries()[0]

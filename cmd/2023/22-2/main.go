@@ -50,8 +50,8 @@ func main() {
 		for x := b.MinX; x <= b.MaxX; x++ {
 			for y := b.MinY; y <= b.MaxY; y++ {
 				if oid := volume[x][y][b.MaxZ+1]; oid != 0 {
-					supporting[b.ID] = supporting[b.ID].Union(aoc.SetFrom(oid))
-					supportedBy[oid] = supportedBy[oid].Union(aoc.SetFrom(b.ID))
+					supporting[b.ID] = supporting[b.ID].UnionElems(oid)
+					supportedBy[oid] = supportedBy[oid].UnionElems(b.ID)
 				}
 			}
 		}

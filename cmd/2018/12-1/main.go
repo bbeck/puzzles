@@ -14,7 +14,7 @@ func main() {
 	}
 
 	var sum int
-	for _, i := range state.Entries() {
+	for i := range state {
 		sum += i
 	}
 	fmt.Println(sum)
@@ -34,7 +34,7 @@ func Next(state aoc.Set[int], rules map[string]bool) aoc.Set[int] {
 		return sb.String()
 	}
 
-	min, max := aoc.Min[int](state.Entries()...), aoc.Max[int](state.Entries()...)
+	min, max := aoc.Min(state.Entries()...), aoc.Max(state.Entries()...)
 
 	var next aoc.Set[int]
 	for i := min - 4; i <= max+4; i++ {

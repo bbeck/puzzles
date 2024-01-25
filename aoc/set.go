@@ -98,6 +98,13 @@ func (s Set[T]) Union(other Set[T]) Set[T] {
 	return union
 }
 
+// UnionElems returns a new set that contains all the elements of the current
+// set as well as all the elements provided as arguments.
+func (s Set[T]) UnionElems(elems ...T) Set[T] {
+	other := SetFrom(elems...)
+	return s.Union(other)
+}
+
 // Intersect returns a new set that contains only the elements that are present
 // in the current set as well as the provided set.
 func (s Set[T]) Intersect(other Set[T]) Set[T] {
@@ -111,6 +118,13 @@ func (s Set[T]) Intersect(other Set[T]) Set[T] {
 	return intersection
 }
 
+// IntersectElems returns a new set that contains only the elements that are
+// present in the current set as ewll as provided as arguments.
+func (s Set[T]) IntersectElems(elems ...T) Set[T] {
+	other := SetFrom(elems...)
+	return s.Intersect(other)
+}
+
 // Difference returns a new set that contains only the elements present in the
 // current set that are not in the provided set.
 func (s Set[T]) Difference(other Set[T]) Set[T] {
@@ -122,6 +136,13 @@ func (s Set[T]) Difference(other Set[T]) Set[T] {
 	}
 
 	return difference
+}
+
+// DifferenceElems returns a new set that contains only the elements present in the
+// current set that are not in the provided arguments.
+func (s Set[T]) DifferenceElems(elems ...T) Set[T] {
+	other := SetFrom(elems...)
+	return s.Difference(other)
 }
 
 // BitSet is a representation of a set that can hold up to 64 elements.  BitSet

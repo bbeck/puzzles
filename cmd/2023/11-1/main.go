@@ -17,7 +17,7 @@ func main() {
 			return
 		}
 
-		for _, q := range seen.Entries() {
+		for q := range seen {
 			sum += Distance(grid, p, q)
 		}
 		seen.Add(p)

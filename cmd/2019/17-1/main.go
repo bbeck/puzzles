@@ -29,9 +29,8 @@ func main() {
 
 	// Compute the alignment parameters.
 	var sum int
-	for _, p := range grid.Entries() {
-		var neighbors aoc.Set[aoc.Point2D]
-		neighbors.Add(p.OrthogonalNeighbors()...)
+	for p := range grid {
+		neighbors := aoc.SetFrom(p.OrthogonalNeighbors()...)
 
 		if len(grid.Intersect(neighbors)) == 4 {
 			sum += p.X * p.Y

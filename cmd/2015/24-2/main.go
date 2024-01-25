@@ -60,8 +60,7 @@ func main() {
 }
 
 func FindPartitions(weight int, packages []int, fn func(partition, remaining []int) bool) {
-	var all aoc.Set[int]
-	all.Add(packages...)
+	all := aoc.SetFrom(packages...)
 
 	var done bool
 	for size := 1; !done && size < len(packages); size++ {
@@ -72,10 +71,7 @@ func FindPartitions(weight int, packages []int, fn func(partition, remaining []i
 			}
 
 			if aoc.Sum(partition...) == weight {
-				var remaining aoc.Set[int]
-				remaining.Add(all.Entries()...)
-				remaining.Remove(partition...)
-
+				remaining := all.DifferenceElems(partition...)
 				done = fn(partition, remaining.Entries())
 			}
 

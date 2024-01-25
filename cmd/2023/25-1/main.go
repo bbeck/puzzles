@@ -94,20 +94,15 @@ func (g *Graph) ArbitraryVertex() string {
 }
 
 func (g *Graph) Children(v string) []string {
-	s := (*g)[v]
-	return s.Entries()
+	return (*g)[v].Entries()
 }
 
 func (g *Graph) AddEdge(from, to string) {
-	s := (*g)[from]
-	s.Add(to)
-	(*g)[from] = s
+	(*g)[from] = (*g)[from].UnionElems(to)
 }
 
 func (g *Graph) RemoveEdge(from, to string) {
-	s := (*g)[from]
-	s.Remove(to)
-	(*g)[from] = s
+	(*g)[from] = (*g)[from].DifferenceElems(to)
 }
 
 func InputToGraph() Graph {

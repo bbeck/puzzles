@@ -13,7 +13,7 @@ func main() {
 	ps0, ps1 := paths[0].Points(), paths[1].Points()
 
 	best := math.MaxInt
-	for _, p := range ps0.Entries() {
+	for p := range ps0 {
 		if ps1.Contains(p) {
 			best = aoc.Min(best, aoc.Origin2D.ManhattanDistance(p))
 		}

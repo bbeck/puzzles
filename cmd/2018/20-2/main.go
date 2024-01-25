@@ -84,23 +84,23 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 
 		switch ch {
 		case 'N':
-			for _, p := range currents.Entries() {
+			for p := range currents {
 				open.Add(p.Up(), p.Up().Up())
 				next.Add(p.Up().Up())
 			}
 		case 'E':
-			for _, p := range currents.Entries() {
+			for p := range currents {
 				open.Add(p.Right(), p.Right().Right())
 				next.Add(p.Right().Right())
 			}
 		case 'S':
-			for _, p := range currents.Entries() {
+			for p := range currents {
 				open.Add(p.Down(), p.Down().Down())
 				next.Add(p.Down().Down())
 			}
 
 		case 'W':
-			for _, p := range currents.Entries() {
+			for p := range currents {
 				open.Add(p.Left(), p.Left().Left())
 				next.Add(p.Left().Left())
 			}
@@ -112,8 +112,7 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 		case '|':
 			// We're going to backtrack.  Before we do remember where we ended up in
 			// the group stack.
-			g := group.Pop()
-			g.Add(currents.Entries()...)
+			g := group.Pop().Union(currents)
 			group.Push(g)
 
 			currents = previous.Peek()
@@ -121,7 +120,7 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 		case ')':
 			// We've finished this group.  Union together all the ending positions
 			// for each term of the group.
-			currents.Add(group.Pop().Entries()...)
+			currents = currents.Union(group.Pop())
 
 			previous.Pop()
 		}
@@ -134,7 +133,7 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 	// Convert the set of open points into a grid.
 	tl, br := aoc.GetBounds(open.Entries())
 	grid := aoc.NewGrid2D[bool](br.X-tl.X+1, br.Y-tl.Y+1)
-	for _, p := range open.Entries() {
+	for p := range open {
 		grid.Set(p.X-tl.X, p.Y-tl.Y, true)
 	}
 

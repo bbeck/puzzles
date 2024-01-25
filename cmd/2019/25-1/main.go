@@ -61,7 +61,7 @@ func main() {
 
 			robot, current := NewRobot()
 			for _, heading := range path {
-				for _, item := range current.Items.Intersect(pickup).Entries() {
+				for item := range current.Items.Intersect(pickup) {
 					robot.Take(item)
 				}
 
@@ -100,7 +100,7 @@ func Explore(ignore aoc.Set[string]) ([]aoc.Heading, []string) {
 		doors := current.Doors
 		if current.ID == "Security Checkpoint" {
 			// The pressure sensitive floor is to the east.  Avoid it.
-			doors = doors.Difference(aoc.SetFrom(aoc.Right))
+			doors = doors.DifferenceElems(aoc.Right)
 		}
 
 		choices := doors.Entries()
@@ -140,7 +140,6 @@ func NewRobot() (*Robot, Room) {
 				return <-command
 			},
 			Output: func(value int) {
-				//fmt.Printf("%c", value)
 				output.WriteByte(byte(value))
 
 				if strings.HasSuffix(output.String(), "Command?") {

@@ -44,7 +44,7 @@ func (g Graph) TopologicalSort() []string {
 
 func (g *Graph) Choose() string {
 	var candidates []string
-	for _, child := range g.Vertices.Entries() {
+	for child := range g.Vertices {
 		if len(g.Parents[child]) == 0 {
 			candidates = append(candidates, child)
 		}

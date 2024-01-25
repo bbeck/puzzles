@@ -79,7 +79,7 @@ func PlanToGrid(plan []Step) aoc.Grid2D[string] {
 	grid.ForEach(func(x int, y int, _ string) {
 		grid.Set(x, y, ".")
 	})
-	for _, p := range points.Entries() {
+	for p := range points {
 		grid.Set(p.X-tl.X, p.Y-tl.Y, "#")
 	}
 

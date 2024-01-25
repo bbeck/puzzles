@@ -23,7 +23,7 @@ func CountPaths(current, goal string, caves map[string][]string, seen aoc.Set[st
 			continue
 		}
 
-		count += CountPaths(n, goal, caves, seen.Union(aoc.SetFrom(n)))
+		count += CountPaths(n, goal, caves, seen.UnionElems(n))
 	}
 
 	return count

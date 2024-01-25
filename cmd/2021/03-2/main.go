@@ -8,7 +8,7 @@ import (
 func main() {
 	ns := aoc.SetFrom(aoc.InputToLines(2021, 3)...)
 
-	o2 := aoc.SetFrom(ns.Entries()...)
+	o2 := ns
 	for pos := 0; len(o2) > 1; pos++ {
 		zs, os := Partition(o2, pos)
 		if len(os) >= len(zs) {
@@ -18,7 +18,7 @@ func main() {
 		}
 	}
 
-	co2 := aoc.SetFrom(ns.Entries()...)
+	co2 := ns
 	for pos := 0; len(co2) > 1; pos++ {
 		zs, os := Partition(co2, pos)
 		if len(os) < len(zs) {
