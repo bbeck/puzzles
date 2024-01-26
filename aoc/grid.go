@@ -143,12 +143,12 @@ func (g *Grid2D[T]) RotateRight() Grid2D[T] {
 	return r
 }
 
-// String returns the human readable representation of the grid.
+// String returns the human-readable representation of the grid.
 func (g *Grid2D[T]) String() string {
 	var sb strings.Builder
 	for y := 0; y < g.Height; y++ {
 		for x := 0; x < g.Width; x++ {
-			sb.WriteString(fmt.Sprintf("%s", g.Get(x, y)))
+			sb.WriteString(fmt.Sprintf("%v", g.Get(x, y)))
 		}
 		if y+1 < g.Height {
 			sb.WriteString("\n")
