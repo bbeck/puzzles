@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -28,7 +28,7 @@ type Password struct {
 }
 
 func InputToPasswords() []Password {
-	return aoc.InputLinesTo(2020, 2, func(line string) Password {
+	return puz.InputLinesTo(2020, 2, func(line string) Password {
 		line = strings.ReplaceAll(line, ":", "")
 
 		var password Password

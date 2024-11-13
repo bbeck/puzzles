@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 )
 
@@ -22,7 +22,7 @@ var Points = map[rune]int{
 
 func main() {
 	var scores []int
-	for _, line := range aoc.InputToLines(2021, 10) {
+	for _, line := range puz.InputToLines(2021, 10) {
 		stack, isCorrupted := Check(line)
 		if isCorrupted {
 			continue
@@ -39,8 +39,8 @@ func main() {
 	fmt.Println(scores[len(scores)/2])
 }
 
-func Check(line string) (aoc.Stack[rune], bool) {
-	var stack aoc.Stack[rune]
+func Check(line string) (puz.Stack[rune], bool) {
+	var stack puz.Stack[rune]
 	for _, c := range line {
 		if closing, isOpening := Closing[c]; isOpening {
 			stack.Push(closing)

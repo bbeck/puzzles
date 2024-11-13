@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	numPlayers, numMarbles := InputToParameters()
 	numMarbles *= 100
 
-	var ring aoc.Ring[int]
+	var ring puz.Ring[int]
 	ring.InsertAfter(0)
 
 	scores := make([]int, numPlayers)
@@ -27,11 +27,11 @@ func main() {
 		scores[elf] += marble + ring.Remove()
 	}
 
-	fmt.Println(aoc.Max(scores...))
+	fmt.Println(puz.Max(scores...))
 }
 
 func InputToParameters() (int, int) {
 	var numPlayers, numMarbles int
-	fmt.Sscanf(aoc.InputToString(2018, 9), "%d players; last marble is worth %d points", &numPlayers, &numMarbles)
+	fmt.Sscanf(puz.InputToString(2018, 9), "%d players; last marble is worth %d points", &numPlayers, &numMarbles)
 	return numPlayers, numMarbles
 }

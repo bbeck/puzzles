@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
 func main() {
-	grid := aoc.InputToStringGrid2D(2023, 3)
+	grid := puz.InputToStringGrid2D(2023, 3)
 
 	var sum int
 	ForEachNumber(grid, func(x int, y int, num int) {
@@ -26,7 +26,7 @@ func main() {
 	fmt.Println(sum)
 }
 
-func ForEachNumber(g aoc.Grid2D[string], fn func(int, int, int)) {
+func ForEachNumber(g puz.Grid2D[string], fn func(int, int, int)) {
 	g.ForEach(func(x0 int, y int, s string) {
 		// Check if this is the beginning of a number
 		if IsDigit(s) && (x0 == 0 || !IsDigit(g.Get(x0-1, y))) {
@@ -35,7 +35,7 @@ func ForEachNumber(g aoc.Grid2D[string], fn func(int, int, int)) {
 				digits.WriteString(g.Get(x, y))
 			}
 
-			fn(x0, y, aoc.ParseInt(digits.String()))
+			fn(x0, y, puz.ParseInt(digits.String()))
 		}
 	})
 }

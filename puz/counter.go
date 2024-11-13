@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 import (
 	"container/heap"

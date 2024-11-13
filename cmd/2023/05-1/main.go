@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		for _, m := range maps {
 			value = m.Lookup(value)
 		}
-		best = aoc.Min(best, value)
+		best = puz.Min(best, value)
 	}
 	fmt.Println(best)
 }
@@ -39,14 +39,14 @@ func (m Map) Lookup(target int) int {
 }
 
 func InputToSeedsAndMaps() ([]int, []Map) {
-	lines := aoc.InputToLines(2023, 5)
+	lines := puz.InputToLines(2023, 5)
 
 	var seeds []int
 	for _, field := range strings.Fields(lines[0][6:]) {
-		seeds = append(seeds, aoc.ParseInt(field))
+		seeds = append(seeds, puz.ParseInt(field))
 	}
 
-	groups := aoc.Split(lines[1:], func(line string) bool {
+	groups := puz.Split(lines[1:], func(line string) bool {
 		return line != "" && !strings.Contains(line, "-to-")
 	})
 
@@ -56,9 +56,9 @@ func InputToSeedsAndMaps() ([]int, []Map) {
 		for _, line := range group {
 			nums := strings.Fields(line)
 			maps[i] = append(maps[i], Range{
-				Destination: aoc.ParseInt(nums[0]),
-				Source:      aoc.ParseInt(nums[1]),
-				Length:      aoc.ParseInt(nums[2]),
+				Destination: puz.ParseInt(nums[0]),
+				Source:      puz.ParseInt(nums[1]),
+				Length:      puz.ParseInt(nums[2]),
 			})
 		}
 	}

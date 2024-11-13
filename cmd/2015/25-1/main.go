@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -48,11 +48,11 @@ func main() {
 }
 
 func InputToCoordinate() (int, int) {
-	p := aoc.InputLinesTo(2015, 25, func(line string) aoc.Point2D {
+	p := puz.InputLinesTo(2015, 25, func(line string) puz.Point2D {
 		line = strings.ReplaceAll(line, "To continue, please consult the code grid in the manual.", "")
 		line = strings.TrimSpace(line)
 
-		var p aoc.Point2D
+		var p puz.Point2D
 		if _, err := fmt.Sscanf(line, "Enter the code at row %d, column %d.", &p.X, &p.Y); err != nil {
 			log.Fatalf("unable to parse line: %v", err)
 		}

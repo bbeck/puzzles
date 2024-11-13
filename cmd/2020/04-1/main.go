@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func InputToPassports() []Passport {
 	var passports []Passport
 
 	current := make(Passport)
-	for _, line := range aoc.InputToLines(2020, 4) {
+	for _, line := range puz.InputToLines(2020, 4) {
 		if len(line) == 0 {
 			passports = append(passports, current)
 			current = make(Passport)

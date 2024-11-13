@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // A Ring is a circular buffer of elements along with a reference to a current
 // element.

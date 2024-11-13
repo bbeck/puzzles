@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strconv"
 	"strings"
 )
@@ -70,7 +70,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2017, 23, func(line string) Instruction {
+	return puz.InputLinesTo(2017, 23, func(line string) Instruction {
 		fields := strings.Fields(line)
 		opcode := fields[0]
 		args := fields[1:]

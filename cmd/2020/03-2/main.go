@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	grid := InputToGrid()
-	slopes := []aoc.Point2D{
+	slopes := []puz.Point2D{
 		{X: 1, Y: 1},
 		{X: 3, Y: 1},
 		{X: 5, Y: 1},
@@ -22,7 +22,7 @@ func main() {
 	fmt.Println(product)
 }
 
-func CountTrees(grid aoc.Grid2D[bool], slope aoc.Point2D) int {
+func CountTrees(grid puz.Grid2D[bool], slope puz.Point2D) int {
 	var count int
 
 	var x, y int
@@ -37,8 +37,8 @@ func CountTrees(grid aoc.Grid2D[bool], slope aoc.Point2D) int {
 	return count
 }
 
-func InputToGrid() aoc.Grid2D[bool] {
-	return aoc.InputToGrid2D(2020, 3, func(x int, y int, s string) bool {
+func InputToGrid() puz.Grid2D[bool] {
+	return puz.InputToGrid2D(2020, 3, func(x int, y int, s string) bool {
 		return s == "#"
 	})
 }

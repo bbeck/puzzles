@@ -4,10 +4,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
-var Vault = aoc.Point2D{X: 3, Y: 3}
+var Vault = puz.Point2D{X: 3, Y: 3}
 
 func main() {
 	start := InputToRoom()
@@ -24,7 +24,7 @@ func main() {
 		return Vault.ManhattanDistance(r.Coordinate)
 	}
 
-	path, _, found := aoc.AStarSearch(start, Children, goal, cost, heuristic)
+	path, _, found := puz.AStarSearch(start, Children, goal, cost, heuristic)
 	if !found {
 		fmt.Println("no path found")
 		return
@@ -74,12 +74,12 @@ func Hash(input string) string {
 }
 
 type Room struct {
-	Coordinate aoc.Point2D
+	Coordinate puz.Point2D
 	Passcode   string
 }
 
 func InputToRoom() Room {
 	return Room{
-		Passcode: aoc.InputToString(2016, 17),
+		Passcode: puz.InputToString(2016, 17),
 	}
 }

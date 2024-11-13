@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	key := aoc.InputToString(2017, 14)
+	key := puz.InputToString(2017, 14)
 
-	grid := aoc.NewGrid2D[bool](128, 128)
+	grid := puz.NewGrid2D[bool](128, 128)
 	for row := 0; row < grid.Height; row++ {
 		hash := KnotHash(fmt.Sprintf("%s-%d", key, row))
 

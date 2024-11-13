@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -10,7 +10,7 @@ func main() {
 	program := InputToProgram()
 
 	var pc, acc int
-	var seen aoc.Set[int]
+	var seen puz.Set[int]
 	for {
 		if !seen.Add(pc) {
 			break
@@ -38,12 +38,12 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2020, 8, func(line string) Instruction {
+	return puz.InputLinesTo(2020, 8, func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		return Instruction{
 			OpCode: fields[0],
-			Arg:    aoc.ParseInt(fields[1]),
+			Arg:    puz.ParseInt(fields[1]),
 		}
 	})
 }

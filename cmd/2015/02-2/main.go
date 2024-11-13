@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"log"
 )
 
@@ -15,7 +15,7 @@ func (b Box) Volume() int {
 }
 func (b Box) RibbonLength() int {
 	dimensions := []int{b.l, b.w, b.h}
-	return 2*(aoc.Sum(dimensions...)-aoc.Max(dimensions...)) + b.Volume()
+	return 2*(puz.Sum(dimensions...)-puz.Max(dimensions...)) + b.Volume()
 }
 
 func main() {
@@ -34,5 +34,5 @@ func InputToBoxes() []Box {
 		}
 		return box
 	}
-	return aoc.InputLinesTo(2015, 2, parser)
+	return puz.InputLinesTo(2015, 2, parser)
 }

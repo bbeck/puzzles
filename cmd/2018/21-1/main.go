@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -81,19 +81,19 @@ func InputToProgram() (int, []Instruction) {
 	var ipr int
 	var instructions []Instruction
 
-	for _, line := range aoc.InputToLines(2018, 21) {
+	for _, line := range puz.InputToLines(2018, 21) {
 		fields := strings.Fields(line)
 
 		if fields[0] == "#ip" {
-			ipr = aoc.ParseInt(fields[1])
+			ipr = puz.ParseInt(fields[1])
 			continue
 		}
 
 		instructions = append(instructions, Instruction{
 			OpCode: fields[0],
-			A:      aoc.ParseInt(fields[1]),
-			B:      aoc.ParseInt(fields[2]),
-			C:      aoc.ParseInt(fields[3]),
+			A:      puz.ParseInt(fields[1]),
+			B:      puz.ParseInt(fields[2]),
+			C:      puz.ParseInt(fields[3]),
 		})
 	}
 

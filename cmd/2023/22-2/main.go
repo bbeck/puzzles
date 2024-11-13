@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 	"sort"
 )
@@ -12,20 +12,20 @@ func main() {
 
 	// Order the bricks so the ones closest to the ground are first.
 	sort.Slice(bricks, func(i, j int) bool {
-		iz := aoc.Min(bricks[i].MinZ, bricks[i].MaxZ)
-		jz := aoc.Min(bricks[j].MinZ, bricks[j].MaxZ)
+		iz := puz.Min(bricks[i].MinZ, bricks[i].MaxZ)
+		jz := puz.Min(bricks[j].MinZ, bricks[j].MaxZ)
 		return iz < jz
 	})
 
 	// Drop the bricks, building the volume containing all bricks.
-	highest := aoc.Make2D[int](10, 10)
-	volume := aoc.Make3D[int](10, 10, 400)
+	highest := puz.Make2D[int](10, 10)
+	volume := puz.Make3D[int](10, 10, 400)
 	for i := range bricks {
 		// Determine how much this brick can drop.
 		dz := math.MaxInt
 		for x := bricks[i].MinX; x <= bricks[i].MaxX; x++ {
 			for y := bricks[i].MinY; y <= bricks[i].MaxY; y++ {
-				dz = aoc.Max(0, aoc.Min(dz, bricks[i].MinZ-highest[x][y]-1))
+				dz = puz.Max(0, puz.Min(dz, bricks[i].MinZ-highest[x][y]-1))
 			}
 		}
 
@@ -44,8 +44,8 @@ func main() {
 	}
 
 	// Determine which blocks are supporting each other.
-	supporting := make(map[int]aoc.Set[int])
-	supportedBy := make(map[int]aoc.Set[int])
+	supporting := make(map[int]puz.Set[int])
+	supportedBy := make(map[int]puz.Set[int])
 	for _, b := range bricks {
 		for x := b.MinX; x <= b.MaxX; x++ {
 			for y := b.MinY; y <= b.MaxY; y++ {
@@ -64,10 +64,10 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Count(n int, supporting, supportedBy map[int]aoc.Set[int]) int {
-	var removed aoc.Set[int]
+func Count(n int, supporting, supportedBy map[int]puz.Set[int]) int {
+	var removed puz.Set[int]
 
-	toRemove := aoc.DequeFrom(n)
+	toRemove := puz.DequeFrom(n)
 	for !toRemove.Empty() {
 		id := toRemove.PopFront()
 		removed.Add(id)
@@ -83,16 +83,16 @@ func Count(n int, supporting, supportedBy map[int]aoc.Set[int]) int {
 }
 
 type Brick struct {
-	aoc.Cube
+	puz.Cube
 	ID int
 }
 
 func InputToBricks() []Brick {
 	var id int
-	return aoc.InputLinesTo(2023, 22, func(line string) Brick {
+	return puz.InputLinesTo(2023, 22, func(line string) Brick {
 		id++
 
-		var c aoc.Cube
+		var c puz.Cube
 		fmt.Sscanf(line, "%d,%d,%d~%d,%d,%d", &c.MinX, &c.MinY, &c.MinZ, &c.MaxX, &c.MaxY, &c.MaxZ)
 		return Brick{c, id}
 	})

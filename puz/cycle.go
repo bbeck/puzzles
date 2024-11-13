@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // WalkCycle steps through a list a large number of times.  When a cycle is
 // detected it is used to skip a large number of iterations.

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	for _, partition := range partitions {
 		state1 := NewState(26, start, uint16(partition.First|(1<<start)&0xFFFF))
 		state2 := NewState(26, start, uint16(partition.Second|(1<<start)&0xFFFF))
-		best = aoc.Max(best, Run(state1, valves)+Run(state2, valves))
+		best = puz.Max(best, Run(state1, valves)+Run(state2, valves))
 	}
 	fmt.Println(best)
 }
@@ -31,12 +31,12 @@ func GetPartitions(valves []Valve, start int) []Partition {
 	}
 	MASK &= ^(1 << start)
 
-	N := aoc.Pow(uint64(2), uint64(len(valves)))
+	N := puz.Pow(uint64(2), uint64(len(valves)))
 
-	var partitions aoc.Set[Partition]
+	var partitions puz.Set[Partition]
 	for n := uint64(0); n < N; n++ {
 		a, b := n&MASK, (^n)&MASK
-		a, b = aoc.Min(a, b), aoc.Max(a, b)
+		a, b = puz.Min(a, b), puz.Max(a, b)
 		partitions.Add(Partition{First: a, Second: b})
 	}
 
@@ -66,7 +66,7 @@ func Run(state State, valves []Valve) int {
 
 		next := NewState(tm-cost-1, nid, opened|(1<<nid))
 		rate := (tm - cost - 1) * valves[nid].Rate
-		best = aoc.Max(best, Run(next, valves)+rate)
+		best = puz.Max(best, Run(next, valves)+rate)
 	}
 
 	memo[state] = best
@@ -99,7 +99,7 @@ func InputToValves() ([]Valve, int) {
 	rates := make(map[string]int)
 	neighbors := make(map[string][]string)
 
-	for _, line := range aoc.InputToLines(2022, 16) {
+	for _, line := range puz.InputToLines(2022, 16) {
 		line = strings.ReplaceAll(line, "Valve ", "")
 		line = strings.ReplaceAll(line, "has flow rate=", "")
 		line = strings.ReplaceAll(line, "; tunnels lead to valves", "")
@@ -109,7 +109,7 @@ func InputToValves() ([]Valve, int) {
 
 		id := fields[0]
 		ids = append(ids, id)
-		rates[id] = aoc.ParseInt(fields[1])
+		rates[id] = puz.ParseInt(fields[1])
 		neighbors[id] = fields[2:]
 	}
 

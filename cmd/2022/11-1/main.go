@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 	"strings"
 )
@@ -32,7 +32,7 @@ func main() {
 }
 
 type Monkey struct {
-	Items       *aoc.Deque[int]
+	Items       *puz.Deque[int]
 	Op          func(int) int
 	Mod         int
 	TrueID      int
@@ -41,7 +41,7 @@ type Monkey struct {
 }
 
 func InputToMonkeys() []*Monkey {
-	lines := aoc.InputToLines(2022, 11)
+	lines := puz.InputToLines(2022, 11)
 
 	var monkeys []*Monkey
 	for i := 0; i < len(lines); i += 7 {
@@ -49,15 +49,15 @@ func InputToMonkeys() []*Monkey {
 		fmt.Sscanf(lines[i+0], "Monkey %d:", &id)
 
 		var monkey Monkey
-		monkey.Items = new(aoc.Deque[int])
+		monkey.Items = new(puz.Deque[int])
 		for _, s := range strings.Split(lines[i+1][18:], ", ") {
-			monkey.Items.PushBack(aoc.ParseInt(s))
+			monkey.Items.PushBack(puz.ParseInt(s))
 		}
 
 		monkey.Op = ParseOp(lines[i+2][19:])
-		monkey.Mod = aoc.ParseInt(lines[i+3][21:])
-		monkey.TrueID = aoc.ParseInt(lines[i+4][29:])
-		monkey.FalseID = aoc.ParseInt(lines[i+5][30:])
+		monkey.Mod = puz.ParseInt(lines[i+3][21:])
+		monkey.TrueID = puz.ParseInt(lines[i+4][29:])
+		monkey.FalseID = puz.ParseInt(lines[i+5][30:])
 
 		monkeys = append(monkeys, &monkey)
 	}
@@ -71,14 +71,14 @@ func ParseOp(s string) func(int) int {
 
 	switch {
 	case op == "+" && rhs != "old":
-		n := aoc.ParseInt(rhs)
+		n := puz.ParseInt(rhs)
 		return func(old int) int { return old + n }
 
 	case op == "+" && rhs == "old":
 		return func(old int) int { return old + old }
 
 	case op == "*" && rhs != "old":
-		n := aoc.ParseInt(rhs)
+		n := puz.ParseInt(rhs)
 		return func(old int) int { return old * n }
 
 	case op == "*" && rhs == "old":

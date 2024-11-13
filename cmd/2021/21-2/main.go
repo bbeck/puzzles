@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 
 func main() {
 	positions := InputToStartingPositions()
-	fmt.Println(aoc.Max(CountWins(positions)))
+	fmt.Println(puz.Max(CountWins(positions)))
 }
 
 func CountWins(positions []int) (int, int) {
@@ -62,8 +62,8 @@ func CountWins(positions []int) (int, int) {
 }
 
 func InputToStartingPositions() []int {
-	return aoc.InputLinesTo(2021, 21, func(line string) int {
+	return puz.InputLinesTo(2021, 21, func(line string) int {
 		_, rhs, _ := strings.Cut(line, ": ")
-		return aoc.ParseInt(rhs)
+		return puz.ParseInt(rhs)
 	})
 }

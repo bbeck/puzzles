@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -30,8 +30,8 @@ const (
 	Occupied = '#'
 )
 
-func Next(seats aoc.Grid2D[uint8]) aoc.Grid2D[uint8] {
-	next := aoc.NewGrid2D[uint8](seats.Width, seats.Height)
+func Next(seats puz.Grid2D[uint8]) puz.Grid2D[uint8] {
+	next := puz.NewGrid2D[uint8](seats.Width, seats.Height)
 	seats.ForEach(func(x, y int, value uint8) {
 		var count int
 		seats.ForEachNeighbor(x, y, func(_, _ int, v uint8) {
@@ -51,7 +51,7 @@ func Next(seats aoc.Grid2D[uint8]) aoc.Grid2D[uint8] {
 	return next
 }
 
-func Equals(a, b aoc.Grid2D[uint8]) bool {
+func Equals(a, b puz.Grid2D[uint8]) bool {
 	for y := 0; y < a.Height; y++ {
 		for x := 0; x < a.Width; x++ {
 			if a.Get(x, y) != b.Get(x, y) {
@@ -62,8 +62,8 @@ func Equals(a, b aoc.Grid2D[uint8]) bool {
 	return true
 }
 
-func InputToSeats() aoc.Grid2D[uint8] {
-	return aoc.InputToGrid2D(2020, 11, func(x int, y int, s string) uint8 {
+func InputToSeats() puz.Grid2D[uint8] {
+	return puz.InputToGrid2D(2020, 11, func(x int, y int, s string) uint8 {
 		return s[0]
 	})
 }

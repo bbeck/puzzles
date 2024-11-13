@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ns := aoc.InputToInts(2021, 1)
+	ns := puz.InputToInts(2021, 1)
 
 	var count int
 	for i := 1; i < len(ns); i++ {

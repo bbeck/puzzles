@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	var black aoc.Set[HexPoint]
+	var black puz.Set[HexPoint]
 	for _, steps := range InputToSteps() {
 		var current HexPoint
 		for _, step := range steps {
@@ -22,7 +22,7 @@ func main() {
 }
 
 func InputToSteps() [][]string {
-	return aoc.InputLinesTo(2020, 24, func(line string) []string {
+	return puz.InputLinesTo(2020, 24, func(line string) []string {
 		var steps []string
 		for len(line) > 0 {
 			if line[0] == 'n' || line[0] == 's' {

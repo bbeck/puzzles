@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -155,12 +155,12 @@ func ParseNumber(input string) (string, *Number) {
 	}
 
 	// Left
-	value, input := aoc.ParseInt(input[0:1]), input[1:]
+	value, input := puz.ParseInt(input[0:1]), input[1:]
 	return input, &Number{Value: value}
 }
 
 func InputToNumbers() []*Number {
-	return aoc.InputLinesTo(2021, 18, func(line string) *Number {
+	return puz.InputLinesTo(2021, 18, func(line string) *Number {
 		_, n := ParseNumber(line)
 		return n
 	})

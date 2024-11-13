@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // This implementation is heavily influenced by the builtin deque type in
 // Python which uses a linked list of blocks based approach.  It also

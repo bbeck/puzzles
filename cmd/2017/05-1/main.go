@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	offsets := aoc.InputToInts(2017, 5)
+	offsets := puz.InputToInts(2017, 5)
 
 	var steps int
 	for pc := 0; pc >= 0 && pc < len(offsets); steps++ {

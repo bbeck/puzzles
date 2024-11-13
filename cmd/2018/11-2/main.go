@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	serial := aoc.InputToInt(2018, 11)
+	serial := puz.InputToInt(2018, 11)
 
 	// Partial sums that sum all cells above and to the left of the current one
-	grid := aoc.NewGrid2D[int](301, 301)
+	grid := puz.NewGrid2D[int](301, 301)
 	for x := 1; x < grid.Width; x++ {
 		rack := x + 10
 
@@ -23,7 +23,7 @@ func main() {
 	}
 
 	var best int
-	var p aoc.Point2D
+	var p puz.Point2D
 	var size int
 	for n := 1; n <= grid.Width; n++ {
 		for x := 1; x < grid.Width-n; x++ {
@@ -31,7 +31,7 @@ func main() {
 				total := grid.Get(x+n-1, y+n-1) - grid.Get(x-1, y+n-1) - grid.Get(x+n-1, y-1) + grid.Get(x-1, y-1)
 				if total > best {
 					best = total
-					p = aoc.Point2D{X: x, Y: y}
+					p = puz.Point2D{X: x, Y: y}
 					size = n
 				}
 			}

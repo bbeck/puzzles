@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
-	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/puz/cpus"
 )
 
 func main() {
-	var grid aoc.Set[aoc.Point2D]
+	var grid puz.Set[puz.Point2D]
 
 	// Build the grid.
-	var current aoc.Point2D
+	var current puz.Point2D
 	cpu := cpus.IntcodeCPU{
 		Memory: cpus.InputToIntcodeMemory(2019, 17),
 		Output: func(value int) {
@@ -21,7 +21,7 @@ func main() {
 				grid.Add(current)
 				current = current.Right()
 			case '\n':
-				current = aoc.Point2D{X: 0, Y: current.Y + 1}
+				current = puz.Point2D{X: 0, Y: current.Y + 1}
 			}
 		},
 	}
@@ -30,7 +30,7 @@ func main() {
 	// Compute the alignment parameters.
 	var sum int
 	for p := range grid {
-		neighbors := aoc.SetFrom(p.OrthogonalNeighbors()...)
+		neighbors := puz.SetFrom(p.OrthogonalNeighbors()...)
 
 		if len(grid.Intersect(neighbors)) == 4 {
 			sum += p.X * p.Y

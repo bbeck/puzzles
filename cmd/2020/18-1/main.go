@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
 func main() {
 	var sum int
-	for _, line := range aoc.InputToLines(2020, 18) {
+	for _, line := range puz.InputToLines(2020, 18) {
 		sum += Evaluate(line)
 	}
 	fmt.Println(sum)
@@ -19,7 +19,7 @@ func Evaluate(s string) int {
 	helper = func(node Node) int {
 		switch node.Kind {
 		case "number":
-			return aoc.ParseInt(node.Value)
+			return puz.ParseInt(node.Value)
 		case "+":
 			return helper(*node.Left) + helper(*node.Right)
 		case "*":

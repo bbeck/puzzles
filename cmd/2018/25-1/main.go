@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	ps := InputToPoints()
 
-	var ds aoc.DisjointSet[Point4D]
+	var ds puz.DisjointSet[Point4D]
 	for i := 0; i < len(ps); i++ {
 		ds.Add(ps[i])
 
@@ -21,7 +21,7 @@ func main() {
 		}
 	}
 
-	var constellations aoc.Set[Point4D]
+	var constellations puz.Set[Point4D]
 	for _, p := range ps {
 		c, _ := ds.Find(p)
 		constellations.Add(c)
@@ -34,11 +34,11 @@ type Point4D struct {
 }
 
 func (p Point4D) ManhattanDistance(q Point4D) int {
-	return aoc.Abs(q.W-p.W) + aoc.Abs(q.X-p.X) + aoc.Abs(q.Y-p.Y) + aoc.Abs(q.Z-p.Z)
+	return puz.Abs(q.W-p.W) + puz.Abs(q.X-p.X) + puz.Abs(q.Y-p.Y) + puz.Abs(q.Z-p.Z)
 }
 
 func InputToPoints() []Point4D {
-	return aoc.InputLinesTo(2018, 25, func(line string) Point4D {
+	return puz.InputLinesTo(2018, 25, func(line string) Point4D {
 		var p Point4D
 		fmt.Sscanf(line, "%d,%d,%d,%d", &p.W, &p.X, &p.Y, &p.Z)
 		return p

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 	"strings"
 )
@@ -28,7 +28,7 @@ type Guard struct {
 }
 
 func InputToGuards() []Guard {
-	lines := aoc.InputToLines(2018, 4)
+	lines := puz.InputToLines(2018, 4)
 	sort.Strings(lines) // Sort into time order
 
 	sleep := make(map[int][60]int) // number of times each guard was asleep at the given minute
@@ -44,10 +44,10 @@ func InputToGuards() []Guard {
 		line = strings.ReplaceAll(line, "-", " ")
 		fields := strings.Fields(line)
 
-		minute := aoc.ParseInt(fields[4])
+		minute := puz.ParseInt(fields[4])
 
 		if strings.Contains(line, "begins shift") {
-			current = aoc.ParseInt(fields[6])
+			current = puz.ParseInt(fields[6])
 		}
 
 		if strings.Contains(line, "falls asleep") {

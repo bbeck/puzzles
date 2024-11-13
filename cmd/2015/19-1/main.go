@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	replacements := InputToReplacements()
 	molecule := InputToMolecule()
 
-	var molecules aoc.Set[string]
+	var molecules puz.Set[string]
 	for start := 0; start < len(molecule); start++ {
 		for prefix, values := range replacements {
 			if !strings.HasPrefix(molecule[start:], prefix) {
@@ -30,7 +30,7 @@ func main() {
 
 func InputToReplacements() map[string][]string {
 	replacements := make(map[string][]string)
-	for _, line := range aoc.InputToLines(2015, 19) {
+	for _, line := range puz.InputToLines(2015, 19) {
 		lhs, rhs, ok := strings.Cut(line, " => ")
 		if ok {
 			replacements[lhs] = append(replacements[lhs], rhs)
@@ -41,7 +41,7 @@ func InputToReplacements() map[string][]string {
 }
 
 func InputToMolecule() string {
-	for _, line := range aoc.InputToLines(2015, 19) {
+	for _, line := range puz.InputToLines(2015, 19) {
 		if len(line) > 0 && !strings.Contains(line, "=>") {
 			return line
 		}

@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // ChildrenFunc is a function that is called to determine the children of a
 // node.

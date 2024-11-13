@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"log"
 	"strings"
 )
@@ -34,10 +34,10 @@ func FindEvenlyDivisible(row []int) (int, int) {
 }
 
 func InputToRows() [][]int {
-	return aoc.InputLinesTo(2017, 2, func(line string) []int {
+	return puz.InputLinesTo(2017, 2, func(line string) []int {
 		var row []int
 		for _, s := range strings.Fields(line) {
-			row = append(row, aoc.ParseInt(s))
+			row = append(row, puz.ParseInt(s))
 		}
 
 		return row

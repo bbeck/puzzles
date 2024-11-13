@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 )
 
 func main() {
-	desired := aoc.InputToInt(2015, 20)
+	desired := puz.InputToInt(2015, 20)
 
 	var house int
 	for house = 1; ; house++ {

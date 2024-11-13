@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 
 func IsInfiniteLoop(program []Instruction) (bool, int) {
 	var pc, acc int
-	var seen aoc.Set[int]
+	var seen puz.Set[int]
 	for {
 		if !seen.Add(pc) {
 			return true, acc
@@ -67,12 +67,12 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return aoc.InputLinesTo(2020, 8, func(line string) Instruction {
+	return puz.InputLinesTo(2020, 8, func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		return Instruction{
 			OpCode: fields[0],
-			Arg:    aoc.ParseInt(fields[1]),
+			Arg:    puz.ParseInt(fields[1]),
 		}
 	})
 }

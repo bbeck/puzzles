@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	serial := aoc.InputToInt(2018, 11)
+	serial := puz.InputToInt(2018, 11)
 
-	grid := aoc.NewGrid2D[int](301, 301)
+	grid := puz.NewGrid2D[int](301, 301)
 	for x := 1; x < grid.Width; x++ {
 		rack := x + 10
 
@@ -20,7 +20,7 @@ func main() {
 	}
 
 	var best int
-	var p aoc.Point2D
+	var p puz.Point2D
 	for x := 1; x < grid.Width-3; x++ {
 		for y := 1; y < grid.Height-3; y++ {
 			var total int
@@ -32,7 +32,7 @@ func main() {
 
 			if total > best {
 				best = total
-				p = aoc.Point2D{X: x, Y: y}
+				p = puz.Point2D{X: x, Y: y}
 			}
 		}
 	}

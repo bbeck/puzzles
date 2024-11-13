@@ -2,22 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	n := aoc.InputToInt(2017, 3)
+	n := puz.InputToInt(2017, 3)
 	c := SpiralCoordinate(n)
-	fmt.Println(aoc.Origin2D.ManhattanDistance(c))
+	fmt.Println(puz.Origin2D.ManhattanDistance(c))
 }
 
-func SpiralCoordinate(n int) aoc.Point2D {
-	var turtle aoc.Turtle
+func SpiralCoordinate(n int) puz.Point2D {
+	var turtle puz.Turtle
 	turtle.TurnRight()
 
 	// Edges represent the distance along the edges that we're traveling.
 	// We use a container since we have to configure multiple edges at a time.
-	var edges aoc.Stack[int]
+	var edges puz.Stack[int]
 	edges.Push(1)
 	edges.Push(1)
 

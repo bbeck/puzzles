@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	stride := aoc.InputToInt(2017, 17)
+	stride := puz.InputToInt(2017, 17)
 
 	// Remember the value after the 0
 	var after int

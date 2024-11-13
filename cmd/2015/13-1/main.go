@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -14,8 +14,8 @@ func main() {
 	people := graph.Vertices()
 
 	best := math.MinInt
-	aoc.EnumeratePermutations(len(people), func(perm []int) bool {
-		best = aoc.Max(best, Happiness(graph, perm))
+	puz.EnumeratePermutations(len(people), func(perm []int) bool {
+		best = puz.Max(best, Happiness(graph, perm))
 		return false
 	})
 
@@ -40,7 +40,7 @@ func Happiness(graph Graph, perm []int) int {
 }
 
 type Graph struct {
-	vertices  aoc.Set[string]
+	vertices  puz.Set[string]
 	distances map[string]map[string]int
 }
 
@@ -76,7 +76,7 @@ func (g *Graph) Edge(from, to string) int {
 
 func InputToGraph() Graph {
 	var g Graph
-	for _, line := range aoc.InputToLines(2015, 13) {
+	for _, line := range puz.InputToLines(2015, 13) {
 		// Transform the line to remove filler words to make it easier to parse by Sscanf.
 		line = strings.ReplaceAll(line, " would ", " ")
 		line = strings.ReplaceAll(line, " happiness units by sitting next to ", " ")

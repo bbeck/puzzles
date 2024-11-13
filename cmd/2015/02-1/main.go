@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"log"
 )
 
@@ -17,7 +17,7 @@ func (b Box) Area() int {
 		b.h * b.l,
 	}
 
-	return 2*aoc.Sum(sides...) + aoc.Min(sides...)
+	return 2*puz.Sum(sides...) + puz.Min(sides...)
 }
 
 func main() {
@@ -36,5 +36,5 @@ func InputToBoxes() []Box {
 		}
 		return box
 	}
-	return aoc.InputLinesTo(2015, 2, parser)
+	return puz.InputLinesTo(2015, 2, parser)
 }

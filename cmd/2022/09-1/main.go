@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
-var Headings = map[byte]aoc.Heading{
-	'U': aoc.Up,
-	'D': aoc.Down,
-	'L': aoc.Left,
-	'R': aoc.Right,
+var Headings = map[byte]puz.Heading{
+	'U': puz.Up,
+	'D': puz.Down,
+	'L': puz.Left,
+	'R': puz.Right,
 }
 
 func main() {
-	var head, tail aoc.Point2D
+	var head, tail puz.Point2D
 
-	seen := aoc.SetFrom(tail)
-	for _, line := range aoc.InputToLines(2022, 9) {
+	seen := puz.SetFrom(tail)
+	for _, line := range puz.InputToLines(2022, 9) {
 		dir := Headings[line[0]]
-		n := aoc.ParseInt(line[2:])
+		n := puz.ParseInt(line[2:])
 		head = head.MoveN(dir, n)
 
 		for {
@@ -35,12 +35,12 @@ func main() {
 	fmt.Println(len(seen))
 }
 
-func MoveTowards(head, tail aoc.Point2D) aoc.Point2D {
-	neighbors := aoc.SetFrom(head.Neighbors()...)
+func MoveTowards(head, tail puz.Point2D) puz.Point2D {
+	neighbors := puz.SetFrom(head.Neighbors()...)
 	if neighbors.Contains(tail) {
 		return tail
 	}
 
-	dx, dy := aoc.Sign(head.X-tail.X), aoc.Sign(head.Y-tail.Y)
-	return aoc.Point2D{X: tail.X + dx, Y: tail.Y + dy}
+	dx, dy := puz.Sign(head.X-tail.X), puz.Sign(head.Y-tail.Y)
+	return puz.Point2D{X: tail.X + dx, Y: tail.Y + dy}
 }

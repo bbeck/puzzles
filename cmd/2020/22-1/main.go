@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -32,13 +32,13 @@ func main() {
 	fmt.Println(sum)
 }
 
-type Deck struct{ aoc.Deque[int] }
+type Deck struct{ puz.Deque[int] }
 
 func InputToDecks() (Deck, Deck) {
-	var decks [2]aoc.Deque[int]
+	var decks [2]puz.Deque[int]
 
 	current := -1
-	for _, line := range aoc.InputToLines(2020, 22) {
+	for _, line := range puz.InputToLines(2020, 22) {
 		if len(line) == 0 {
 			continue
 		}
@@ -48,7 +48,7 @@ func InputToDecks() (Deck, Deck) {
 			continue
 		}
 
-		decks[current].PushBack(aoc.ParseInt(line))
+		decks[current].PushBack(puz.ParseInt(line))
 	}
 
 	return Deck{decks[0]}, Deck{decks[1]}

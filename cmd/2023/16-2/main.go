@@ -2,34 +2,34 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	grid := aoc.InputToStringGrid2D(2023, 16)
+	grid := puz.InputToStringGrid2D(2023, 16)
 
 	var best int
 	for x := 0; x < grid.Width; x++ {
-		t := aoc.Turtle{Location: aoc.Point2D{X: x, Y: -1}, Heading: aoc.Down}
-		best = aoc.Max(best, TryConfiguration(t, grid))
+		t := puz.Turtle{Location: puz.Point2D{X: x, Y: -1}, Heading: puz.Down}
+		best = puz.Max(best, TryConfiguration(t, grid))
 
-		t = aoc.Turtle{Location: aoc.Point2D{X: x, Y: grid.Height}, Heading: aoc.Up}
-		best = aoc.Max(best, TryConfiguration(t, grid))
+		t = puz.Turtle{Location: puz.Point2D{X: x, Y: grid.Height}, Heading: puz.Up}
+		best = puz.Max(best, TryConfiguration(t, grid))
 	}
 
 	for y := 0; y < grid.Height; y++ {
-		t := aoc.Turtle{Location: aoc.Point2D{X: -1, Y: y}, Heading: aoc.Right}
-		best = aoc.Max(best, TryConfiguration(t, grid))
+		t := puz.Turtle{Location: puz.Point2D{X: -1, Y: y}, Heading: puz.Right}
+		best = puz.Max(best, TryConfiguration(t, grid))
 
-		t = aoc.Turtle{Location: aoc.Point2D{X: grid.Width, Y: y}, Heading: aoc.Left}
-		best = aoc.Max(best, TryConfiguration(t, grid))
+		t = puz.Turtle{Location: puz.Point2D{X: grid.Width, Y: y}, Heading: puz.Left}
+		best = puz.Max(best, TryConfiguration(t, grid))
 	}
 
 	fmt.Println(best)
 }
 
-func TryConfiguration(t aoc.Turtle, grid aoc.Grid2D[string]) int {
-	energized := aoc.NewGrid2D[string](grid.Width, grid.Height)
+func TryConfiguration(t puz.Turtle, grid puz.Grid2D[string]) int {
+	energized := puz.NewGrid2D[string](grid.Width, grid.Height)
 	Walk(t, grid, energized)
 
 	var sum int
@@ -42,11 +42,11 @@ func TryConfiguration(t aoc.Turtle, grid aoc.Grid2D[string]) int {
 	return sum
 }
 
-func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
-	var seen aoc.Set[aoc.Turtle]
+func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
+	var seen puz.Set[puz.Turtle]
 
-	var step func(t aoc.Turtle)
-	step = func(t aoc.Turtle) {
+	var step func(t puz.Turtle)
+	step = func(t puz.Turtle) {
 		if !seen.Add(t) {
 			return
 		}
@@ -63,8 +63,8 @@ func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
 		heading := t.Heading
 
 		switch {
-		case (cell == "|" && (heading == aoc.Right || heading == aoc.Left)) ||
-			(cell == "-" && (heading == aoc.Up || heading == aoc.Down)):
+		case (cell == "|" && (heading == puz.Right || heading == puz.Left)) ||
+			(cell == "-" && (heading == puz.Up || heading == puz.Down)):
 			t.TurnLeft()
 			step(t)
 			t.TurnRight()
@@ -72,7 +72,7 @@ func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
 			step(t)
 
 		case cell == "\\":
-			if heading == aoc.Up || heading == aoc.Down {
+			if heading == puz.Up || heading == puz.Down {
 				t.TurnLeft()
 			} else {
 				t.TurnRight()
@@ -80,7 +80,7 @@ func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
 			step(t)
 
 		case cell == "/":
-			if heading == aoc.Up || heading == aoc.Down {
+			if heading == puz.Up || heading == puz.Down {
 				t.TurnRight()
 			} else {
 				t.TurnLeft()

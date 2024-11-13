@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -21,8 +21,8 @@ func main() {
 	fmt.Println(count)
 }
 
-func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
-	next := aoc.NewGrid2D[bool](lights.Width, lights.Height)
+func Next(lights puz.Grid2D[bool]) puz.Grid2D[bool] {
+	next := puz.NewGrid2D[bool](lights.Width, lights.Height)
 	lights.ForEach(func(x, y int, value bool) {
 		var count int
 		lights.ForEachNeighbor(x, y, func(x, y int, value bool) {
@@ -41,8 +41,8 @@ func Next(lights aoc.Grid2D[bool]) aoc.Grid2D[bool] {
 	return next
 }
 
-func InputToLights() aoc.Grid2D[bool] {
-	return aoc.InputToGrid2D(2015, 18, func(x, y int, s string) bool {
+func InputToLights() puz.Grid2D[bool] {
+	return puz.InputToGrid2D(2015, 18, func(x, y int, s string) bool {
 		return s == "#"
 	})
 }

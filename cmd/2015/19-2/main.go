@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -63,7 +63,7 @@ type Replacement struct {
 
 func InputToReplacements() []Replacement {
 	var replacements []Replacement
-	for _, line := range aoc.InputToLines(2015, 19) {
+	for _, line := range puz.InputToLines(2015, 19) {
 		lhs, rhs, ok := strings.Cut(line, " => ")
 		if ok {
 			replacements = append(replacements, Replacement{LHS: lhs, RHS: rhs})
@@ -74,7 +74,7 @@ func InputToReplacements() []Replacement {
 }
 
 func InputToMolecule() string {
-	for _, line := range aoc.InputToLines(2015, 19) {
+	for _, line := range puz.InputToLines(2015, 19) {
 		if len(line) > 0 && !strings.Contains(line, "=>") {
 			return line
 		}

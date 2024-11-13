@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	// The program that's the root of the tree is the one that never appears as
 	// a child of any other program.
-	var all, children aoc.Set[string]
+	var all, children puz.Set[string]
 	for _, program := range programs {
 		all.Add(program.ID)
 		children.Add(program.Children...)
@@ -29,7 +29,7 @@ type Program struct {
 }
 
 func InputToPrograms() []Program {
-	return aoc.InputLinesTo(2017, 7, func(line string) Program {
+	return puz.InputLinesTo(2017, 7, func(line string) Program {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "->", "")
 		line = strings.ReplaceAll(line, "(", "")
@@ -38,7 +38,7 @@ func InputToPrograms() []Program {
 		fields := strings.Fields(line)
 		return Program{
 			ID:       fields[0],
-			Weight:   aoc.ParseInt(fields[1]),
+			Weight:   puz.ParseInt(fields[1]),
 			Children: fields[2:],
 		}
 	})

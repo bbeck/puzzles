@@ -3,7 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(aoc.Origin3D.ManhattanDistance(cube.Point3D))
+	fmt.Println(puz.Origin3D.ManhattanDistance(cube.Point3D))
 }
 
 func GetInitialCube(bots []Nanobot) Cube {
@@ -52,19 +52,19 @@ func GetInitialCube(bots []Nanobot) Cube {
 	// we subdivide we always end up with integer dimensions.
 	max := 1
 	for _, b := range bots {
-		for max < aoc.Abs(b.X)+b.R || max < aoc.Abs(b.Y)+b.R || max < aoc.Abs(b.Z)+b.R {
+		for max < puz.Abs(b.X)+b.R || max < puz.Abs(b.Y)+b.R || max < puz.Abs(b.Z)+b.R {
 			max *= 2
 		}
 	}
 
 	return Cube{
-		Point3D: aoc.Point3D{X: -max, Y: -max, Z: -max},
+		Point3D: puz.Point3D{X: -max, Y: -max, Z: -max},
 		W:       2 * max, H: 2 * max, D: 2 * max,
 	}
 }
 
 type Cube struct {
-	aoc.Point3D
+	puz.Point3D
 	W, H, D int
 }
 
@@ -77,24 +77,24 @@ func (c Cube) Octants() [8]Cube {
 	dx, dy, dz := c.W/2, c.H/2, c.D/2
 
 	return [8]Cube{
-		{Point3D: aoc.Point3D{X: x, Y: y, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x + dx, Y: y, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x + dx, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x + dx, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
-		{Point3D: aoc.Point3D{X: x + dx, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x, Y: y, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x + dx, Y: y, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x + dx, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x + dx, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: puz.Point3D{X: x + dx, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
 	}
 }
 
 func (c Cube) GetNumIntersectingBots(bots []Nanobot) int {
 	var count int
 	for _, b := range bots {
-		closest := aoc.Point3D{
-			X: aoc.Min(aoc.Max(b.X, c.X), c.X+c.W-1),
-			Y: aoc.Min(aoc.Max(b.Y, c.Y), c.Y+c.H-1),
-			Z: aoc.Min(aoc.Max(b.Z, c.Z), c.Z+c.D-1),
+		closest := puz.Point3D{
+			X: puz.Min(puz.Max(b.X, c.X), c.X+c.W-1),
+			Y: puz.Min(puz.Max(b.Y, c.Y), c.Y+c.H-1),
+			Z: puz.Min(puz.Max(b.Z, c.Z), c.Z+c.D-1),
 		}
 
 		if closest.ManhattanDistance(b.Point3D) <= b.R {
@@ -119,8 +119,8 @@ func (h Heap) Less(i, j int) bool {
 		return h[i].Count > h[j].Count
 	}
 
-	di := aoc.Origin3D.ManhattanDistance(h[i].Cube.Point3D)
-	dj := aoc.Origin3D.ManhattanDistance(h[j].Cube.Point3D)
+	di := puz.Origin3D.ManhattanDistance(h[i].Cube.Point3D)
+	dj := puz.Origin3D.ManhattanDistance(h[j].Cube.Point3D)
 	return di < dj
 }
 
@@ -134,13 +134,13 @@ func (h *Heap) Pop() any {
 }
 
 type Nanobot struct {
-	aoc.Point3D
+	puz.Point3D
 	R int
 }
 
 func InputToNanobots() []Nanobot {
-	return aoc.InputLinesTo(2018, 23, func(line string) Nanobot {
-		var p aoc.Point3D
+	return puz.InputLinesTo(2018, 23, func(line string) Nanobot {
+		var p puz.Point3D
 		var r int
 		fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &p.X, &p.Y, &p.Z, &r)
 		return Nanobot{Point3D: p, R: r}

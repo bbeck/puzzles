@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	modules := InputToModules()
 	states := make(map[string]bool)
-	pulses := aoc.Deque[Pulse]{}
+	pulses := puz.Deque[Pulse]{}
 	counts := make(map[bool]int)
 
 	for n := 0; n < 1000; n++ {
@@ -46,7 +46,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(aoc.Product(aoc.GetMapValues(counts)...))
+	fmt.Println(puz.Product(puz.GetMapValues(counts)...))
 }
 
 type Pulse struct {
@@ -62,12 +62,12 @@ type Module struct {
 }
 
 func InputToModules() map[string]Module {
-	ids := aoc.Set[string]{}
+	ids := puz.Set[string]{}
 	kinds := make(map[string]string)
 	targets := make(map[string][]string)
 	parents := make(map[string][]string)
 
-	for _, line := range aoc.InputToLines(2023, 20) {
+	for _, line := range puz.InputToLines(2023, 20) {
 		kind, id, children := ParseModule(line)
 
 		ids.Add(id)

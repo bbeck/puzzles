@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const N = 1_000_000
@@ -53,7 +53,7 @@ func Destination(current, r1, r2, r3 int) int {
 }
 
 func InputToCircle() ([]int, int) {
-	digits := aoc.Digits(aoc.InputToInt(2020, 23))
+	digits := puz.Digits(puz.InputToInt(2020, 23))
 
 	circle := make([]int, N+1)
 

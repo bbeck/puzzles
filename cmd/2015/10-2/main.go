@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	var digits []int
-	for _, c := range aoc.InputToString(2015, 10) {
-		digits = append(digits, aoc.ParseInt(string(c)))
+	for _, c := range puz.InputToString(2015, 10) {
+		digits = append(digits, puz.ParseInt(string(c)))
 	}
 
 	for i := 0; i < 50; i++ {

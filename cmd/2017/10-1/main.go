@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -29,11 +29,11 @@ func Reverse(buffer []byte, current, length byte) {
 }
 
 func InputToLengths() []byte {
-	input := aoc.InputToString(2017, 10)
+	input := puz.InputToString(2017, 10)
 
 	var lengths []byte
 	for _, s := range strings.Split(input, ",") {
-		lengths = append(lengths, byte(aoc.ParseInt(s)))
+		lengths = append(lengths, byte(puz.ParseInt(s)))
 	}
 
 	return lengths

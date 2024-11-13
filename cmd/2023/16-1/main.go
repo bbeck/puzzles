@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	turtle := aoc.Turtle{Location: aoc.Origin2D.Left(), Heading: aoc.Right}
-	grid := aoc.InputToStringGrid2D(2023, 16)
-	energized := aoc.NewGrid2D[string](grid.Width, grid.Height)
+	turtle := puz.Turtle{Location: puz.Origin2D.Left(), Heading: puz.Right}
+	grid := puz.InputToStringGrid2D(2023, 16)
+	energized := puz.NewGrid2D[string](grid.Width, grid.Height)
 
 	Walk(turtle, grid, energized)
 
@@ -21,11 +21,11 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
-	var seen aoc.Set[aoc.Turtle]
+func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
+	var seen puz.Set[puz.Turtle]
 
-	var step func(t aoc.Turtle)
-	step = func(t aoc.Turtle) {
+	var step func(t puz.Turtle)
+	step = func(t puz.Turtle) {
 		if !seen.Add(t) {
 			return
 		}
@@ -42,8 +42,8 @@ func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
 		heading := t.Heading
 
 		switch {
-		case (cell == "|" && (heading == aoc.Right || heading == aoc.Left)) ||
-			(cell == "-" && (heading == aoc.Up || heading == aoc.Down)):
+		case (cell == "|" && (heading == puz.Right || heading == puz.Left)) ||
+			(cell == "-" && (heading == puz.Up || heading == puz.Down)):
 			t.TurnLeft()
 			step(t)
 			t.TurnRight()
@@ -51,7 +51,7 @@ func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
 			step(t)
 
 		case cell == "\\":
-			if heading == aoc.Up || heading == aoc.Down {
+			if heading == puz.Up || heading == puz.Down {
 				t.TurnLeft()
 			} else {
 				t.TurnRight()
@@ -59,7 +59,7 @@ func Walk(t aoc.Turtle, grid, energized aoc.Grid2D[string]) {
 			step(t)
 
 		case cell == "/":
-			if heading == aoc.Up || heading == aoc.Down {
+			if heading == puz.Up || heading == puz.Down {
 				t.TurnRight()
 			} else {
 				t.TurnLeft()

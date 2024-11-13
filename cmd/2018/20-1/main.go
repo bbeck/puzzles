@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
 func main() {
-	regex := aoc.InputToString(2018, 20)
+	regex := puz.InputToString(2018, 20)
 	world, origin := ParseRegex(regex)
 
 	// Determine the point that's furthest from the current location.  Because
 	// we're looking for the furthest point we'll assume there are no cycles.
 	// This means a basic breadth first search will work.
-	distances := map[aoc.Point2D]int{
+	distances := map[puz.Point2D]int{
 		origin: 0,
 	}
 
-	children := func(p aoc.Point2D) []aoc.Point2D {
-		var children []aoc.Point2D
+	children := func(p puz.Point2D) []puz.Point2D {
+		var children []puz.Point2D
 		for _, child := range p.OrthogonalNeighbors() {
 			if !world.InBoundsPoint(child) || !world.GetPoint(child) {
 				continue
@@ -33,48 +33,48 @@ func main() {
 		return children
 	}
 
-	aoc.BreadthFirstSearch(origin, children, func(p aoc.Point2D) bool {
+	puz.BreadthFirstSearch(origin, children, func(p puz.Point2D) bool {
 		return false
 	})
 
 	var longest int
 	for _, d := range distances {
-		longest = aoc.Max(longest, d)
+		longest = puz.Max(longest, d)
 	}
 
 	// Every 2nd location is a doorway.
 	fmt.Println(longest / 2)
 }
 
-func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
+func ParseRegex(input string) (puz.Grid2D[bool], puz.Point2D) {
 	input = strings.ReplaceAll(input, "^", "")
 	input = strings.ReplaceAll(input, "$", "")
 
 	// Which coordinates are open in the world.
-	var open aoc.Set[aoc.Point2D]
-	open.Add(aoc.Origin2D)
+	var open puz.Set[puz.Point2D]
+	open.Add(puz.Origin2D)
 
 	// The current positions we're exploring.  This is the fringe of the search.
 	// Every time we encounter a new group we'll push this set onto a stack so
 	// that we can return to them whenever we need to branch within the group.
 	// When we exit a group we'll pop from the stack.
-	var currents aoc.Set[aoc.Point2D]
-	currents.Add(aoc.Origin2D)
+	var currents puz.Set[puz.Point2D]
+	currents.Add(puz.Origin2D)
 
 	// The stack of previous positions on the fringe that we've encountered.
 	// These are kept so that when we're in an OR group we know which position
 	// to return to when we encounter an OR operator.
-	var previous aoc.Stack[aoc.Set[aoc.Point2D]]
+	var previous puz.Stack[puz.Set[puz.Point2D]]
 
 	// A stack of positions that have been reached while in a group.  Whenever
 	// we enter a group we'll push an empty set onto the stack.  As we process
 	// the different OR expressions within the group we'll union the set of
 	// positions reached with the top entry of this stack.  When we exit the
 	// group the top of this stack will become the current positions set.
-	var group aoc.Stack[aoc.Set[aoc.Point2D]]
+	var group puz.Stack[puz.Set[puz.Point2D]]
 
 	for _, ch := range input {
-		var next aoc.Set[aoc.Point2D]
+		var next puz.Set[puz.Point2D]
 
 		switch ch {
 		case 'N':
@@ -101,7 +101,7 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 
 		case '(':
 			previous.Push(currents)
-			group.Push(aoc.Set[aoc.Point2D]{})
+			group.Push(puz.Set[puz.Point2D]{})
 
 		case '|':
 			// We're going to backtrack.  Before we do remember where we ended up in
@@ -125,11 +125,11 @@ func ParseRegex(input string) (aoc.Grid2D[bool], aoc.Point2D) {
 	}
 
 	// Convert the set of open points into a grid.
-	tl, br := aoc.GetBounds(open.Entries())
-	grid := aoc.NewGrid2D[bool](br.X-tl.X+1, br.Y-tl.Y+1)
+	tl, br := puz.GetBounds(open.Entries())
+	grid := puz.NewGrid2D[bool](br.X-tl.X+1, br.Y-tl.Y+1)
 	for p := range open {
 		grid.Set(p.X-tl.X, p.Y-tl.Y, true)
 	}
 
-	return grid, aoc.Point2D{X: -tl.X, Y: -tl.Y}
+	return grid, puz.Point2D{X: -tl.X, Y: -tl.Y}
 }

@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // A Stack is a container of elements where the last one added is the first one
 // removed.

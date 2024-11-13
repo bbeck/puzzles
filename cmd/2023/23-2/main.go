@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	grid := aoc.InputToStringGrid2D(2023, 23)
+	grid := puz.InputToStringGrid2D(2023, 23)
 	graph, start, end := BuildGraph(grid)
 
 	var longest int
 
-	var dfs func(current int, seen aoc.BitSet, length int)
-	dfs = func(current int, seen aoc.BitSet, length int) {
+	var dfs func(current int, seen puz.BitSet, length int)
+	dfs = func(current int, seen puz.BitSet, length int) {
 		if current == end {
-			longest = aoc.Max(longest, length)
+			longest = puz.Max(longest, length)
 		}
 
 		for p, cost := range graph[current] {
@@ -30,11 +30,11 @@ func main() {
 
 type Graph [][]int
 
-func BuildGraph(grid aoc.Grid2D[string]) (Graph, int, int) {
+func BuildGraph(grid puz.Grid2D[string]) (Graph, int, int) {
 	vertices, start, end := FindVertices(grid)
-	graph := aoc.Make2D[int](len(vertices), len(vertices))
+	graph := puz.Make2D[int](len(vertices), len(vertices))
 
-	blocked := aoc.SetFrom(vertices...)
+	blocked := puz.SetFrom(vertices...)
 	for i, v1 := range vertices {
 		blocked.Remove(v1)
 		for j, v2 := range vertices {
@@ -50,10 +50,10 @@ func BuildGraph(grid aoc.Grid2D[string]) (Graph, int, int) {
 	return graph, start, end
 }
 
-func FindVertices(grid aoc.Grid2D[string]) ([]aoc.Point2D, int, int) {
-	var vertices []aoc.Point2D
+func FindVertices(grid puz.Grid2D[string]) ([]puz.Point2D, int, int) {
+	var vertices []puz.Point2D
 	var start, end int
-	grid.ForEachPoint(func(p aoc.Point2D, s string) {
+	grid.ForEachPoint(func(p puz.Point2D, s string) {
 		if s == "#" {
 			return
 		}
@@ -71,7 +71,7 @@ func FindVertices(grid aoc.Grid2D[string]) ([]aoc.Point2D, int, int) {
 		}
 
 		var count int
-		grid.ForEachOrthogonalNeighbor(p, func(q aoc.Point2D, s string) {
+		grid.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, s string) {
 			if s != "#" {
 				count++
 			}
@@ -84,18 +84,18 @@ func FindVertices(grid aoc.Grid2D[string]) ([]aoc.Point2D, int, int) {
 	return vertices, start, end
 }
 
-func Distance(grid aoc.Grid2D[string], start, end aoc.Point2D, blocked aoc.Set[aoc.Point2D]) (int, bool) {
-	children := func(p aoc.Point2D) []aoc.Point2D {
-		var children []aoc.Point2D
-		grid.ForEachOrthogonalNeighbor(p, func(q aoc.Point2D, ch string) {
+func Distance(grid puz.Grid2D[string], start, end puz.Point2D, blocked puz.Set[puz.Point2D]) (int, bool) {
+	children := func(p puz.Point2D) []puz.Point2D {
+		var children []puz.Point2D
+		grid.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, ch string) {
 			if ch != "#" && !blocked.Contains(q) {
 				children = append(children, q)
 			}
 		})
 		return children
 	}
-	goal := func(p aoc.Point2D) bool { return p == end }
+	goal := func(p puz.Point2D) bool { return p == end }
 
-	path, ok := aoc.BreadthFirstSearch(start, children, goal)
+	path, ok := puz.BreadthFirstSearch(start, children, goal)
 	return len(path) - 1, ok
 }

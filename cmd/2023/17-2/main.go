@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	pool := aoc.InputToIntGrid2D(2023, 17)
-	end := aoc.Point2D{X: pool.Width - 1, Y: pool.Height - 1}
+	pool := puz.InputToIntGrid2D(2023, 17)
+	end := puz.Point2D{X: pool.Width - 1, Y: pool.Height - 1}
 
 	children := func(c Crucible) []Crucible {
 		var children []Crucible
@@ -38,8 +38,8 @@ func main() {
 		return children
 	}
 
-	_, cost, _ := aoc.AStarSearch(
-		Crucible{Turtle: aoc.Turtle{Heading: aoc.Right}},
+	_, cost, _ := puz.AStarSearch(
+		Crucible{Turtle: puz.Turtle{Heading: puz.Right}},
 		children,
 		func(c Crucible) bool { return c.Location == end },
 		func(_, c Crucible) int { return pool.GetPoint(c.Location) },
@@ -50,34 +50,34 @@ func main() {
 }
 
 type Crucible struct {
-	aoc.Turtle
+	puz.Turtle
 	Count int
 }
 
-func Moves(t aoc.Turtle, g aoc.Grid2D[int]) []aoc.Turtle {
-	steps := []func(aoc.Turtle) aoc.Turtle{
+func Moves(t puz.Turtle, g puz.Grid2D[int]) []puz.Turtle {
+	steps := []func(puz.Turtle) puz.Turtle{
 		// Left
-		func(t aoc.Turtle) aoc.Turtle {
+		func(t puz.Turtle) puz.Turtle {
 			t.TurnLeft()
 			t.Forward(1)
 			return t
 		},
 
 		// Right
-		func(t aoc.Turtle) aoc.Turtle {
+		func(t puz.Turtle) puz.Turtle {
 			t.TurnRight()
 			t.Forward(1)
 			return t
 		},
 
 		// Straight
-		func(t aoc.Turtle) aoc.Turtle {
+		func(t puz.Turtle) puz.Turtle {
 			t.Forward(1)
 			return t
 		},
 	}
 
-	var moves []aoc.Turtle
+	var moves []puz.Turtle
 	for _, step := range steps {
 		if s := step(t); g.InBoundsPoint(s.Location) {
 			moves = append(moves, s)

@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 type Heading int
 

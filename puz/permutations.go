@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // EnumeratePermutations calls the fn callback with each permutation of size
 // items.  Fn will be called size factorial times.

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 var Scores = map[string]int{
@@ -19,7 +19,7 @@ var Scores = map[string]int{
 
 func main() {
 	var score int
-	for _, line := range aoc.InputToLines(2022, 2) {
+	for _, line := range puz.InputToLines(2022, 2) {
 		score += Scores[line]
 	}
 	fmt.Println(score)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -21,7 +21,7 @@ func main() {
 		template = sb.String()
 	}
 
-	var fc aoc.FrequencyCounter[rune]
+	var fc puz.FrequencyCounter[rune]
 	for _, c := range template {
 		fc.Add(c)
 	}
@@ -31,7 +31,7 @@ func main() {
 }
 
 func InputToTemplateAndRules() (string, map[string]string) {
-	lines := aoc.InputToLines(2021, 14)
+	lines := puz.InputToLines(2021, 14)
 
 	template := lines[0]
 

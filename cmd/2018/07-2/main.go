@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 )
 
@@ -46,7 +46,7 @@ type Worker struct {
 }
 
 type Graph struct {
-	Vertices aoc.Set[string]
+	Vertices puz.Set[string]
 	Parents  map[string][]string
 }
 
@@ -108,7 +108,7 @@ func Remove[T comparable](s []T, elem T) []T {
 
 func InputToGraph() Graph {
 	var graph Graph
-	for _, line := range aoc.InputToLines(2018, 7) {
+	for _, line := range puz.InputToLines(2018, 7) {
 		var parent, child string
 		fmt.Sscanf(line, "Step %s must be finished before step %s can begin.", &parent, &child)
 

@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 )
 
 func main() {
-	m := aoc.InputToIntGrid2D(2021, 9)
+	m := puz.InputToIntGrid2D(2021, 9)
 
-	var ds aoc.DisjointSet[aoc.Point2D]
-	m.ForEachPoint(func(p aoc.Point2D, height int) {
+	var ds puz.DisjointSet[puz.Point2D]
+	m.ForEachPoint(func(p puz.Point2D, height int) {
 		if height == 9 {
 			return
 		}
 
-		m.ForEachOrthogonalNeighbor(p, func(n aoc.Point2D, height int) {
+		m.ForEachOrthogonalNeighbor(p, func(n puz.Point2D, height int) {
 			if height == 9 {
 				return
 			}
@@ -24,15 +24,15 @@ func main() {
 		})
 	})
 
-	index := make(map[aoc.Point2D]int)
-	m.ForEachPoint(func(p aoc.Point2D, height int) {
+	index := make(map[puz.Point2D]int)
+	m.ForEachPoint(func(p puz.Point2D, height int) {
 		if root, ok := ds.Find(p); ok {
 			index[root] = ds.Size(root)
 		}
 	})
 
-	sizes := aoc.GetMapValues(index)
+	sizes := puz.GetMapValues(index)
 	sort.Ints(sizes)
 
-	fmt.Println(aoc.Product(sizes[len(sizes)-3:]...))
+	fmt.Println(puz.Product(sizes[len(sizes)-3:]...))
 }

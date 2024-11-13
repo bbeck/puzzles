@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	particles := InputToParticles()
 
 	for tm := 0; tm < 1000; tm++ {
-		positions := make(map[aoc.Point3D][]Particle)
+		positions := make(map[puz.Point3D][]Particle)
 		for i := 0; i < len(particles); i++ {
 			particles[i].Step()
 			positions[particles[i].pos] = append(positions[particles[i].pos], particles[i])
@@ -30,7 +30,7 @@ func main() {
 }
 
 type Particle struct {
-	pos, vel, acc aoc.Point3D
+	pos, vel, acc puz.Point3D
 }
 
 func (p *Particle) Step() {
@@ -43,7 +43,7 @@ func (p *Particle) Step() {
 }
 
 func InputToParticles() []Particle {
-	return aoc.InputLinesTo(2017, 20, func(line string) Particle {
+	return puz.InputLinesTo(2017, 20, func(line string) Particle {
 		var particle Particle
 		fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
 			&particle.pos.X, &particle.pos.Y, &particle.pos.Z,

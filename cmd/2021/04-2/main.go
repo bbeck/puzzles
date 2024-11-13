@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -11,8 +11,8 @@ const N = 5
 func main() {
 	nums, boards := InputToGame()
 
-	var called aoc.Set[int]
-	var winners aoc.Set[int]
+	var called puz.Set[int]
+	var winners puz.Set[int]
 	var winner Board
 	var last int
 
@@ -37,33 +37,33 @@ outer:
 		}
 	}
 
-	var all aoc.Set[int]
+	var all puz.Set[int]
 	for _, line := range winner.Lines {
 		all = all.Union(line)
 	}
 
 	remaining := all.Difference(called)
-	fmt.Println(last * aoc.Sum(remaining.Entries()...))
+	fmt.Println(last * puz.Sum(remaining.Entries()...))
 }
 
 type Board struct {
-	Lines []aoc.Set[int]
+	Lines []puz.Set[int]
 }
 
 func InputToGame() ([]int, []Board) {
-	lines := aoc.InputToLines(2021, 4)
+	lines := puz.InputToLines(2021, 4)
 
 	var nums []int
 	for _, s := range strings.Split(lines[0], ",") {
-		nums = append(nums, aoc.ParseInt(s))
+		nums = append(nums, puz.ParseInt(s))
 	}
 
 	var boards []Board
 	for base := 2; base < len(lines); base += 6 {
-		board := Board{Lines: make([]aoc.Set[int], 2*N)}
+		board := Board{Lines: make([]puz.Set[int], 2*N)}
 		for y := 0; y < N; y++ {
 			for x, s := range strings.Fields(lines[base+y]) {
-				n := aoc.ParseInt(s)
+				n := puz.ParseInt(s)
 				board.Lines[y].Add(n)
 				board.Lines[x+N].Add(n)
 			}
@@ -77,7 +77,7 @@ func InputToGame() ([]int, []Board) {
 func ParseLine(line string) []int {
 	var ns []int
 	for _, s := range strings.Fields(line) {
-		ns = append(ns, aoc.ParseInt(s))
+		ns = append(ns, puz.ParseInt(s))
 	}
 	return ns
 }

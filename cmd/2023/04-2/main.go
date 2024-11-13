@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -24,14 +24,14 @@ func main() {
 }
 
 func InputToNumWinningNumbers() []int {
-	return aoc.InputLinesTo(2023, 4, func(line string) int {
+	return puz.InputLinesTo(2023, 4, func(line string) int {
 		// A number is only winning if it appears more than once per line.
 		line = strings.ReplaceAll(line, "|", "")
 		_, rhs, _ := strings.Cut(line, ":")
 
-		var seen, winning aoc.Set[int]
+		var seen, winning puz.Set[int]
 		for _, field := range strings.Fields(rhs) {
-			num := aoc.ParseInt(field)
+			num := puz.ParseInt(field)
 			if !seen.Add(num) {
 				winning.Add(num)
 			}

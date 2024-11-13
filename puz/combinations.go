@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // EnumerateCombinations calls the fn callback with each possible combination
 // of k items from a set of n items.  Fn will be called n choose k times.  If

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	depth, target := InputToParameters()
 
-	cave := aoc.NewGrid2D[int](target.X+1, target.Y+1)
+	cave := puz.NewGrid2D[int](target.X+1, target.Y+1)
 	for y := 0; y <= target.Y; y++ {
 		for x := 0; x <= target.X; x++ {
 			var geologic int
@@ -39,17 +39,17 @@ func main() {
 	fmt.Println(risk)
 }
 
-func InputToParameters() (int, aoc.Point2D) {
+func InputToParameters() (int, puz.Point2D) {
 	var depth int
-	var target aoc.Point2D
+	var target puz.Point2D
 
-	for _, line := range aoc.InputToLines(2018, 22) {
+	for _, line := range puz.InputToLines(2018, 22) {
 		k, v, _ := strings.Cut(line, ": ")
 		if k == "depth" {
-			depth = aoc.ParseInt(v)
+			depth = puz.ParseInt(v)
 		} else if k == "target" {
 			x, y, _ := strings.Cut(v, ",")
-			target = aoc.Point2D{X: aoc.ParseInt(x), Y: aoc.ParseInt(y)}
+			target = puz.Point2D{X: puz.ParseInt(x), Y: puz.ParseInt(y)}
 		}
 	}
 

@@ -3,16 +3,16 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	grid := aoc.InputToStringGrid2D(2023, 11)
+	grid := puz.InputToStringGrid2D(2023, 11)
 	grid = Expand(grid)
 
-	var seen aoc.Set[aoc.Point2D]
+	var seen puz.Set[puz.Point2D]
 	var sum int
-	grid.ForEachPoint(func(p aoc.Point2D, s string) {
+	grid.ForEachPoint(func(p puz.Point2D, s string) {
 		if s != "#" {
 			return
 		}
@@ -26,9 +26,9 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Expand(g aoc.Grid2D[string]) aoc.Grid2D[string] {
+func Expand(g puz.Grid2D[string]) puz.Grid2D[string] {
 	for x := 0; x < g.Width; x++ {
-		var cells aoc.Set[string]
+		var cells puz.Set[string]
 		for y := 0; y < g.Height; y++ {
 			cells.Add(g.Get(x, y))
 		}
@@ -41,7 +41,7 @@ func Expand(g aoc.Grid2D[string]) aoc.Grid2D[string] {
 	}
 
 	for y := 0; y < g.Height; y++ {
-		var cells aoc.Set[string]
+		var cells puz.Set[string]
 		for x := 0; x < g.Width; x++ {
 			cells.Add(g.Get(x, y))
 		}
@@ -62,7 +62,7 @@ var Distances = map[string]int{
 	"G": 1000000,
 }
 
-func Distance(grid aoc.Grid2D[string], p, q aoc.Point2D) int {
+func Distance(grid puz.Grid2D[string], p, q puz.Point2D) int {
 	var d int
 	for {
 		switch {

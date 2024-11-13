@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	var difference int
-	for _, line := range aoc.InputToLines(2015, 8) {
+	for _, line := range puz.InputToLines(2015, 8) {
 		difference += len(line) - DecodeLength(line)
 	}
 

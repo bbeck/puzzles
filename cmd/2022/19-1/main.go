@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 	"regexp"
 )
@@ -21,9 +21,9 @@ func Run(bp Blueprint) int {
 	// the very next round we'll already be at max.  More than that is just a
 	// waste.
 	maxNeeded := [4]int{
-		aoc.Max(bp.Costs[0][0], bp.Costs[1][0], bp.Costs[2][0], bp.Costs[3][0]),
-		aoc.Max(bp.Costs[0][1], bp.Costs[1][1], bp.Costs[2][1], bp.Costs[3][1]),
-		aoc.Max(bp.Costs[0][2], bp.Costs[1][2], bp.Costs[2][2], bp.Costs[3][2]),
+		puz.Max(bp.Costs[0][0], bp.Costs[1][0], bp.Costs[2][0], bp.Costs[3][0]),
+		puz.Max(bp.Costs[0][1], bp.Costs[1][1], bp.Costs[2][1], bp.Costs[3][1]),
+		puz.Max(bp.Costs[0][2], bp.Costs[1][2], bp.Costs[2][2], bp.Costs[3][2]),
 		math.MaxInt,
 	}
 
@@ -72,7 +72,7 @@ func Run(bp Blueprint) int {
 				if needed%s.Robots[ore] != 0 {
 					dt++
 				}
-				wait = aoc.Max(wait, dt)
+				wait = puz.Max(wait, dt)
 			}
 
 			// Make sure we don't have to wait longer than we have.
@@ -82,14 +82,14 @@ func Run(bp Blueprint) int {
 			}
 
 			// Jump to the time when we can build the robot.
-			best = aoc.Max(best, helper(State{
+			best = puz.Max(best, helper(State{
 				Time: remaining,
 				Ores: [4]int{
 					// For the non-geode ores, don't allow them to accumulate beyond the
 					// amount we can spend in the remaining time.
-					aoc.Min(s.Ores[0]+s.Robots[0]*(wait+1)-bp.Costs[b][0], remaining*maxNeeded[0]),
-					aoc.Min(s.Ores[1]+s.Robots[1]*(wait+1)-bp.Costs[b][1], remaining*maxNeeded[1]),
-					aoc.Min(s.Ores[2]+s.Robots[2]*(wait+1)-bp.Costs[b][2], remaining*maxNeeded[2]),
+					puz.Min(s.Ores[0]+s.Robots[0]*(wait+1)-bp.Costs[b][0], remaining*maxNeeded[0]),
+					puz.Min(s.Ores[1]+s.Robots[1]*(wait+1)-bp.Costs[b][1], remaining*maxNeeded[1]),
+					puz.Min(s.Ores[2]+s.Robots[2]*(wait+1)-bp.Costs[b][2], remaining*maxNeeded[2]),
 					s.Ores[3] + s.Robots[3]*(wait+1) - bp.Costs[b][3],
 				},
 				Robots: [4]int{
@@ -121,15 +121,15 @@ type Blueprint struct {
 func InputToBlueprints() []Blueprint {
 	regex := regexp.MustCompile(`\d+`)
 
-	return aoc.InputLinesTo(2022, 19, func(s string) Blueprint {
+	return puz.InputLinesTo(2022, 19, func(s string) Blueprint {
 		ns := regex.FindAllString(s, -1)
 		return Blueprint{
-			ID: aoc.ParseInt(ns[0]),
+			ID: puz.ParseInt(ns[0]),
 			Costs: [][]int{
-				{aoc.ParseInt(ns[1]), 0, 0, 0},
-				{aoc.ParseInt(ns[2]), 0, 0, 0},
-				{aoc.ParseInt(ns[3]), aoc.ParseInt(ns[4]), 0, 0},
-				{aoc.ParseInt(ns[5]), 0, aoc.ParseInt(ns[6]), 0},
+				{puz.ParseInt(ns[1]), 0, 0, 0},
+				{puz.ParseInt(ns[2]), 0, 0, 0},
+				{puz.ParseInt(ns[3]), puz.ParseInt(ns[4]), 0, 0},
+				{puz.ParseInt(ns[5]), 0, puz.ParseInt(ns[6]), 0},
 			},
 		}
 	})

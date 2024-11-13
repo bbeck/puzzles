@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	prefix := aoc.InputToString(2016, 5)
+	prefix := puz.InputToString(2016, 5)
 
 	password := make([]uint8, 8)
 	for nonce, count := 0, 0; count < 8; nonce++ {

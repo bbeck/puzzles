@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const N = 1000000000000
 
 func main() {
-	input := aoc.InputToString(2022, 17)
+	input := puz.InputToString(2022, 17)
 
 	var heights []int          // heights after each turn
 	turns := make(map[Key]int) // memoization table

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
-	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/puz/cpus"
 	"sync"
 )
 
@@ -11,13 +11,13 @@ const N = 5
 
 func main() {
 	var best int
-	aoc.EnumeratePermutations(N, func(perm []int) bool {
+	puz.EnumeratePermutations(N, func(perm []int) bool {
 		settings := make([]int, N)
 		for i := 0; i < len(perm); i++ {
 			settings[i] = perm[i] + 5
 		}
 
-		best = aoc.Max(best, TestSettings(settings))
+		best = puz.Max(best, TestSettings(settings))
 		return false
 	})
 	fmt.Println(best)

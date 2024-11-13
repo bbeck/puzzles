@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 type DisjointSet[T comparable] struct {
 	parents map[T]T

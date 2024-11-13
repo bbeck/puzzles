@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -36,11 +36,11 @@ type Range struct {
 }
 
 func InputToRanges() []Range {
-	return aoc.InputLinesTo(2016, 20, func(line string) Range {
+	return puz.InputLinesTo(2016, 20, func(line string) Range {
 		start, end, _ := strings.Cut(line, "-")
 		return Range{
-			Start: aoc.ParseInt(start),
-			End:   aoc.ParseInt(end),
+			Start: puz.ParseInt(start),
+			End:   puz.ParseInt(end),
 		}
 	})
 }

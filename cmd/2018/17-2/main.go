@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"log"
 )
 
@@ -90,23 +90,23 @@ const (
 	Flow
 )
 
-type World struct{ aoc.Grid2D[int] }
+type World struct{ puz.Grid2D[int] }
 
 func InputToWorld() World {
 	// Convert the input into line segments
-	type Line []aoc.Point2D
-	lines := aoc.InputLinesTo(2018, 17, func(s string) Line {
+	type Line []puz.Point2D
+	lines := puz.InputLinesTo(2018, 17, func(s string) Line {
 		var x1, x2, y1, y2 int
 		var line Line
 		if _, err := fmt.Sscanf(s, "x=%d, y=%d..%d", &x1, &y1, &y2); err == nil {
 			for y := y1; y <= y2; y++ {
-				line = append(line, aoc.Point2D{X: x1, Y: y})
+				line = append(line, puz.Point2D{X: x1, Y: y})
 			}
 			return line
 		}
 		if _, err := fmt.Sscanf(s, "y=%d, x=%d..%d", &y1, &x1, &x2); err == nil {
 			for x := x1; x <= x2; x++ {
-				line = append(line, aoc.Point2D{X: x, Y: y1})
+				line = append(line, puz.Point2D{X: x, Y: y1})
 			}
 			return line
 		}
@@ -115,18 +115,18 @@ func InputToWorld() World {
 	})
 
 	// Determine the bounding box of the line segments.
-	var ps []aoc.Point2D
+	var ps []puz.Point2D
 	for _, line := range lines {
 		ps = append(ps, line...)
 	}
-	tl, br := aoc.GetBounds(ps)
+	tl, br := puz.GetBounds(ps)
 
 	// Determine the offsets to apply to each line segment that removes empty
 	// space to the left of them.
 	x0, y0 := tl.X-1, tl.Y
 
 	// Build the world from the line segments.
-	world := aoc.NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
+	world := puz.NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
 	for _, line := range lines {
 		for _, p := range line {
 			world.Set(p.X-x0, p.Y-y0, Wall)

@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ps := aoc.SetFrom(InputToPoints()...)
+	ps := puz.SetFrom(InputToPoints()...)
 
 	var count int
 	for p := range ps {
@@ -19,9 +19,9 @@ func main() {
 	fmt.Println(count)
 }
 
-func InputToPoints() []aoc.Point3D {
-	return aoc.InputLinesTo(2022, 18, func(line string) aoc.Point3D {
-		var p aoc.Point3D
+func InputToPoints() []puz.Point3D {
+	return puz.InputLinesTo(2022, 18, func(line string) puz.Point3D {
+		var p puz.Point3D
 		fmt.Sscanf(line, "%d,%d,%d", &p.X, &p.Y, &p.Z)
 		return p
 	})

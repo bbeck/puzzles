@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
 func main() {
-	var turtle aoc.Turtle
+	var turtle puz.Turtle
 	for _, direction := range InputToDirections() {
 		switch direction.Turn {
 		case 'L':
@@ -18,7 +18,7 @@ func main() {
 		turtle.Forward(direction.Steps)
 	}
 
-	fmt.Println(aoc.Origin2D.ManhattanDistance(turtle.Location))
+	fmt.Println(puz.Origin2D.ManhattanDistance(turtle.Location))
 }
 
 type Direction struct {
@@ -27,14 +27,14 @@ type Direction struct {
 }
 
 func InputToDirections() []Direction {
-	input := aoc.InputToString(2016, 1)
+	input := puz.InputToString(2016, 1)
 	input = strings.ReplaceAll(input, ",", "")
 
 	var directions []Direction
 	for _, part := range strings.Fields(input) {
 		directions = append(directions, Direction{
 			Turn:  part[0],
-			Steps: aoc.ParseInt(part[1:]),
+			Steps: puz.ParseInt(part[1:]),
 		})
 	}
 

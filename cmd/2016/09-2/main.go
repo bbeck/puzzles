@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	s := aoc.InputToString(2016, 9)
+	s := puz.InputToString(2016, 9)
 	fmt.Println(DecompressedLength(s))
 }
 

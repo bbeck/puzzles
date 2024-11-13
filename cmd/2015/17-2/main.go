@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 )
 
 func main() {
-	sizes := aoc.InputToInts(2015, 17)
+	sizes := puz.InputToInts(2015, 17)
 
 	best := math.MaxInt
 	ways := make(map[int]int)
@@ -19,7 +19,7 @@ func main() {
 			}
 		}
 
-		best = aoc.Min(best, count)
+		best = puz.Min(best, count)
 		ways[count]++
 	})
 

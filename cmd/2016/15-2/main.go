@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -24,7 +24,7 @@ func main() {
 		positions = append(positions, disc.Size)
 	}
 
-	tm := aoc.ChineseRemainderTheorem(offsets, positions)
+	tm := puz.ChineseRemainderTheorem(offsets, positions)
 	fmt.Println(tm)
 }
 
@@ -33,7 +33,7 @@ type Disc struct {
 }
 
 func InputToDiscs() []Disc {
-	return aoc.InputLinesTo(2016, 15, func(line string) Disc {
+	return puz.InputLinesTo(2016, 15, func(line string) Disc {
 		line = strings.ReplaceAll(line, "Disc #", "")
 		line = strings.ReplaceAll(line, "has ", "")
 		line = strings.ReplaceAll(line, "positions; at time=", "")

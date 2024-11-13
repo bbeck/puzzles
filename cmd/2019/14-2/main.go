@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func Reduce(chemicals map[string]int, reactions map[string]Reaction) {
 				continue
 			}
 
-			multiplier := aoc.Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
+			multiplier := puz.Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
 			chemicals[reaction.Output.Symbol] -= multiplier * reaction.Output.Quantity
 			for _, input := range reaction.Inputs {
 				chemicals[input.Symbol] += multiplier * input.Quantity
@@ -56,7 +56,7 @@ type Reaction struct {
 }
 
 func InputToReactions() []Reaction {
-	return aoc.InputLinesTo(2019, 14, func(line string) Reaction {
+	return puz.InputLinesTo(2019, 14, func(line string) Reaction {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 
 		var reaction Reaction
@@ -64,13 +64,13 @@ func InputToReactions() []Reaction {
 			quantity, symbol, _ := strings.Cut(s, " ")
 			reaction.Inputs = append(reaction.Inputs, Chemical{
 				Symbol:   symbol,
-				Quantity: aoc.ParseInt(quantity),
+				Quantity: puz.ParseInt(quantity),
 			})
 		}
 
 		quantity, symbol, _ := strings.Cut(rhs, " ")
 		reaction.Output.Symbol = symbol
-		reaction.Output.Quantity = aoc.ParseInt(quantity)
+		reaction.Output.Quantity = puz.ParseInt(quantity)
 
 		return reaction
 	})

@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	adapters := aoc.InputToInts(2020, 10)
+	adapters := puz.InputToInts(2020, 10)
 	adapters = append(adapters, 0)
-	adapters = append(adapters, aoc.Max(adapters...)+3)
+	adapters = append(adapters, puz.Max(adapters...)+3)
 	sort.Ints(adapters)
 
-	var fc aoc.FrequencyCounter[int]
+	var fc puz.FrequencyCounter[int]
 	for i := 1; i < len(adapters); i++ {
 		fc.Add(adapters[i] - adapters[i-1])
 	}

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -34,8 +34,8 @@ func main() {
 
 func InputToInts() []int {
 	var ns []int
-	for _, s := range strings.Split(aoc.InputToString(2020, 15), ",") {
-		ns = append(ns, aoc.ParseInt(s))
+	for _, s := range strings.Split(puz.InputToString(2020, 15), ",") {
+		ns = append(ns, puz.ParseInt(s))
 	}
 	return ns
 }

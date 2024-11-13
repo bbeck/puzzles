@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -97,44 +97,44 @@ func main() {
 	// edge closest to the starting grid.  Based on our previous computation we
 	// know that when we reach one of these grids we'll have just enough steps
 	// remaining to reach the other side.
-	total += Count(grid, aoc.Point2D{X: start.X, Y: N - 1}, N-1) // Top
-	total += Count(grid, aoc.Point2D{X: 0, Y: start.Y}, N-1)     // Right
-	total += Count(grid, aoc.Point2D{X: start.X, Y: 0}, N-1)     // Bottom
-	total += Count(grid, aoc.Point2D{X: N - 1, Y: start.Y}, N-1) // Left
+	total += Count(grid, puz.Point2D{X: start.X, Y: N - 1}, N-1) // Top
+	total += Count(grid, puz.Point2D{X: 0, Y: start.Y}, N-1)     // Right
+	total += Count(grid, puz.Point2D{X: start.X, Y: 0}, N-1)     // Bottom
+	total += Count(grid, puz.Point2D{X: N - 1, Y: start.Y}, N-1) // Left
 
 	// 4c. "Small" partially filled grids.  These will be first reached in the
 	// corner that is closest to the adjacent fully filled grid.  When the
 	// adjacent grid is reached there will be N-1 steps remaining, but since it is
 	// reached at the midpoint of a side, N/2 of those steps will have to be spent
 	// to get to the corner of the "small" grid.
-	total += small * Count(grid, aoc.Point2D{X: N - 1, Y: N - 1}, N/2-1) // Top left
-	total += small * Count(grid, aoc.Point2D{X: 0, Y: N - 1}, N/2-1)     // Top right
-	total += small * Count(grid, aoc.Point2D{X: 0, Y: 0}, N/2-1)         // Bottom right
-	total += small * Count(grid, aoc.Point2D{X: N - 1, Y: 0}, N/2-1)     // Bottom left
+	total += small * Count(grid, puz.Point2D{X: N - 1, Y: N - 1}, N/2-1) // Top left
+	total += small * Count(grid, puz.Point2D{X: 0, Y: N - 1}, N/2-1)     // Top right
+	total += small * Count(grid, puz.Point2D{X: 0, Y: 0}, N/2-1)         // Bottom right
+	total += small * Count(grid, puz.Point2D{X: N - 1, Y: 0}, N/2-1)     // Bottom left
 
 	// 4d. "Large" partially filled grids.  These behave similarly to the "small"
 	// grids, however they can be first reached by an interior grid.  This means
 	// that they will have an additional N steps available to them.
-	total += large * Count(grid, aoc.Point2D{X: N - 1, Y: N - 1}, N+N/2-1) // Top left
-	total += large * Count(grid, aoc.Point2D{X: 0, Y: N - 1}, N+N/2-1)     // Top right
-	total += large * Count(grid, aoc.Point2D{X: 0, Y: 0}, N+N/2-1)         // Bottom right
-	total += large * Count(grid, aoc.Point2D{X: N - 1, Y: 0}, N+N/2-1)     // Bottom left
+	total += large * Count(grid, puz.Point2D{X: N - 1, Y: N - 1}, N+N/2-1) // Top left
+	total += large * Count(grid, puz.Point2D{X: 0, Y: N - 1}, N+N/2-1)     // Top right
+	total += large * Count(grid, puz.Point2D{X: 0, Y: 0}, N+N/2-1)         // Bottom right
+	total += large * Count(grid, puz.Point2D{X: N - 1, Y: 0}, N+N/2-1)     // Bottom left
 
 	fmt.Println(total)
 }
 
-func Count(g aoc.Grid2D[string], p aoc.Point2D, n int) int {
+func Count(g puz.Grid2D[string], p puz.Point2D, n int) int {
 	// To run more quickly use the parity property to prune the search space.  If
 	// a point is visited with an even number of steps remaining then it is part
 	// of the final set of points that will be reachable when there are no steps
 	// remaining.
 	type State struct {
-		aoc.Point2D
+		puz.Point2D
 		N int
 	}
 
-	var seen aoc.Set[aoc.Point2D]
-	var counted aoc.Set[aoc.Point2D]
+	var seen puz.Set[puz.Point2D]
+	var counted puz.Set[puz.Point2D]
 
 	isGoal := func(s State) bool {
 		seen.Add(s.Point2D)
@@ -151,7 +151,7 @@ func Count(g aoc.Grid2D[string], p aoc.Point2D, n int) int {
 		}
 
 		var children []State
-		g.ForEachOrthogonalNeighbor(s.Point2D, func(q aoc.Point2D, ch string) {
+		g.ForEachOrthogonalNeighbor(s.Point2D, func(q puz.Point2D, ch string) {
 			if !seen.Contains(q) && ch != "#" {
 				children = append(children, State{q, s.N - 1})
 			}
@@ -160,15 +160,15 @@ func Count(g aoc.Grid2D[string], p aoc.Point2D, n int) int {
 		return children
 	}
 
-	aoc.BreadthFirstSearch(State{p, n}, children, isGoal)
+	puz.BreadthFirstSearch(State{p, n}, children, isGoal)
 	return len(counted)
 }
 
-func InputToGridAndStartingLocation() (aoc.Grid2D[string], aoc.Point2D) {
-	grid := aoc.InputToStringGrid2D(2023, 21)
+func InputToGridAndStartingLocation() (puz.Grid2D[string], puz.Point2D) {
+	grid := puz.InputToStringGrid2D(2023, 21)
 
-	var start aoc.Point2D
-	grid.ForEachPoint(func(p aoc.Point2D, s string) {
+	var start puz.Point2D
+	grid.ForEachPoint(func(p puz.Point2D, s string) {
 		if s == "S" {
 			start = p
 		}

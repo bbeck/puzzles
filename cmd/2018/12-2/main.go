@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	// iterate until we determine we've repeated a state and then from there
 	// we'll calculate how many more steps we need to move to finish the
 	// evolution.
-	var seen aoc.Set[string]
+	var seen puz.Set[string]
 	var n int
 	for {
 		state = Next(state, rules)
@@ -34,10 +34,10 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Next(state aoc.Set[int], rules map[string]bool) aoc.Set[int] {
-	min, max := aoc.Min(state.Entries()...), aoc.Max(state.Entries()...)
+func Next(state puz.Set[int], rules map[string]bool) puz.Set[int] {
+	min, max := puz.Min(state.Entries()...), puz.Max(state.Entries()...)
 
-	var next aoc.Set[int]
+	var next puz.Set[int]
 	for i := min - 4; i <= max+4; i++ {
 		if rules[RangeKey(state, i-2, i+2)] {
 			next.Add(i)
@@ -46,7 +46,7 @@ func Next(state aoc.Set[int], rules map[string]bool) aoc.Set[int] {
 	return next
 }
 
-func RangeKey(state aoc.Set[int], min, max int) string {
+func RangeKey(state puz.Set[int], min, max int) string {
 	var sb strings.Builder
 	for i := min; i <= max; i++ {
 		if state.Contains(i) {
@@ -58,16 +58,16 @@ func RangeKey(state aoc.Set[int], min, max int) string {
 	return sb.String()
 }
 
-func Key(state aoc.Set[int]) string {
-	min, max := aoc.Min[int](state.Entries()...), aoc.Max[int](state.Entries()...)
+func Key(state puz.Set[int]) string {
+	min, max := puz.Min[int](state.Entries()...), puz.Max[int](state.Entries()...)
 	return RangeKey(state, min, max)
 }
 
-func InputToState() aoc.Set[int] {
-	line := aoc.InputToLines(2018, 12)[0]
+func InputToState() puz.Set[int] {
+	line := puz.InputToLines(2018, 12)[0]
 	line = strings.ReplaceAll(line, "initial state: ", "")
 
-	var state aoc.Set[int]
+	var state puz.Set[int]
 	for i, c := range line {
 		if c == '#' {
 			state.Add(i)
@@ -78,7 +78,7 @@ func InputToState() aoc.Set[int] {
 
 func InputToRules() map[string]bool {
 	rules := make(map[string]bool)
-	for _, line := range aoc.InputToLines(2018, 12)[2:] {
+	for _, line := range puz.InputToLines(2018, 12)[2:] {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 		rules[lhs] = rhs == "#"
 	}

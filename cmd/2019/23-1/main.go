@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
-	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/puz/cpus"
 	"runtime"
 )
 
 func main() {
-	inputs := map[int]chan aoc.Point2D{255: make(chan aoc.Point2D)}
+	inputs := map[int]chan puz.Point2D{255: make(chan puz.Point2D)}
 	var computers []*cpus.IntcodeCPU
 
 	for n := 0; n < 50; n++ {
-		inputs[n] = make(chan aoc.Point2D)
+		inputs[n] = make(chan puz.Point2D)
 		computers = append(computers, NewComputer(n, inputs))
 	}
 
@@ -28,11 +28,11 @@ func main() {
 	fmt.Println(p.Y)
 }
 
-func NewComputer(id int, inputs map[int]chan aoc.Point2D) *cpus.IntcodeCPU {
+func NewComputer(id int, inputs map[int]chan puz.Point2D) *cpus.IntcodeCPU {
 	var buffer []int
 
 	var hasSentId bool
-	var point *aoc.Point2D
+	var point *puz.Point2D
 
 	return &cpus.IntcodeCPU{
 		Memory: cpus.InputToIntcodeMemory(2019, 23),
@@ -67,7 +67,7 @@ func NewComputer(id int, inputs map[int]chan aoc.Point2D) *cpus.IntcodeCPU {
 				addr, x, y := buffer[0], buffer[1], buffer[2]
 				buffer = nil
 
-				inputs[addr] <- aoc.Point2D{X: x, Y: y}
+				inputs[addr] <- puz.Point2D{X: x, Y: y}
 			}
 		},
 	}

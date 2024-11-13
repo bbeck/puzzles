@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	var on []aoc.Cube
+	var on []puz.Cube
 	for _, c := range InputToCommands() {
 		// Remove this command's cube from any cube that's already on so that we
 		// don't double count the "on" volume.
-		var next []aoc.Cube
+		var next []puz.Cube
 		for _, other := range on {
 			for _, child := range other.Subtract(c.Cube) {
 				next = append(next, child)
@@ -34,11 +34,11 @@ func main() {
 
 type Command struct {
 	State string
-	Cube  aoc.Cube
+	Cube  puz.Cube
 }
 
 func InputToCommands() []Command {
-	return aoc.InputLinesTo(2021, 22, func(line string) Command {
+	return puz.InputLinesTo(2021, 22, func(line string) Command {
 		var c Command
 		fmt.Sscanf(line, "%s x=%d..%d,y=%d..%d,z=%d..%d", &c.State,
 			&c.Cube.MinX, &c.Cube.MaxX, &c.Cube.MinY,

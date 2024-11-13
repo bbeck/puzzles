@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	ds := InputToDigits()
-	offset := aoc.JoinDigits(ds[:7])
+	offset := puz.JoinDigits(ds[:7])
 
 	// The specified offset is >91% of the way through the list of repeated
 	// digits, implying that we're focusing on the tail of the transform.
@@ -33,13 +33,13 @@ func main() {
 		}
 	}
 
-	fmt.Println(aoc.JoinDigits(digits[:8]))
+	fmt.Println(puz.JoinDigits(digits[:8]))
 }
 
 func InputToDigits() []int {
 	var digits []int
-	for _, s := range aoc.InputToString(2019, 16) {
-		digits = append(digits, aoc.ParseInt(string(s)))
+	for _, s := range puz.InputToString(2019, 16) {
+		digits = append(digits, puz.ParseInt(string(s)))
 	}
 
 	return digits

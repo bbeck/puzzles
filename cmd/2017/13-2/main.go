@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -45,13 +45,13 @@ type Layer struct {
 }
 
 func InputToLayers() []Layer {
-	return aoc.InputLinesTo(2017, 13, func(line string) Layer {
+	return puz.InputLinesTo(2017, 13, func(line string) Layer {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 
 		return Layer{
-			Depth: aoc.ParseInt(fields[0]),
-			Range: aoc.ParseInt(fields[1]),
+			Depth: puz.ParseInt(fields[0]),
+			Range: puz.ParseInt(fields[1]),
 		}
 	})
 }

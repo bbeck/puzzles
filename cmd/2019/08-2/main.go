@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const (
@@ -46,8 +46,8 @@ type Layer []int
 
 func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range aoc.InputToString(2019, 8) {
-		digits = append(digits, aoc.ParseInt(string(b)))
+	for _, b := range puz.InputToString(2019, 8) {
+		digits = append(digits, puz.ParseInt(string(b)))
 	}
 
 	var layers []Layer

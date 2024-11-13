@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -12,28 +12,28 @@ func main() {
 
 	// Find the starting point for the flood fill.  Look for a point in the top
 	// row that has an empty point below it.
-	var start aoc.Point2D
+	var start puz.Point2D
 	for x := 0; x < grid.Width; x++ {
 		if grid.Get(x, 0) == "#" && grid.Get(x, 1) == "." {
-			start = aoc.Point2D{X: x, Y: 1}
+			start = puz.Point2D{X: x, Y: 1}
 			break
 		}
 	}
 
 	// Use a BFS to find the interior points of the polygon.
-	var interior aoc.Set[aoc.Point2D]
-	aoc.BreadthFirstSearch(
+	var interior puz.Set[puz.Point2D]
+	puz.BreadthFirstSearch(
 		start,
-		func(p aoc.Point2D) []aoc.Point2D {
-			var children []aoc.Point2D
-			grid.ForEachOrthogonalNeighbor(p, func(q aoc.Point2D, s string) {
+		func(p puz.Point2D) []puz.Point2D {
+			var children []puz.Point2D
+			grid.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, s string) {
 				if s == "." {
 					children = append(children, q)
 				}
 			})
 			return children
 		},
-		func(p aoc.Point2D) bool {
+		func(p puz.Point2D) bool {
 			interior.Add(p)
 			return false
 		},
@@ -51,31 +51,31 @@ func main() {
 	fmt.Println(len(interior) + perimeter)
 }
 
-func PlanToGrid(plan []Step) aoc.Grid2D[string] {
-	var points aoc.Set[aoc.Point2D]
-	var current aoc.Point2D
+func PlanToGrid(plan []Step) puz.Grid2D[string] {
+	var points puz.Set[puz.Point2D]
+	var current puz.Point2D
 	for _, step := range plan {
 		var dx, dy int
 		switch step.Heading {
-		case aoc.Up:
+		case puz.Up:
 			dy = -1
-		case aoc.Right:
+		case puz.Right:
 			dx = 1
-		case aoc.Down:
+		case puz.Down:
 			dy = 1
-		case aoc.Left:
+		case puz.Left:
 			dx = -1
 		}
 
 		for n := 0; n < step.Length; n++ {
-			current = aoc.Point2D{X: current.X + dx, Y: current.Y + dy}
+			current = puz.Point2D{X: current.X + dx, Y: current.Y + dy}
 			points.Add(current)
 		}
 	}
 
-	tl, br := aoc.GetBounds(points.Entries())
+	tl, br := puz.GetBounds(points.Entries())
 
-	grid := aoc.NewGrid2D[string](br.X-tl.X+1, br.Y-tl.Y+1)
+	grid := puz.NewGrid2D[string](br.X-tl.X+1, br.Y-tl.Y+1)
 	grid.ForEach(func(x int, y int, _ string) {
 		grid.Set(x, y, ".")
 	})
@@ -87,27 +87,27 @@ func PlanToGrid(plan []Step) aoc.Grid2D[string] {
 }
 
 type Step struct {
-	Heading aoc.Heading
+	Heading puz.Heading
 	Length  int
 	Color   string
 }
 
 func InputToPlan() []Step {
-	parseHeading := func(s string) aoc.Heading {
+	parseHeading := func(s string) puz.Heading {
 		switch s {
 		case "U":
-			return aoc.Up
+			return puz.Up
 		case "R":
-			return aoc.Right
+			return puz.Right
 		case "D":
-			return aoc.Down
+			return puz.Down
 		case "L":
-			return aoc.Left
+			return puz.Left
 		}
 		return -1
 	}
 
-	return aoc.InputLinesTo(2023, 18, func(line string) Step {
+	return puz.InputLinesTo(2023, 18, func(line string) Step {
 		var heading, color string
 		var length int
 

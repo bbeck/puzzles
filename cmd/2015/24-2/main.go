@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 )
 
 func main() {
-	packages := aoc.InputToInts(2015, 24)
-	target := aoc.Sum(packages...) / 4
+	packages := puz.InputToInts(2015, 24)
+	target := puz.Sum(packages...) / 4
 
 	// Find all candidates for the passenger compartment.  This partition should
 	// contain the fewest packages possible, so once a partition is found we'll
@@ -27,7 +27,7 @@ func main() {
 		}
 
 		size = len(partition)
-		entanglement := aoc.Product(partition...)
+		entanglement := puz.Product(partition...)
 		if entanglement >= best {
 			return true
 		}
@@ -60,17 +60,17 @@ func main() {
 }
 
 func FindPartitions(weight int, packages []int, fn func(partition, remaining []int) bool) {
-	all := aoc.SetFrom(packages...)
+	all := puz.SetFrom(packages...)
 
 	var done bool
 	for size := 1; !done && size < len(packages); size++ {
-		aoc.EnumerateCombinations(len(packages), size, func(indices []int) bool {
+		puz.EnumerateCombinations(len(packages), size, func(indices []int) bool {
 			partition := make([]int, 0, size)
 			for _, index := range indices {
 				partition = append(partition, packages[index])
 			}
 
-			if aoc.Sum(partition...) == weight {
+			if puz.Sum(partition...) == weight {
 				remaining := all.DifferenceElems(partition...)
 				done = fn(partition, remaining.Entries())
 			}

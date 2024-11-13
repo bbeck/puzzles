@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const N = 5
@@ -15,7 +15,7 @@ func main() {
 	// we seek.
 	grid := InputToGrid()
 
-	var seen aoc.Set[aoc.BitSet]
+	var seen puz.Set[puz.BitSet]
 	seen.Add(grid)
 
 	for {
@@ -28,7 +28,7 @@ func main() {
 	fmt.Println(grid)
 }
 
-func Next(grid aoc.BitSet) aoc.BitSet {
+func Next(grid puz.BitSet) puz.BitSet {
 	get := func(x, y int) int {
 		if 0 <= x && x < N && 0 <= y && y < N && grid.Contains(y*N+x) {
 			return 1
@@ -36,7 +36,7 @@ func Next(grid aoc.BitSet) aoc.BitSet {
 		return 0
 	}
 
-	var next aoc.BitSet
+	var next puz.BitSet
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
 			count := get(x-1, y) + get(x+1, y) + get(x, y-1) + get(x, y+1)
@@ -51,9 +51,9 @@ func Next(grid aoc.BitSet) aoc.BitSet {
 	return next
 }
 
-func InputToGrid() aoc.BitSet {
-	var grid aoc.BitSet
-	for y, line := range aoc.InputToLines(2019, 24) {
+func InputToGrid() puz.BitSet {
+	var grid puz.BitSet
+	for y, line := range puz.InputToLines(2019, 24) {
 		for x, c := range line {
 			if c == '#' {
 				grid = grid.Add(y*N + x)

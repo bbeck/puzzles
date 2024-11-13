@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ns := aoc.InputToInts(2020, 9)
+	ns := puz.InputToInts(2020, 9)
 
 	var target int
 	for i := 25; i < len(ns); i++ {
@@ -17,13 +17,13 @@ func main() {
 	}
 
 	start, end := FindRange(ns, target)
-	min := aoc.Min(ns[start:end]...)
-	max := aoc.Max(ns[start:end]...)
+	min := puz.Min(ns[start:end]...)
+	max := puz.Max(ns[start:end]...)
 	fmt.Println(min + max)
 }
 
 func SumExists(ns []int, target int) bool {
-	var seen aoc.Set[int]
+	var seen puz.Set[int]
 	for _, n := range ns {
 		if seen.Contains(target - n) {
 			return true

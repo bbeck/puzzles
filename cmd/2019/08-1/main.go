@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 func main() {
 	layers := InputToLayers()
 
-	counters := make([]aoc.FrequencyCounter[int], len(layers))
+	counters := make([]puz.FrequencyCounter[int], len(layers))
 	for i, layer := range layers {
 		for _, b := range layer {
 			counters[i].Add(b)
@@ -33,8 +33,8 @@ type Layer []int
 
 func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range aoc.InputToString(2019, 8) {
-		digits = append(digits, aoc.ParseInt(string(b)))
+	for _, b := range puz.InputToString(2019, 8) {
+		digits = append(digits, puz.ParseInt(string(b)))
 	}
 
 	var layers []Layer

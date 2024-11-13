@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	area := aoc.Make2D[int](1001, 1001)
+	area := puz.Make2D[int](1001, 1001)
 	for _, claim := range InputToClaims() {
 		for dx := 0; dx < claim.Width; dx++ {
 			for dy := 0; dy < claim.Height; dy++ {
@@ -28,12 +28,12 @@ func main() {
 
 type Claim struct {
 	ID            string
-	TL            aoc.Point2D
+	TL            puz.Point2D
 	Width, Height int
 }
 
 func InputToClaims() []Claim {
-	return aoc.InputLinesTo(2018, 3, func(line string) Claim {
+	return puz.InputLinesTo(2018, 3, func(line string) Claim {
 		var claim Claim
 		fmt.Sscanf(line, "#%s @ %d,%d: %dx%d", &claim.ID, &claim.TL.X, &claim.TL.Y, &claim.Width, &claim.Height)
 		return claim

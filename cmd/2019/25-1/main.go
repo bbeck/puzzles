@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
-	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/puz/cpus"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -31,14 +31,14 @@ func main() {
 	//
 	// Since the map is quite small our approach will be to try all possible
 	// combinations of items to pick up.
-	var ignore aoc.Set[string]
+	var ignore puz.Set[string]
 	ignore.Add("giant electromagnet")
 	ignore.Add("escape pod")
 	ignore.Add("molten lava")
 	ignore.Add("photons")
 	ignore.Add("infinite loop")
 
-	var path []aoc.Heading
+	var path []puz.Heading
 	var items []string
 
 	var lens []int
@@ -53,8 +53,8 @@ func main() {
 
 	var code *string
 	for k := 1; k < len(items) && code == nil; k++ {
-		aoc.EnumerateCombinations(len(items), k, func(ints []int) bool {
-			var pickup aoc.Set[string]
+		puz.EnumerateCombinations(len(items), k, func(ints []int) bool {
+			var pickup puz.Set[string]
 			for _, n := range ints {
 				pickup.Add(items[n])
 			}
@@ -69,7 +69,7 @@ func main() {
 			}
 
 			// Try moving into the pressure sensitive room
-			current = robot.Move(aoc.Right)
+			current = robot.Move(puz.Right)
 
 			if robot.Code != "" {
 				code = &robot.Code
@@ -83,15 +83,15 @@ func main() {
 	fmt.Println(*code)
 }
 
-func Explore(ignore aoc.Set[string]) ([]aoc.Heading, []string) {
+func Explore(ignore puz.Set[string]) ([]puz.Heading, []string) {
 	// We'll randomly walk through the map taking note of which item's we've
 	// seen.  Once we end up in the security checkpoint after having seen all
 	// 13 items then we'll return along that path.  We'll avoid the room with the
 	// pressure sensitive floor as well since we'll get trapped in it without
 	// the right items.  The pressure sensitive floor room is to the right of
 	// the security checkpoint.
-	var items aoc.Set[string]
-	var path []aoc.Heading
+	var items puz.Set[string]
+	var path []puz.Heading
 
 	robot, current := NewRobot()
 	for len(items) < 13 || current.ID != "Security Checkpoint" {
@@ -100,7 +100,7 @@ func Explore(ignore aoc.Set[string]) ([]aoc.Heading, []string) {
 		doors := current.Doors
 		if current.ID == "Security Checkpoint" {
 			// The pressure sensitive floor is to the east.  Avoid it.
-			doors = doors.DifferenceElems(aoc.Right)
+			doors = doors.DifferenceElems(puz.Right)
 		}
 
 		choices := doors.Entries()
@@ -115,8 +115,8 @@ func Explore(ignore aoc.Set[string]) ([]aoc.Heading, []string) {
 
 type Room struct {
 	ID    string
-	Doors aoc.Set[aoc.Heading]
-	Items aoc.Set[string]
+	Doors puz.Set[puz.Heading]
+	Items puz.Set[string]
 }
 
 type Robot struct {
@@ -166,16 +166,16 @@ func NewRobot() (*Robot, Room) {
 	return robot, <-rooms
 }
 
-func (r *Robot) Move(heading aoc.Heading) Room {
+func (r *Robot) Move(heading puz.Heading) Room {
 	var command string
 	switch heading {
-	case aoc.Up:
+	case puz.Up:
 		command = "north"
-	case aoc.Left:
+	case puz.Left:
 		command = "west"
-	case aoc.Right:
+	case puz.Right:
 		command = "east"
-	case aoc.Down:
+	case puz.Down:
 		command = "south"
 	}
 
@@ -208,19 +208,19 @@ func ParseRoom(s string) (Room, error) {
 	}
 	id := IDRegex.FindStringSubmatch(s)[1]
 
-	var doors aoc.Set[aoc.Heading]
-	var items aoc.Set[string]
+	var doors puz.Set[puz.Heading]
+	var items puz.Set[string]
 	for _, matches := range ListRegex.FindAllStringSubmatch(s, -1) {
 		for _, match := range matches[1:] {
 			switch match {
 			case "north":
-				doors.Add(aoc.Up)
+				doors.Add(puz.Up)
 			case "west":
-				doors.Add(aoc.Left)
+				doors.Add(puz.Left)
 			case "east":
-				doors.Add(aoc.Right)
+				doors.Add(puz.Right)
 			case "south":
-				doors.Add(aoc.Down)
+				doors.Add(puz.Down)
 			default:
 				items.Add(match)
 			}

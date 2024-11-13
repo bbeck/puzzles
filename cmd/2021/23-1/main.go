@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const (
@@ -17,13 +17,13 @@ func main() {
 		var cost int
 		for _, p := range Hallway {
 			if kind := s.Board[p.X][p.Y]; kind != '.' {
-				cost += aoc.Abs(Rooms[kind][0].X-p.X) * Energy[kind]
+				cost += puz.Abs(Rooms[kind][0].X-p.X) * Energy[kind]
 			}
 		}
 		for _, rs := range Rooms {
 			for _, p := range rs {
 				if kind := s.Board[p.X][p.Y]; kind != '.' {
-					cost += (aoc.Abs(Rooms[kind][0].X-p.X) + 2) * Energy[kind]
+					cost += (puz.Abs(Rooms[kind][0].X-p.X) + 2) * Energy[kind]
 				}
 			}
 		}
@@ -39,11 +39,11 @@ func main() {
 		return s.Board
 	}
 
-	_, energy, _ := aoc.AStarSearchWithIdentity(start, Children, IsGoal, cost, heuristic, id)
+	_, energy, _ := puz.AStarSearchWithIdentity(start, Children, IsGoal, cost, heuristic, id)
 	fmt.Println(energy)
 }
 
-var Hallway = []aoc.Point2D{
+var Hallway = []puz.Point2D{
 	{X: 1, Y: 1},
 	{X: 2, Y: 1},
 	{X: 4, Y: 1},
@@ -53,7 +53,7 @@ var Hallway = []aoc.Point2D{
 	{X: 11, Y: 1},
 }
 
-var Rooms = map[byte][]aoc.Point2D{
+var Rooms = map[byte][]puz.Point2D{
 	'A': {{X: 3, Y: 2}, {X: 3, Y: 3}},
 	'B': {{X: 5, Y: 2}, {X: 5, Y: 3}},
 	'C': {{X: 7, Y: 2}, {X: 7, Y: 3}},
@@ -84,7 +84,7 @@ func Children(s State) []State {
 		}
 
 		var occupied bool
-		var target aoc.Point2D
+		var target puz.Point2D
 		for _, r := range Rooms[kind] {
 			k := s.Board[r.X][r.Y]
 			if k == '.' {
@@ -105,7 +105,7 @@ func Children(s State) []State {
 	// Consider moving the topmost entry in a room into the hallway, but only
 	// if it's the wrong kind or is blocking a wrong kind.
 	for kind, rs := range Rooms {
-		var top *aoc.Point2D
+		var top *puz.Point2D
 		var blocking bool
 
 		for _, r := range rs {
@@ -140,7 +140,7 @@ func Children(s State) []State {
 	return children
 }
 
-func HasPath(s State, a, b aoc.Point2D) (bool, int) {
+func HasPath(s State, a, b puz.Point2D) (bool, int) {
 	var length int
 	for a.Y != 1 {
 		a = a.Up()
@@ -176,7 +176,7 @@ func HasPath(s State, a, b aoc.Point2D) (bool, int) {
 	return true, length
 }
 
-func Move(board [W][H]byte, a, b aoc.Point2D) [W][H]byte {
+func Move(board [W][H]byte, a, b puz.Point2D) [W][H]byte {
 	board[b.X][b.Y] = board[a.X][a.Y]
 	board[a.X][a.Y] = '.'
 	return board
@@ -189,7 +189,7 @@ type State struct {
 
 func InputToInitialState() State {
 	var board [W][H]byte
-	for y, line := range aoc.InputToLines(2021, 23) {
+	for y, line := range puz.InputToLines(2021, 23) {
 		for x, c := range line {
 			board[x][y] = byte(c)
 		}

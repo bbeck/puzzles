@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -41,7 +41,7 @@ type Action struct {
 
 func InputToMachine() (string, int, map[string]map[int]Action) {
 	var lines []string
-	for _, line := range aoc.InputToLines(2017, 25) {
+	for _, line := range puz.InputToLines(2017, 25) {
 		line = strings.ReplaceAll(line, ".", "")
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, "-", "")

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 		starts = append(starts, s.Start)
 	}
 
-	fmt.Println(aoc.Min(starts...))
+	fmt.Println(puz.Min(starts...))
 }
 
 type Interval struct {
@@ -34,8 +34,8 @@ type Interval struct {
 
 func (i Interval) Intersect(j Interval) Interval {
 	return Interval{
-		Start: aoc.Max(i.Start, j.Start),
-		End:   aoc.Min(i.End, j.End),
+		Start: puz.Max(i.Start, j.Start),
+		End:   puz.Min(i.End, j.End),
 	}
 }
 
@@ -66,17 +66,17 @@ func (m Map) FindOutput(interval Interval) []Interval {
 }
 
 func InputToSeedsAndMaps() ([]Interval, []Map) {
-	lines := aoc.InputToLines(2023, 5)
+	lines := puz.InputToLines(2023, 5)
 
 	var seeds []Interval
 	fields := strings.Fields(lines[0][6:])
 	for i := 0; i < len(fields); i += 2 {
-		start := aoc.ParseInt(fields[i])
-		length := aoc.ParseInt(fields[i+1])
+		start := puz.ParseInt(fields[i])
+		length := puz.ParseInt(fields[i+1])
 		seeds = append(seeds, Interval{start, start + length - 1})
 	}
 
-	groups := aoc.Split(lines[1:], func(line string) bool {
+	groups := puz.Split(lines[1:], func(line string) bool {
 		return line != "" && !strings.Contains(line, "-to-")
 	})
 
@@ -85,9 +85,9 @@ func InputToSeedsAndMaps() ([]Interval, []Map) {
 		maps = append(maps, make([]Range, 0))
 		for _, line := range group {
 			nums := strings.Fields(line)
-			destination := aoc.ParseInt(nums[0])
-			source := aoc.ParseInt(nums[1])
-			length := aoc.ParseInt(nums[2])
+			destination := puz.ParseInt(nums[0])
+			source := puz.ParseInt(nums[1])
+			length := puz.ParseInt(nums[2])
 
 			maps[i] = append(maps[i], Range{
 				Source:      Interval{source, source + length - 1},

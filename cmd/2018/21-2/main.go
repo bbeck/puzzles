@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -51,7 +51,7 @@ func main() {
 
 	// Visit is called at the end of each of the outermost iterations of the
 	// program.  Its return value determines if the program should terminate.
-	var seen aoc.Set[uint]
+	var seen puz.Set[uint]
 	var last uint
 	visit := func(d uint) bool {
 		if !seen.Add(d) {

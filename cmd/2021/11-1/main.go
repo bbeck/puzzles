@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -45,9 +45,9 @@ func (o *Octopus) Reset() bool {
 	return false
 }
 
-func InputToGrid() aoc.Grid2D[*Octopus] {
-	grid := aoc.InputToGrid2D(2021, 11, func(x int, y int, s string) *Octopus {
-		return &Octopus{Energy: aoc.ParseInt(s)}
+func InputToGrid() puz.Grid2D[*Octopus] {
+	grid := puz.InputToGrid2D(2021, 11, func(x int, y int, s string) *Octopus {
+		return &Octopus{Energy: puz.ParseInt(s)}
 	})
 
 	grid.ForEach(func(x, y int, o *Octopus) {

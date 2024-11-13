@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const N = 4000000
@@ -39,11 +39,11 @@ func main() {
 	// Take a lines from each set and see if they intersect.  The two lines have
 	// equations y = x+bp and y = -x+bn, thus we know x = (bn-bp)/2 and
 	// y = (bn+bp)/2.
-	var p aoc.Point2D
+	var p puz.Point2D
 outer:
 	for i := 0; i < len(pos); i++ {
 		for j := 0; j < len(neg); j++ {
-			p = aoc.Point2D{
+			p = puz.Point2D{
 				X: (neg[j] - pos[i]) / 2,
 				Y: (neg[j] + pos[i]) / 2,
 			}
@@ -72,13 +72,13 @@ outer:
 }
 
 type Sensor struct {
-	aoc.Point2D
+	puz.Point2D
 	Radius int
 }
 
 func InputToSensors() []Sensor {
-	return aoc.InputLinesTo(2022, 15, func(line string) Sensor {
-		var sensor, beacon aoc.Point2D
+	return puz.InputLinesTo(2022, 15, func(line string) Sensor {
+		var sensor, beacon puz.Point2D
 		fmt.Sscanf(
 			line,
 			"Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d",

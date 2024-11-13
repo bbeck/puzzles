@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -35,24 +35,24 @@ func main() {
 	fmt.Println(interior + perimeter)
 }
 
-func PlanToVertices(plan []Step) []aoc.Point2D {
-	var current aoc.Point2D
+func PlanToVertices(plan []Step) []puz.Point2D {
+	var current puz.Point2D
 
-	ps := []aoc.Point2D{current}
+	ps := []puz.Point2D{current}
 	for _, step := range plan {
 		var dx, dy int
 		switch step.Heading {
-		case aoc.Up:
+		case puz.Up:
 			dy = -1
-		case aoc.Right:
+		case puz.Right:
 			dx = 1
-		case aoc.Down:
+		case puz.Down:
 			dy = 1
-		case aoc.Left:
+		case puz.Left:
 			dx = -1
 		}
 
-		current = aoc.Point2D{
+		current = puz.Point2D{
 			X: current.X + dx*step.Length,
 			Y: current.Y + dy*step.Length,
 		}
@@ -62,30 +62,30 @@ func PlanToVertices(plan []Step) []aoc.Point2D {
 }
 
 type Step struct {
-	Heading aoc.Heading
+	Heading puz.Heading
 	Length  int
 }
 
 func InputToPlan() []Step {
-	parseHeading := func(s string) aoc.Heading {
+	parseHeading := func(s string) puz.Heading {
 		switch s[len(s)-1] {
 		case '0':
-			return aoc.Right
+			return puz.Right
 		case '1':
-			return aoc.Down
+			return puz.Down
 		case '2':
-			return aoc.Left
+			return puz.Left
 		case '3':
-			return aoc.Up
+			return puz.Up
 		}
 		return -1
 	}
 
 	parseLength := func(s string) int {
-		return aoc.ParseIntWithBase(s[:5], 16)
+		return puz.ParseIntWithBase(s[:5], 16)
 	}
 
-	return aoc.InputLinesTo(2023, 18, func(line string) Step {
+	return puz.InputLinesTo(2023, 18, func(line string) Step {
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 		line = strings.ReplaceAll(line, "#", "")

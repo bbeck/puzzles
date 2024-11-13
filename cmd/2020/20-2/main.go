@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 )
 
@@ -10,18 +10,18 @@ func main() {
 	tiles := InputToTiles()
 	image := AssembleImage(tiles)
 
-	var in aoc.Set[aoc.Point2D] // The points in the image in a monster
+	var in puz.Set[puz.Point2D] // The points in the image in a monster
 
 	for _, m := range GetSeaMonster().Orientations() {
 		for y := 0; y < image.Height-m.Height; y++ {
 		next:
 			for x := 0; x < image.Width-m.Width; x++ {
-				var ps []aoc.Point2D // Points in the image for this monster
+				var ps []puz.Point2D // Points in the image for this monster
 
 				for my := 0; my < m.Height; my++ {
 					for mx := 0; mx < m.Width; mx++ {
 						if m.Get(mx, my) {
-							p := aoc.Point2D{X: x + mx, Y: y + my}
+							p := puz.Point2D{X: x + mx, Y: y + my}
 							ps = append(ps, p)
 
 							if !image.GetPoint(p) {
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	var count int
-	image.ForEachPoint(func(p aoc.Point2D, value bool) {
+	image.ForEachPoint(func(p puz.Point2D, value bool) {
 		if value && !in.Contains(p) {
 			count++
 		}
@@ -57,7 +57,7 @@ func AssembleImage(ts []Tile) Tile {
 
 	// The resulting image will be DxD tiles.
 	D := int(math.Sqrt(float64(len(ts))))
-	tiles := aoc.Make2D[Tile](D, D)
+	tiles := puz.Make2D[Tile](D, D)
 
 	// Helper to determine if a tile fits in a specific location in the grid.  If
 	// the tile fits, then a copy of the tile in the proper orientation is
@@ -80,7 +80,7 @@ func AssembleImage(ts []Tile) Tile {
 	// left corner of the image, so we'll have to try all possible orientations.
 outer:
 	for _, tl := range corner.Orientations() {
-		used := aoc.SetFrom(tl.ID)
+		used := puz.SetFrom(tl.ID)
 		tiles[0][0] = tl
 
 		for y := 0; y < D; y++ {
@@ -118,7 +118,7 @@ outer:
 	// big tile ignoring the borders of each tile.
 	N := corner.Width
 	I := D * (N - 2)
-	image := aoc.NewGrid2D[bool](I, I)
+	image := puz.NewGrid2D[bool](I, I)
 	for ty := 0; ty < D; ty++ {
 		for tx := 0; tx < D; tx++ {
 			tile := tiles[ty][tx]
@@ -158,7 +158,7 @@ func GetSeaMonster() Tile {
 		" #  #  #  #  #  #   ",
 	}
 
-	grid := aoc.NewGrid2D[bool](len(lines[0]), len(lines))
+	grid := puz.NewGrid2D[bool](len(lines[0]), len(lines))
 	grid.ForEach(func(x, y int, _ bool) {
 		grid.Set(x, y, lines[y][x] == '#')
 	})
@@ -167,7 +167,7 @@ func GetSeaMonster() Tile {
 
 type Tile struct {
 	ID int
-	aoc.Grid2D[bool]
+	puz.Grid2D[bool]
 }
 
 func (t Tile) Orientations() []Tile {
@@ -183,7 +183,7 @@ func (t Tile) Orientations() []Tile {
 
 func (t Tile) Flip() Tile {
 	W, H := t.Width, t.Height
-	s := Tile{ID: t.ID, Grid2D: aoc.NewGrid2D[bool](W, H)}
+	s := Tile{ID: t.ID, Grid2D: puz.NewGrid2D[bool](W, H)}
 	for y := 0; y < H; y++ {
 		for x := 0; x < W; x++ {
 			s.Set(x, y, t.Get(W-x-1, y))
@@ -225,7 +225,7 @@ func (t Tile) FitsOnLeft(s Tile) bool {
 }
 
 func InputToTiles() []Tile {
-	lines := aoc.InputToLines(2020, 20)
+	lines := puz.InputToLines(2020, 20)
 	N := len(lines[1])
 
 	var tiles []Tile
@@ -233,7 +233,7 @@ func InputToTiles() []Tile {
 		var id int
 		fmt.Sscanf(lines[base], "Tile %d:", &id)
 
-		grid := aoc.NewGrid2D[bool](N, N)
+		grid := puz.NewGrid2D[bool](N, N)
 		grid.ForEach(func(x, y int, _ bool) {
 			grid.Set(x, y, lines[base+y+1][x] == '#')
 		})

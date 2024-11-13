@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -63,13 +63,13 @@ type Value struct {
 
 func InputToValues() map[string]Value {
 	values := make(map[string]Value)
-	for _, line := range aoc.InputToLines(2022, 21) {
+	for _, line := range puz.InputToLines(2022, 21) {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 
 		var value Value
 		if len(fields) == 2 {
-			value = Value{IsConstant: true, Value: aoc.ParseInt(fields[1])}
+			value = Value{IsConstant: true, Value: puz.ParseInt(fields[1])}
 		} else {
 			value = Value{
 				IsExpression: true,

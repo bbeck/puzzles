@@ -3,7 +3,7 @@ package main
 import (
 	"container/ring"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 }
 
 func Destination(circle, removed *ring.Ring) int {
-	var used aoc.Set[int]
+	var used puz.Set[int]
 	removed.Do(func(value any) {
 		used.Add(value.(int))
 	})
@@ -50,7 +50,7 @@ func Destination(circle, removed *ring.Ring) int {
 }
 
 func InputToCircle() (*ring.Ring, map[int]*ring.Ring) {
-	digits := aoc.Digits(aoc.InputToInt(2020, 23))
+	digits := puz.Digits(puz.InputToInt(2020, 23))
 
 	circle := ring.New(len(digits))
 	index := make(map[int]*ring.Ring)

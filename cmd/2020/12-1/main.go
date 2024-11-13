@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ship := aoc.Turtle{Heading: aoc.Right}
+	ship := puz.Turtle{Heading: puz.Right}
 	for _, instruction := range InputToInstructions() {
 		switch instruction.Action {
 		case "N":
@@ -30,7 +30,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(aoc.Origin2D.ManhattanDistance(ship.Location))
+	fmt.Println(puz.Origin2D.ManhattanDistance(ship.Location))
 }
 
 type Instruction struct {
@@ -39,10 +39,10 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return aoc.InputLinesTo(2020, 12, func(line string) Instruction {
+	return puz.InputLinesTo(2020, 12, func(line string) Instruction {
 		return Instruction{
 			Action: string(line[0]),
-			Value:  aoc.ParseInt(line[1:]),
+			Value:  puz.ParseInt(line[1:]),
 		}
 	})
 }

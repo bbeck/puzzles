@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -15,19 +15,19 @@ func main() {
 	for _, target := range positions {
 		var cost int
 		for _, p := range positions {
-			cost += aoc.Abs(target - p)
+			cost += puz.Abs(target - p)
 		}
-		best = aoc.Min(best, cost)
+		best = puz.Min(best, cost)
 	}
 	fmt.Println(best)
 }
 
 func InputToPositions() []int {
-	line := aoc.InputToString(2021, 7)
+	line := puz.InputToString(2021, 7)
 
 	var fs []int
 	for _, s := range strings.Split(line, ",") {
-		fs = append(fs, aoc.ParseInt(s))
+		fs = append(fs, puz.ParseInt(s))
 	}
 	return fs
 }

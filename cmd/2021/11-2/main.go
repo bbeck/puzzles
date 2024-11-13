@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -10,12 +10,12 @@ func main() {
 
 	var tm int
 	for tm = 1; ; tm++ {
-		grid.ForEachPoint(func(_ aoc.Point2D, o *Octopus) {
+		grid.ForEachPoint(func(_ puz.Point2D, o *Octopus) {
 			o.Increase()
 		})
 
 		var count int
-		grid.ForEachPoint(func(_ aoc.Point2D, o *Octopus) {
+		grid.ForEachPoint(func(_ puz.Point2D, o *Octopus) {
 			if o.Reset() {
 				count++
 			}
@@ -50,13 +50,13 @@ func (o *Octopus) Reset() bool {
 	return false
 }
 
-func InputToGrid() aoc.Grid2D[*Octopus] {
-	grid := aoc.InputToGrid2D(2021, 11, func(x int, y int, s string) *Octopus {
-		return &Octopus{Energy: aoc.ParseInt(s)}
+func InputToGrid() puz.Grid2D[*Octopus] {
+	grid := puz.InputToGrid2D(2021, 11, func(x int, y int, s string) *Octopus {
+		return &Octopus{Energy: puz.ParseInt(s)}
 	})
 
-	grid.ForEachPoint(func(p aoc.Point2D, o *Octopus) {
-		grid.ForEachNeighborPoint(p, func(np aoc.Point2D, no *Octopus) {
+	grid.ForEachPoint(func(p puz.Point2D, o *Octopus) {
+		grid.ForEachNeighborPoint(p, func(np puz.Point2D, no *Octopus) {
 			o.Neighbors = append(o.Neighbors, no)
 		})
 	})

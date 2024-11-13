@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	sizes := aoc.InputToInts(2015, 17)
+	sizes := puz.InputToInts(2015, 17)
 
 	var count int
 	EnumerateWays(sizes, func(containers []bool) {

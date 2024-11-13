@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	var count int
-	for _, line := range aoc.InputToLines(2015, 5) {
+	for _, line := range puz.InputToLines(2015, 5) {
 		if IsNice(line) {
 			count++
 		}

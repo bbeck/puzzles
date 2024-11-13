@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ns := aoc.InputToInts(2020, 1)
+	ns := puz.InputToInts(2020, 1)
 	for i, a := range ns {
 		for j, b := range ns[i+1:] {
 			for _, c := range ns[j+1:] {

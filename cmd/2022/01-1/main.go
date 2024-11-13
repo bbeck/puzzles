@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	calories := aoc.InputLinesTo(2022, 1, func(line string) int {
+	calories := puz.InputLinesTo(2022, 1, func(line string) int {
 		if line == "" {
 			return 0
 		}
-		return aoc.ParseInt(line)
+		return puz.ParseInt(line)
 	})
 
 	var best int
-	for _, group := range aoc.Split(calories, func(n int) bool { return n != 0 }) {
-		best = aoc.Max(best, aoc.Sum(group...))
+	for _, group := range puz.Split(calories, func(n int) bool { return n != 0 }) {
+		best = puz.Max(best, puz.Sum(group...))
 	}
 	fmt.Println(best)
 }

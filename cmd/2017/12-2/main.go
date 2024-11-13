@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	g := InputToGraph()
 
-	var s aoc.DisjointSet[int]
+	var s puz.DisjointSet[int]
 	for node, children := range g {
 		for _, child := range children {
 			s.UnionWithAdd(node, child)
 		}
 	}
 
-	var roots aoc.Set[int]
+	var roots puz.Set[int]
 	for node := range g {
 		if root, found := s.Find(node); found {
 			roots.Add(root)
@@ -28,14 +28,14 @@ func main() {
 
 func InputToGraph() map[int][]int {
 	edges := make(map[int][]int)
-	for _, line := range aoc.InputToLines(2017, 12) {
+	for _, line := range puz.InputToLines(2017, 12) {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "<-> ", "")
 		fields := strings.Fields(line)
 
-		from := aoc.ParseInt(fields[0])
+		from := puz.ParseInt(fields[0])
 		for _, s := range fields[1:] {
-			to := aoc.ParseInt(s)
+			to := puz.ParseInt(s)
 			edges[from] = append(edges[from], to)
 		}
 	}

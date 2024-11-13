@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -23,8 +23,8 @@ func main() {
 			continue
 		}
 
-		min := aoc.Min(values[bot.ID][0], action.Value)
-		max := aoc.Max(values[bot.ID][0], action.Value)
+		min := puz.Min(values[bot.ID][0], action.Value)
+		max := puz.Max(values[bot.ID][0], action.Value)
 		values[bot.ID] = nil
 
 		if bot.LowKind == "bot" {
@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(aoc.Product(outputs[0], outputs[1], outputs[2]))
+	fmt.Println(puz.Product(outputs[0], outputs[1], outputs[2]))
 }
 
 type Bot struct {
@@ -50,7 +50,7 @@ type Bot struct {
 
 func InputToBots() map[int]Bot {
 	bots := make(map[int]Bot)
-	for _, line := range aoc.InputToLines(2016, 10) {
+	for _, line := range puz.InputToLines(2016, 10) {
 		if !strings.HasPrefix(line, "bot") {
 			continue
 		}
@@ -74,7 +74,7 @@ type Action struct {
 
 func InputToInitializations() []Action {
 	var initializations []Action
-	for _, line := range aoc.InputToLines(2016, 10) {
+	for _, line := range puz.InputToLines(2016, 10) {
 		if !strings.HasPrefix(line, "value") {
 			continue
 		}

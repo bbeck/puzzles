@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -31,15 +31,15 @@ func main() {
 		wins = append(wins, h2-h1+1)
 	}
 
-	fmt.Println(aoc.Product(wins...))
+	fmt.Println(puz.Product(wins...))
 }
 
 func InputToTimesAndDistances() ([]int, []int) {
 	var times, distances []int
-	for _, line := range aoc.InputToLines(2023, 6) {
+	for _, line := range puz.InputToLines(2023, 6) {
 		var nums []int
 		for _, field := range strings.Fields(line)[1:] {
-			nums = append(nums, aoc.ParseInt(field))
+			nums = append(nums, puz.ParseInt(field))
 		}
 
 		if strings.HasPrefix(line, "Time") {

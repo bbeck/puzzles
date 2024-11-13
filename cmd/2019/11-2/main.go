@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
-	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/puz/cpus"
 )
 
 func main() {
-	var robot aoc.Turtle
+	var robot puz.Turtle
 	var isPaintInstruction bool
 
 	// The robot starts on a white panel
-	panels := map[aoc.Point2D]int{
+	panels := map[puz.Point2D]int{
 		robot.Location: 1,
 	}
 
@@ -37,10 +37,10 @@ func main() {
 	}
 	cpu.Execute()
 
-	tl, br := aoc.GetBounds(aoc.GetMapKeys(panels))
+	tl, br := puz.GetBounds(puz.GetMapKeys(panels))
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			if panels[aoc.Point2D{X: x, Y: y}] == 1 {
+			if panels[puz.Point2D{X: x, Y: y}] == 1 {
 				fmt.Print("█")
 			} else {
 				fmt.Print(" ")

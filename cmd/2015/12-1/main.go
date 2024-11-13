@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	s := aoc.InputToString(2015, 12)
+	s := puz.InputToString(2015, 12)
 
 	var tree interface{}
 	if err := json.Unmarshal([]byte(s), &tree); err != nil {

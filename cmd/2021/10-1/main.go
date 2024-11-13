@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 var Closing = map[rune]rune{
@@ -21,8 +21,8 @@ var Points = map[rune]int{
 
 func main() {
 	var score int
-	for _, line := range aoc.InputToLines(2021, 10) {
-		var stack aoc.Stack[rune]
+	for _, line := range puz.InputToLines(2021, 10) {
+		var stack puz.Stack[rune]
 		for _, c := range line {
 			if closing, isOpening := Closing[c]; isOpening {
 				stack.Push(closing)

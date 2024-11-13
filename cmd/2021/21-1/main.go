@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 var (
@@ -26,7 +26,7 @@ func main() {
 		scores[turn] += Scores[positions[turn]]
 	}
 
-	fmt.Println(rolls * aoc.Min(scores[:]...))
+	fmt.Println(rolls * puz.Min(scores[:]...))
 }
 
 type Die int
@@ -40,8 +40,8 @@ func (d *Die) Roll() int {
 }
 
 func InputToStartingPositions() []int {
-	return aoc.InputLinesTo(2021, 21, func(line string) int {
+	return puz.InputLinesTo(2021, 21, func(line string) int {
 		_, rhs, _ := strings.Cut(line, ": ")
-		return aoc.ParseInt(rhs)
+		return puz.ParseInt(rhs)
 	})
 }

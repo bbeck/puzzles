@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 
 	start := "abcdefghijklmnop"
 
-	current := aoc.WalkCycle(start, 1_000_000_000, dance)
+	current := puz.WalkCycle(start, 1_000_000_000, dance)
 	fmt.Println(current)
 }
 
@@ -30,7 +30,7 @@ type Instruction func([]byte)
 const L = 16
 
 func InputToInstructions() []Instruction {
-	fields := strings.Split(aoc.InputToString(2017, 16), ",")
+	fields := strings.Split(puz.InputToString(2017, 16), ",")
 
 	var instructions []Instruction
 	for _, field := range fields {
@@ -38,7 +38,7 @@ func InputToInstructions() []Instruction {
 
 		switch field[0] {
 		case 's':
-			n := aoc.ParseInt(field[1:])
+			n := puz.ParseInt(field[1:])
 			instruction = func(bs []byte) {
 				cs := make([]byte, L)
 				copy(cs, bs[L-n:])
@@ -48,7 +48,7 @@ func InputToInstructions() []Instruction {
 
 		case 'x':
 			sa, sb, _ := strings.Cut(field[1:], "/")
-			a, b := aoc.ParseInt(sa), aoc.ParseInt(sb)
+			a, b := puz.ParseInt(sa), puz.ParseInt(sb)
 			instruction = func(bs []byte) {
 				bs[a], bs[b] = bs[b], bs[a]
 			}

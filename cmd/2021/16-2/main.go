@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -24,13 +24,13 @@ func (p *Packet) Eval() int {
 
 	switch p.Type {
 	case 0: // sum
-		return aoc.Sum(children...)
+		return puz.Sum(children...)
 	case 1: // product
-		return aoc.Product(children...)
+		return puz.Product(children...)
 	case 2: // minimum
-		return aoc.Min(children...)
+		return puz.Min(children...)
 	case 3: // maximum
-		return aoc.Max(children...)
+		return puz.Max(children...)
 	case 4: // literal
 		return p.Value
 	case 5: // greater than
@@ -135,8 +135,8 @@ func (b *Bits) Skip(n int) *Bits {
 
 func InputToBitStream() *Bits {
 	var bits Bits
-	for _, c := range aoc.InputToString(2021, 16) {
-		n := aoc.ParseIntWithBase(string(c), 16)
+	for _, c := range puz.InputToString(2021, 16) {
+		n := puz.ParseIntWithBase(string(c), 16)
 		for mask := 0b1000; mask > 0; mask >>= 1 {
 			bits = append(bits, n&mask == mask)
 		}

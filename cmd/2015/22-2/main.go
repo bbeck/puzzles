@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 		return 53*turns + 173*turns/6
 	}
 
-	_, mana, found := aoc.AStarSearch(state, children, isGoal, cost, heuristic)
+	_, mana, found := puz.AStarSearch(state, children, isGoal, cost, heuristic)
 	if found {
 		fmt.Println(mana)
 	}
@@ -174,14 +174,14 @@ func (s State) PlayerCastsRecharge() State {
 }
 
 func (s State) BossAttacks() State {
-	s.Player.HitPoints -= aoc.Max(1, s.Boss.Damage-s.Player.Armor)
+	s.Player.HitPoints -= puz.Max(1, s.Boss.Damage-s.Player.Armor)
 	s.Turn = "player"
 	return s
 }
 
 func InputToBoss() Boss {
 	var boss Boss
-	for _, line := range aoc.InputToLines(2015, 22) {
+	for _, line := range puz.InputToLines(2015, 22) {
 		fmt.Sscanf(line, "Hit Points: %d", &boss.HitPoints)
 		fmt.Sscanf(line, "Damage: %d", &boss.Damage)
 	}

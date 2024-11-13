@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
 func main() {
-	grid := aoc.InputToStringGrid2D(2023, 3)
+	grid := puz.InputToStringGrid2D(2023, 3)
 
-	gears := make(map[aoc.Point2D][]int)
+	gears := make(map[puz.Point2D][]int)
 	ForEachNumber(grid, func(x int, y int, n int) {
-		digits := aoc.Digits(n)
+		digits := puz.Digits(n)
 
 		for dy := -1; dy <= 1; dy++ {
 			for dx := -1; dx <= len(digits); dx++ {
-				p := aoc.Point2D{X: x + dx, Y: y + dy}
+				p := puz.Point2D{X: x + dx, Y: y + dy}
 
 				if grid.InBoundsPoint(p) && grid.GetPoint(p) == "*" {
 					gears[p] = append(gears[p], n)
@@ -27,13 +27,13 @@ func main() {
 	var prod int
 	for _, nums := range gears {
 		if len(nums) == 2 {
-			prod += aoc.Product(nums...)
+			prod += puz.Product(nums...)
 		}
 	}
 	fmt.Println(prod)
 }
 
-func ForEachNumber(g aoc.Grid2D[string], fn func(int, int, int)) {
+func ForEachNumber(g puz.Grid2D[string], fn func(int, int, int)) {
 	g.ForEach(func(x0 int, y int, s string) {
 		// Check if this is the beginning of a number
 		if IsDigit(s) && (x0 == 0 || !IsDigit(g.Get(x0-1, y))) {
@@ -42,7 +42,7 @@ func ForEachNumber(g aoc.Grid2D[string], fn func(int, int, int)) {
 				digits.WriteString(g.Get(x, y))
 			}
 
-			fn(x0, y, aoc.ParseInt(digits.String()))
+			fn(x0, y, puz.ParseInt(digits.String()))
 		}
 	})
 }

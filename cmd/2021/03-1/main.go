@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	lines := aoc.InputToLines(2021, 3)
+	lines := puz.InputToLines(2021, 3)
 
-	counters := make([]aoc.FrequencyCounter[rune], len(lines[0]))
+	counters := make([]puz.FrequencyCounter[rune], len(lines[0]))
 	for _, line := range lines {
 		for i, c := range line {
 			counters[i].Add(c)

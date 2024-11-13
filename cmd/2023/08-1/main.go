@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -30,7 +30,7 @@ type Node struct {
 }
 
 func InputToInstructionsAndGraph() (string, *Node) {
-	lines := aoc.InputToLines(2023, 8)
+	lines := puz.InputToLines(2023, 8)
 	instructions := lines[0]
 
 	nodes := make(map[string]*Node)

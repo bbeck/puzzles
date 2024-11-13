@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"regexp"
 	"strings"
 )
@@ -63,7 +63,7 @@ func ToRegex(rules map[string][]Clause, id string) string {
 type Clause []string
 
 func InputToRulesAndTests() (map[string][]Clause, []string) {
-	lines := aoc.InputToLines(2020, 19)
+	lines := puz.InputToLines(2020, 19)
 	rules := make(map[string][]Clause)
 
 	var index int

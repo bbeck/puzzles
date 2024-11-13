@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
 	// The signal value for each cycle.  Seeded with 1 since x starts at 1.
 	signals := []int{1}
 
-	for _, line := range aoc.InputToLines(2022, 10) {
+	for _, line := range puz.InputToLines(2022, 10) {
 		x := signals[len(signals)-1]
 
 		switch op, arg, _ := strings.Cut(line, " "); op {
 		case "addx":
-			signals = append(signals, []int{x, x + aoc.ParseInt(arg)}...)
+			signals = append(signals, []int{x, x + puz.ParseInt(arg)}...)
 
 		case "noop":
 			signals = append(signals, x)

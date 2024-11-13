@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 )
 
@@ -18,7 +18,7 @@ func main() {
 
 		// Keep track of the indices of which carts are removed (so we don't modify
 		// the slice while iterating over it).
-		var removed aoc.Set[int]
+		var removed puz.Set[int]
 
 		// Move each cart, checking for a collision with another cart afterwards.
 		for i := 0; i < len(carts); i++ {
@@ -28,14 +28,14 @@ func main() {
 
 			switch track[carts[i].Location] {
 			case "/":
-				if carts[i].Heading == aoc.Up || carts[i].Heading == aoc.Down {
+				if carts[i].Heading == puz.Up || carts[i].Heading == puz.Down {
 					carts[i].TurnRight()
 				} else {
 					carts[i].TurnLeft()
 				}
 
 			case "\\":
-				if carts[i].Heading == aoc.Up || carts[i].Heading == aoc.Down {
+				if carts[i].Heading == puz.Up || carts[i].Heading == puz.Down {
 					carts[i].TurnLeft()
 				} else {
 					carts[i].TurnRight()
@@ -79,15 +79,15 @@ func main() {
 }
 
 type Cart struct {
-	aoc.Turtle
+	puz.Turtle
 	Turns int
 }
 
-func InputToTrack() map[aoc.Point2D]string {
-	track := make(map[aoc.Point2D]string)
-	for y, line := range aoc.InputToLines(2018, 13) {
+func InputToTrack() map[puz.Point2D]string {
+	track := make(map[puz.Point2D]string)
+	for y, line := range puz.InputToLines(2018, 13) {
 		for x, c := range line {
-			p := aoc.Point2D{X: x, Y: y}
+			p := puz.Point2D{X: x, Y: y}
 			switch c {
 			case ' ':
 				continue
@@ -109,21 +109,21 @@ func InputToTrack() map[aoc.Point2D]string {
 
 func InputToCarts() []Cart {
 	var carts []Cart
-	for y, line := range aoc.InputToLines(2018, 13) {
+	for y, line := range puz.InputToLines(2018, 13) {
 		for x, c := range line {
 			cart := Cart{
-				Turtle: aoc.Turtle{Location: aoc.Point2D{X: x, Y: y}},
+				Turtle: puz.Turtle{Location: puz.Point2D{X: x, Y: y}},
 			}
 
 			switch c {
 			case '^':
-				cart.Heading = aoc.Up
+				cart.Heading = puz.Up
 			case '>':
-				cart.Heading = aoc.Right
+				cart.Heading = puz.Right
 			case 'v':
-				cart.Heading = aoc.Down
+				cart.Heading = puz.Down
 			case '<':
-				cart.Heading = aoc.Left
+				cart.Heading = puz.Left
 			default:
 				continue
 			}

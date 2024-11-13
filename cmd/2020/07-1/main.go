@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -36,7 +36,7 @@ func InputToRules() map[string]Contents {
 		Contents Contents
 	}
 
-	rs := aoc.InputLinesTo(2020, 7, func(line string) Rule {
+	rs := puz.InputLinesTo(2020, 7, func(line string) Rule {
 		lhs, rhs, _ := strings.Cut(line, " bags contain ")
 		rhs = strings.ReplaceAll(rhs, ".", "")
 		rhs = strings.ReplaceAll(rhs, " bags", "")
@@ -46,7 +46,7 @@ func InputToRules() map[string]Contents {
 		if rhs != "no other" {
 			for _, child := range strings.Split(rhs, ", ") {
 				parts := strings.SplitN(child, " ", 2)
-				contents[parts[1]] = aoc.ParseInt(parts[0])
+				contents[parts[1]] = puz.ParseInt(parts[0])
 			}
 		}
 

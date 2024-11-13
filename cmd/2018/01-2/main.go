@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	deltas := aoc.InputToInts(2018, 1)
+	deltas := puz.InputToInts(2018, 1)
 
-	var seen aoc.Set[int]
+	var seen puz.Set[int]
 	var frequency int
 
 outer:

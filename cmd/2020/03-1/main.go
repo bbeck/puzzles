@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -18,8 +18,8 @@ func main() {
 	fmt.Println(count)
 }
 
-func InputToGrid() aoc.Grid2D[bool] {
-	return aoc.InputToGrid2D(2020, 3, func(x int, y int, s string) bool {
+func InputToGrid() puz.Grid2D[bool] {
+	return puz.InputToGrid2D(2020, 3, func(x int, y int, s string) bool {
 		return s == "#"
 	})
 }

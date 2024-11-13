@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -13,9 +13,9 @@ func main() {
 	// set is empty then we haven't yet processed any foods containing it and
 	// initialize it to this food's ingredients.  Otherwise, restrict the set of
 	// ingredients that could contain the allergen by this food's ingredients.
-	mapping := make(map[string]aoc.Set[string])
+	mapping := make(map[string]puz.Set[string])
 	for _, f := range food {
-		ingredients := aoc.SetFrom(f.Ingredients...)
+		ingredients := puz.SetFrom(f.Ingredients...)
 
 		for _, a := range f.Allergens {
 			if len(mapping[a]) == 0 {
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Build a set of possible allergens.
-	var possible aoc.Set[string]
+	var possible puz.Set[string]
 	for _, fs := range mapping {
 		possible = possible.Union(fs)
 	}
@@ -48,7 +48,7 @@ type Food struct {
 }
 
 func InputToFood() []Food {
-	return aoc.InputLinesTo(2020, 21, func(line string) Food {
+	return puz.InputLinesTo(2020, 21, func(line string) Food {
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 		line = strings.ReplaceAll(line, ",", "")

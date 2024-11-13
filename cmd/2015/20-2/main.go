@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	desired := aoc.InputToInt(2015, 20)
+	desired := puz.InputToInt(2015, 20)
 
 	houses := make([]int, desired+1)
 	for elf := 1; elf <= desired; elf++ {

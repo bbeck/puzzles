@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -29,12 +29,12 @@ func (t Triangle) IsValid() bool {
 }
 
 func InputToTriangles() []Triangle {
-	nums := aoc.InputLinesTo(2016, 3, func(line string) []int {
+	nums := puz.InputLinesTo(2016, 3, func(line string) []int {
 		parts := strings.Fields(line)
 		return []int{
-			aoc.ParseInt(parts[0]),
-			aoc.ParseInt(parts[1]),
-			aoc.ParseInt(parts[2]),
+			puz.ParseInt(parts[0]),
+			puz.ParseInt(parts[1]),
+			puz.ParseInt(parts[2]),
 		}
 	})
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Next(state aoc.Set[int], rules map[string]bool) aoc.Set[int] {
+func Next(state puz.Set[int], rules map[string]bool) puz.Set[int] {
 	// Determine the rule key for the pot at position n (looks at n-2 to n+2).
 	key := func(n int) string {
 		var sb strings.Builder
@@ -34,9 +34,9 @@ func Next(state aoc.Set[int], rules map[string]bool) aoc.Set[int] {
 		return sb.String()
 	}
 
-	min, max := aoc.Min(state.Entries()...), aoc.Max(state.Entries()...)
+	min, max := puz.Min(state.Entries()...), puz.Max(state.Entries()...)
 
-	var next aoc.Set[int]
+	var next puz.Set[int]
 	for i := min - 4; i <= max+4; i++ {
 		if rules[key(i)] {
 			next.Add(i)
@@ -45,11 +45,11 @@ func Next(state aoc.Set[int], rules map[string]bool) aoc.Set[int] {
 	return next
 }
 
-func InputToState() aoc.Set[int] {
-	line := aoc.InputToLines(2018, 12)[0]
+func InputToState() puz.Set[int] {
+	line := puz.InputToLines(2018, 12)[0]
 	line = strings.ReplaceAll(line, "initial state: ", "")
 
-	var state aoc.Set[int]
+	var state puz.Set[int]
 	for i, c := range line {
 		if c == '#' {
 			state.Add(i)
@@ -60,7 +60,7 @@ func InputToState() aoc.Set[int] {
 
 func InputToRules() map[string]bool {
 	rules := make(map[string]bool)
-	for _, line := range aoc.InputToLines(2018, 12)[2:] {
+	for _, line := range puz.InputToLines(2018, 12)[2:] {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 		rules[lhs] = rhs == "#"
 	}

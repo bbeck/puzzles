@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -19,19 +19,19 @@ func main() {
 	fmt.Println(count)
 }
 
-func InputToGroups(year, day int) [][]aoc.Set[string] {
-	var groups [][]aoc.Set[string]
+func InputToGroups(year, day int) [][]puz.Set[string] {
+	var groups [][]puz.Set[string]
 
-	var current []aoc.Set[string]
-	for _, line := range aoc.InputToLines(year, day) {
+	var current []puz.Set[string]
+	for _, line := range puz.InputToLines(year, day) {
 		if len(line) == 0 {
 			groups = append(groups, current)
-			current = []aoc.Set[string]{}
+			current = []puz.Set[string]{}
 			continue
 		}
 
 		// Each line is a single person's answers
-		var answers aoc.Set[string]
+		var answers puz.Set[string]
 		for _, question := range line {
 			answers.Add(string(question))
 		}

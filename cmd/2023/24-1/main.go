@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 const (
@@ -44,7 +44,7 @@ type Hailstone struct {
 }
 
 func InputToHailstones() []Hailstone {
-	return aoc.InputLinesTo(2023, 24, func(line string) Hailstone {
+	return puz.InputLinesTo(2023, 24, func(line string) Hailstone {
 		var h Hailstone
 		fmt.Sscanf(line, "%d, %d, %d @ %d, %d, %d", &h.px, &h.py, &h.pz, &h.vx, &h.vy, &h.vz)
 		return h

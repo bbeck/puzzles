@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func Hash(buffer []byte) string {
 
 func InputToLengths() []byte {
 	var lengths []byte
-	for _, c := range aoc.InputToString(2017, 10) {
+	for _, c := range puz.InputToString(2017, 10) {
 		lengths = append(lengths, byte(c))
 	}
 	lengths = append(lengths, []byte{17, 31, 73, 47, 23}...)

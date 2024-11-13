@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/aoc"
-	"github.com/bbeck/advent-of-code/aoc/cpus"
+	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/puz/cpus"
 )
 
 func main() {
-	var ball, paddle aoc.Point2D
+	var ball, paddle puz.Point2D
 	var score int
 
 	input := func() int {
@@ -29,9 +29,9 @@ func main() {
 
 		switch {
 		case id == 3:
-			paddle = aoc.Point2D{X: x, Y: y}
+			paddle = puz.Point2D{X: x, Y: y}
 		case id == 4:
-			ball = aoc.Point2D{X: x, Y: y}
+			ball = puz.Point2D{X: x, Y: y}
 		case id > 4 && x == -1 && y == 0:
 			score = id
 		}

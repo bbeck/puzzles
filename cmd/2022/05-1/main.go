@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -24,11 +24,11 @@ func main() {
 }
 
 type Crate struct {
-	aoc.Deque[rune]
+	puz.Deque[rune]
 }
 
 func InputToCrates() []Crate {
-	lines := aoc.InputToLines(2022, 5)
+	lines := puz.InputToLines(2022, 5)
 	N := (len(lines[0]) + 1) / 4 // Lines are padded with trailing spaces
 
 	crates := make([]Crate, N)
@@ -51,7 +51,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	lines := aoc.InputToLines(2022, 5)
+	lines := puz.InputToLines(2022, 5)
 
 	var i int
 	for i = 0; i < len(lines); i++ {

@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ps := aoc.SetFrom(InputToPoints()...)
+	ps := puz.SetFrom(InputToPoints()...)
 	outside := Outside(ps)
 
 	var count int
@@ -20,11 +20,11 @@ func main() {
 	fmt.Println(count)
 }
 
-func Outside(ps aoc.Set[aoc.Point3D]) aoc.Set[aoc.Point3D] {
+func Outside(ps puz.Set[puz.Point3D]) puz.Set[puz.Point3D] {
 	// Determine the bounding box of the points (expanded by 1 unit)
-	tl, br := aoc.GetBounds3D(ps.Entries())
-	tl = aoc.Point3D{X: tl.X - 1, Y: tl.Y - 1, Z: tl.Z - 1}
-	br = aoc.Point3D{X: br.X + 1, Y: br.Y + 2, Z: br.Z + 1}
+	tl, br := puz.GetBounds3D(ps.Entries())
+	tl = puz.Point3D{X: tl.X - 1, Y: tl.Y - 1, Z: tl.Z - 1}
+	br = puz.Point3D{X: br.X + 1, Y: br.Y + 2, Z: br.Z + 1}
 
 	inRange := func(v, min, max int) bool {
 		return min <= v && v <= max
@@ -32,8 +32,8 @@ func Outside(ps aoc.Set[aoc.Point3D]) aoc.Set[aoc.Point3D] {
 
 	// Perform a flood fill from the corner of the bounding box and see which
 	// points are reachable.
-	children := func(p aoc.Point3D) []aoc.Point3D {
-		var children []aoc.Point3D
+	children := func(p puz.Point3D) []puz.Point3D {
+		var children []puz.Point3D
 		for _, n := range p.OrthogonalNeighbors() {
 			if inRange(n.X, tl.X, br.X) && inRange(n.Y, tl.Y, br.Y) && inRange(n.Z, tl.Z, br.Z) && !ps.Contains(n) {
 				children = append(children, n)
@@ -42,19 +42,19 @@ func Outside(ps aoc.Set[aoc.Point3D]) aoc.Set[aoc.Point3D] {
 		return children
 	}
 
-	var outside aoc.Set[aoc.Point3D]
-	goal := func(p aoc.Point3D) bool {
+	var outside puz.Set[puz.Point3D]
+	goal := func(p puz.Point3D) bool {
 		outside.Add(p)
 		return false
 	}
 
-	aoc.BreadthFirstSearch(tl, children, goal)
+	puz.BreadthFirstSearch(tl, children, goal)
 	return outside
 }
 
-func InputToPoints() []aoc.Point3D {
-	return aoc.InputLinesTo(2022, 18, func(line string) aoc.Point3D {
-		var p aoc.Point3D
+func InputToPoints() []puz.Point3D {
+	return puz.InputLinesTo(2022, 18, func(line string) puz.Point3D {
+		var p puz.Point3D
 		fmt.Sscanf(line, "%d,%d,%d", &p.X, &p.Y, &p.Z)
 		return p
 	})

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strconv"
 	"strings"
 )
@@ -57,7 +57,7 @@ type Circuit map[string]Expression
 
 func InputToCircuit() Circuit {
 	circuit := make(Circuit)
-	for _, line := range aoc.InputToLines(2015, 7) {
+	for _, line := range puz.InputToLines(2015, 7) {
 		parts := strings.Split(line, " -> ")
 		circuit[parts[1]] = ParseExpression(parts[0])
 	}

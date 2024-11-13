@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -22,11 +22,11 @@ var StandardDigits = map[Digit]int{
 func main() {
 	// Build a list of all possible mappers
 	var mappers []Mapper
-	aoc.EnumeratePermutations(7, func(perm []int) bool {
+	puz.EnumeratePermutations(7, func(perm []int) bool {
 		p := append([]int(nil), perm...)
 
 		mappers = append(mappers, func(from Digit) Digit {
-			var to aoc.BitSet
+			var to puz.BitSet
 			for i, n := range p {
 				if from.Contains(i) {
 					to = to.Add(n)
@@ -45,7 +45,7 @@ func main() {
 		for _, digit := range entry.Outputs {
 			ns = append(ns, StandardDigits[mapper(digit)])
 		}
-		sum += aoc.JoinDigits(ns)
+		sum += puz.JoinDigits(ns)
 	}
 
 	fmt.Println(sum)
@@ -66,10 +66,10 @@ outer:
 }
 
 type Mapper func(Digit) Digit
-type Digit struct{ aoc.BitSet }
+type Digit struct{ puz.BitSet }
 
 func DigitFrom(s string) Digit {
-	var bs aoc.BitSet
+	var bs puz.BitSet
 	for _, c := range s {
 		bs = bs.Add(int(c - 'a'))
 	}
@@ -90,7 +90,7 @@ type Entry struct {
 }
 
 func InputToEntries() []Entry {
-	return aoc.InputLinesTo(2021, 8, func(line string) Entry {
+	return puz.InputLinesTo(2021, 8, func(line string) Entry {
 		lhs, rhs, _ := strings.Cut(line, " | ")
 		return Entry{Digits: DigitsFrom(lhs + " " + rhs), Outputs: DigitsFrom(rhs)}
 	})

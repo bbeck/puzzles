@@ -4,12 +4,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
 func main() {
-	salt := aoc.InputToString(2016, 14)
+	salt := puz.InputToString(2016, 14)
 
 	var keys []int
 	for nonce := 0; len(keys) < 64; nonce++ {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -10,7 +10,7 @@ func main() {
 	fields, ticket, tickets := InputToFieldsAndTickets()
 
 	// Create a set of allowed values for each field.
-	allowed := make(map[string]aoc.Set[int])
+	allowed := make(map[string]puz.Set[int])
 	for name, ranges := range fields {
 		for _, r := range ranges {
 			for v := r.Min; v <= r.Max; v++ {
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Put every seen example value for a field into that field's set.
-	examples := make([]aoc.Set[int], len(ticket))
+	examples := make([]puz.Set[int], len(ticket))
 	for _, t := range tickets {
 		if !IsValid(t, allowed) {
 			continue
@@ -42,8 +42,8 @@ func main() {
 	fmt.Println(product)
 }
 
-func IsValid(ticket []int, fields map[string]aoc.Set[int]) bool {
-	var vs aoc.Set[int]
+func IsValid(ticket []int, fields map[string]puz.Set[int]) bool {
+	var vs puz.Set[int]
 	vs.Add(ticket...)
 
 	for _, s := range fields {
@@ -53,9 +53,9 @@ func IsValid(ticket []int, fields map[string]aoc.Set[int]) bool {
 	return len(vs) == 0
 }
 
-func DeriveFieldMapping(fields map[string]aoc.Set[int], values []aoc.Set[int]) []string {
+func DeriveFieldMapping(fields map[string]puz.Set[int], values []puz.Set[int]) []string {
 	// Determine possible fields for each set of values.
-	choices := make([]aoc.Set[string], len(values))
+	choices := make([]puz.Set[string], len(values))
 	for i := 0; i < len(values); i++ {
 		for name, possible := range fields {
 			if len(values[i].Difference(possible)) == 0 {
@@ -64,7 +64,7 @@ func DeriveFieldMapping(fields map[string]aoc.Set[int], values []aoc.Set[int]) [
 		}
 	}
 
-	var assigned aoc.Set[string]
+	var assigned puz.Set[string]
 	mapping := make([]string, len(values))
 
 	for len(assigned) < len(fields) {
@@ -86,7 +86,7 @@ type Range struct {
 }
 
 func InputToFieldsAndTickets() (map[string][]Range, []int, [][]int) {
-	lines := aoc.InputToLines(2020, 16)
+	lines := puz.InputToLines(2020, 16)
 	fields := make(map[string][]Range)
 
 	var index int
@@ -96,14 +96,14 @@ func InputToFieldsAndTickets() (map[string][]Range, []int, [][]int) {
 		min1, max1, _ := strings.Cut(r1, "-")
 		min2, max2, _ := strings.Cut(r2, "-")
 
-		fields[key] = append(fields[key], Range{Min: aoc.ParseInt(min1), Max: aoc.ParseInt(max1)})
-		fields[key] = append(fields[key], Range{Min: aoc.ParseInt(min2), Max: aoc.ParseInt(max2)})
+		fields[key] = append(fields[key], Range{Min: puz.ParseInt(min1), Max: puz.ParseInt(max1)})
+		fields[key] = append(fields[key], Range{Min: puz.ParseInt(min2), Max: puz.ParseInt(max2)})
 	}
 
 	index += 2
 	var ticket []int
 	for _, s := range strings.Split(lines[index], ",") {
-		ticket = append(ticket, aoc.ParseInt(s))
+		ticket = append(ticket, puz.ParseInt(s))
 	}
 
 	index += 3
@@ -111,7 +111,7 @@ func InputToFieldsAndTickets() (map[string][]Range, []int, [][]int) {
 	for ; index < len(lines); index++ {
 		var values []int
 		for _, s := range strings.Split(lines[index], ",") {
-			values = append(values, aoc.ParseInt(s))
+			values = append(values, puz.ParseInt(s))
 		}
 
 		tickets = append(tickets, values)

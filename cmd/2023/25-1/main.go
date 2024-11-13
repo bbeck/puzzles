@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -39,11 +39,11 @@ func SplitGraph(g Graph, mincut int) (string, string) {
 		v2 := g.ArbitraryVertex()
 		isGoal := func(v string) bool { return v == v2 }
 
-		removed := make(map[string]aoc.Set[string])
+		removed := make(map[string]puz.Set[string])
 
 		var count int
 		for count = 0; count < mincut+1; count++ {
-			path, ok := aoc.BreadthFirstSearch(v1, g.Children, isGoal)
+			path, ok := puz.BreadthFirstSearch(v1, g.Children, isGoal)
 			if !ok {
 				break
 			}
@@ -80,11 +80,11 @@ func Count(g Graph, v string) int {
 		return false
 	}
 
-	aoc.BreadthFirstSearch(v, g.Children, isGoal)
+	puz.BreadthFirstSearch(v, g.Children, isGoal)
 	return count
 }
 
-type Graph map[string]aoc.Set[string]
+type Graph map[string]puz.Set[string]
 
 func (g *Graph) ArbitraryVertex() string {
 	for v := range *g {
@@ -107,7 +107,7 @@ func (g *Graph) RemoveEdge(from, to string) {
 
 func InputToGraph() Graph {
 	g := make(Graph)
-	for _, line := range aoc.InputToLines(2023, 25) {
+	for _, line := range puz.InputToLines(2023, 25) {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 

@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -15,11 +15,11 @@ func main() {
 	elf1, elf2 := 0, 1
 	for index == -1 {
 		sum := recipes[elf1] + recipes[elf2]
-		recipes = append(recipes, aoc.Digits(sum)...)
+		recipes = append(recipes, puz.Digits(sum)...)
 		elf1 = (elf1 + int(recipes[elf1]) + 1) % len(recipes)
 		elf2 = (elf2 + int(recipes[elf2]) + 1) % len(recipes)
 
-		end := aoc.Max(0, len(recipes)-L)
+		end := puz.Max(0, len(recipes)-L)
 		index = bytes.Index(recipes[end:], digits)
 	}
 
@@ -28,8 +28,8 @@ func main() {
 
 func InputToDigits() []byte {
 	var digits []byte
-	for _, c := range aoc.InputToString(2018, 14) {
-		digits = append(digits, byte(aoc.ParseInt(string(c))))
+	for _, c := range puz.InputToString(2018, 14) {
+		digits = append(digits, byte(puz.ParseInt(string(c))))
 	}
 	return digits
 }

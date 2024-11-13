@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -80,7 +80,7 @@ func Type(cards string) int {
 func Counts(cards string) (int, int, int) {
 	// Count the cards and return the two most frequent counts as well as the
 	// number of jokers.
-	var fc aoc.FrequencyCounter[rune]
+	var fc puz.FrequencyCounter[rune]
 	for _, c := range cards {
 		fc.Add(c)
 	}
@@ -108,12 +108,12 @@ type Hand struct {
 }
 
 func InputToHands() []Hand {
-	return aoc.InputLinesTo(2023, 7, func(line string) Hand {
+	return puz.InputLinesTo(2023, 7, func(line string) Hand {
 		lhs, rhs, _ := strings.Cut(line, " ")
 
 		return Hand{
 			Cards: lhs,
-			Bid:   aoc.ParseInt(rhs),
+			Bid:   puz.ParseInt(rhs),
 			Type:  Type(lhs),
 		}
 	})

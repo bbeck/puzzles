@@ -1,4 +1,4 @@
-package aoc
+package puz
 
 // GetMapKeys returns the keys from the provided map.
 func GetMapKeys[K comparable, V any](m map[K]V) []K {

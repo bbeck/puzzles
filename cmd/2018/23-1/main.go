@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"sort"
 )
 
@@ -23,12 +23,12 @@ func main() {
 }
 
 type Nanobot struct {
-	aoc.Point3D
+	puz.Point3D
 	R int
 }
 
 func InputToNanobots() []Nanobot {
-	return aoc.InputLinesTo(2018, 23, func(line string) Nanobot {
+	return puz.InputLinesTo(2018, 23, func(line string) Nanobot {
 		var bot Nanobot
 		fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &bot.X, &bot.Y, &bot.Z, &bot.R)
 		return bot

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 	// Brute force a solution.  The x-velocity should be between 1 and maxX, anything
 	// larger will skip over the target area entirely in the first second.  The y-velocity
 	// is a bit trickier to bound, so we just use a hardcoded range.
-	var solutions []aoc.Point2D
+	var solutions []puz.Point2D
 	for vx0 := 1; vx0 <= maxX; vx0++ {
 		for vy0 := -500; vy0 < 500; vy0++ {
 			px, py := 0, 0
@@ -19,10 +19,10 @@ func main() {
 
 			for px <= maxX && minY <= py {
 				px, py = px+vx, py+vy
-				vx, vy = aoc.Max(0, vx-1), vy-1
+				vx, vy = puz.Max(0, vx-1), vy-1
 
 				if minX <= px && px <= maxX && minY <= py && py <= maxY {
-					solutions = append(solutions, aoc.Point2D{X: vx0, Y: vy0})
+					solutions = append(solutions, puz.Point2D{X: vx0, Y: vy0})
 					break
 				}
 			}
@@ -33,7 +33,7 @@ func main() {
 }
 
 func InputToTargetArea() (int, int, int, int) {
-	s := aoc.InputToString(2021, 17)
+	s := puz.InputToString(2021, 17)
 
 	var minX, maxX, minY, maxY int
 	fmt.Sscanf(s, "target area: x=%d..%d, y=%d..%d", &minX, &maxX, &minY, &maxY)

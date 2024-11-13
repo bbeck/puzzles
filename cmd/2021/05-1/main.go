@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
-	ps := make(map[aoc.Point2D]int)
+	ps := make(map[puz.Point2D]int)
 	for _, segment := range InputToSegments() {
 		dx, dy := Interpolate(segment.Start, segment.End)
 		if dy != 0 && dx != 0 {
@@ -19,12 +19,12 @@ func main() {
 			if p == segment.End {
 				break
 			}
-			p = aoc.Point2D{X: p.X + dx, Y: p.Y + dy}
+			p = puz.Point2D{X: p.X + dx, Y: p.Y + dy}
 		}
 	}
 
 	var count int
-	for _, v := range aoc.GetMapValues(ps) {
+	for _, v := range puz.GetMapValues(ps) {
 		if v > 1 {
 			count++
 		}
@@ -32,7 +32,7 @@ func main() {
 	fmt.Println(count)
 }
 
-func Interpolate(p, q aoc.Point2D) (int, int) {
+func Interpolate(p, q puz.Point2D) (int, int) {
 	var dx, dy int
 	if p.X < q.X {
 		dx = 1
@@ -50,11 +50,11 @@ func Interpolate(p, q aoc.Point2D) (int, int) {
 }
 
 type Segment struct {
-	Start, End aoc.Point2D
+	Start, End puz.Point2D
 }
 
 func InputToSegments() []Segment {
-	return aoc.InputLinesTo(2021, 5, func(line string) Segment {
+	return puz.InputLinesTo(2021, 5, func(line string) Segment {
 		var s Segment
 		fmt.Sscanf(line, "%d,%d -> %d,%d", &s.Start.X, &s.Start.Y, &s.End.X, &s.End.Y)
 		return s

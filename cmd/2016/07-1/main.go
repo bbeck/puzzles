@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"strings"
 )
 
@@ -39,7 +39,7 @@ type Address struct {
 }
 
 func InputToAddresses() []Address {
-	return aoc.InputLinesTo(2016, 7, func(line string) Address {
+	return puz.InputLinesTo(2016, 7, func(line string) Address {
 		line = strings.ReplaceAll(line, "[", " ")
 		line = strings.ReplaceAll(line, "]", " ")
 		parts := strings.Split(line, " ")

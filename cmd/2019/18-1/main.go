@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 )
 
 func main() {
@@ -44,13 +44,13 @@ func main() {
 	}
 
 	start := State{Point2D: entrance}
-	_, c, _ := aoc.AStarSearch(start, children, goal, cost, heuristic)
+	_, c, _ := puz.AStarSearch(start, children, goal, cost, heuristic)
 	fmt.Println(c)
 }
 
 type State struct {
-	aoc.Point2D
-	Keys aoc.BitSet
+	puz.Point2D
+	Keys puz.BitSet
 }
 
 const (
@@ -64,10 +64,10 @@ func KeyID(s string) int          { return int(s[0] - 'a') }
 func DoorID(s string) int         { return int(s[0] - 'A' + 26) }
 func KeyIDForDoorID(door int) int { return door - 26 }
 
-func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map[aoc.Point2D]int {
+func GridToGraph(grid puz.Grid2D[int], entrance puz.Point2D) map[puz.Point2D]map[puz.Point2D]int {
 	// Collect the key/door locations along with the entrance location.
-	ps := []aoc.Point2D{entrance}
-	grid.ForEachPoint(func(p aoc.Point2D, value int) {
+	ps := []puz.Point2D{entrance}
+	grid.ForEachPoint(func(p puz.Point2D, value int) {
 		if value != Empty && value != Wall {
 			ps = append(ps, p)
 		}
@@ -75,14 +75,14 @@ func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map
 
 	// Determine the distance between all pairs of points of interest.  Ignore
 	// any paths that include a 3rd point of interest.
-	graph := make(map[aoc.Point2D]map[aoc.Point2D]int)
+	graph := make(map[puz.Point2D]map[puz.Point2D]int)
 	for _, p := range ps {
-		graph[p] = make(map[aoc.Point2D]int)
+		graph[p] = make(map[puz.Point2D]int)
 	}
 
-	children := func(p aoc.Point2D) []aoc.Point2D {
-		var children []aoc.Point2D
-		grid.ForEachOrthogonalNeighbor(p, func(child aoc.Point2D, value int) {
+	children := func(p puz.Point2D) []puz.Point2D {
+		var children []puz.Point2D
+		grid.ForEachOrthogonalNeighbor(p, func(child puz.Point2D, value int) {
 			if value != Wall {
 				children = append(children, child)
 			}
@@ -92,7 +92,7 @@ func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map
 
 	for i := 0; i < len(ps); i++ {
 		for j := i + 1; j < len(ps); j++ {
-			path, ok := aoc.BreadthFirstSearch(ps[i], children, func(p aoc.Point2D) bool { return p == ps[j] })
+			path, ok := puz.BreadthFirstSearch(ps[i], children, func(p puz.Point2D) bool { return p == ps[j] })
 			for _, p := range path[1 : len(path)-2] {
 				if grid.GetPoint(p) != Empty {
 					ok = false
@@ -110,11 +110,11 @@ func GridToGraph(grid aoc.Grid2D[int], entrance aoc.Point2D) map[aoc.Point2D]map
 	return graph
 }
 
-func InputToGrid() (aoc.Grid2D[int], aoc.Point2D) {
-	var entrance aoc.Point2D
-	return aoc.InputToGrid2D(2019, 18, func(x int, y int, s string) int {
+func InputToGrid() (puz.Grid2D[int], puz.Point2D) {
+	var entrance puz.Point2D
+	return puz.InputToGrid2D(2019, 18, func(x int, y int, s string) int {
 		if s == "@" {
-			entrance = aoc.Point2D{X: x, Y: y}
+			entrance = puz.Point2D{X: x, Y: y}
 		} else if s == "#" {
 			return Wall
 		} else if s >= "a" && s <= "z" {

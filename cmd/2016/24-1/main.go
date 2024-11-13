@@ -2,24 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/aoc"
+	"github.com/bbeck/advent-of-code/puz"
 	"math"
 )
 
 func main() {
-	var waypoints []aoc.Point2D
-	grid := aoc.InputToGrid2D(2016, 24, func(x, y int, value string) bool {
+	var waypoints []puz.Point2D
+	grid := puz.InputToGrid2D(2016, 24, func(x, y int, value string) bool {
 		if value == "#" {
 			return false
 		}
 
 		if value != "." {
-			p := aoc.Point2D{X: x, Y: y}
+			p := puz.Point2D{X: x, Y: y}
 
 			if value == "0" {
 				// This is our starting location, make sure it's always at the front of
 				// the list.
-				waypoints = append([]aoc.Point2D{p}, waypoints...)
+				waypoints = append([]puz.Point2D{p}, waypoints...)
 			} else {
 				waypoints = append(waypoints, p)
 			}
@@ -29,7 +29,7 @@ func main() {
 	})
 
 	// Determine the shortest distance between each of the waypoints.
-	distances := aoc.Make2D[int](len(waypoints), len(waypoints))
+	distances := puz.Make2D[int](len(waypoints), len(waypoints))
 	for i := 0; i < len(waypoints); i++ {
 		distances[i][i] = 0
 		for j := i + 1; j < len(waypoints); j++ {
@@ -42,7 +42,7 @@ func main() {
 	// in the shortest distance traveled.  Keeping in mind that we always start
 	// at the first waypoint in the list.
 	var best = math.MaxInt
-	aoc.EnumeratePermutations(len(waypoints)-1, func(perm []int) bool {
+	puz.EnumeratePermutations(len(waypoints)-1, func(perm []int) bool {
 		path := []int{0}
 		for _, index := range perm {
 			// We add 1 to the index since we're enumerating permutations skipping
@@ -55,16 +55,16 @@ func main() {
 		for i := 0; i < len(path)-1; i++ {
 			sum += distances[path[i]][path[i+1]]
 		}
-		best = aoc.Min(best, sum)
+		best = puz.Min(best, sum)
 		return false
 	})
 
 	fmt.Println(best)
 }
 
-func distance(p1, p2 aoc.Point2D, g aoc.Grid2D[bool]) int {
-	children := func(p aoc.Point2D) []aoc.Point2D {
-		var children []aoc.Point2D
+func distance(p1, p2 puz.Point2D, g puz.Grid2D[bool]) int {
+	children := func(p puz.Point2D) []puz.Point2D {
+		var children []puz.Point2D
 		for _, c := range p.OrthogonalNeighbors() {
 			if g.GetPoint(c) {
 				children = append(children, c)
@@ -73,11 +73,11 @@ func distance(p1, p2 aoc.Point2D, g aoc.Grid2D[bool]) int {
 		return children
 	}
 
-	goal := func(p aoc.Point2D) bool {
+	goal := func(p puz.Point2D) bool {
 		return p == p2
 	}
 
-	path, found := aoc.BreadthFirstSearch(p1, children, goal)
+	path, found := puz.BreadthFirstSearch(p1, children, goal)
 	if !found {
 		return math.MaxInt
 	}
