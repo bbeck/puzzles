@@ -1,0 +1,13 @@
+package main
+
+import (
+  "fmt"
+
+  "github.com/bbeck/advent-of-code/puz"
+)
+
+func main() {
+  for _, line := range puz.InputToLines() {
+    fmt.Println(line)
+  }
+}
