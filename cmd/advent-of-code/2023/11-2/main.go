@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2023, 11)
+	grid := puz.InputToStringGrid2D()
 	grid = Expand(grid)
 
 	var seen puz.Set[puz.Point2D]

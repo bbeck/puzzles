@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	length := GarbageLength(puz.InputToString(2017, 9))
+	length := GarbageLength(puz.InputToString())
 	fmt.Println(length)
 }
 

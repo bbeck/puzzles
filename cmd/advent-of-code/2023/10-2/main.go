@@ -120,7 +120,7 @@ func (c Cell) IsGround() bool {
 
 func InputToGridAndStart() (puz.Grid2D[Cell], puz.Point2D) {
 	var start puz.Point2D
-	grid := puz.InputToGrid2D(2023, 10, func(x int, y int, s string) Cell {
+	grid := puz.InputToGrid2D(func(x int, y int, s string) Cell {
 		switch s {
 		case "|": // | is a vertical pipe connecting north and south.
 			return Cell{N: true, S: true}

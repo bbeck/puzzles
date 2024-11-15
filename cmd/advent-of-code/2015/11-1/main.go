@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	password := puz.InputToBytes(2015, 11)
+	password := puz.InputToBytes()
 
 	for {
 		password = NextPassword(password)

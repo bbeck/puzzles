@@ -10,7 +10,7 @@ import (
 func main() {
 	var code int
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 5),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input:  func() int { return 1 },
 		Output: func(value int) { code = puz.Max(code, value) },
 	}

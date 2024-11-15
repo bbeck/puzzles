@@ -77,7 +77,7 @@ type Hailstone struct {
 }
 
 func InputToHailstones() []Hailstone {
-	return puz.InputLinesTo(2023, 24, func(line string) Hailstone {
+	return puz.InputLinesTo(func(line string) Hailstone {
 		var h Hailstone
 		fmt.Sscanf(line, "%d, %d, %d @ %d, %d, %d", &h.px, &h.py, &h.pz, &h.vx, &h.vy, &h.vz)
 		return h

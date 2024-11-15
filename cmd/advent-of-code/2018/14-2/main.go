@@ -28,7 +28,7 @@ func main() {
 
 func InputToDigits() []byte {
 	var digits []byte
-	for _, c := range puz.InputToString(2018, 14) {
+	for _, c := range puz.InputToString() {
 		digits = append(digits, byte(puz.ParseInt(string(c))))
 	}
 	return digits

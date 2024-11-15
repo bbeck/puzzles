@@ -24,7 +24,7 @@ func InputToPassports() []Passport {
 	var passports []Passport
 
 	current := make(Passport)
-	for _, line := range puz.InputToLines(2020, 4) {
+	for _, line := range puz.InputToLines() {
 		if len(line) == 0 {
 			passports = append(passports, current)
 			current = make(Passport)

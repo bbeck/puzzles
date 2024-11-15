@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	salt := puz.InputToString(2016, 14)
+	salt := puz.InputToString()
 
 	var keys []int
 	for nonce := 0; len(keys) < 64; nonce++ {

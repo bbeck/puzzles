@@ -36,7 +36,7 @@ func InputToRules() map[string]Contents {
 		Contents Contents
 	}
 
-	rs := puz.InputLinesTo(2020, 7, func(line string) Rule {
+	rs := puz.InputLinesTo(func(line string) Rule {
 		lhs, rhs, _ := strings.Cut(line, " bags contain ")
 		rhs = strings.ReplaceAll(rhs, ".", "")
 		rhs = strings.ReplaceAll(rhs, " bags", "")

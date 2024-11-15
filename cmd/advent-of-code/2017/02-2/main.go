@@ -34,7 +34,7 @@ func FindEvenlyDivisible(row []int) (int, int) {
 }
 
 func InputToRows() [][]int {
-	return puz.InputLinesTo(2017, 2, func(line string) []int {
+	return puz.InputLinesTo(func(line string) []int {
 		var row []int
 		for _, s := range strings.Fields(line) {
 			row = append(row, puz.ParseInt(s))

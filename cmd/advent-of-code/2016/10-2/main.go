@@ -50,7 +50,7 @@ type Bot struct {
 
 func InputToBots() map[int]Bot {
 	bots := make(map[int]Bot)
-	for _, line := range puz.InputToLines(2016, 10) {
+	for _, line := range puz.InputToLines() {
 		if !strings.HasPrefix(line, "bot") {
 			continue
 		}
@@ -74,7 +74,7 @@ type Action struct {
 
 func InputToInitializations() []Action {
 	var initializations []Action
-	for _, line := range puz.InputToLines(2016, 10) {
+	for _, line := range puz.InputToLines() {
 		if !strings.HasPrefix(line, "value") {
 			continue
 		}

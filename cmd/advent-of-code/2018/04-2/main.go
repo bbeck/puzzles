@@ -28,7 +28,7 @@ type Guard struct {
 }
 
 func InputToGuards() []Guard {
-	lines := puz.InputToLines(2018, 4)
+	lines := puz.InputToLines()
 	sort.Strings(lines) // Sort into time order
 
 	sleep := make(map[int][60]int) // number of times each guard was asleep at the given minute

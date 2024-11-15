@@ -113,7 +113,7 @@ func InputToCave() Cave {
 	var depth int
 	var target puz.Point2D
 
-	for _, line := range puz.InputToLines(2018, 22) {
+	for _, line := range puz.InputToLines() {
 		k, v, _ := strings.Cut(line, ": ")
 		if k == "depth" {
 			depth = puz.ParseInt(v)

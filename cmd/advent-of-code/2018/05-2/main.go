@@ -14,7 +14,7 @@ func main() {
 		matches['A'+i] = 'a' + i
 	}
 
-	input := puz.InputToBytes(2018, 5)
+	input := puz.InputToBytes()
 
 	var best = math.MaxInt
 	for i := byte(0); i < 26; i++ {

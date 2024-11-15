@@ -81,7 +81,7 @@ func NewRobot() *Robot {
 
 	robot := &Robot{
 		CPU: cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 15),
+			Memory: cpus.InputToIntcodeMemory(),
 			Input:  func() int { return <-commands },
 			Output: func(value int) { status <- value },
 		},

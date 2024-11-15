@@ -28,7 +28,7 @@ type Password struct {
 }
 
 func InputToPasswords() []Password {
-	return puz.InputLinesTo(2020, 2, func(line string) Password {
+	return puz.InputLinesTo(func(line string) Password {
 		line = strings.ReplaceAll(line, ":", "")
 
 		var password Password

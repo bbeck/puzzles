@@ -50,7 +50,7 @@ func (r Room) IsReal() bool {
 }
 
 func InputToRooms() []Room {
-	return puz.InputLinesTo(2016, 4, func(line string) Room {
+	return puz.InputLinesTo(func(line string) Room {
 		hyphen := strings.LastIndex(line, "-")
 		bracket := strings.LastIndex(line, "[")
 

@@ -16,7 +16,7 @@ func main() {
 	}
 
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 11),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input: func() int {
 			return panels[robot.Location]
 		},

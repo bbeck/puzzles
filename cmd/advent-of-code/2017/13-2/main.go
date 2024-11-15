@@ -45,7 +45,7 @@ type Layer struct {
 }
 
 func InputToLayers() []Layer {
-	return puz.InputLinesTo(2017, 13, func(line string) Layer {
+	return puz.InputLinesTo(func(line string) Layer {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 

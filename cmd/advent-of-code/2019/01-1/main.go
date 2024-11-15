@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var fuel int
-	for _, mass := range puz.InputToInts(2019, 1) {
+	for _, mass := range puz.InputToInts() {
 		fuel += mass/3 - 2
 	}
 

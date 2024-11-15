@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	dish := puz.InputToStringGrid2D(2023, 14)
+	dish := puz.InputToStringGrid2D()
 	dish = TiltUp(dish)
 
 	var load int

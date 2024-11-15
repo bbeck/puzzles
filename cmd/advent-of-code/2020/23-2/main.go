@@ -53,7 +53,7 @@ func Destination(current, r1, r2, r3 int) int {
 }
 
 func InputToCircle() ([]int, int) {
-	digits := puz.Digits(puz.InputToInt(2020, 23))
+	digits := puz.Digits(puz.InputToInt())
 
 	circle := make([]int, N+1)
 

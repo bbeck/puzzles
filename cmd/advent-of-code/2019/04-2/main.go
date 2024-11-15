@@ -37,6 +37,6 @@ func IsPossiblePassword(digits []int) bool {
 }
 
 func InputToRange(year, day int) (int, int) {
-	parts := strings.Split(puz.InputToString(year, day), "-")
+	parts := strings.Split(puz.InputToString(), "-")
 	return puz.ParseInt(parts[0]), puz.ParseInt(parts[1])
 }

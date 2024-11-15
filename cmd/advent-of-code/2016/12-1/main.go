@@ -55,7 +55,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return puz.InputLinesTo(2016, 12, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		opcode, rest, _ := strings.Cut(line, " ")
 		args := strings.Fields(rest)
 

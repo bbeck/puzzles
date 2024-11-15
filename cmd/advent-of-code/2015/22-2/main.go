@@ -181,7 +181,7 @@ func (s State) BossAttacks() State {
 
 func InputToBoss() Boss {
 	var boss Boss
-	for _, line := range puz.InputToLines(2015, 22) {
+	for _, line := range puz.InputToLines() {
 		fmt.Sscanf(line, "Hit Points: %d", &boss.HitPoints)
 		fmt.Sscanf(line, "Damage: %d", &boss.Damage)
 	}

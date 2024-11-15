@@ -36,7 +36,7 @@ type Node struct {
 
 func InputToTree() Node {
 	var ns puz.Deque[int]
-	for _, s := range strings.Fields(puz.InputToString(2018, 8)) {
+	for _, s := range strings.Fields(puz.InputToString()) {
 		ns.PushBack(puz.ParseInt(s))
 	}
 

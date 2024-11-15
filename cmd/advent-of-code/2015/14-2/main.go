@@ -77,7 +77,7 @@ type Reindeer struct {
 }
 
 func InputToReindeer() []Reindeer {
-	return puz.InputLinesTo(2015, 14, func(line string) Reindeer {
+	return puz.InputLinesTo(func(line string) Reindeer {
 		line = strings.ReplaceAll(line, " can fly ", " ")
 		line = strings.ReplaceAll(line, " km/s for ", " ")
 		line = strings.ReplaceAll(line, " seconds, but then must rest for ", " ")

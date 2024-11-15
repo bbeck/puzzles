@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2021, 25)
+	grid := puz.InputToStringGrid2D()
 
 	var step int
 	for changed := true; changed; step++ {

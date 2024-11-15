@@ -36,7 +36,7 @@ func main() {
 
 func InputToTimesAndDistances() ([]int, []int) {
 	var times, distances []int
-	for _, line := range puz.InputToLines(2023, 6) {
+	for _, line := range puz.InputToLines() {
 		var nums []int
 		for _, field := range strings.Fields(line)[1:] {
 			nums = append(nums, puz.ParseInt(field))

@@ -38,7 +38,7 @@ func (r Room) Decrypt() string {
 }
 
 func InputToRooms() []Room {
-	return puz.InputLinesTo(2016, 4, func(line string) Room {
+	return puz.InputLinesTo(func(line string) Room {
 		hyphen := strings.LastIndex(line, "-")
 		bracket := strings.LastIndex(line, "[")
 

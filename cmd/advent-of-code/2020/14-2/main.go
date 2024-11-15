@@ -48,7 +48,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	lines := puz.InputToLines(2020, 14)
+	lines := puz.InputToLines()
 
 	var or, floating uint64
 	var instructions []Instruction

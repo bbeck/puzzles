@@ -173,7 +173,7 @@ func ParseNumber(input string) (string, *Number) {
 }
 
 func InputToNumbers() []*Number {
-	return puz.InputLinesTo(2021, 18, func(line string) *Number {
+	return puz.InputLinesTo(func(line string) *Number {
 		_, n := ParseNumber(line)
 		return n
 	})

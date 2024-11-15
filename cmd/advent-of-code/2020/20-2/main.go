@@ -225,7 +225,7 @@ func (t Tile) FitsOnLeft(s Tile) bool {
 }
 
 func InputToTiles() []Tile {
-	lines := puz.InputToLines(2020, 20)
+	lines := puz.InputToLines()
 	N := len(lines[1])
 
 	var tiles []Tile

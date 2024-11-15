@@ -48,7 +48,7 @@ func main() {
 }
 
 func InputToCoordinate() (int, int) {
-	p := puz.InputLinesTo(2015, 25, func(line string) puz.Point2D {
+	p := puz.InputLinesTo(func(line string) puz.Point2D {
 		line = strings.ReplaceAll(line, "To continue, please consult the code grid in the manual.", "")
 		line = strings.TrimSpace(line)
 

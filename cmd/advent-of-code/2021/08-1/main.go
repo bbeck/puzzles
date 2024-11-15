@@ -20,7 +20,7 @@ func main() {
 }
 
 func InputToOutputDigits() [][]string {
-	return puz.InputLinesTo(2021, 8, func(line string) []string {
+	return puz.InputLinesTo(func(line string) []string {
 		_, rhs, _ := strings.Cut(line, " | ")
 		return strings.Fields(rhs)
 	})

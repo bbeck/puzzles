@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2023, 3)
+	grid := puz.InputToStringGrid2D()
 
 	gears := make(map[puz.Point2D][]int)
 	ForEachNumber(grid, func(x int, y int, n int) {

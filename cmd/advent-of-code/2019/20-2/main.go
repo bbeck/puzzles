@@ -39,7 +39,7 @@ func main() {
 }
 
 func InputToMaze() (puz.Grid2D[bool], map[puz.Point2D]puz.Point2D, map[puz.Point2D]int, puz.Point2D, puz.Point2D) {
-	lines := puz.InputToLines(2019, 20)
+	lines := puz.InputToLines()
 	width := len(lines[2]) + 2
 	height := len(lines)
 

@@ -108,7 +108,7 @@ const (
 
 func InputToGrid() puz.Grid2D[puz.BitSet] {
 	var bs puz.BitSet
-	return puz.InputToGrid2D(2022, 24, func(x int, y int, s string) puz.BitSet {
+	return puz.InputToGrid2D(func(x int, y int, s string) puz.BitSet {
 		switch s {
 		case "#":
 			return bs.Add(WALL)

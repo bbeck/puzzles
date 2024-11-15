@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// Force the robot to wake.
-	memory := cpus.InputToIntcodeMemory(2019, 17)
+	memory := cpus.InputToIntcodeMemory()
 	memory[0] = 2
 
 	// Wire the program as input.
@@ -153,7 +153,7 @@ func Load() (puz.Set[puz.Point2D], puz.Turtle) {
 	// Build the grid.
 	var current puz.Point2D
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 17),
+		Memory: cpus.InputToIntcodeMemory(),
 		Output: func(value int) {
 			switch value {
 			case '.':

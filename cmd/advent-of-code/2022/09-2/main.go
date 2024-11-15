@@ -16,7 +16,7 @@ func main() {
 	var knots [10]puz.Point2D
 
 	seen := puz.SetFrom(knots[9])
-	for _, line := range puz.InputToLines(2022, 9) {
+	for _, line := range puz.InputToLines() {
 		dir := Headings[line[0]]
 		n := puz.ParseInt(line[2:])
 		knots[0] = knots[0].MoveN(dir, n)

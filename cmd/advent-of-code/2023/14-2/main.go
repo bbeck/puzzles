@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	dish := puz.InputToStringGrid2D(2023, 14)
+	dish := puz.InputToStringGrid2D()
 	dish = puz.WalkCycleWithIdentity(dish, 1_000_000_000, Cycle, ID)
 
 	var load int

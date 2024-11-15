@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	digits := puz.InputLinesTo(2016, 2, func(line string) string {
+	digits := puz.InputLinesTo(func(line string) string {
 		return KeypadDigit(line)
 	})
 

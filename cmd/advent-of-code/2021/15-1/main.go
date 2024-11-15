@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	cave := puz.InputToIntGrid2D(2021, 15)
+	cave := puz.InputToIntGrid2D()
 
 	start, end := puz.Origin2D, puz.Point2D{X: cave.Width - 1, Y: cave.Height - 1}
 

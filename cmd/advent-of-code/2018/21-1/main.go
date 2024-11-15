@@ -81,7 +81,7 @@ func InputToProgram() (int, []Instruction) {
 	var ipr int
 	var instructions []Instruction
 
-	for _, line := range puz.InputToLines(2018, 21) {
+	for _, line := range puz.InputToLines() {
 		fields := strings.Fields(line)
 
 		if fields[0] == "#ip" {

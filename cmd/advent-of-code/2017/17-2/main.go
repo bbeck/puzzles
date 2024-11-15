@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	stride := puz.InputToInt(2017, 17)
+	stride := puz.InputToInt()
 
 	// Remember the value after the 0
 	var after int

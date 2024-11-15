@@ -30,7 +30,7 @@ func main() {
 
 func InputToReplacements() map[string][]string {
 	replacements := make(map[string][]string)
-	for _, line := range puz.InputToLines(2015, 19) {
+	for _, line := range puz.InputToLines() {
 		lhs, rhs, ok := strings.Cut(line, " => ")
 		if ok {
 			replacements[lhs] = append(replacements[lhs], rhs)
@@ -41,7 +41,7 @@ func InputToReplacements() map[string][]string {
 }
 
 func InputToMolecule() string {
-	for _, line := range puz.InputToLines(2015, 19) {
+	for _, line := range puz.InputToLines() {
 		if len(line) > 0 && !strings.Contains(line, "=>") {
 			return line
 		}

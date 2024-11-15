@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	m := Maze(puz.InputToInt(2016, 13))
+	m := Maze(puz.InputToInt())
 	start := puz.Point2D{X: 1, Y: 1}
 	target := puz.Point2D{X: 31, Y: 39}
 

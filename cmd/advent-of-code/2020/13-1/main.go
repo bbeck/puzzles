@@ -24,7 +24,7 @@ func main() {
 }
 
 func InputToBuses() (int, []int) {
-	lines := puz.InputToLines(2020, 13)
+	lines := puz.InputToLines()
 	tm := puz.ParseInt(lines[0])
 
 	var buses []int

@@ -27,7 +27,7 @@ type Direction struct {
 }
 
 func InputToDirections() []Direction {
-	input := puz.InputToString(2016, 1)
+	input := puz.InputToString()
 	input = strings.ReplaceAll(input, ",", "")
 
 	var directions []Direction

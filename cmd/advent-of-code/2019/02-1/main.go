@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	memory := cpus.InputToIntcodeMemory(2019, 2)
+	memory := cpus.InputToIntcodeMemory()
 	memory[1] = 12
 	memory[2] = 2
 

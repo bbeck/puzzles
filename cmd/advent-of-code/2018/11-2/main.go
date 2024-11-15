@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	serial := puz.InputToInt(2018, 11)
+	serial := puz.InputToInt()
 
 	// Partial sums that sum all cells above and to the left of the current one
 	grid := puz.NewGrid2D[int](301, 301)

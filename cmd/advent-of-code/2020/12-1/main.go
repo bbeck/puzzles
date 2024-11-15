@@ -39,7 +39,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(2020, 12, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		return Instruction{
 			Action: string(line[0]),
 			Value:  puz.ParseInt(line[1:]),

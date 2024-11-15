@@ -29,7 +29,7 @@ type Program struct {
 }
 
 func InputToPrograms() []Program {
-	return puz.InputLinesTo(2017, 7, func(line string) Program {
+	return puz.InputLinesTo(func(line string) Program {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "->", "")
 		line = strings.ReplaceAll(line, "(", "")

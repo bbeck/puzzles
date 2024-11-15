@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	n := puz.InputToInt(2016, 19)
+	n := puz.InputToInt()
 
 	var elves puz.Ring[*Elf]
 	for i := 0; i < n; i++ {

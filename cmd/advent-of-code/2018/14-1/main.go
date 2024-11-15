@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	N := puz.InputToInt(2018, 14)
+	N := puz.InputToInt()
 	recipes := []int{3, 7}
 
 	elf1, elf2 := 0, 1

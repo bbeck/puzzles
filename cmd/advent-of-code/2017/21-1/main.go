@@ -161,7 +161,7 @@ func InputToRules() []Rule {
 		}
 	}
 
-	return puz.InputLinesTo(2017, 21, func(line string) Rule {
+	return puz.InputLinesTo(func(line string) Rule {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 		return Rule{from: parse(lhs), to: parse(rhs)}
 	})

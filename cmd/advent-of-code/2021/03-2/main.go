@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ns := puz.SetFrom(puz.InputToLines(2021, 3)...)
+	ns := puz.SetFrom(puz.InputToLines()...)
 
 	o2 := ns
 	for pos := 0; len(o2) > 1; pos++ {

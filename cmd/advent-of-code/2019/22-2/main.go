@@ -109,7 +109,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(2019, 22, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		if strings.HasPrefix(line, "deal into new stack") {
 			return Instruction{Kind: DealNewStack}
 		} else if strings.HasPrefix(line, "cut") {

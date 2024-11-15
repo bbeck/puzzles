@@ -8,18 +8,6 @@ import (
 	"strings"
 )
 
-func Run(site string) error {
-	var aoc AdventOfCode
-
-	switch site {
-	case "advent-of-code":
-		return aoc.Run()
-	default:
-
-	}
-	return nil
-}
-
 func LookupInt(key string) (int, error) {
 	value, ok := os.LookupEnv(key)
 	if !ok {

@@ -75,7 +75,7 @@ type Node struct {
 
 func InputToNodes() []Node {
 	var nodes []Node
-	for _, line := range puz.InputToLines(2016, 22) {
+	for _, line := range puz.InputToLines() {
 		if !strings.HasPrefix(line, "/dev/grid") {
 			continue
 		}

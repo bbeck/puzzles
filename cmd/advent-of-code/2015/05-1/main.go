@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var count int
-	for _, line := range puz.InputToLines(2015, 5) {
+	for _, line := range puz.InputToLines() {
 		if IsNice(line) {
 			count++
 		}

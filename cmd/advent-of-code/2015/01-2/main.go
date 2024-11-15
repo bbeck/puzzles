@@ -8,7 +8,7 @@ import (
 func main() {
 	position := 0
 	floor := 0
-	for p, c := range puz.InputToString(2015, 1) {
+	for p, c := range puz.InputToString() {
 		position = p + 1
 
 		switch c {

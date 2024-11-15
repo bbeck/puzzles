@@ -29,10 +29,10 @@ func main() {
 }
 
 type NAT struct {
-	Mutex     sync.Mutex
-	Buffers   [N]puz.Deque[int]
-	Idle      puz.BitSet
-	ToForward []int // The last received packet that can be forwarded
+	Mutex          sync.Mutex
+	Buffers        [N]puz.Deque[int]
+	Idle           puz.BitSet
+	ToForward      []int // The last received packet that can be forwarded
 	LastForwardedY int
 	Duplicates     chan int
 }
@@ -91,7 +91,7 @@ func NewComputer(id int, nat *NAT) *cpus.IntcodeCPU {
 	var buffer []int
 
 	return &cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 23),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input:  func() int { return nat.Receive(id) },
 		Output: func(value int) {
 			buffer = append(buffer, value)

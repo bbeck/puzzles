@@ -72,7 +72,7 @@ func FindHorizontalReflection(p puz.Grid2D[string], skip int) (int, bool) {
 }
 
 func InputToPatterns() []puz.Grid2D[string] {
-	chunks := puz.Split(puz.InputToLines(2023, 13), func(s string) bool {
+	chunks := puz.Split(puz.InputToLines(), func(s string) bool {
 		return s != ""
 	})
 

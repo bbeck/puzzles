@@ -21,7 +21,7 @@ type Instruction func([]byte)
 const L = 16
 
 func InputToInstructions() []Instruction {
-	fields := strings.Split(puz.InputToString(2017, 16), ",")
+	fields := strings.Split(puz.InputToString(), ",")
 
 	var instructions []Instruction
 	for _, field := range fields {

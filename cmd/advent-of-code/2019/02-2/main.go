@@ -23,7 +23,7 @@ loop:
 }
 
 func Execute(noun, verb int) int {
-	memory := cpus.InputToIntcodeMemory(2019, 2)
+	memory := cpus.InputToIntcodeMemory()
 	memory[1] = noun
 	memory[2] = verb
 

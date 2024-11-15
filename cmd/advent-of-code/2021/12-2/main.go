@@ -32,7 +32,7 @@ func CountPaths(current, goal string, caves map[string][]string, seen puz.Set[st
 
 func InputToCaves() map[string][]string {
 	caves := make(map[string][]string)
-	for _, line := range puz.InputToLines(2021, 12) {
+	for _, line := range puz.InputToLines() {
 		lhs, rhs, _ := strings.Cut(line, "-")
 		caves[lhs] = append(caves[lhs], rhs)
 		caves[rhs] = append(caves[rhs], lhs)

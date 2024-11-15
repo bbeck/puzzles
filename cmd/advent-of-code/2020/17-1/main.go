@@ -44,7 +44,7 @@ func Next(cube puz.Set[puz.Point3D]) puz.Set[puz.Point3D] {
 
 func InputToCube() puz.Set[puz.Point3D] {
 	var cube puz.Set[puz.Point3D]
-	for y, line := range puz.InputToLines(2020, 17) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
 				cube.Add(puz.Point3D{X: x, Y: y})

@@ -59,7 +59,7 @@ type Ingredient struct {
 }
 
 func InputToIngredients() []Ingredient {
-	return puz.InputLinesTo(2015, 15, func(line string) Ingredient {
+	return puz.InputLinesTo(func(line string) Ingredient {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "capacity", "")
 		line = strings.ReplaceAll(line, "durability", "")

@@ -55,7 +55,7 @@ func (p Path) Steps() map[puz.Point2D]int {
 }
 
 func InputToPaths() []Path {
-	return puz.InputLinesTo(2019, 3, func(line string) Path {
+	return puz.InputLinesTo(func(line string) Path {
 		var path Path
 		for _, part := range strings.Split(line, ",") {
 			path.Dirs = append(path.Dirs, string(part[0]))

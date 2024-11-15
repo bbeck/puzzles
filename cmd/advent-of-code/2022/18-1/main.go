@@ -20,7 +20,7 @@ func main() {
 }
 
 func InputToPoints() []puz.Point3D {
-	return puz.InputLinesTo(2022, 18, func(line string) puz.Point3D {
+	return puz.InputLinesTo(func(line string) puz.Point3D {
 		var p puz.Point3D
 		fmt.Sscanf(line, "%d,%d,%d", &p.X, &p.Y, &p.Z)
 		return p

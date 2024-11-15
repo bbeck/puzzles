@@ -36,7 +36,7 @@ func main() {
 	close(inputs)
 
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 21),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input:  func() int { return <-inputs },
 		Output: func(value int) {
 			if value > 255 {

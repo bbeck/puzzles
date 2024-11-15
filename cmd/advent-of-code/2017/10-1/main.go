@@ -29,7 +29,7 @@ func Reverse(buffer []byte, current, length byte) {
 }
 
 func InputToLengths() []byte {
-	input := puz.InputToString(2017, 10)
+	input := puz.InputToString()
 
 	var lengths []byte
 	for _, s := range strings.Split(input, ",") {

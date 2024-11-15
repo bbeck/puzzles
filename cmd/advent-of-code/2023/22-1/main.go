@@ -80,7 +80,7 @@ type Brick struct {
 
 func InputToBricks() []Brick {
 	var id int
-	return puz.InputLinesTo(2023, 22, func(line string) Brick {
+	return puz.InputLinesTo(func(line string) Brick {
 		id++
 
 		var c puz.Cube

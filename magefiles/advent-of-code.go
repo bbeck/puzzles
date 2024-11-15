@@ -1,14 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/bbeck/advent-of-code/puz"
 	"github.com/bitfield/script"
 	"github.com/magefile/mage/mg"
+	"io"
 	"net/http"
 	"os"
+	"reflect"
+	"strings"
 	"time"
 )
 
+//goland:noinspection GoUnusedExportedType
 type AdventOfCode mg.Namespace
 
 var Year int
@@ -19,27 +25,8 @@ var Session []byte
 func (aoc AdventOfCode) Run() error {
 	mg.Deps(aoc.parse, aoc.download)
 
-	dir := fmt.Sprintf("cmd/advent-of-code/%d/%02d-%d", Year, Day, Part)
-	err := script.IfExists(dir).Error()
-	if err != nil {
-		return fmt.Errorf("%s does not exist", dir)
-	}
-
-	// Change to the new directory, but be sure to return to the current
-	// directory on return in case we are running multiple programs.
-	pwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	err = os.Chdir(dir)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = os.Chdir(pwd) }()
-
-	// Run the script
-	_, err = script.Exec("go run .").Stdout()
+	output, err := aoc.run()
+	fmt.Print(output)
 	return err
 }
 
@@ -95,11 +82,93 @@ func (aoc AdventOfCode) Next() error {
 		source = fmt.Sprintf("cmd/advent-of-code/%d/%02d-1/main.go", Year, Day)
 	}
 
-	_, err := script.File(source).WriteFile(fmt.Sprintf("%s/main.go", dir))
-	return err
+	filename := fmt.Sprintf("%s/main.go", dir)
+	_, err := script.File(source).WriteFile(filename)
+	if err != nil {
+		return err
+	}
+
+	// Open the new file in the editor
+	editor := `"/Applications/IntelliJ IDEA.app/Contents/MacOS/idea"`
+	return script.Exec(fmt.Sprintf("%s %s", editor, filename)).Wait()
 }
 
-func (AdventOfCode) parse() error {
+func (aoc AdventOfCode) Verify() error {
+	mg.Deps(aoc.parse)
+
+	expected, err := script.File("cmd/advent-of-code/.solutions").
+		FilterScan(func(line string, w io.Writer) {
+			var buf bytes.Buffer
+
+			// Parse the year/day/part prefix on each line
+			fields := strings.Split(line, " ")
+			year := puz.ParseInt(fields[0])
+			day := puz.ParseInt(fields[1])
+			part := puz.ParseInt(fields[2])
+
+			if year == Year && day == Day && part == Part {
+				_, _ = buf.WriteString(strings.Join(fields[3:], " "))
+				buf.WriteRune('\n')
+			}
+
+			_, _ = w.Write(buf.Bytes())
+		}).
+		String()
+	if err != nil {
+		return err
+	}
+
+	actual, err := aoc.run()
+	if err != nil {
+		return err
+	}
+
+	// The output for some problems is multiple lines and sometimes those lines
+	// have leading or trailing spaces.  The solution file doesn't always capture
+	// trailing spaces properly, so let's convert the expected and actual strings
+	// into slices of stripped lines for comparison.
+	convert := func(s string) []string {
+		var lines []string
+		for _, line := range strings.Split(s, "\n") {
+			trimmed := strings.Trim(line, " \n")
+			if trimmed != "" {
+				lines = append(lines, trimmed)
+			}
+		}
+		return lines
+	}
+
+	eLines := convert(expected)
+	aLines := convert(actual)
+
+	if reflect.DeepEqual(aLines, eLines) {
+		fmt.Printf("✅ YEAR=%d DAY=%02d PART=%d %s\n", Year, Day, Part, aLines[0])
+	} else {
+		fmt.Printf("❌ YEAR=%d DAY=%02d PART=%d\n", Year, Day, Part)
+		fmt.Println(actual)
+		fmt.Println()
+		fmt.Println(expected)
+	}
+
+	return nil
+}
+
+func (aoc AdventOfCode) ListYear() error {
+	mg.Deps(aoc.parse)
+
+	for day := 1; day <= 25; day++ {
+		for part := 1; part <= 2; part++ {
+			if day == 25 && part == 2 {
+				continue
+			}
+			fmt.Printf("%d %d %d\n", Year, day, part)
+		}
+	}
+
+	return nil
+}
+
+func (aoc AdventOfCode) parse() error {
 	var err error
 
 	if Year, err = LookupInt("YEAR"); err != nil {
@@ -169,6 +238,7 @@ func (aoc AdventOfCode) download() error {
 		return err
 	}
 
+	request.Header.Set("User-Agent", "automation by bmbeck@gmail.com")
 	request.AddCookie(&http.Cookie{
 		Name:  "session",
 		Value: string(Session),
@@ -176,4 +246,28 @@ func (aoc AdventOfCode) download() error {
 
 	_, err = script.Do(request).WriteFile(filename)
 	return err
+}
+
+func (aoc AdventOfCode) run() (string, error) {
+	dir := fmt.Sprintf("cmd/advent-of-code/%d/%02d-%d", Year, Day, Part)
+	err := script.IfExists(dir).Error()
+	if err != nil {
+		return "", fmt.Errorf("%s does not exist", dir)
+	}
+
+	// Change to the new directory, but be sure to return to the current
+	// directory on exit in case we are running multiple programs.
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	err = os.Chdir(dir)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = os.Chdir(pwd) }()
+
+	// Run the script
+	return script.Exec("go run .").String()
 }

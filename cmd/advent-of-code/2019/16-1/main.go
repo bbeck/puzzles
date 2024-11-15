@@ -52,7 +52,7 @@ func BuildPattern(base []int, n int, length int) []int {
 
 func InputToDigits() []int {
 	var digits []int
-	for _, s := range puz.InputToString(2019, 16) {
+	for _, s := range puz.InputToString() {
 		digits = append(digits, puz.ParseInt(string(s)))
 	}
 

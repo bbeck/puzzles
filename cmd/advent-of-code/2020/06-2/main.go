@@ -23,7 +23,7 @@ func InputToGroups(year, day int) [][]puz.Set[string] {
 	var groups [][]puz.Set[string]
 
 	var current []puz.Set[string]
-	for _, line := range puz.InputToLines(year, day) {
+	for _, line := range puz.InputToLines() {
 		if len(line) == 0 {
 			groups = append(groups, current)
 			current = []puz.Set[string]{}

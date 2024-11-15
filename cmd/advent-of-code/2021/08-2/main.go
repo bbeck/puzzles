@@ -90,7 +90,7 @@ type Entry struct {
 }
 
 func InputToEntries() []Entry {
-	return puz.InputLinesTo(2021, 8, func(line string) Entry {
+	return puz.InputLinesTo(func(line string) Entry {
 		lhs, rhs, _ := strings.Cut(line, " | ")
 		return Entry{Digits: DigitsFrom(lhs + " " + rhs), Outputs: DigitsFrom(rhs)}
 	})

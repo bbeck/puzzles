@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	tile := puz.InputToIntGrid2D(2021, 15)
+	tile := puz.InputToIntGrid2D()
 
 	cave := puz.NewGrid2D[int](5*tile.Width, 5*tile.Height)
 	for y := 0; y < cave.Height; y++ {

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ids := puz.InputToLines(2018, 2)
+	ids := puz.InputToLines()
 
 	var i, j int
 outer:

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	sizes := puz.InputToInts(2015, 17)
+	sizes := puz.InputToInts()
 
 	best := math.MaxInt
 	ways := make(map[int]int)

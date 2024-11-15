@@ -55,7 +55,7 @@ type Node struct {
 func InputToNodes() ([]*Node, *Node) {
 	var nodes []*Node
 	var zero *Node
-	for _, n := range puz.InputToInts(2022, 20) {
+	for _, n := range puz.InputToInts() {
 		node := &Node{Value: n * Key}
 		nodes = append(nodes, node)
 

@@ -12,7 +12,7 @@ func main() {
 	sizes := make(map[string]int)
 
 	var path []string
-	for _, line := range puz.InputToLines(2022, 7) {
+	for _, line := range puz.InputToLines() {
 		words := strings.Fields(line)
 
 		switch {

@@ -70,7 +70,7 @@ func (g *Graph) Edge(from, to string) int {
 
 func InputToGraph() Graph {
 	var g Graph
-	for _, line := range puz.InputToLines(2015, 9) {
+	for _, line := range puz.InputToLines() {
 		var from, to string
 		var distance int
 

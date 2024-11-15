@@ -42,7 +42,7 @@ func Next(lights puz.Grid2D[bool]) puz.Grid2D[bool] {
 }
 
 func InputToLights() puz.Grid2D[bool] {
-	return puz.InputToGrid2D(2015, 18, func(x, y int, s string) bool {
+	return puz.InputToGrid2D(func(x, y int, s string) bool {
 		return s == "#"
 	})
 }

@@ -46,7 +46,7 @@ type Address struct {
 }
 
 func InputToAddresses() []Address {
-	return puz.InputLinesTo(2016, 7, func(line string) Address {
+	return puz.InputLinesTo(func(line string) Address {
 		line = strings.ReplaceAll(line, "[", " ")
 		line = strings.ReplaceAll(line, "]", " ")
 		parts := strings.Split(line, " ")

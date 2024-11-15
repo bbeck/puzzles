@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var sum int
-	for _, line := range puz.InputToLines(2022, 25) {
+	for _, line := range puz.InputToLines() {
 		sum += Parse(line)
 	}
 

@@ -53,7 +53,7 @@ func InputToProgram() []Instruction {
 		}
 	}
 
-	return puz.InputLinesTo(2017, 8, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		return Instruction{

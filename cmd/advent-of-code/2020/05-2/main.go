@@ -12,7 +12,7 @@ func main() {
 	replacer := strings.NewReplacer("F", "0", "B", "1", "L", "0", "R", "1")
 
 	var ids []int
-	for _, line := range puz.InputToLines(2020, 5) {
+	for _, line := range puz.InputToLines() {
 		ids = append(ids, puz.ParseIntWithBase(replacer.Replace(line), 2))
 	}
 

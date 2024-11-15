@@ -199,7 +199,7 @@ func (s State) Dump() string {
 
 func InputToState() State {
 	var state State
-	for floor, line := range puz.InputToLines(2016, 11) {
+	for floor, line := range puz.InputToLines() {
 		line = strings.ReplaceAll(line, "The ", "")
 		line = strings.ReplaceAll(line, " a ", " ")
 		line = strings.ReplaceAll(line, " and ", " ")

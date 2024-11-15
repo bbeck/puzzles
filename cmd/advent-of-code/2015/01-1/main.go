@@ -7,7 +7,7 @@ import (
 
 func main() {
 	floor := 0
-	for _, c := range puz.InputToString(2015, 1) {
+	for _, c := range puz.InputToString() {
 		switch c {
 		case '(':
 			floor++

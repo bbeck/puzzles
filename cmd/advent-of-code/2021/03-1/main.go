@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	lines := puz.InputToLines(2021, 3)
+	lines := puz.InputToLines()
 
 	counters := make([]puz.FrequencyCounter[rune], len(lines[0]))
 	for _, line := range lines {

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	deltas := puz.InputToInts(2018, 1)
+	deltas := puz.InputToInts()
 
 	var seen puz.Set[int]
 	var frequency int

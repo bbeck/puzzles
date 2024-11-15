@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	score := Score(puz.InputToString(2017, 9))
+	score := Score(puz.InputToString())
 	fmt.Println(score)
 }
 

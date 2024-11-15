@@ -22,7 +22,7 @@ func InputToDirections() []puz.Point2D {
 	origin := puz.Origin2D
 
 	var directions []puz.Point2D
-	for _, b := range puz.InputToBytes(2015, 3) {
+	for _, b := range puz.InputToBytes() {
 		switch b {
 		case '^':
 			directions = append(directions, origin.Up())

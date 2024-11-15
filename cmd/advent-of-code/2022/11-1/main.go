@@ -41,7 +41,7 @@ type Monkey struct {
 }
 
 func InputToMonkeys() []*Monkey {
-	lines := puz.InputToLines(2022, 11)
+	lines := puz.InputToLines()
 
 	var monkeys []*Monkey
 	for i := 0; i < len(lines); i += 7 {

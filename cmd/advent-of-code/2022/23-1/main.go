@@ -82,7 +82,7 @@ func DetermineElfTargets(grove puz.Set[puz.Point2D], moves []Move, round int) (m
 
 func InputToGrove() puz.Set[puz.Point2D] {
 	var grove puz.Set[puz.Point2D]
-	for y, line := range puz.InputToLines(2022, 23) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
 				grove.Add(puz.Point2D{X: x, Y: y})

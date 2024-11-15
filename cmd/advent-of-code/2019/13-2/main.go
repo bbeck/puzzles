@@ -37,7 +37,7 @@ func main() {
 		}
 	}
 
-	memory := cpus.InputToIntcodeMemory(2019, 13)
+	memory := cpus.InputToIntcodeMemory()
 	memory[0] = 2
 
 	cpu := cpus.IntcodeCPU{Memory: memory, Input: input, Output: output}

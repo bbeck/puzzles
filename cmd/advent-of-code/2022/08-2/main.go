@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToIntGrid2D(2022, 8)
+	grid := puz.InputToIntGrid2D()
 
 	var best int
 	grid.ForEachPoint(func(p puz.Point2D, _ int) {

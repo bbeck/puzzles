@@ -10,7 +10,7 @@ const AllItems = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func main() {
 	var sum int
-	for _, group := range puz.Chunk(puz.InputToLines(2022, 3), 3) {
+	for _, group := range puz.Chunk(puz.InputToLines(), 3) {
 		s0, s1, s2 := SetFrom(group[0]), SetFrom(group[1]), SetFrom(group[2])
 
 		common := s0.Intersect(s1).Intersect(s2).Entries()[0]

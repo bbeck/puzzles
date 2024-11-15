@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	offsets := puz.InputToInts(2017, 5)
+	offsets := puz.InputToInts()
 
 	var steps int
 	for pc := 0; pc >= 0 && pc < len(offsets); steps++ {

@@ -188,7 +188,7 @@ type State struct {
 }
 
 func InputToInitialState() State {
-	folded := puz.InputToLines(2021, 23)
+	folded := puz.InputToLines()
 	lines := append([]string{}, folded[:3]...)
 	lines = append(lines, "  #D#C#B#A#  ", "  #D#B#A#C#  ")
 	lines = append(lines, folded[3:]...)

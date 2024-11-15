@@ -46,7 +46,7 @@ func Next(state puz.Set[int], rules map[string]bool) puz.Set[int] {
 }
 
 func InputToState() puz.Set[int] {
-	line := puz.InputToLines(2018, 12)[0]
+	line := puz.InputToLines()[0]
 	line = strings.ReplaceAll(line, "initial state: ", "")
 
 	var state puz.Set[int]
@@ -60,7 +60,7 @@ func InputToState() puz.Set[int] {
 
 func InputToRules() map[string]bool {
 	rules := make(map[string]bool)
-	for _, line := range puz.InputToLines(2018, 12)[2:] {
+	for _, line := range puz.InputToLines()[2:] {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 		rules[lhs] = rhs == "#"
 	}

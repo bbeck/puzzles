@@ -135,7 +135,7 @@ func NewRobot() (*Robot, Room) {
 	var robot *Robot
 	robot = &Robot{
 		CPU: &cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(2019, 25),
+			Memory: cpus.InputToIntcodeMemory(),
 			Input: func() int {
 				return <-command
 			},

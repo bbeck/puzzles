@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2023, 23)
+	grid := puz.InputToStringGrid2D()
 	graph, start, end := BuildGraph(grid)
 
 	var longest int

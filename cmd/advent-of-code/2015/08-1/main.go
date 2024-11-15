@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var difference int
-	for _, line := range puz.InputToLines(2015, 8) {
+	for _, line := range puz.InputToLines() {
 		difference += len(line) - DecodeLength(line)
 	}
 

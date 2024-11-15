@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	prefix := puz.InputToString(2016, 5)
+	prefix := puz.InputToString()
 
 	var password string
 	for nonce := 0; len(password) < 8; nonce++ {

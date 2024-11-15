@@ -78,7 +78,7 @@ func Equal[T comparable](a, b []T) bool {
 }
 
 func InputToPositions() []puz.Point3D {
-	return puz.InputLinesTo(2019, 12, func(line string) puz.Point3D {
+	return puz.InputLinesTo(func(line string) puz.Point3D {
 		var p puz.Point3D
 		fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
 		return p

@@ -21,7 +21,7 @@ func main() {
 }
 
 func InputToBuses() ([]int, []int) {
-	lines := puz.InputToLines(2020, 13)
+	lines := puz.InputToLines()
 
 	var ids, offsets []int
 	for i, s := range strings.Split(lines[1], ",") {

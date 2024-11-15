@@ -112,7 +112,7 @@ func GridToGraph(grid puz.Grid2D[int], entrance puz.Point2D) map[puz.Point2D]map
 
 func InputToGrid() (puz.Grid2D[int], puz.Point2D) {
 	var entrance puz.Point2D
-	return puz.InputToGrid2D(2019, 18, func(x int, y int, s string) int {
+	return puz.InputToGrid2D(func(x int, y int, s string) int {
 		if s == "@" {
 			entrance = puz.Point2D{X: x, Y: y}
 		} else if s == "#" {

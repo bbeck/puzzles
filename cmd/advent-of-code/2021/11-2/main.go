@@ -51,7 +51,7 @@ func (o *Octopus) Reset() bool {
 }
 
 func InputToGrid() puz.Grid2D[*Octopus] {
-	grid := puz.InputToGrid2D(2021, 11, func(x int, y int, s string) *Octopus {
+	grid := puz.InputToGrid2D(func(x int, y int, s string) *Octopus {
 		return &Octopus{Energy: puz.ParseInt(s)}
 	})
 

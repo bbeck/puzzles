@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	m := puz.InputToIntGrid2D(2021, 9)
+	m := puz.InputToIntGrid2D()
 
 	var ds puz.DisjointSet[puz.Point2D]
 	m.ForEachPoint(func(p puz.Point2D, height int) {

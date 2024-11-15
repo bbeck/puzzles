@@ -63,7 +63,7 @@ type Value struct {
 
 func InputToValues() map[string]Value {
 	values := make(map[string]Value)
-	for _, line := range puz.InputToLines(2022, 21) {
+	for _, line := range puz.InputToLines() {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 

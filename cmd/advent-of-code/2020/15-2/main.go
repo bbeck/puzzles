@@ -34,7 +34,7 @@ func main() {
 
 func InputToInts() []int {
 	var ns []int
-	for _, s := range strings.Split(puz.InputToString(2020, 15), ",") {
+	for _, s := range strings.Split(puz.InputToString(), ",") {
 		ns = append(ns, puz.ParseInt(s))
 	}
 	return ns

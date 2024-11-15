@@ -29,7 +29,7 @@ func main() {
 
 func InputToPoints() []puz.Point2D {
 	var unused int
-	return puz.InputLinesTo(2018, 10, func(line string) puz.Point2D {
+	return puz.InputLinesTo(func(line string) puz.Point2D {
 		var p puz.Point2D
 		fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &p.X, &p.Y, &unused, &unused)
 		return p
@@ -38,7 +38,7 @@ func InputToPoints() []puz.Point2D {
 
 func InputToVelocities() []puz.Point2D {
 	var unused int
-	return puz.InputLinesTo(2018, 10, func(line string) puz.Point2D {
+	return puz.InputLinesTo(func(line string) puz.Point2D {
 		var p puz.Point2D
 		fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &unused, &unused, &p.X, &p.Y)
 		return p

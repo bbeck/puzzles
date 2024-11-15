@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2017, 19)
+	grid := puz.InputToStringGrid2D()
 
 	var visited strings.Builder
 	turtle := puz.Turtle{Location: FindStart(grid), Heading: puz.Down}

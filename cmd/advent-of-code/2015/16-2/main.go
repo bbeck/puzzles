@@ -45,7 +45,7 @@ type Aunt struct {
 }
 
 func InputToAunts() []Aunt {
-	return puz.InputLinesTo(2015, 16, func(line string) Aunt {
+	return puz.InputLinesTo(func(line string) Aunt {
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, ",", "")
 

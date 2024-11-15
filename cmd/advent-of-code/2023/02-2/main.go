@@ -32,7 +32,7 @@ func (g *Game) Power() int {
 }
 
 func InputToGames() []Game {
-	return puz.InputLinesTo(2023, 2, func(line string) Game {
+	return puz.InputLinesTo(func(line string) Game {
 		line = strings.ReplaceAll(line, "Game ", "")
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, ",", "")

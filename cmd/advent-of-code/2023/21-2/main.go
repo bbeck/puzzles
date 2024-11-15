@@ -165,7 +165,7 @@ func Count(g puz.Grid2D[string], p puz.Point2D, n int) int {
 }
 
 func InputToGridAndStartingLocation() (puz.Grid2D[string], puz.Point2D) {
-	grid := puz.InputToStringGrid2D(2023, 21)
+	grid := puz.InputToStringGrid2D()
 
 	var start puz.Point2D
 	grid.ForEachPoint(func(p puz.Point2D, s string) {

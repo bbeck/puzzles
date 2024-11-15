@@ -44,7 +44,7 @@ func TestSettings(settings []int) int {
 	var amps [N]cpus.IntcodeCPU
 	for i := 0; i < N; i++ {
 		i := i
-		amps[i].Memory = cpus.InputToIntcodeMemory(2019, 7)
+		amps[i].Memory = cpus.InputToIntcodeMemory()
 		amps[i].Input = func() int { return <-chans[i] }
 		amps[i].Output = func(value int) { chans[(i+1)%N] <- value }
 		amps[i].Halt = func() { wg.Done() }

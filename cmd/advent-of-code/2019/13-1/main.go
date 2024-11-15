@@ -9,7 +9,7 @@ import (
 func main() {
 	var count, blocks int
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 13),
+		Memory: cpus.InputToIntcodeMemory(),
 		Output: func(value int) {
 			count++
 			if count%3 == 0 && value == 2 {

@@ -53,7 +53,7 @@ type World struct {
 
 func InputToWorld() World {
 	var walls puz.Set[puz.Point2D]
-	for _, line := range puz.InputToLines(2022, 14) {
+	for _, line := range puz.InputToLines() {
 		points := strings.Split(line, " -> ")
 
 		current := ParsePoint(points[0])

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2023, 16)
+	grid := puz.InputToStringGrid2D()
 
 	var best int
 	for x := 0; x < grid.Width; x++ {

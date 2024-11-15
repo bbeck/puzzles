@@ -18,7 +18,7 @@ func main() {
 }
 
 func InputToNumWinningNumbers() []int {
-	return puz.InputLinesTo(2023, 4, func(line string) int {
+	return puz.InputLinesTo(func(line string) int {
 		// A number is only winning if it appears more than once per line.
 		line = strings.ReplaceAll(line, "|", "")
 		_, rhs, _ := strings.Cut(line, ":")

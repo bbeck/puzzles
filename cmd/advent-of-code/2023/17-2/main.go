@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	pool := puz.InputToIntGrid2D(2023, 17)
+	pool := puz.InputToIntGrid2D()
 	end := puz.Point2D{X: pool.Width - 1, Y: pool.Height - 1}
 
 	children := func(c Crucible) []Crucible {

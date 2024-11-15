@@ -31,7 +31,7 @@ type Crate struct {
 }
 
 func InputToCrates() []Crate {
-	lines := puz.InputToLines(2022, 5)
+	lines := puz.InputToLines()
 	N := (len(lines[0]) + 1) / 4 // Lines are padded with trailing spaces
 
 	crates := make([]Crate, N)
@@ -54,7 +54,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	lines := puz.InputToLines(2022, 5)
+	lines := puz.InputToLines()
 
 	var i int
 	for i = 0; i < len(lines); i++ {

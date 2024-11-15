@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	n := puz.InputToInt(2017, 3)
+	n := puz.InputToInt()
 	c := SpiralCoordinate(n)
 	fmt.Println(puz.Origin2D.ManhattanDistance(c))
 }

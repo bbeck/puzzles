@@ -48,7 +48,7 @@ type Food struct {
 }
 
 func InputToFood() []Food {
-	return puz.InputLinesTo(2020, 21, func(line string) Food {
+	return puz.InputLinesTo(func(line string) Food {
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 		line = strings.ReplaceAll(line, ",", "")

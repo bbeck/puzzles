@@ -33,7 +33,7 @@ type Claim struct {
 }
 
 func InputToClaims() []Claim {
-	return puz.InputLinesTo(2018, 3, func(line string) Claim {
+	return puz.InputLinesTo(func(line string) Claim {
 		var claim Claim
 		fmt.Sscanf(line, "#%s @ %d,%d: %dx%d", &claim.ID, &claim.TL.X, &claim.TL.Y, &claim.Width, &claim.Height)
 		return claim

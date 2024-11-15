@@ -54,7 +54,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return puz.InputLinesTo(2015, 23, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "+", "")
 		opcode, rest, _ := strings.Cut(line, " ")

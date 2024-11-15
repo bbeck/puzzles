@@ -62,7 +62,7 @@ func CountWins(positions []int) (int, int) {
 }
 
 func InputToStartingPositions() []int {
-	return puz.InputLinesTo(2021, 21, func(line string) int {
+	return puz.InputLinesTo(func(line string) int {
 		_, rhs, _ := strings.Cut(line, ": ")
 		return puz.ParseInt(rhs)
 	})

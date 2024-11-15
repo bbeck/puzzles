@@ -139,7 +139,7 @@ type Nanobot struct {
 }
 
 func InputToNanobots() []Nanobot {
-	return puz.InputLinesTo(2018, 23, func(line string) Nanobot {
+	return puz.InputLinesTo(func(line string) Nanobot {
 		var p puz.Point3D
 		var r int
 		fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &p.X, &p.Y, &p.Z, &r)

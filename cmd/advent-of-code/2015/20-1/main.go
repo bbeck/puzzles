@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	desired := puz.InputToInt(2015, 20)
+	desired := puz.InputToInt()
 
 	var house int
 	for house = 1; ; house++ {

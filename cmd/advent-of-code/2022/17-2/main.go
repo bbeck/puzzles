@@ -8,7 +8,7 @@ import (
 const N = 1000000000000
 
 func main() {
-	input := puz.InputToString(2022, 17)
+	input := puz.InputToString()
 
 	var heights []int          // heights after each turn
 	turns := make(map[Key]int) // memoization table

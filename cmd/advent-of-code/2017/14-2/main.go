@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	key := puz.InputToString(2017, 14)
+	key := puz.InputToString()
 
 	grid := puz.NewGrid2D[bool](128, 128)
 	for row := 0; row < grid.Height; row++ {

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	m := puz.InputToIntGrid2D(2021, 9)
+	m := puz.InputToIntGrid2D()
 
 	isLowPoint := func(p puz.Point2D) bool {
 		hp := m.GetPoint(p)

@@ -83,7 +83,7 @@ func main() {
 }
 
 func InputToBoard() (puz.Grid2D[rune], []string) {
-	lines := puz.InputToLines(2022, 22)
+	lines := puz.InputToLines()
 
 	var W, H int
 	for y := 0; y < len(lines)-2; y++ {

@@ -43,7 +43,7 @@ func (p *Particle) Step() {
 }
 
 func InputToParticles() []Particle {
-	return puz.InputLinesTo(2017, 20, func(line string) Particle {
+	return puz.InputLinesTo(func(line string) Particle {
 		var particle Particle
 		fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
 			&particle.pos.X, &particle.pos.Y, &particle.pos.Z,

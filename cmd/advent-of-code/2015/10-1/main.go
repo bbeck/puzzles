@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var digits []int
-	for _, c := range puz.InputToString(2015, 10) {
+	for _, c := range puz.InputToString() {
 		digits = append(digits, puz.ParseInt(string(c)))
 	}
 

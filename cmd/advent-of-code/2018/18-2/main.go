@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	area := Area{puz.InputToStringGrid2D(2018, 18)}
+	area := Area{puz.InputToStringGrid2D()}
 	area = puz.WalkCycleWithIdentity(area, 1_000_000_000, Next, Key)
 
 	counts := make(map[string]int)

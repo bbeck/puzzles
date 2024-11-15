@@ -33,7 +33,7 @@ type Layer []int
 
 func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range puz.InputToString(2019, 8) {
+	for _, b := range puz.InputToString() {
 		digits = append(digits, puz.ParseInt(string(b)))
 	}
 

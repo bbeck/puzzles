@@ -56,7 +56,7 @@ func IsList(n any) bool {
 
 func InputToNumbers() []any {
 	var numbers []any
-	for _, line := range puz.InputToLines(2022, 13) {
+	for _, line := range puz.InputToLines() {
 		if len(line) == 0 {
 			continue
 		}

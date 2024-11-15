@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	prefix := puz.InputToString(2015, 4)
+	prefix := puz.InputToString()
 
 	var nonce int
 	for nonce = 0; ; nonce++ {

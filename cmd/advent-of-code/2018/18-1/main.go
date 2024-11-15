@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	area := Area{puz.InputToStringGrid2D(2018, 18)}
+	area := Area{puz.InputToStringGrid2D()}
 	for n := 0; n < 10; n++ {
 		area = Next(area)
 	}

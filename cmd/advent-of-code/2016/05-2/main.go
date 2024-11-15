@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	prefix := puz.InputToString(2016, 5)
+	prefix := puz.InputToString()
 
 	password := make([]uint8, 8)
 	for nonce, count := 0, 0; count < 8; nonce++ {

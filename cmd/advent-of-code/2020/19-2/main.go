@@ -63,7 +63,7 @@ func ToRegex(rules map[string][]Clause, id string) string {
 type Clause []string
 
 func InputToRulesAndTests() (map[string][]Clause, []string) {
-	lines := puz.InputToLines(2020, 19)
+	lines := puz.InputToLines()
 	rules := make(map[string][]Clause)
 
 	var index int

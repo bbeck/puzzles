@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	s := puz.InputToString(2017, 1)
+	s := puz.InputToString()
 	N := len(s)
 
 	var sum int

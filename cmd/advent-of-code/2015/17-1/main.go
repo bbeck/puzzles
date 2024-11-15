@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	sizes := puz.InputToInts(2015, 17)
+	sizes := puz.InputToInts()
 
 	var count int
 	EnumerateWays(sizes, func(containers []bool) {

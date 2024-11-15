@@ -41,7 +41,7 @@ type Node struct {
 }
 
 func InputToInstructionsAndGraph() (string, []*Node) {
-	lines := puz.InputToLines(2023, 8)
+	lines := puz.InputToLines()
 	instructions := lines[0]
 
 	nodes := make(map[string]*Node)

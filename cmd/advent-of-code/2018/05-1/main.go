@@ -13,7 +13,7 @@ func main() {
 	}
 
 	var stack puz.Stack[rune]
-	for _, c := range puz.InputToString(2018, 5) {
+	for _, c := range puz.InputToString() {
 		if stack.Peek() == matches[c] {
 			stack.Pop()
 		} else {

@@ -77,7 +77,7 @@ type Sensor struct {
 }
 
 func InputToSensors() []Sensor {
-	return puz.InputLinesTo(2022, 15, func(line string) Sensor {
+	return puz.InputLinesTo(func(line string) Sensor {
 		var sensor, beacon puz.Point2D
 		fmt.Sscanf(
 			line,

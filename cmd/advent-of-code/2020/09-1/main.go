@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ns := puz.InputToInts(2020, 9)
+	ns := puz.InputToInts()
 
 	for i := 25; i < len(ns); i++ {
 		if !SumExists(ns[i-25:i], ns[i]) {

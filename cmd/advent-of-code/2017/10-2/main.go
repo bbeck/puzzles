@@ -43,7 +43,7 @@ func Hash(buffer []byte) string {
 
 func InputToLengths() []byte {
 	var lengths []byte
-	for _, c := range puz.InputToString(2017, 10) {
+	for _, c := range puz.InputToString() {
 		lengths = append(lengths, byte(c))
 	}
 	lengths = append(lengths, []byte{17, 31, 73, 47, 23}...)

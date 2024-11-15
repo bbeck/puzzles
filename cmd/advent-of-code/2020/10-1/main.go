@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	adapters := puz.InputToInts(2020, 10)
+	adapters := puz.InputToInts()
 	adapters = append(adapters, 0)
 	adapters = append(adapters, puz.Max(adapters...)+3)
 	sort.Ints(adapters)

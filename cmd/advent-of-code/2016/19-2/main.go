@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	n := puz.InputToInt(2016, 19)
+	n := puz.InputToInt()
 
 	// create each elf
 	elves := make([]*Elf, n)

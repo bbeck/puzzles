@@ -41,7 +41,7 @@ type Component struct {
 }
 
 func InputToComponents() []Component {
-	return puz.InputLinesTo(2017, 24, func(line string) Component {
+	return puz.InputLinesTo(func(line string) Component {
 		lhs, rhs, _ := strings.Cut(line, "/")
 		return Component{
 			L: puz.ParseInt(lhs),

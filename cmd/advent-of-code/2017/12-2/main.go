@@ -28,7 +28,7 @@ func main() {
 
 func InputToGraph() map[int][]int {
 	edges := make(map[int][]int)
-	for _, line := range puz.InputToLines(2017, 12) {
+	for _, line := range puz.InputToLines() {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "<-> ", "")
 		fields := strings.Fields(line)

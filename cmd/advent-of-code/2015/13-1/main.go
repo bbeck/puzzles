@@ -76,7 +76,7 @@ func (g *Graph) Edge(from, to string) int {
 
 func InputToGraph() Graph {
 	var g Graph
-	for _, line := range puz.InputToLines(2015, 13) {
+	for _, line := range puz.InputToLines() {
 		// Transform the line to remove filler words to make it easier to parse by Sscanf.
 		line = strings.ReplaceAll(line, " would ", " ")
 		line = strings.ReplaceAll(line, " happiness units by sitting next to ", " ")

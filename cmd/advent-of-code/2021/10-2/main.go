@@ -22,7 +22,7 @@ var Points = map[rune]int{
 
 func main() {
 	var scores []int
-	for _, line := range puz.InputToLines(2021, 10) {
+	for _, line := range puz.InputToLines() {
 		stack, isCorrupted := Check(line)
 		if isCorrupted {
 			continue

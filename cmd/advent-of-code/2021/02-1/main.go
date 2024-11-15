@@ -26,7 +26,7 @@ type Command struct {
 }
 
 func InputToCommands() []Command {
-	return puz.InputLinesTo(2021, 2, func(line string) Command {
+	return puz.InputLinesTo(func(line string) Command {
 		var command Command
 		fmt.Sscanf(line, "%s %d", &command.Direction, &command.Distance)
 		return command

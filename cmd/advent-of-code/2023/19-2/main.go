@@ -95,7 +95,7 @@ func (i Interval) Intersect(j Interval) Interval {
 
 func InputToWorkflows() map[string][]Rule {
 	workflows := make(map[string][]Rule)
-	for _, line := range puz.InputToLines(2023, 19) {
+	for _, line := range puz.InputToLines() {
 		if line == "" {
 			continue
 		}

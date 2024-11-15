@@ -55,7 +55,7 @@ func InputToGrid() (Grid, puz.Point2D) {
 	grid := make(Grid)
 	minX, minY := math.MaxInt, math.MaxInt
 	maxX, maxY := math.MinInt, math.MinInt
-	for y, line := range puz.InputToLines(2017, 22) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			grid[puz.Point2D{X: x, Y: y}] = string(c)
 			minX = puz.Min(minX, x)

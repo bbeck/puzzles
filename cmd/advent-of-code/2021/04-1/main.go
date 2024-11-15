@@ -44,7 +44,7 @@ type Board struct {
 }
 
 func InputToGame() ([]int, []Board) {
-	lines := puz.InputToLines(2021, 4)
+	lines := puz.InputToLines()
 
 	var nums []int
 	for _, s := range strings.Split(lines[0], ",") {

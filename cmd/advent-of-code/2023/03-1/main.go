@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2023, 3)
+	grid := puz.InputToStringGrid2D()
 
 	var sum int
 	ForEachNumber(grid, func(x int, y int, num int) {

@@ -189,7 +189,7 @@ type State struct {
 
 func InputToInitialState() State {
 	var board [W][H]byte
-	for y, line := range puz.InputToLines(2021, 23) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			board[x][y] = byte(c)
 		}

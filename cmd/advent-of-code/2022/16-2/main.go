@@ -99,7 +99,7 @@ func InputToValves() ([]Valve, int) {
 	rates := make(map[string]int)
 	neighbors := make(map[string][]string)
 
-	for _, line := range puz.InputToLines(2022, 16) {
+	for _, line := range puz.InputToLines() {
 		line = strings.ReplaceAll(line, "Valve ", "")
 		line = strings.ReplaceAll(line, "has flow rate=", "")
 		line = strings.ReplaceAll(line, "; tunnels lead to valves", "")

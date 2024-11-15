@@ -74,7 +74,7 @@ type Sample struct {
 }
 
 func InputToSamples() []Sample {
-	input := puz.InputToString(2018, 16)
+	input := puz.InputToString()
 	regex := regexp.MustCompile(`\d+`)
 
 	var nums []int

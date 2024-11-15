@@ -20,7 +20,7 @@ func main() {
 		"9": 9,
 	}
 
-	nums := puz.InputLinesTo[int](2023, 1, func(line string) int {
+	nums := puz.InputLinesTo[int](func(line string) int {
 		L := len(line)
 
 		var first, last int

@@ -29,7 +29,7 @@ func (t Triangle) IsValid() bool {
 }
 
 func InputToTriangles() []Triangle {
-	nums := puz.InputLinesTo(2016, 3, func(line string) []int {
+	nums := puz.InputLinesTo(func(line string) []int {
 		parts := strings.Fields(line)
 		return []int{
 			puz.ParseInt(parts[0]),

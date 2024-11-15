@@ -48,7 +48,7 @@ type Instruction struct {
 func InputToPaper() (puz.Set[puz.Point2D], []Instruction) {
 	var points puz.Set[puz.Point2D]
 	var instructions []Instruction
-	for _, line := range puz.InputToLines(2021, 13) {
+	for _, line := range puz.InputToLines() {
 		if line == "" {
 			continue
 		}

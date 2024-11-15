@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var waypoints []puz.Point2D
-	grid := puz.InputToGrid2D(2016, 24, func(x, y int, value string) bool {
+	grid := puz.InputToGrid2D(func(x, y int, value string) bool {
 		if value == "#" {
 			return false
 		}

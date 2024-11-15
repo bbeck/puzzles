@@ -51,7 +51,7 @@ func InputToWorkflowsAndParts() (map[string][]Rule, []Part) {
 	workflows := make(map[string][]Rule)
 	parts := make([]Part, 0)
 
-	for _, line := range puz.InputToLines(2023, 19) {
+	for _, line := range puz.InputToLines() {
 		if line == "" {
 			continue
 		}

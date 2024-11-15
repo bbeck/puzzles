@@ -6,17 +6,52 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"runtime"
 	"strconv"
+	"strings"
+)
+
+var CallerDirectoryRegexp = regexp.MustCompile(
+	`.*/([^/]+)/([0-9]{4})/([0-9]{2})[-]([0-9])/main.go$`,
 )
 
 // InputFilename determines the input file for a specific day's part.
-func InputFilename(year, day int) string {
-	return fmt.Sprintf("cmd/%d/%02d-1/input.txt", year, day)
+func InputFilename() string {
+	// Determine the site, year, day and part from the caller.  In all cases I've
+	// tested this info has been present in the caller entry, it may be at a
+	// different level depending on how many method calls happened first.
+	var m []string
+	for n := 0; n < 10; n++ {
+		_, caller, _, _ := runtime.Caller(n)
+
+		m = CallerDirectoryRegexp.FindStringSubmatch(caller)
+		if m != nil {
+			break
+		}
+	}
+
+	if m == nil {
+		panic("unable to find site, year, day and part from caller")
+	}
+
+	site, year, day, part := m[1], m[2], m[3], m[4]
+
+	// Determine the path to the input.txt relative to the working directory.
+	wd, _ := os.Getwd()
+
+	if strings.HasSuffix(wd, fmt.Sprintf("/cmd/%s/%s/%s-%s", site, year, day, part)) {
+		// We're in the problem's directory, the input is in the part 1 directory.
+		return fmt.Sprintf("../%s-1/input.txt", day)
+	}
+
+	// Assume we're in the root of the project.
+	return fmt.Sprintf("cmd/%s/%s/%s-1/input.txt", site, year, day)
 }
 
 // InputToBytes reads the entire input file into a slice of bytes.
-func InputToBytes(year, day int) []byte {
-	bs, err := os.ReadFile(InputFilename(year, day))
+func InputToBytes() []byte {
+	bs, err := os.ReadFile(InputFilename())
 	if err != nil {
 		log.Fatalf("unable to read input.txt: %+v", err)
 	}
@@ -25,14 +60,14 @@ func InputToBytes(year, day int) []byte {
 }
 
 // InputToString reads the entire input file into a string.
-func InputToString(year, day int) string {
-	return string(InputToBytes(year, day))
+func InputToString() string {
+	return string(InputToBytes())
 }
 
 // InputToLines reads the input file into a slice of strings with each string
 // representing a line of the file.  The newline character is not included.
-func InputToLines(year, day int) []string {
-	file, err := os.Open(InputFilename(year, day))
+func InputToLines() []string {
+	file, err := os.Open(InputFilename())
 	if err != nil {
 		log.Fatalf("unable to open input.txt: %+v", err)
 	}
@@ -54,9 +89,9 @@ func InputToLines(year, day int) []string {
 // InputLinesTo transforms each line of the input file into an instance
 // returned by a transform function.  The instances are returned in a
 // slice in the same order as they appear in the file.
-func InputLinesTo[T any](year, day int, parse func(string) T) []T {
+func InputLinesTo[T any](parse func(string) T) []T {
 	var ts []T
-	for _, line := range InputToLines(year, day) {
+	for _, line := range InputToLines() {
 		ts = append(ts, parse(line))
 	}
 
@@ -64,13 +99,13 @@ func InputLinesTo[T any](year, day int, parse func(string) T) []T {
 }
 
 // InputToInt reads the input file into a single integer.
-func InputToInt(year, day int) int {
-	return InputToInts(year, day)[0]
+func InputToInt() int {
+	return InputToInts()[0]
 }
 
 // InputToInts reads the input file into a slice of integers.
-func InputToInts(year, day int) []int {
-	return InputLinesTo(year, day, func(s string) int {
+func InputToInts() []int {
+	return InputLinesTo(func(s string) int {
 		n, _ := strconv.Atoi(s)
 		return n
 	})
@@ -78,8 +113,8 @@ func InputToInts(year, day int) []int {
 
 // InputToGrid2D builds a Grid2D instance from the input using the provided
 // function to determine the value for each cell in the grid.
-func InputToGrid2D[T any](year, day int, fn func(int, int, string) T) Grid2D[T] {
-	lines := InputToLines(year, day)
+func InputToGrid2D[T any](fn func(int, int, string) T) Grid2D[T] {
+	lines := InputToLines()
 
 	grid := NewGrid2D[T](len(lines[0]), len(lines))
 	for y, line := range lines {
@@ -92,15 +127,15 @@ func InputToGrid2D[T any](year, day int, fn func(int, int, string) T) Grid2D[T] 
 }
 
 // InputToStringGrid2D builds a Grid2D[string] instance from the input.
-func InputToStringGrid2D(year, day int) Grid2D[string] {
-	return InputToGrid2D(year, day, func(_ int, _ int, s string) string {
+func InputToStringGrid2D() Grid2D[string] {
+	return InputToGrid2D(func(_ int, _ int, s string) string {
 		return s
 	})
 }
 
 // InputToIntGrid2D builds a Grid2D[int] instance from the input.
-func InputToIntGrid2D(year, day int) Grid2D[int] {
-	return InputToGrid2D(year, day, func(_ int, _ int, s string) int {
+func InputToIntGrid2D() Grid2D[int] {
+	return InputToGrid2D(func(_ int, _ int, s string) int {
 		return ParseInt(s)
 	})
 }

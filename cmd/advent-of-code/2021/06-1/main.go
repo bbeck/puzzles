@@ -29,7 +29,7 @@ func main() {
 }
 
 func InputToFish() []int {
-	line := puz.InputToString(2021, 6)
+	line := puz.InputToString()
 
 	var fs []int
 	for _, s := range strings.Split(strings.TrimSpace(line), ",") {

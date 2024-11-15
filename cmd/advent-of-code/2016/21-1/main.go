@@ -86,7 +86,7 @@ func Move(x, y int) Operation {
 }
 
 func InputToOperations() []Operation {
-	return puz.InputLinesTo(2016, 21, func(line string) Operation {
+	return puz.InputLinesTo(func(line string) Operation {
 		tokens := strings.Fields(line)
 		if tokens[0] == "swap" && tokens[1] == "position" {
 			x := puz.ParseInt(tokens[2])

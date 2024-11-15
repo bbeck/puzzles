@@ -70,7 +70,7 @@ type Cart struct {
 
 func InputToTrack() map[puz.Point2D]string {
 	track := make(map[puz.Point2D]string)
-	for y, line := range puz.InputToLines(2018, 13) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			p := puz.Point2D{X: x, Y: y}
 			switch c {
@@ -94,7 +94,7 @@ func InputToTrack() map[puz.Point2D]string {
 
 func InputToCarts() []Cart {
 	var carts []Cart
-	for y, line := range puz.InputToLines(2018, 13) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			cart := Cart{
 				Turtle: puz.Turtle{Location: puz.Point2D{X: x, Y: y}},

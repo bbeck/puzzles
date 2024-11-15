@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	line := puz.InputToString(2023, 15)
+	line := puz.InputToString()
 
 	var sum int
 	for _, field := range strings.Split(line, ",") {

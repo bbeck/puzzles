@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	s := puz.InputToString(2015, 12)
+	s := puz.InputToString()
 
 	var tree interface{}
 	if err := json.Unmarshal([]byte(s), &tree); err != nil {

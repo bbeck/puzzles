@@ -67,7 +67,7 @@ func InputToModules() map[string]Module {
 	targets := make(map[string][]string)
 	parents := make(map[string][]string)
 
-	for _, line := range puz.InputToLines(2023, 20) {
+	for _, line := range puz.InputToLines() {
 		kind, id, children := ParseModule(line)
 
 		ids.Add(id)

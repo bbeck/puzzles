@@ -114,7 +114,7 @@ func (b *Bits) Skip(n int) *Bits {
 
 func InputToBitStream() *Bits {
 	var bits Bits
-	for _, c := range puz.InputToString(2021, 16) {
+	for _, c := range puz.InputToString() {
 		n := puz.ParseIntWithBase(string(c), 16)
 		for mask := 0b1000; mask > 0; mask >>= 1 {
 			bits = append(bits, n&mask == mask)

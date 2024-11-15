@@ -73,7 +73,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(2016, 8, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		var instruction Instruction
 		if _, err := fmt.Sscanf(line, "%s %dx%d", &instruction.Kind, &instruction.Width, &instruction.Height); err == nil {
 			return instruction

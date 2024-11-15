@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	target := puz.InputToInt(2017, 3)
+	target := puz.InputToInt()
 	sums := map[puz.Point2D]int{
 		puz.Origin2D: 1,
 	}

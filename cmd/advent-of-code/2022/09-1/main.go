@@ -16,7 +16,7 @@ func main() {
 	var head, tail puz.Point2D
 
 	seen := puz.SetFrom(tail)
-	for _, line := range puz.InputToLines(2022, 9) {
+	for _, line := range puz.InputToLines() {
 		dir := Headings[line[0]]
 		n := puz.ParseInt(line[2:])
 		head = head.MoveN(dir, n)

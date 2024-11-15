@@ -35,7 +35,7 @@ func NewComputer(id int, inputs map[int]chan puz.Point2D) *cpus.IntcodeCPU {
 	var point *puz.Point2D
 
 	return &cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 23),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input: func() int {
 			if !hasSentId {
 				hasSentId = true

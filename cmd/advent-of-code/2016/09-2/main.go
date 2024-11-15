@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	s := puz.InputToString(2016, 9)
+	s := puz.InputToString()
 	fmt.Println(DecompressedLength(s))
 }
 

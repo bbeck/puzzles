@@ -113,7 +113,7 @@ func ForEachNeighbor(x, y int, fn func(x, y, delta int)) {
 
 func InputToGrid() puz.BitSet {
 	var grid puz.BitSet
-	for y, line := range puz.InputToLines(2019, 24) {
+	for y, line := range puz.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
 				grid = grid.Add(y*N + x)

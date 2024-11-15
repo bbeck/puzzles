@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	desired := puz.InputToInt(2015, 20)
+	desired := puz.InputToInt()
 
 	houses := make([]int, desired+1)
 	for elf := 1; elf <= desired; elf++ {

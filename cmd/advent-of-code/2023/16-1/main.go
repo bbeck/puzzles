@@ -7,7 +7,7 @@ import (
 
 func main() {
 	turtle := puz.Turtle{Location: puz.Origin2D.Left(), Heading: puz.Right}
-	grid := puz.InputToStringGrid2D(2023, 16)
+	grid := puz.InputToStringGrid2D()
 	energized := puz.NewGrid2D[string](grid.Width, grid.Height)
 
 	Walk(turtle, grid, energized)

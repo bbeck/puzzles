@@ -32,6 +32,6 @@ func main() {
 
 func InputToParameters() (int, int) {
 	var numPlayers, numMarbles int
-	fmt.Sscanf(puz.InputToString(2018, 9), "%d players; last marble is worth %d points", &numPlayers, &numMarbles)
+	fmt.Sscanf(puz.InputToString(), "%d players; last marble is worth %d points", &numPlayers, &numMarbles)
 	return numPlayers, numMarbles
 }

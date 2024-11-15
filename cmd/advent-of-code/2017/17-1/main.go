@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	stride := puz.InputToInt(2017, 17)
+	stride := puz.InputToInt()
 
 	var ring puz.Ring[int]
 	for n := 0; n <= 2017; n++ {

@@ -64,7 +64,7 @@ func main() {
 
 func InputToAsteroidLocations() []puz.Point2D {
 	var locations []puz.Point2D
-	for y, line := range puz.InputToLines(2019, 10) {
+	for y, line := range puz.InputToLines() {
 		for x, b := range line {
 			if b == '#' {
 				locations = append(locations, puz.Point2D{X: x, Y: y})

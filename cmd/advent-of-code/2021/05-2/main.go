@@ -51,7 +51,7 @@ type Segment struct {
 }
 
 func InputToSegments() []Segment {
-	return puz.InputLinesTo(2021, 5, func(line string) Segment {
+	return puz.InputLinesTo(func(line string) Segment {
 		var s Segment
 		fmt.Sscanf(line, "%d,%d -> %d,%d", &s.Start.X, &s.Start.Y, &s.End.X, &s.End.Y)
 		return s

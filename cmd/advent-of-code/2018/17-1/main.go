@@ -95,7 +95,7 @@ type World struct{ puz.Grid2D[int] }
 func InputToWorld() World {
 	// Convert the input into line segments
 	type Line []puz.Point2D
-	lines := puz.InputLinesTo(2018, 17, func(s string) Line {
+	lines := puz.InputLinesTo(func(s string) Line {
 		var x1, x2, y1, y2 int
 		var line Line
 		if _, err := fmt.Sscanf(s, "x=%d, y=%d..%d", &x1, &y1, &y2); err == nil {

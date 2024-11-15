@@ -66,7 +66,7 @@ func (m Map) FindOutput(interval Interval) []Interval {
 }
 
 func InputToSeedsAndMaps() ([]Interval, []Map) {
-	lines := puz.InputToLines(2023, 5)
+	lines := puz.InputToLines()
 
 	var seeds []Interval
 	fields := strings.Fields(lines[0][6:])

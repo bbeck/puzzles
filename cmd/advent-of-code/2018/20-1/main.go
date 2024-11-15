@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	regex := puz.InputToString(2018, 20)
+	regex := puz.InputToString()
 	world, origin := ParseRegex(regex)
 
 	// Determine the point that's furthest from the current location.  Because

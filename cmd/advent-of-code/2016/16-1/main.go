@@ -8,7 +8,7 @@ import (
 const Size = 272
 
 func main() {
-	data := puz.InputToBytes(2016, 16)
+	data := puz.InputToBytes()
 	for len(data) < Size {
 		data = Expand(data)
 	}

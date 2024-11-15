@@ -69,7 +69,7 @@ func (o Operation) Hash() int {
 }
 
 func InputToOperations() []Operation {
-	line := puz.InputToString(2023, 15)
+	line := puz.InputToString()
 	parts := strings.Split(line, ",")
 
 	var ops []Operation

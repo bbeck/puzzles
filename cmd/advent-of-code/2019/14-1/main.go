@@ -50,7 +50,7 @@ type Reaction struct {
 }
 
 func InputToReactions() []Reaction {
-	return puz.InputLinesTo(2019, 14, func(line string) Reaction {
+	return puz.InputLinesTo(func(line string) Reaction {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 
 		var reaction Reaction

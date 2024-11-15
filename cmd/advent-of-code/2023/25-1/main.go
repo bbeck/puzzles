@@ -107,7 +107,7 @@ func (g *Graph) RemoveEdge(from, to string) {
 
 func InputToGraph() Graph {
 	g := make(Graph)
-	for _, line := range puz.InputToLines(2023, 25) {
+	for _, line := range puz.InputToLines() {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 

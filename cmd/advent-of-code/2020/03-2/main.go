@@ -38,7 +38,7 @@ func CountTrees(grid puz.Grid2D[bool], slope puz.Point2D) int {
 }
 
 func InputToGrid() puz.Grid2D[bool] {
-	return puz.InputToGrid2D(2020, 3, func(x int, y int, s string) bool {
+	return puz.InputToGrid2D(func(x int, y int, s string) bool {
 		return s == "#"
 	})
 }

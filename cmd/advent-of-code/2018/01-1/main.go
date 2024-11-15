@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var frequency int
-	for _, i := range puz.InputToInts(2018, 1) {
+	for _, i := range puz.InputToInts() {
 		frequency += i
 	}
 

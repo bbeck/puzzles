@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var start puz.Point2D
-	grid := puz.InputToGrid2D(2022, 12, func(x, y int, s string) byte {
+	grid := puz.InputToGrid2D(func(x, y int, s string) byte {
 		if s == "S" {
 			return 'a'
 		}

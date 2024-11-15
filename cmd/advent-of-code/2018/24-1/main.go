@@ -144,7 +144,7 @@ func InputToGroups() []*Group {
 	var groups []*Group
 
 	var kind string
-	for _, line := range puz.InputToLines(2018, 24) {
+	for _, line := range puz.InputToLines() {
 		if len(line) == 0 {
 			continue
 		}

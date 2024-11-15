@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var sum2, sum3 int
-	for _, line := range puz.InputToLines(2018, 2) {
+	for _, line := range puz.InputToLines() {
 		var counter puz.FrequencyCounter[rune]
 		for _, c := range line {
 			counter.Add(c)

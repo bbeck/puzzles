@@ -177,7 +177,7 @@ func InputToScanners() []Scanner {
 	var scanners []Scanner
 
 	var current Scanner
-	for _, line := range puz.InputToLines(2021, 19) {
+	for _, line := range puz.InputToLines() {
 		if line == "" {
 			if current.ID != "" {
 				scanners = append(scanners, current)

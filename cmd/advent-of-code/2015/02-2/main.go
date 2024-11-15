@@ -34,5 +34,5 @@ func InputToBoxes() []Box {
 		}
 		return box
 	}
-	return puz.InputLinesTo(2015, 2, parser)
+	return puz.InputLinesTo(parser)
 }

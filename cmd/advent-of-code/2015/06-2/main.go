@@ -39,7 +39,7 @@ var Ops = map[string]func(int) int{
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(2015, 6, func(line string) Instruction {
+	return puz.InputLinesTo(func(line string) Instruction {
 		// Transform the operation into a single word, this allows it to be parsed by Sscanf
 		line = strings.ReplaceAll(line, "turn on", "on")
 		line = strings.ReplaceAll(line, "turn off", "off")

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 9),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input:  func() int { return 1 },
 		Output: func(value int) { fmt.Println(value) },
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	calories := puz.InputLinesTo(2022, 1, func(line string) int {
+	calories := puz.InputLinesTo(func(line string) int {
 		if line == "" {
 			return 0
 		}

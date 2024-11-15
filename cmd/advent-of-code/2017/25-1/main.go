@@ -41,7 +41,7 @@ type Action struct {
 
 func InputToMachine() (string, int, map[string]map[int]Action) {
 	var lines []string
-	for _, line := range puz.InputToLines(2017, 25) {
+	for _, line := range puz.InputToLines() {
 		line = strings.ReplaceAll(line, ".", "")
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, "-", "")

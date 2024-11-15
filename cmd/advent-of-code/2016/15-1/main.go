@@ -30,7 +30,7 @@ type Disc struct {
 }
 
 func InputToDiscs() []Disc {
-	return puz.InputLinesTo(2016, 15, func(line string) Disc {
+	return puz.InputLinesTo(func(line string) Disc {
 		line = strings.ReplaceAll(line, "Disc #", "")
 		line = strings.ReplaceAll(line, "has ", "")
 		line = strings.ReplaceAll(line, "positions; at time=", "")

@@ -8,7 +8,7 @@ import (
 const N = 14
 
 func main() {
-	s := puz.InputToString(2022, 6)
+	s := puz.InputToString()
 	for end := N; end < len(s); end++ {
 		bs := []byte(s[end-N : end])
 		if len(puz.SetFrom(bs...)) == N {

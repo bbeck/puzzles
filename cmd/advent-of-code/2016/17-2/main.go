@@ -74,6 +74,6 @@ type Room struct {
 
 func InputToRoom() Room {
 	return Room{
-		Passcode: puz.InputToString(2016, 17),
+		Passcode: puz.InputToString(),
 	}
 }

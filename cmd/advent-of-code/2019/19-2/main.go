@@ -39,7 +39,7 @@ func IsInTractorBeam(x, y int) bool {
 
 	var output bool
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 19),
+		Memory: cpus.InputToIntcodeMemory(),
 		Input:  func() int { return <-inputs },
 		Output: func(value int) { output = value == 1 },
 	}

@@ -36,6 +36,6 @@ func HexDistance(a, b puz.Point2D) int {
 }
 
 func InputToSteps() []string {
-	s := puz.InputToString(2017, 11)
+	s := puz.InputToString()
 	return strings.Split(s, ",")
 }

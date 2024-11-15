@@ -23,7 +23,7 @@ func main() {
 }
 
 func InputToPositions() []int {
-	line := puz.InputToString(2021, 7)
+	line := puz.InputToString()
 
 	var fs []int
 	for _, s := range strings.Split(line, ",") {

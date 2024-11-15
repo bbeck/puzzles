@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	pool := puz.InputToIntGrid2D(2023, 17)
+	pool := puz.InputToIntGrid2D()
 
 	children := func(c Crucible) []Crucible {
 		var children []Crucible

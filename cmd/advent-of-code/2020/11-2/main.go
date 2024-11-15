@@ -93,7 +93,7 @@ func Equals(a, b puz.Grid2D[uint8]) bool {
 }
 
 func InputToSeats() puz.Grid2D[uint8] {
-	return puz.InputToGrid2D(2020, 11, func(x int, y int, s string) uint8 {
+	return puz.InputToGrid2D(func(x int, y int, s string) uint8 {
 		return s[0]
 	})
 }

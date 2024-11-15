@@ -50,7 +50,7 @@ func Destination(circle, removed *ring.Ring) int {
 }
 
 func InputToCircle() (*ring.Ring, map[int]*ring.Ring) {
-	digits := puz.Digits(puz.InputToInt(2020, 23))
+	digits := puz.Digits(puz.InputToInt())
 
 	circle := ring.New(len(digits))
 	index := make(map[int]*ring.Ring)

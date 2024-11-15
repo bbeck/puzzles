@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var adapters puz.Set[int]
-	adapters.Add(puz.InputToInts(2020, 10)...)
+	adapters.Add(puz.InputToInts()...)
 
 	start, end := 0, puz.Max(adapters.Entries()...)
 	adapters.Add(start, end)

@@ -106,7 +106,7 @@ type Character struct {
 
 func InputToBoss() Character {
 	var boss Character
-	for _, line := range puz.InputToLines(2015, 21) {
+	for _, line := range puz.InputToLines() {
 		fmt.Sscanf(line, "Hit Points: %d", &boss.HitPoints)
 		fmt.Sscanf(line, "Damage: %d", &boss.Damage)
 		fmt.Sscanf(line, "Armor: %d", &boss.Armor)

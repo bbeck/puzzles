@@ -34,7 +34,7 @@ type Range struct {
 }
 
 func InputToFieldsAndTickets() (map[string][]Range, [][]int) {
-	lines := puz.InputToLines(2020, 16)
+	lines := puz.InputToLines()
 	fields := make(map[string][]Range)
 
 	var index int

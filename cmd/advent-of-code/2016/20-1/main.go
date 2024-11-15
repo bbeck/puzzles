@@ -36,7 +36,7 @@ type Range struct {
 }
 
 func InputToRanges() []Range {
-	return puz.InputLinesTo(2016, 20, func(line string) Range {
+	return puz.InputLinesTo(func(line string) Range {
 		start, end, _ := strings.Cut(line, "-")
 		return Range{
 			Start: puz.ParseInt(start),

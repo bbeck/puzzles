@@ -107,7 +107,7 @@ func InputToPlan() []Step {
 		return -1
 	}
 
-	return puz.InputLinesTo(2023, 18, func(line string) Step {
+	return puz.InputLinesTo(func(line string) Step {
 		var heading, color string
 		var length int
 

@@ -55,7 +55,7 @@ type Tiles []bool
 
 func InputToTiles() Tiles {
 	var tiles Tiles
-	for _, c := range puz.InputToString(2016, 18) {
+	for _, c := range puz.InputToString() {
 		tiles = append(tiles, c == '^')
 	}
 

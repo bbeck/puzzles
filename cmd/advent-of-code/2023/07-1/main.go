@@ -84,7 +84,7 @@ type Hand struct {
 }
 
 func InputToHands() []Hand {
-	return puz.InputLinesTo(2023, 7, func(line string) Hand {
+	return puz.InputLinesTo(func(line string) Hand {
 		lhs, rhs, _ := strings.Cut(line, " ")
 
 		return Hand{

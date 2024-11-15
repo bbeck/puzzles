@@ -182,13 +182,13 @@ type Unit struct {
 }
 
 func InputToCavern() puz.Grid2D[bool] {
-	return puz.InputToGrid2D(2018, 15, func(x int, y int, s string) bool {
+	return puz.InputToGrid2D(func(x int, y int, s string) bool {
 		return s != "#"
 	})
 }
 
 func InputToUnits() []Unit {
-	lines := puz.InputToLines(2018, 15)
+	lines := puz.InputToLines()
 
 	var units []Unit
 	for y := 0; y < len(lines); y++ {

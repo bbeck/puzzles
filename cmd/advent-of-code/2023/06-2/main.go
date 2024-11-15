@@ -29,7 +29,7 @@ func main() {
 
 func InputToTimeAndDistance() (float64, float64) {
 	var time, distance float64
-	for _, line := range puz.InputToLines(2023, 6) {
+	for _, line := range puz.InputToLines() {
 		var sb strings.Builder
 		for _, field := range strings.Fields(line)[1:] {
 			sb.WriteString(field)

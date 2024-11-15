@@ -39,7 +39,7 @@ func (m Map) Lookup(target int) int {
 }
 
 func InputToSeedsAndMaps() ([]int, []Map) {
-	lines := puz.InputToLines(2023, 5)
+	lines := puz.InputToLines()
 
 	var seeds []int
 	for _, field := range strings.Fields(lines[0][6:]) {

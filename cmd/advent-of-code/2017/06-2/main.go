@@ -60,7 +60,7 @@ func Choose(banks []int) (int, int) {
 
 func InputToBanks() []int {
 	var banks []int
-	for _, field := range strings.Fields(puz.InputToString(2017, 6)) {
+	for _, field := range strings.Fields(puz.InputToString()) {
 		banks = append(banks, puz.ParseInt(field))
 	}
 	return banks

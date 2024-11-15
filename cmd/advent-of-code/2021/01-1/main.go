@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ns := puz.InputToInts(2021, 1)
+	ns := puz.InputToInts()
 
 	var count int
 	for i := 1; i < len(ns); i++ {

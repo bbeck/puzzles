@@ -19,7 +19,7 @@ var Scores = map[string]int{
 
 func main() {
 	var score int
-	for _, line := range puz.InputToLines(2022, 2) {
+	for _, line := range puz.InputToLines() {
 		score += Scores[line]
 	}
 	fmt.Println(score)

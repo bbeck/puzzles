@@ -158,9 +158,9 @@ func (cpu *IntcodeCPU) Step() {
 	}
 }
 
-func InputToIntcodeMemory(year, day int) Memory {
+func InputToIntcodeMemory() Memory {
 	opcodes := make(Memory)
-	for addr, s := range strings.Split(puz.InputToString(year, day), ",") {
+	for addr, s := range strings.Split(puz.InputToString(), ",") {
 		opcodes[addr] = puz.ParseInt(s)
 	}
 

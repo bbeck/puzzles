@@ -21,7 +21,7 @@ var Points = map[rune]int{
 
 func main() {
 	var score int
-	for _, line := range puz.InputToLines(2021, 10) {
+	for _, line := range puz.InputToLines() {
 		var stack puz.Stack[rune]
 		for _, c := range line {
 			if closing, isOpening := Closing[c]; isOpening {

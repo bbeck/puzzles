@@ -11,7 +11,7 @@ func main() {
 	// The signal value for each cycle.  Seeded with 1 since x starts at 1.
 	signals := []int{1}
 
-	for _, line := range puz.InputToLines(2022, 10) {
+	for _, line := range puz.InputToLines() {
 		x := signals[len(signals)-1]
 
 		switch op, arg, _ := strings.Cut(line, " "); op {

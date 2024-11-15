@@ -85,7 +85,7 @@ func InputToPlan() []Step {
 		return puz.ParseIntWithBase(s[:5], 16)
 	}
 
-	return puz.InputLinesTo(2023, 18, func(line string) Step {
+	return puz.InputLinesTo(func(line string) Step {
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 		line = strings.ReplaceAll(line, "#", "")

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D(2023, 23)
+	grid := puz.InputToStringGrid2D()
 
 	var start, end puz.Point2D
 	grid.ForEachPoint(func(p puz.Point2D, s string) {

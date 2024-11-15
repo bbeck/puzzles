@@ -12,7 +12,7 @@ func main() {
 	// Build the grid.
 	var current puz.Point2D
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(2019, 17),
+		Memory: cpus.InputToIntcodeMemory(),
 		Output: func(value int) {
 			switch value {
 			case '.':

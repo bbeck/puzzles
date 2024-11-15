@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	packages := puz.InputToInts(2015, 24)
+	packages := puz.InputToInts()
 	target := puz.Sum(packages...) / 4
 
 	// Find all candidates for the passenger compartment.  This partition should

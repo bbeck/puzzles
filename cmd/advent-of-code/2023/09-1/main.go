@@ -28,7 +28,7 @@ func Extrapolate(ns []int) int {
 }
 
 func InputToIntLines() [][]int {
-	return puz.InputLinesTo(2023, 9, func(line string) []int {
+	return puz.InputLinesTo(func(line string) []int {
 		var ns []int
 		for _, s := range strings.Fields(line) {
 			ns = append(ns, puz.ParseInt(s))

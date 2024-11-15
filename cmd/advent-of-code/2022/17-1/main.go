@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	input := puz.InputToString(2022, 17)
+	input := puz.InputToString()
 
 	var room = Room{0x1FF}
 	var bindex, iindex = -1, -1

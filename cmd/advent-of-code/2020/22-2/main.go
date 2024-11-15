@@ -80,7 +80,7 @@ func InputToDecks() (Deck, Deck) {
 	var decks [2]puz.Deque[byte]
 
 	current := -1
-	for _, line := range puz.InputToLines(2020, 22) {
+	for _, line := range puz.InputToLines() {
 		if len(line) == 0 {
 			continue
 		}

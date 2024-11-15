@@ -121,7 +121,7 @@ type Blueprint struct {
 func InputToBlueprints() []Blueprint {
 	regex := regexp.MustCompile(`\d+`)
 
-	return puz.InputLinesTo(2022, 19, func(s string) Blueprint {
+	return puz.InputLinesTo(func(s string) Blueprint {
 		ns := regex.FindAllString(s, -1)
 		return Blueprint{
 			ID: puz.ParseInt(ns[0]),

@@ -18,6 +18,6 @@ func main() {
 }
 
 func InputToKeys() (int, int) {
-	ns := puz.InputToInts(2020, 25)
+	ns := puz.InputToInts()
 	return ns[0], ns[1]
 }

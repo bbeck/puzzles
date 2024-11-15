@@ -77,7 +77,7 @@ type Row struct {
 }
 
 func InputToRows() []Row {
-	return puz.InputLinesTo(2023, 12, func(line string) Row {
+	return puz.InputLinesTo(func(line string) Row {
 		springs, rhs, _ := strings.Cut(line, " ")
 
 		var groups []int

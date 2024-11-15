@@ -35,7 +35,7 @@ func main() {
 }
 
 func InputToTargetArea() (int, int, int, int) {
-	s := puz.InputToString(2021, 17)
+	s := puz.InputToString()
 
 	var minX, maxX, minY, maxY int
 	fmt.Sscanf(s, "target area: x=%d..%d, y=%d..%d", &minX, &maxX, &minY, &maxY)

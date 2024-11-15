@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var count int
-	for _, line := range puz.InputToLines(2022, 4) {
+	for _, line := range puz.InputToLines() {
 		lhs, rhs, _ := strings.Cut(line, ",")
 		alo, ahi := ParseRange(lhs)
 		blo, bhi := ParseRange(rhs)

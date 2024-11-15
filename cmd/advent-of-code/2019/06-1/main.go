@@ -30,7 +30,7 @@ type Orbit struct {
 }
 
 func InputToOrbits() []Orbit {
-	return puz.InputLinesTo(2019, 6, func(line string) Orbit {
+	return puz.InputLinesTo(func(line string) Orbit {
 		var orbit Orbit
 		orbit.Parent, orbit.Child, _ = strings.Cut(line, ")")
 		return orbit

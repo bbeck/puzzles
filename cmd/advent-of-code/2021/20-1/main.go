@@ -56,7 +56,7 @@ func Enhance(image puz.Set[puz.Point2D], algorithm []bool, border bool) (puz.Set
 }
 
 func InputToAlgorithmAndImage() ([]bool, puz.Set[puz.Point2D]) {
-	lines := puz.InputToLines(2021, 20)
+	lines := puz.InputToLines()
 
 	var algorithm []bool
 	for _, c := range lines[0] {

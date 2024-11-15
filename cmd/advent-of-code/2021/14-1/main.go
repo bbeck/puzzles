@@ -31,7 +31,7 @@ func main() {
 }
 
 func InputToTemplateAndRules() (string, map[string]string) {
-	lines := puz.InputToLines(2021, 14)
+	lines := puz.InputToLines()
 
 	template := lines[0]
 

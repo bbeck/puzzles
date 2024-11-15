@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	ns := puz.InputToInts(2020, 1)
+	ns := puz.InputToInts()
 	for i, a := range ns {
 		for _, b := range ns[i+1:] {
 			if a+b == 2020 {
