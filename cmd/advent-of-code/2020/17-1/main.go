@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -14,14 +14,14 @@ func main() {
 	fmt.Println(len(cube))
 }
 
-func Next(cube puz.Set[puz.Point3D]) puz.Set[puz.Point3D] {
-	var next puz.Set[puz.Point3D]
+func Next(cube lib.Set[lib.Point3D]) lib.Set[lib.Point3D] {
+	var next lib.Set[lib.Point3D]
 
-	tl, br := puz.GetBounds3D(cube.Entries())
+	tl, br := lib.GetBounds3D(cube.Entries())
 	for x := tl.X - 1; x <= br.X+1; x++ {
 		for y := tl.Y - 1; y <= br.Y+1; y++ {
 			for z := tl.Z - 1; z <= br.Z+1; z++ {
-				p := puz.Point3D{X: x, Y: y, Z: z}
+				p := lib.Point3D{X: x, Y: y, Z: z}
 
 				var active int
 				for _, n := range p.Neighbors() {
@@ -42,12 +42,12 @@ func Next(cube puz.Set[puz.Point3D]) puz.Set[puz.Point3D] {
 	return next
 }
 
-func InputToCube() puz.Set[puz.Point3D] {
-	var cube puz.Set[puz.Point3D]
-	for y, line := range puz.InputToLines() {
+func InputToCube() lib.Set[lib.Point3D] {
+	var cube lib.Set[lib.Point3D]
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
-				cube.Add(puz.Point3D{X: x, Y: y})
+				cube.Add(lib.Point3D{X: x, Y: y})
 			}
 		}
 	}

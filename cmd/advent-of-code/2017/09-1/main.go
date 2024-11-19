@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	score := Score(puz.InputToString())
+	score := Score(lib.InputToString())
 	fmt.Println(score)
 }
 

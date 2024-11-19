@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 type Memory map[int]int
@@ -160,8 +160,8 @@ func (cpu *IntcodeCPU) Step() {
 
 func InputToIntcodeMemory() Memory {
 	opcodes := make(Memory)
-	for addr, s := range strings.Split(puz.InputToString(), ",") {
-		opcodes[addr] = puz.ParseInt(s)
+	for addr, s := range strings.Split(lib.InputToString(), ",") {
+		opcodes[addr] = lib.ParseInt(s)
 	}
 
 	return opcodes

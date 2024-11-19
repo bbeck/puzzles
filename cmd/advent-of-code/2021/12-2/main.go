@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
 func main() {
 	caves := InputToCaves()
-	count := CountPaths("start", "end", caves, puz.SetFrom("start"), false)
+	count := CountPaths("start", "end", caves, lib.SetFrom("start"), false)
 	fmt.Println(count)
 }
 
-func CountPaths(current, goal string, caves map[string][]string, seen puz.Set[string], used bool) int {
+func CountPaths(current, goal string, caves map[string][]string, seen lib.Set[string], used bool) int {
 	if current == goal {
 		return 1
 	}
@@ -32,7 +32,7 @@ func CountPaths(current, goal string, caves map[string][]string, seen puz.Set[st
 
 func InputToCaves() map[string][]string {
 	caves := make(map[string][]string)
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		lhs, rhs, _ := strings.Cut(line, "-")
 		caves[lhs] = append(caves[lhs], rhs)
 		caves[rhs] = append(caves[rhs], lhs)

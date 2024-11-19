@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	stride := puz.InputToInt()
+	stride := lib.InputToInt()
 
 	// Remember the value after the 0
 	var after int

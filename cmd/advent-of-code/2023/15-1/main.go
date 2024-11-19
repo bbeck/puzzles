@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
 func main() {
-	line := puz.InputToString()
+	line := lib.InputToString()
 
 	var sum int
 	for _, field := range strings.Split(line, ",") {

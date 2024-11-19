@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D()
+	grid := lib.InputToStringGrid2D()
 
 	var step int
 	for changed := true; changed; step++ {
@@ -16,8 +16,8 @@ func main() {
 	fmt.Println(step)
 }
 
-func Next(grid puz.Grid2D[string]) (puz.Grid2D[string], bool) {
-	next := puz.NewGrid2D[string](grid.Width, grid.Height)
+func Next(grid lib.Grid2D[string]) (lib.Grid2D[string], bool) {
+	next := lib.NewGrid2D[string](grid.Width, grid.Height)
 	changed := false
 
 	// Right
@@ -40,7 +40,7 @@ func Next(grid puz.Grid2D[string]) (puz.Grid2D[string], bool) {
 	})
 
 	grid = next
-	next = puz.NewGrid2D[string](grid.Width, grid.Height)
+	next = lib.NewGrid2D[string](grid.Width, grid.Height)
 
 	// Down
 	grid.ForEach(func(x, y int, value string) {

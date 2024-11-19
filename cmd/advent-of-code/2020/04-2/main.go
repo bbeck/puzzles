@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -24,26 +24,26 @@ func IsValid(p Passport) bool {
 		return false
 	}
 
-	if byr := puz.ParseInt(p["byr"]); byr < 1920 || byr > 2002 {
+	if byr := lib.ParseInt(p["byr"]); byr < 1920 || byr > 2002 {
 		return false
 	}
 
-	if iyr := puz.ParseInt(p["iyr"]); iyr < 2010 || iyr > 2020 {
+	if iyr := lib.ParseInt(p["iyr"]); iyr < 2010 || iyr > 2020 {
 		return false
 	}
 
-	if eyr := puz.ParseInt(p["eyr"]); eyr < 2020 || eyr > 2030 {
+	if eyr := lib.ParseInt(p["eyr"]); eyr < 2020 || eyr > 2030 {
 		return false
 	}
 
 	switch hgt := p["hgt"]; {
 	case strings.HasSuffix(hgt, "cm"):
-		if value := puz.ParseInt(hgt[:len(hgt)-2]); value < 150 || value > 193 {
+		if value := lib.ParseInt(hgt[:len(hgt)-2]); value < 150 || value > 193 {
 			return false
 		}
 
 	case strings.HasSuffix(hgt, "in"):
-		if value := puz.ParseInt(hgt[:len(hgt)-2]); value < 59 || value > 76 {
+		if value := lib.ParseInt(hgt[:len(hgt)-2]); value < 59 || value > 76 {
 			return false
 		}
 
@@ -80,7 +80,7 @@ func InputToPassports() []Passport {
 	var passports []Passport
 
 	current := make(Passport)
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if len(line) == 0 {
 			passports = append(passports, current)
 			current = make(Passport)

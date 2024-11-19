@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func Reduce(chemicals map[string]int, reactions map[string]Reaction) {
 				continue
 			}
 
-			multiplier := puz.Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
+			multiplier := lib.Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
 			chemicals[reaction.Output.Symbol] -= multiplier * reaction.Output.Quantity
 			for _, input := range reaction.Inputs {
 				chemicals[input.Symbol] += multiplier * input.Quantity
@@ -50,7 +50,7 @@ type Reaction struct {
 }
 
 func InputToReactions() []Reaction {
-	return puz.InputLinesTo(func(line string) Reaction {
+	return lib.InputLinesTo(func(line string) Reaction {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 
 		var reaction Reaction
@@ -58,13 +58,13 @@ func InputToReactions() []Reaction {
 			quantity, symbol, _ := strings.Cut(s, " ")
 			reaction.Inputs = append(reaction.Inputs, Chemical{
 				Symbol:   symbol,
-				Quantity: puz.ParseInt(quantity),
+				Quantity: lib.ParseInt(quantity),
 			})
 		}
 
 		quantity, symbol, _ := strings.Cut(rhs, " ")
 		reaction.Output.Symbol = symbol
-		reaction.Output.Quantity = puz.ParseInt(quantity)
+		reaction.Output.Quantity = lib.ParseInt(quantity)
 
 		return reaction
 	})

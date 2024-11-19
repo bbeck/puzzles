@@ -2,34 +2,34 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D()
+	grid := lib.InputToStringGrid2D()
 
 	var best int
 	for x := 0; x < grid.Width; x++ {
-		t := puz.Turtle{Location: puz.Point2D{X: x, Y: -1}, Heading: puz.Down}
-		best = puz.Max(best, TryConfiguration(t, grid))
+		t := lib.Turtle{Location: lib.Point2D{X: x, Y: -1}, Heading: lib.Down}
+		best = lib.Max(best, TryConfiguration(t, grid))
 
-		t = puz.Turtle{Location: puz.Point2D{X: x, Y: grid.Height}, Heading: puz.Up}
-		best = puz.Max(best, TryConfiguration(t, grid))
+		t = lib.Turtle{Location: lib.Point2D{X: x, Y: grid.Height}, Heading: lib.Up}
+		best = lib.Max(best, TryConfiguration(t, grid))
 	}
 
 	for y := 0; y < grid.Height; y++ {
-		t := puz.Turtle{Location: puz.Point2D{X: -1, Y: y}, Heading: puz.Right}
-		best = puz.Max(best, TryConfiguration(t, grid))
+		t := lib.Turtle{Location: lib.Point2D{X: -1, Y: y}, Heading: lib.Right}
+		best = lib.Max(best, TryConfiguration(t, grid))
 
-		t = puz.Turtle{Location: puz.Point2D{X: grid.Width, Y: y}, Heading: puz.Left}
-		best = puz.Max(best, TryConfiguration(t, grid))
+		t = lib.Turtle{Location: lib.Point2D{X: grid.Width, Y: y}, Heading: lib.Left}
+		best = lib.Max(best, TryConfiguration(t, grid))
 	}
 
 	fmt.Println(best)
 }
 
-func TryConfiguration(t puz.Turtle, grid puz.Grid2D[string]) int {
-	energized := puz.NewGrid2D[string](grid.Width, grid.Height)
+func TryConfiguration(t lib.Turtle, grid lib.Grid2D[string]) int {
+	energized := lib.NewGrid2D[string](grid.Width, grid.Height)
 	Walk(t, grid, energized)
 
 	var sum int
@@ -42,11 +42,11 @@ func TryConfiguration(t puz.Turtle, grid puz.Grid2D[string]) int {
 	return sum
 }
 
-func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
-	var seen puz.Set[puz.Turtle]
+func Walk(t lib.Turtle, grid, energized lib.Grid2D[string]) {
+	var seen lib.Set[lib.Turtle]
 
-	var step func(t puz.Turtle)
-	step = func(t puz.Turtle) {
+	var step func(t lib.Turtle)
+	step = func(t lib.Turtle) {
 		if !seen.Add(t) {
 			return
 		}
@@ -63,8 +63,8 @@ func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
 		heading := t.Heading
 
 		switch {
-		case (cell == "|" && (heading == puz.Right || heading == puz.Left)) ||
-			(cell == "-" && (heading == puz.Up || heading == puz.Down)):
+		case (cell == "|" && (heading == lib.Right || heading == lib.Left)) ||
+			(cell == "-" && (heading == lib.Up || heading == lib.Down)):
 			t.TurnLeft()
 			step(t)
 			t.TurnRight()
@@ -72,7 +72,7 @@ func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
 			step(t)
 
 		case cell == "\\":
-			if heading == puz.Up || heading == puz.Down {
+			if heading == lib.Up || heading == lib.Down {
 				t.TurnLeft()
 			} else {
 				t.TurnRight()
@@ -80,7 +80,7 @@ func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
 			step(t)
 
 		case cell == "/":
-			if heading == puz.Up || heading == puz.Down {
+			if heading == lib.Up || heading == lib.Down {
 				t.TurnRight()
 			} else {
 				t.TurnLeft()

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func InputToPassports() []Passport {
 	var passports []Passport
 
 	current := make(Passport)
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if len(line) == 0 {
 			passports = append(passports, current)
 			current = make(Passport)

@@ -4,12 +4,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
 func main() {
-	salt := puz.InputToString()
+	salt := lib.InputToString()
 
 	var keys []int
 	for nonce := 0; len(keys) < 64; nonce++ {

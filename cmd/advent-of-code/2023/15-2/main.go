@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -69,7 +69,7 @@ func (o Operation) Hash() int {
 }
 
 func InputToOperations() []Operation {
-	line := puz.InputToString()
+	line := lib.InputToString()
 	parts := strings.Split(line, ",")
 
 	var ops []Operation
@@ -83,7 +83,7 @@ func InputToOperations() []Operation {
 		if label, length, ok := strings.Cut(part, "="); ok {
 			op.Kind = "="
 			op.Label = label
-			op.FocalLength = puz.ParseInt(length)
+			op.FocalLength = lib.ParseInt(length)
 		}
 
 		ops = append(ops, op)

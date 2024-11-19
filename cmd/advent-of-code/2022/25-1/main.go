@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
 func main() {
 	var sum int
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		sum += Parse(line)
 	}
 
@@ -28,7 +28,7 @@ func Parse(s string) int {
 
 	var n int
 	for i, c := range s {
-		pow := puz.Pow(5, uint(N-i-1))
+		pow := lib.Pow(5, uint(N-i-1))
 		n += DigitToValue[c] * pow
 	}
 	return n
@@ -43,7 +43,7 @@ var ValueToDigit = map[int]rune{
 }
 
 func Encode(n int) string {
-	var s puz.Stack[rune]
+	var s lib.Stack[rune]
 
 	var mod int
 	for n > 0 {

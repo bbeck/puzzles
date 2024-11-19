@@ -4,10 +4,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
-var Vault = puz.Point2D{X: 3, Y: 3}
+var Vault = lib.Point2D{X: 3, Y: 3}
 
 func main() {
 	start := InputToRoom()
@@ -21,7 +21,7 @@ func main() {
 		return false
 	}
 
-	puz.BreadthFirstSearch(start, Children, goal)
+	lib.BreadthFirstSearch(start, Children, goal)
 	fmt.Println(len(longest))
 }
 
@@ -68,12 +68,12 @@ func Hash(input string) string {
 }
 
 type Room struct {
-	Coordinate puz.Point2D
+	Coordinate lib.Point2D
 	Passcode   string
 }
 
 func InputToRoom() Room {
 	return Room{
-		Passcode: puz.InputToString(),
+		Passcode: lib.InputToString(),
 	}
 }

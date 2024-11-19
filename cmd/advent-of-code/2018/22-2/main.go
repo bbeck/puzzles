@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -52,7 +52,7 @@ func main() {
 		return cave.target.ManhattanDistance(s.location)
 	}
 
-	_, total, _ := puz.AStarSearch(State{puz.Origin2D, Torch}, children, goal, cost, heuristic)
+	_, total, _ := lib.AStarSearch(State{lib.Origin2D, Torch}, children, goal, cost, heuristic)
 	fmt.Println(total)
 }
 
@@ -75,17 +75,17 @@ var ValidTerrainEquipment = map[int]map[int]bool{
 }
 
 type State struct {
-	location  puz.Point2D
+	location  lib.Point2D
 	equipment int
 }
 
 type Cave struct {
-	geologic map[puz.Point2D]int
+	geologic map[lib.Point2D]int
 	depth    int
-	target   puz.Point2D
+	target   lib.Point2D
 }
 
-func (c Cave) Geologic(p puz.Point2D) int {
+func (c Cave) Geologic(p lib.Point2D) int {
 	if _, found := c.geologic[p]; !found {
 		var geologic int
 		switch {
@@ -105,26 +105,26 @@ func (c Cave) Geologic(p puz.Point2D) int {
 	return c.geologic[p]
 }
 
-func (c Cave) Get(p puz.Point2D) int {
+func (c Cave) Get(p lib.Point2D) int {
 	return c.Geologic(p) % 3
 }
 
 func InputToCave() Cave {
 	var depth int
-	var target puz.Point2D
+	var target lib.Point2D
 
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		k, v, _ := strings.Cut(line, ": ")
 		if k == "depth" {
-			depth = puz.ParseInt(v)
+			depth = lib.ParseInt(v)
 		} else if k == "target" {
 			x, y, _ := strings.Cut(v, ",")
-			target = puz.Point2D{X: puz.ParseInt(x), Y: puz.ParseInt(y)}
+			target = lib.Point2D{X: lib.ParseInt(x), Y: lib.ParseInt(y)}
 		}
 	}
 
 	return Cave{
-		geologic: make(map[puz.Point2D]int),
+		geologic: make(map[lib.Point2D]int),
 		depth:    depth,
 		target:   target,
 	}

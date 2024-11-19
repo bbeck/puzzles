@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	n := puz.InputToInt()
+	n := lib.InputToInt()
 
 	// create each elf
 	elves := make([]*Elf, n)

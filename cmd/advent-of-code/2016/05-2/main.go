@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	prefix := puz.InputToString()
+	prefix := lib.InputToString()
 
 	password := make([]uint8, 8)
 	for nonce, count := 0, 0; count < 8; nonce++ {

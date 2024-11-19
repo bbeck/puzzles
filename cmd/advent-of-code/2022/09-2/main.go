@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
-var Headings = map[byte]puz.Heading{
-	'U': puz.Up,
-	'D': puz.Down,
-	'L': puz.Left,
-	'R': puz.Right,
+var Headings = map[byte]lib.Heading{
+	'U': lib.Up,
+	'D': lib.Down,
+	'L': lib.Left,
+	'R': lib.Right,
 }
 
 func main() {
-	var knots [10]puz.Point2D
+	var knots [10]lib.Point2D
 
-	seen := puz.SetFrom(knots[9])
-	for _, line := range puz.InputToLines() {
+	seen := lib.SetFrom(knots[9])
+	for _, line := range lib.InputToLines() {
 		dir := Headings[line[0]]
-		n := puz.ParseInt(line[2:])
+		n := lib.ParseInt(line[2:])
 		knots[0] = knots[0].MoveN(dir, n)
 
 		for {
@@ -40,12 +40,12 @@ func main() {
 	fmt.Println(len(seen))
 }
 
-func MoveTowards(head, tail puz.Point2D) puz.Point2D {
-	neighbors := puz.SetFrom(head.Neighbors()...)
+func MoveTowards(head, tail lib.Point2D) lib.Point2D {
+	neighbors := lib.SetFrom(head.Neighbors()...)
 	if neighbors.Contains(tail) {
 		return tail
 	}
 
-	dx, dy := puz.Sign(head.X-tail.X), puz.Sign(head.Y-tail.Y)
-	return puz.Point2D{X: tail.X + dx, Y: tail.Y + dy}
+	dx, dy := lib.Sign(head.X-tail.X), lib.Sign(head.Y-tail.Y)
+	return lib.Point2D{X: tail.X + dx, Y: tail.Y + dy}
 }

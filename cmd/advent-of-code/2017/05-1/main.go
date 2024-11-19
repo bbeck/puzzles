@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	offsets := puz.InputToInts()
+	offsets := lib.InputToInts()
 
 	var steps int
 	for pc := 0; pc >= 0 && pc < len(offsets); steps++ {

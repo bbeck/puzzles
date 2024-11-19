@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"sort"
 	"strings"
 )
@@ -25,7 +25,7 @@ type Room struct {
 }
 
 func (r Room) IsReal() bool {
-	var counter puz.FrequencyCounter[rune]
+	var counter lib.FrequencyCounter[rune]
 	for _, c := range r.Name {
 		if c == '-' {
 			continue
@@ -50,13 +50,13 @@ func (r Room) IsReal() bool {
 }
 
 func InputToRooms() []Room {
-	return puz.InputLinesTo(func(line string) Room {
+	return lib.InputLinesTo(func(line string) Room {
 		hyphen := strings.LastIndex(line, "-")
 		bracket := strings.LastIndex(line, "[")
 
 		return Room{
 			Name:     line[:hyphen],
-			SectorID: puz.ParseInt(line[hyphen+1 : bracket]),
+			SectorID: lib.ParseInt(line[hyphen+1 : bracket]),
 			Checksum: line[bracket+1 : len(line)-1],
 		}
 	})

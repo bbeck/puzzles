@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 type State struct {
@@ -45,7 +45,7 @@ func main() {
 		}
 
 		// Award points to the reindeer in the lead
-		furthest := puz.Max(distances...)
+		furthest := lib.Max(distances...)
 		for _, state := range states {
 			if state.Traveled == furthest {
 				state.Points++
@@ -55,7 +55,7 @@ func main() {
 
 	var best int
 	for _, state := range states {
-		best = puz.Max(best, state.Points)
+		best = lib.Max(best, state.Points)
 	}
 	fmt.Println(best)
 }
@@ -77,7 +77,7 @@ type Reindeer struct {
 }
 
 func InputToReindeer() []Reindeer {
-	return puz.InputLinesTo(func(line string) Reindeer {
+	return lib.InputLinesTo(func(line string) Reindeer {
 		line = strings.ReplaceAll(line, " can fly ", " ")
 		line = strings.ReplaceAll(line, " km/s for ", " ")
 		line = strings.ReplaceAll(line, " seconds, but then must rest for ", " ")

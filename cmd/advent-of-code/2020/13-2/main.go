@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -17,16 +17,16 @@ func main() {
 	for i := 0; i < len(offsets); i++ {
 		offsets[i] *= -1
 	}
-	fmt.Println(puz.ChineseRemainderTheorem(offsets, ids))
+	fmt.Println(lib.ChineseRemainderTheorem(offsets, ids))
 }
 
 func InputToBuses() ([]int, []int) {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 
 	var ids, offsets []int
 	for i, s := range strings.Split(lines[1], ",") {
 		if s != "x" {
-			ids = append(ids, puz.ParseInt(s))
+			ids = append(ids, lib.ParseInt(s))
 			offsets = append(offsets, i)
 		}
 	}

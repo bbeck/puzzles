@@ -2,25 +2,25 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	cave := puz.InputToIntGrid2D()
+	cave := lib.InputToIntGrid2D()
 
-	start, end := puz.Origin2D, puz.Point2D{X: cave.Width - 1, Y: cave.Height - 1}
+	start, end := lib.Origin2D, lib.Point2D{X: cave.Width - 1, Y: cave.Height - 1}
 
-	children := func(p puz.Point2D) []puz.Point2D {
-		var children []puz.Point2D
-		cave.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, _ int) {
+	children := func(p lib.Point2D) []lib.Point2D {
+		var children []lib.Point2D
+		cave.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, _ int) {
 			children = append(children, q)
 		})
 		return children
 	}
-	goal := func(p puz.Point2D) bool { return p == end }
-	cost := func(from, to puz.Point2D) int { return cave.GetPoint(to) }
-	heuristic := func(p puz.Point2D) int { return end.ManhattanDistance(p) }
+	goal := func(p lib.Point2D) bool { return p == end }
+	cost := func(from, to lib.Point2D) int { return cave.GetPoint(to) }
+	heuristic := func(p lib.Point2D) int { return end.ManhattanDistance(p) }
 
-	_, risk, _ := puz.AStarSearch(start, children, goal, cost, heuristic)
+	_, risk, _ := lib.AStarSearch(start, children, goal, cost, heuristic)
 	fmt.Println(risk)
 }

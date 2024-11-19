@@ -3,16 +3,16 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D()
+	grid := lib.InputToStringGrid2D()
 	grid = Expand(grid)
 
-	var seen puz.Set[puz.Point2D]
+	var seen lib.Set[lib.Point2D]
 	var sum int
-	grid.ForEachPoint(func(p puz.Point2D, s string) {
+	grid.ForEachPoint(func(p lib.Point2D, s string) {
 		if s != "#" {
 			return
 		}
@@ -26,9 +26,9 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Expand(g puz.Grid2D[string]) puz.Grid2D[string] {
+func Expand(g lib.Grid2D[string]) lib.Grid2D[string] {
 	for x := 0; x < g.Width; x++ {
-		var cells puz.Set[string]
+		var cells lib.Set[string]
 		for y := 0; y < g.Height; y++ {
 			cells.Add(g.Get(x, y))
 		}
@@ -41,7 +41,7 @@ func Expand(g puz.Grid2D[string]) puz.Grid2D[string] {
 	}
 
 	for y := 0; y < g.Height; y++ {
-		var cells puz.Set[string]
+		var cells lib.Set[string]
 		for x := 0; x < g.Width; x++ {
 			cells.Add(g.Get(x, y))
 		}
@@ -62,7 +62,7 @@ var Distances = map[string]int{
 	"G": 2,
 }
 
-func Distance(grid puz.Grid2D[string], p, q puz.Point2D) int {
+func Distance(grid lib.Grid2D[string], p, q lib.Point2D) int {
 	var d int
 	for {
 		switch {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -12,8 +12,8 @@ func main() {
 }
 
 func LongestBridge(components []Component) int {
-	var helper func(needed int, used puz.BitSet) (int, int)
-	helper = func(needed int, used puz.BitSet) (int, int) {
+	var helper func(needed int, used lib.BitSet) (int, int)
+	helper = func(needed int, used lib.BitSet) (int, int) {
 		var bestLength, bestStrength int
 		for i, c := range components {
 			var next int
@@ -50,11 +50,11 @@ type Component struct {
 }
 
 func InputToComponents() []Component {
-	return puz.InputLinesTo(func(line string) Component {
+	return lib.InputLinesTo(func(line string) Component {
 		lhs, rhs, _ := strings.Cut(line, "/")
 		return Component{
-			L: puz.ParseInt(lhs),
-			R: puz.ParseInt(rhs),
+			L: lib.ParseInt(lhs),
+			R: lib.ParseInt(rhs),
 		}
 	})
 }

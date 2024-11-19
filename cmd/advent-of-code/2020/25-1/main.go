@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -10,14 +10,14 @@ func main() {
 
 	var loop int
 	for loop = 1; ; loop++ {
-		if puz.ModPow(7, loop, 20201227) == card {
+		if lib.ModPow(7, loop, 20201227) == card {
 			break
 		}
 	}
-	fmt.Println(puz.ModPow(door, loop, 20201227))
+	fmt.Println(lib.ModPow(door, loop, 20201227))
 }
 
 func InputToKeys() (int, int) {
-	ns := puz.InputToInts()
+	ns := lib.InputToInts()
 	return ns[0], ns[1]
 }

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	modules := InputToModules()
 	states := make(map[string]bool)
-	pulses := puz.Deque[Pulse]{}
+	pulses := lib.Deque[Pulse]{}
 	counts := make(map[bool]int)
 
 	for n := 0; n < 1000; n++ {
@@ -46,7 +46,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(puz.Product(puz.GetMapValues(counts)...))
+	fmt.Println(lib.Product(lib.GetMapValues(counts)...))
 }
 
 type Pulse struct {
@@ -62,12 +62,12 @@ type Module struct {
 }
 
 func InputToModules() map[string]Module {
-	ids := puz.Set[string]{}
+	ids := lib.Set[string]{}
 	kinds := make(map[string]string)
 	targets := make(map[string][]string)
 	parents := make(map[string][]string)
 
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		kind, id, children := ParseModule(line)
 
 		ids.Add(id)

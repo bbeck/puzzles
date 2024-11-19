@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 			children = append(children, State{Time: s.Time + 1, Location: s.Location})
 		}
 
-		next.ForEachOrthogonalNeighbor(s.Location, func(n puz.Point2D, bs puz.BitSet) {
+		next.ForEachOrthogonalNeighbor(s.Location, func(n lib.Point2D, bs lib.BitSet) {
 			if bs == 0 {
 				children = append(children, State{Time: s.Time + 1, Location: n})
 			}
@@ -26,8 +26,8 @@ func main() {
 	}
 
 	W, H := GetGrid(0).Width, GetGrid(0).Height
-	path, _ := puz.BreadthFirstSearch(
-		State{Location: puz.Point2D{X: 1, Y: 0}},
+	path, _ := lib.BreadthFirstSearch(
+		State{Location: lib.Point2D{X: 1, Y: 0}},
 		children,
 		func(s State) bool { return s.Location.X == W-2 && s.Location.Y == H-1 },
 	)
@@ -37,12 +37,12 @@ func main() {
 
 type State struct {
 	Time     int
-	Location puz.Point2D
+	Location lib.Point2D
 }
 
-var grids []puz.Grid2D[puz.BitSet]
+var grids []lib.Grid2D[lib.BitSet]
 
-func GetGrid(tm int) puz.Grid2D[puz.BitSet] {
+func GetGrid(tm int) lib.Grid2D[lib.BitSet] {
 	if len(grids) == 0 {
 		grids = append(grids, InputToGrid())
 	}
@@ -54,9 +54,9 @@ func GetGrid(tm int) puz.Grid2D[puz.BitSet] {
 	return grids[tm]
 }
 
-func Next(g puz.Grid2D[puz.BitSet]) puz.Grid2D[puz.BitSet] {
-	next := puz.NewGrid2D[puz.BitSet](g.Width, g.Height)
-	g.ForEach(func(x, y int, bs puz.BitSet) {
+func Next(g lib.Grid2D[lib.BitSet]) lib.Grid2D[lib.BitSet] {
+	next := lib.NewGrid2D[lib.BitSet](g.Width, g.Height)
+	g.ForEach(func(x, y int, bs lib.BitSet) {
 		if bs.Contains(WALL) {
 			next.Set(x, y, next.Get(x, y).Add(WALL))
 			return
@@ -106,9 +106,9 @@ const (
 	RIGHT
 )
 
-func InputToGrid() puz.Grid2D[puz.BitSet] {
-	var bs puz.BitSet
-	return puz.InputToGrid2D(func(x int, y int, s string) puz.BitSet {
+func InputToGrid() lib.Grid2D[lib.BitSet] {
+	var bs lib.BitSet
+	return lib.InputToGrid2D(func(x int, y int, s string) lib.BitSet {
 		switch s {
 		case "#":
 			return bs.Add(WALL)

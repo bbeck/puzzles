@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -10,7 +10,7 @@ const AllItems = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func main() {
 	var sum int
-	for _, sack := range puz.InputToLines() {
+	for _, sack := range lib.InputToLines() {
 		N := len(sack)
 		lhs, rhs := SetFrom(sack[:N/2]), SetFrom(sack[N/2:])
 
@@ -20,6 +20,6 @@ func main() {
 	fmt.Println(sum)
 }
 
-func SetFrom(s string) puz.Set[byte] {
-	return puz.SetFrom([]byte(s)...)
+func SetFrom(s string) lib.Set[byte] {
+	return lib.SetFrom([]byte(s)...)
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -20,7 +20,7 @@ func main() {
 			}
 
 			for _, value := range registers {
-				max = puz.Max(max, value)
+				max = lib.Max(max, value)
 			}
 		}
 	}
@@ -46,20 +46,20 @@ func InputToProgram() []Instruction {
 	}
 
 	condition := func(register string, op string, lim string) func(map[string]int) bool {
-		limit := puz.ParseInt(lim)
+		limit := lib.ParseInt(lim)
 
 		return func(registers map[string]int) bool {
 			return conditions[op](registers[register], limit)
 		}
 	}
 
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		return Instruction{
 			Register:  fields[0],
 			Op:        fields[1],
-			Amount:    puz.ParseInt(fields[2]),
+			Amount:    lib.ParseInt(fields[2]),
 			Condition: condition(fields[4], fields[5], fields[6]),
 		}
 	})

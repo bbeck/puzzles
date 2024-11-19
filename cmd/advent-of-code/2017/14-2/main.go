@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	key := puz.InputToString()
+	key := lib.InputToString()
 
-	grid := puz.NewGrid2D[bool](128, 128)
+	grid := lib.NewGrid2D[bool](128, 128)
 	for row := 0; row < grid.Height; row++ {
 		hash := KnotHash(fmt.Sprintf("%s-%d", key, row))
 
@@ -23,14 +23,14 @@ func main() {
 	}
 
 	// Build a disjoint set from the grid, linking together any connected points.
-	var ds puz.DisjointSet[puz.Point2D]
+	var ds lib.DisjointSet[lib.Point2D]
 	for row := 0; row < grid.Height; row++ {
 		for col := 0; col < grid.Width; col++ {
 			if !grid.Get(col, row) {
 				continue
 			}
 
-			p := puz.Point2D{X: col, Y: row}
+			p := lib.Point2D{X: col, Y: row}
 			ds.Add(p) // Even if there are no neighbors, we need to add this point.
 
 			for _, neighbor := range p.OrthogonalNeighbors() {
@@ -46,10 +46,10 @@ func main() {
 	}
 
 	// Determine how many non-overlapping sets there are in the disjoint set.
-	var set puz.Set[puz.Point2D]
+	var set lib.Set[lib.Point2D]
 	for row := 0; row < grid.Height; row++ {
 		for col := 0; col < grid.Width; col++ {
-			p := puz.Point2D{X: col, Y: row}
+			p := lib.Point2D{X: col, Y: row}
 			if elem, found := ds.Find(p); found {
 				set.Add(elem)
 			}

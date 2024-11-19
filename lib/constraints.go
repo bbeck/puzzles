@@ -1,4 +1,4 @@
-package puz
+package lib
 
 // Signed is a constraint that permits any signed integer type.
 type Signed interface {

@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"log"
 )
 
 func main() {
-	screen := puz.NewGrid2D[bool](50, 6)
+	screen := lib.NewGrid2D[bool](50, 6)
 	for _, instruction := range InputToInstructions() {
 		if instruction.Kind == "rect" {
 			Rect(screen, instruction.Width, instruction.Height)
@@ -23,7 +23,7 @@ func main() {
 	Show(screen)
 }
 
-func Show(screen puz.Grid2D[bool]) {
+func Show(screen lib.Grid2D[bool]) {
 	for y := 0; y < screen.Height; y++ {
 		for x := 0; x < screen.Width; x++ {
 			if screen.Get(x, y) {
@@ -36,7 +36,7 @@ func Show(screen puz.Grid2D[bool]) {
 	}
 }
 
-func Rect(screen puz.Grid2D[bool], width, height int) {
+func Rect(screen lib.Grid2D[bool], width, height int) {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			screen.Set(x, y, true)
@@ -44,7 +44,7 @@ func Rect(screen puz.Grid2D[bool], width, height int) {
 	}
 }
 
-func RotateRow(screen puz.Grid2D[bool], y int, distance int) {
+func RotateRow(screen lib.Grid2D[bool], y int, distance int) {
 	var row []bool
 	for x := 0; x < screen.Width; x++ {
 		row = append(row, screen.Get(x, y))
@@ -55,7 +55,7 @@ func RotateRow(screen puz.Grid2D[bool], y int, distance int) {
 	}
 }
 
-func RotateCol(screen puz.Grid2D[bool], x int, distance int) {
+func RotateCol(screen lib.Grid2D[bool], x int, distance int) {
 	var col []bool
 	for y := 0; y < screen.Height; y++ {
 		col = append(col, screen.Get(x, y))
@@ -73,7 +73,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		var instruction Instruction
 		if _, err := fmt.Sscanf(line, "%s %dx%d", &instruction.Kind, &instruction.Width, &instruction.Height); err == nil {
 			return instruction

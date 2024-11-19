@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	position := 0
 	floor := 0
-	for p, c := range puz.InputToString() {
+	for p, c := range lib.InputToString() {
 		position = p + 1
 
 		switch c {

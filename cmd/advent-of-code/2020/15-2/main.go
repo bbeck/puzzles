@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -34,8 +34,8 @@ func main() {
 
 func InputToInts() []int {
 	var ns []int
-	for _, s := range strings.Split(puz.InputToString(), ",") {
-		ns = append(ns, puz.ParseInt(s))
+	for _, s := range strings.Split(lib.InputToString(), ",") {
+		ns = append(ns, lib.ParseInt(s))
 	}
 	return ns
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -24,13 +24,13 @@ func main() {
 }
 
 type Node struct {
-	puz.Point2D
+	lib.Point2D
 	Size, Used, Avail int
 }
 
 func InputToNodes() []Node {
 	var nodes []Node
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if !strings.HasPrefix(line, "/dev/grid") {
 			continue
 		}
@@ -43,10 +43,10 @@ func InputToNodes() []Node {
 		fields := strings.Fields(line)
 
 		nodes = append(nodes, Node{
-			Point2D: puz.Point2D{X: puz.ParseInt(fields[0]), Y: puz.ParseInt(fields[1])},
-			Size:    puz.ParseInt(fields[2]),
-			Used:    puz.ParseInt(fields[3]),
-			Avail:   puz.ParseInt(fields[4]),
+			Point2D: lib.Point2D{X: lib.ParseInt(fields[0]), Y: lib.ParseInt(fields[1])},
+			Size:    lib.ParseInt(fields[2]),
+			Used:    lib.ParseInt(fields[3]),
+			Avail:   lib.ParseInt(fields[4]),
 		})
 	}
 

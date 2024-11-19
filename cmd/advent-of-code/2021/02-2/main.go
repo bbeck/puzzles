@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -27,7 +27,7 @@ type Command struct {
 }
 
 func InputToCommands() []Command {
-	return puz.InputLinesTo(func(line string) Command {
+	return lib.InputLinesTo(func(line string) Command {
 		var command Command
 		fmt.Sscanf(line, "%s %d", &command.Direction, &command.Distance)
 		return command

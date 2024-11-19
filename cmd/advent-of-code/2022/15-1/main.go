@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"math"
 	"sort"
 )
@@ -46,12 +46,12 @@ type Range struct {
 }
 
 type Sensor struct {
-	puz.Point2D
-	Beacon puz.Point2D
+	lib.Point2D
+	Beacon lib.Point2D
 }
 
 func (s Sensor) GetRange(y int) *Range {
-	distance := s.ManhattanDistance(s.Beacon) - puz.Abs(s.Y-y)
+	distance := s.ManhattanDistance(s.Beacon) - lib.Abs(s.Y-y)
 	if distance < 0 {
 		return nil
 	}
@@ -62,8 +62,8 @@ func (s Sensor) GetRange(y int) *Range {
 }
 
 func InputToSensors() []Sensor {
-	return puz.InputLinesTo(func(line string) Sensor {
-		var sensor, beacon puz.Point2D
+	return lib.InputLinesTo(func(line string) Sensor {
+		var sensor, beacon lib.Point2D
 		fmt.Sscanf(
 			line,
 			"Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d",

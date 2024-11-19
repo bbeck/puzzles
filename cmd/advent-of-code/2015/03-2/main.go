@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	var seen puz.Set[puz.Point2D]
-	seen.Add(puz.Origin2D)
+	var seen lib.Set[lib.Point2D]
+	seen.Add(lib.Origin2D)
 
-	var santa, robot puz.Point2D
+	var santa, robot lib.Point2D
 	for i, dir := range InputToDirections() {
 		if i%2 == 0 {
-			santa = puz.Point2D{X: santa.X + dir.X, Y: santa.Y + dir.Y}
+			santa = lib.Point2D{X: santa.X + dir.X, Y: santa.Y + dir.Y}
 		} else {
-			robot = puz.Point2D{X: robot.X + dir.X, Y: robot.Y + dir.Y}
+			robot = lib.Point2D{X: robot.X + dir.X, Y: robot.Y + dir.Y}
 		}
 		seen.Add(santa, robot)
 	}
@@ -22,11 +22,11 @@ func main() {
 	fmt.Println(len(seen))
 }
 
-func InputToDirections() []puz.Point2D {
-	origin := puz.Origin2D
+func InputToDirections() []lib.Point2D {
+	origin := lib.Origin2D
 
-	var directions []puz.Point2D
-	for _, b := range puz.InputToBytes() {
+	var directions []lib.Point2D
+	for _, b := range lib.InputToBytes() {
 		switch b {
 		case '^':
 			directions = append(directions, origin.Up())

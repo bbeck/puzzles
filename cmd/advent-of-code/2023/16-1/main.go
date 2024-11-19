@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	turtle := puz.Turtle{Location: puz.Origin2D.Left(), Heading: puz.Right}
-	grid := puz.InputToStringGrid2D()
-	energized := puz.NewGrid2D[string](grid.Width, grid.Height)
+	turtle := lib.Turtle{Location: lib.Origin2D.Left(), Heading: lib.Right}
+	grid := lib.InputToStringGrid2D()
+	energized := lib.NewGrid2D[string](grid.Width, grid.Height)
 
 	Walk(turtle, grid, energized)
 
@@ -21,11 +21,11 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
-	var seen puz.Set[puz.Turtle]
+func Walk(t lib.Turtle, grid, energized lib.Grid2D[string]) {
+	var seen lib.Set[lib.Turtle]
 
-	var step func(t puz.Turtle)
-	step = func(t puz.Turtle) {
+	var step func(t lib.Turtle)
+	step = func(t lib.Turtle) {
 		if !seen.Add(t) {
 			return
 		}
@@ -42,8 +42,8 @@ func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
 		heading := t.Heading
 
 		switch {
-		case (cell == "|" && (heading == puz.Right || heading == puz.Left)) ||
-			(cell == "-" && (heading == puz.Up || heading == puz.Down)):
+		case (cell == "|" && (heading == lib.Right || heading == lib.Left)) ||
+			(cell == "-" && (heading == lib.Up || heading == lib.Down)):
 			t.TurnLeft()
 			step(t)
 			t.TurnRight()
@@ -51,7 +51,7 @@ func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
 			step(t)
 
 		case cell == "\\":
-			if heading == puz.Up || heading == puz.Down {
+			if heading == lib.Up || heading == lib.Down {
 				t.TurnLeft()
 			} else {
 				t.TurnRight()
@@ -59,7 +59,7 @@ func Walk(t puz.Turtle, grid, energized puz.Grid2D[string]) {
 			step(t)
 
 		case cell == "/":
-			if heading == puz.Up || heading == puz.Down {
+			if heading == lib.Up || heading == lib.Down {
 				t.TurnRight()
 			} else {
 				t.TurnLeft()

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -12,8 +12,8 @@ func main() {
 		matches[rune('A'+i)] = rune('a' + i)
 	}
 
-	var stack puz.Stack[rune]
-	for _, c := range puz.InputToString() {
+	var stack lib.Stack[rune]
+	for _, c := range lib.InputToString() {
 		if stack.Peek() == matches[c] {
 			stack.Pop()
 		} else {

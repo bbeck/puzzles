@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	var floor puz.Set[HexPoint]
+	var floor lib.Set[HexPoint]
 	for _, steps := range InputToSteps() {
 		var current HexPoint
 		for _, step := range steps {
@@ -25,14 +25,14 @@ func main() {
 	fmt.Println(len(floor))
 }
 
-func Next(floor puz.Set[HexPoint]) puz.Set[HexPoint] {
+func Next(floor lib.Set[HexPoint]) lib.Set[HexPoint] {
 	// We want to consider any black tile and any tiles adjacent to it.
-	var tiles puz.Set[HexPoint]
+	var tiles lib.Set[HexPoint]
 	for p := range floor {
 		tiles.Add(p.Neighbors()...)
 	}
 
-	var next puz.Set[HexPoint]
+	var next lib.Set[HexPoint]
 	for p := range tiles {
 		var count int
 		for _, q := range p.Neighbors() {
@@ -51,7 +51,7 @@ func Next(floor puz.Set[HexPoint]) puz.Set[HexPoint] {
 }
 
 func InputToSteps() [][]string {
-	return puz.InputLinesTo(func(line string) []string {
+	return lib.InputLinesTo(func(line string) []string {
 		var steps []string
 		for len(line) > 0 {
 			if line[0] == 'n' || line[0] == 's' {

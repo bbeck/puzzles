@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	var sum2, sum3 int
-	for _, line := range puz.InputToLines() {
-		var counter puz.FrequencyCounter[rune]
+	for _, line := range lib.InputToLines() {
+		var counter lib.FrequencyCounter[rune]
 		for _, c := range line {
 			counter.Add(c)
 		}

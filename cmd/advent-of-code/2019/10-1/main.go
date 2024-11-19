@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -11,15 +11,15 @@ func main() {
 
 	var best int
 	for _, p := range locations {
-		best = puz.Max(best, NumVisible(p, locations))
+		best = lib.Max(best, NumVisible(p, locations))
 	}
 	fmt.Println(best)
 }
 
-func NumVisible(p puz.Point2D, qs []puz.Point2D) int {
+func NumVisible(p lib.Point2D, qs []lib.Point2D) int {
 	// Consider p as the center of a coordinate system.  Within each quadrant of
 	// the coordinate system only a single point with a slope can be seen by p.
-	var slopes [4]puz.Set[Slope]
+	var slopes [4]lib.Set[Slope]
 	for _, q := range qs {
 		if p == q {
 			continue
@@ -44,12 +44,12 @@ type Slope struct {
 	dy, dx int
 }
 
-func InputToAsteroidLocations() []puz.Point2D {
-	var locations []puz.Point2D
-	for y, line := range puz.InputToLines() {
+func InputToAsteroidLocations() []lib.Point2D {
+	var locations []lib.Point2D
+	for y, line := range lib.InputToLines() {
 		for x, b := range line {
 			if b == '#' {
-				locations = append(locations, puz.Point2D{X: x, Y: y})
+				locations = append(locations, lib.Point2D{X: x, Y: y})
 			}
 		}
 	}

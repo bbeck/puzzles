@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	s := puz.InputToString()
+	s := lib.InputToString()
 
 	var tree interface{}
 	if err := json.Unmarshal([]byte(s), &tree); err != nil {

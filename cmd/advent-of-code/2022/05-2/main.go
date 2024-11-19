@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	crates, instructions := InputToCrates(), InputToInstructions()
 	for _, instr := range instructions {
-		var elems puz.Deque[rune]
+		var elems lib.Deque[rune]
 		for n := 0; n < instr.Count; n++ {
 			elems.PushBack(crates[instr.Start-1].PopFront())
 		}
@@ -27,11 +27,11 @@ func main() {
 }
 
 type Crate struct {
-	puz.Deque[rune]
+	lib.Deque[rune]
 }
 
 func InputToCrates() []Crate {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 	N := (len(lines[0]) + 1) / 4 // Lines are padded with trailing spaces
 
 	crates := make([]Crate, N)
@@ -54,7 +54,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 
 	var i int
 	for i = 0; i < len(lines); i++ {

@@ -5,15 +5,15 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	replacer := strings.NewReplacer("F", "0", "B", "1", "L", "0", "R", "1")
 
 	var ids []int
-	for _, line := range puz.InputToLines() {
-		ids = append(ids, puz.ParseIntWithBase(replacer.Replace(line), 2))
+	for _, line := range lib.InputToLines() {
+		ids = append(ids, lib.ParseIntWithBase(replacer.Replace(line), 2))
 	}
 
 	sort.Ints(ids)

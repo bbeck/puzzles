@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strconv"
 	"strings"
 )
@@ -75,7 +75,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		fields := strings.Fields(line)
 
 		parsed := make([]int, len(fields)-1)

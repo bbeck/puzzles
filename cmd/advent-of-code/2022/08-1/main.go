@@ -2,28 +2,28 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	grid := puz.InputToIntGrid2D()
+	grid := lib.InputToIntGrid2D()
 
 	var count int
-	grid.ForEachPoint(func(p puz.Point2D, _ int) {
+	grid.ForEachPoint(func(p lib.Point2D, _ int) {
 		visible := []bool{
-			IsVisible(grid, p, puz.Left),
-			IsVisible(grid, p, puz.Right),
-			IsVisible(grid, p, puz.Up),
-			IsVisible(grid, p, puz.Down),
+			IsVisible(grid, p, lib.Left),
+			IsVisible(grid, p, lib.Right),
+			IsVisible(grid, p, lib.Up),
+			IsVisible(grid, p, lib.Down),
 		}
-		if puz.Any(visible, puz.Identity[bool]) {
+		if lib.Any(visible, lib.Identity[bool]) {
 			count++
 		}
 	})
 	fmt.Println(count)
 }
 
-func IsVisible(g puz.Grid2D[int], p puz.Point2D, h puz.Heading) bool {
+func IsVisible(g lib.Grid2D[int], p lib.Point2D, h lib.Heading) bool {
 	height := g.GetPoint(p)
 	for p = p.Move(h); g.InBoundsPoint(p); p = p.Move(h) {
 		if g.GetPoint(p) >= height {

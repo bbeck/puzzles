@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	ns := puz.InputToInts()
+	ns := lib.InputToInts()
 
 	var count int
 	for i := 1; i < len(ns); i++ {

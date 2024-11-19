@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	seats := InputToSeats()
 
-	neighbors := make(map[puz.Point2D][]puz.Point2D)
-	seats.ForEachPoint(func(p puz.Point2D, value uint8) {
+	neighbors := make(map[lib.Point2D][]lib.Point2D)
+	seats.ForEachPoint(func(p lib.Point2D, value uint8) {
 		neighbors[p] = GetVisibleNeighbors(p, seats)
 	})
 
@@ -37,9 +37,9 @@ const (
 	Occupied = '#'
 )
 
-func Next(seats puz.Grid2D[uint8], neighbors map[puz.Point2D][]puz.Point2D) puz.Grid2D[uint8] {
-	next := puz.NewGrid2D[uint8](seats.Width, seats.Height)
-	seats.ForEachPoint(func(p puz.Point2D, value uint8) {
+func Next(seats lib.Grid2D[uint8], neighbors map[lib.Point2D][]lib.Point2D) lib.Grid2D[uint8] {
+	next := lib.NewGrid2D[uint8](seats.Width, seats.Height)
+	seats.ForEachPoint(func(p lib.Point2D, value uint8) {
 		var count int
 		for _, neighbor := range neighbors[p] {
 			if seats.GetPoint(neighbor) == Occupied {
@@ -58,15 +58,15 @@ func Next(seats puz.Grid2D[uint8], neighbors map[puz.Point2D][]puz.Point2D) puz.
 	return next
 }
 
-func GetVisibleNeighbors(p puz.Point2D, seats puz.Grid2D[uint8]) []puz.Point2D {
-	var neighbors []puz.Point2D
+func GetVisibleNeighbors(p lib.Point2D, seats lib.Grid2D[uint8]) []lib.Point2D {
+	var neighbors []lib.Point2D
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
 			if dx == 0 && dy == 0 {
 				continue
 			}
 
-			q := puz.Point2D{X: p.X + dx, Y: p.Y + dy}
+			q := lib.Point2D{X: p.X + dx, Y: p.Y + dy}
 			for seats.InBoundsPoint(q) && seats.GetPoint(q) == NotASeat {
 				q.X += dx
 				q.Y += dy
@@ -81,7 +81,7 @@ func GetVisibleNeighbors(p puz.Point2D, seats puz.Grid2D[uint8]) []puz.Point2D {
 	return neighbors
 }
 
-func Equals(a, b puz.Grid2D[uint8]) bool {
+func Equals(a, b lib.Grid2D[uint8]) bool {
 	for y := 0; y < a.Height; y++ {
 		for x := 0; x < a.Width; x++ {
 			if a.Get(x, y) != b.Get(x, y) {
@@ -92,8 +92,8 @@ func Equals(a, b puz.Grid2D[uint8]) bool {
 	return true
 }
 
-func InputToSeats() puz.Grid2D[uint8] {
-	return puz.InputToGrid2D(func(x int, y int, s string) uint8 {
+func InputToSeats() lib.Grid2D[uint8] {
+	return lib.InputToGrid2D(func(x int, y int, s string) uint8 {
 		return s[0]
 	})
 }

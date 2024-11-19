@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"log"
 	"math/big"
 	"strings"
@@ -109,14 +109,14 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		if strings.HasPrefix(line, "deal into new stack") {
 			return Instruction{Kind: DealNewStack}
 		} else if strings.HasPrefix(line, "cut") {
-			arg := puz.ParseInt(strings.Split(line, " ")[1])
+			arg := lib.ParseInt(strings.Split(line, " ")[1])
 			return Instruction{Kind: Cut, Arg: int64(arg)}
 		} else if strings.HasPrefix(line, "deal with increment") {
-			arg := puz.ParseInt(strings.Split(line, " ")[3])
+			arg := lib.ParseInt(strings.Split(line, " ")[3])
 			return Instruction{Kind: DealWithIncrement, Arg: int64(arg)}
 		} else {
 			log.Fatalf("unrecognized line: %s", line)

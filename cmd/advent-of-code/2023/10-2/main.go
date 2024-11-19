@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -11,25 +11,25 @@ func main() {
 
 	// Remove any pipe that's not part of the loop.
 	loop := GetLoopPoints(grid, start)
-	grid.ForEachPoint(func(p puz.Point2D, _ Cell) {
+	grid.ForEachPoint(func(p lib.Point2D, _ Cell) {
 		if !loop.Contains(p) {
 			grid.SetPoint(p, Cell{})
 		}
 	})
 
 	// Flood fill from the edge.
-	var seen puz.Set[puz.Point2D]
+	var seen lib.Set[lib.Point2D]
 	for x := 0; x < grid.Width; x++ {
-		seen = Flood(grid, puz.Point2D{X: x, Y: 0}, seen)
-		seen = Flood(grid, puz.Point2D{X: x, Y: grid.Height - 1}, seen)
+		seen = Flood(grid, lib.Point2D{X: x, Y: 0}, seen)
+		seen = Flood(grid, lib.Point2D{X: x, Y: grid.Height - 1}, seen)
 	}
 	for y := 0; y < grid.Height; y++ {
-		seen = Flood(grid, puz.Point2D{X: 0, Y: y}, seen)
-		seen = Flood(grid, puz.Point2D{X: grid.Width - 1, Y: y}, seen)
+		seen = Flood(grid, lib.Point2D{X: 0, Y: y}, seen)
+		seen = Flood(grid, lib.Point2D{X: grid.Width - 1, Y: y}, seen)
 	}
 
 	var enclosed int
-	grid.ForEachPoint(func(p puz.Point2D, _ Cell) {
+	grid.ForEachPoint(func(p lib.Point2D, _ Cell) {
 		// Only consider points at the center of a 3x3 block.  These are the points
 		// that are in the original, unexpanded grid.
 		if p.X%3 != 1 || p.Y%3 != 1 {
@@ -47,10 +47,10 @@ func main() {
 	fmt.Println(enclosed)
 }
 
-func Triple(grid puz.Grid2D[Cell], start puz.Point2D) (puz.Grid2D[Cell], puz.Point2D) {
-	next := puz.NewGrid2D[Cell](3*grid.Width, 3*grid.Height)
+func Triple(grid lib.Grid2D[Cell], start lib.Point2D) (lib.Grid2D[Cell], lib.Point2D) {
+	next := lib.NewGrid2D[Cell](3*grid.Width, 3*grid.Height)
 	grid.ForEach(func(x int, y int, cell Cell) {
-		center := puz.Point2D{X: 3*x + 1, Y: 3*y + 1}
+		center := lib.Point2D{X: 3*x + 1, Y: 3*y + 1}
 		next.SetPoint(center, cell)
 		if cell.N {
 			next.SetPoint(center.Up(), Cell{N: true, S: true})
@@ -66,14 +66,14 @@ func Triple(grid puz.Grid2D[Cell], start puz.Point2D) (puz.Grid2D[Cell], puz.Poi
 		}
 	})
 
-	return next, puz.Point2D{X: 3*start.X + 1, Y: 3*start.Y + 1}
+	return next, lib.Point2D{X: 3*start.X + 1, Y: 3*start.Y + 1}
 }
 
-func GetLoopPoints(grid puz.Grid2D[Cell], start puz.Point2D) puz.Set[puz.Point2D] {
-	children := func(p puz.Point2D) []puz.Point2D {
+func GetLoopPoints(grid lib.Grid2D[Cell], start lib.Point2D) lib.Set[lib.Point2D] {
+	children := func(p lib.Point2D) []lib.Point2D {
 		cell := grid.GetPoint(p)
 
-		var children []puz.Point2D
+		var children []lib.Point2D
 		if q := p.Up(); cell.N && grid.InBoundsPoint(q) {
 			children = append(children, q)
 		}
@@ -89,22 +89,22 @@ func GetLoopPoints(grid puz.Grid2D[Cell], start puz.Point2D) puz.Set[puz.Point2D
 		return children
 	}
 
-	var loop puz.Set[puz.Point2D]
-	isGoal := func(p puz.Point2D) bool {
+	var loop lib.Set[lib.Point2D]
+	isGoal := func(p lib.Point2D) bool {
 		loop.Add(p)
 		return false
 	}
 
-	puz.BreadthFirstSearch(start, children, isGoal)
+	lib.BreadthFirstSearch(start, children, isGoal)
 	return loop
 }
 
-func Flood(grid puz.Grid2D[Cell], p puz.Point2D, seen puz.Set[puz.Point2D]) puz.Set[puz.Point2D] {
+func Flood(grid lib.Grid2D[Cell], p lib.Point2D, seen lib.Set[lib.Point2D]) lib.Set[lib.Point2D] {
 	if !seen.Add(p) || !grid.GetPoint(p).IsGround() {
 		return seen
 	}
 
-	grid.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, _ Cell) {
+	grid.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, _ Cell) {
 		seen = Flood(grid, q, seen)
 	})
 	return seen
@@ -118,9 +118,9 @@ func (c Cell) IsGround() bool {
 	return !c.N && !c.S && !c.E && !c.W
 }
 
-func InputToGridAndStart() (puz.Grid2D[Cell], puz.Point2D) {
-	var start puz.Point2D
-	grid := puz.InputToGrid2D(func(x int, y int, s string) Cell {
+func InputToGridAndStart() (lib.Grid2D[Cell], lib.Point2D) {
+	var start lib.Point2D
+	grid := lib.InputToGrid2D(func(x int, y int, s string) Cell {
 		switch s {
 		case "|": // | is a vertical pipe connecting north and south.
 			return Cell{N: true, S: true}
@@ -135,7 +135,7 @@ func InputToGridAndStart() (puz.Grid2D[Cell], puz.Point2D) {
 		case "F": // F is a 90-degree bend connecting south and east.
 			return Cell{S: true, E: true}
 		case "S": // S is the starting position of the animal
-			start = puz.Point2D{X: x, Y: y}
+			start = lib.Point2D{X: x, Y: y}
 		}
 		return Cell{}
 	})

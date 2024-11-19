@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D()
+	grid := lib.InputToStringGrid2D()
 
 	var visited strings.Builder
-	turtle := puz.Turtle{Location: FindStart(grid), Heading: puz.Down}
+	turtle := lib.Turtle{Location: FindStart(grid), Heading: lib.Down}
 	for {
 		if c := grid.GetPoint(turtle.Location); c >= "A" && c <= "Z" {
 			visited.WriteString(c)
@@ -41,18 +41,18 @@ func main() {
 	fmt.Println(visited.String())
 }
 
-func CanMoveForward(g puz.Grid2D[string], t puz.Turtle) bool {
+func CanMoveForward(g lib.Grid2D[string], t lib.Turtle) bool {
 	next := t.Location.Move(t.Heading)
 	return g.InBoundsPoint(next) && g.GetPoint(next) != Empty
 }
 
-func FindStart(g puz.Grid2D[string]) puz.Point2D {
+func FindStart(g lib.Grid2D[string]) lib.Point2D {
 	for x := 0; x < g.Width; x++ {
 		if g.Get(x, 0) != Empty {
-			return puz.Point2D{X: x, Y: 0}
+			return lib.Point2D{X: x, Y: 0}
 		}
 	}
-	return puz.Point2D{}
+	return lib.Point2D{}
 }
 
 const Empty string = " "

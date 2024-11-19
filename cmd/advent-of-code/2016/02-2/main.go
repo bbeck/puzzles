@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	digits := puz.InputLinesTo(func(line string) string {
+	digits := lib.InputLinesTo(func(line string) string {
 		return KeypadDigit(line)
 	})
 
@@ -25,12 +25,12 @@ var Keypad = []string{
 	".......",
 }
 
-var Start = puz.Point2D{X: 1, Y: 3}
+var Start = lib.Point2D{X: 1, Y: 3}
 
 func KeypadDigit(s string) string {
 	p := Start
 	for _, c := range s {
-		var next puz.Point2D
+		var next lib.Point2D
 		switch c {
 		case 'U':
 			next = p.Up()

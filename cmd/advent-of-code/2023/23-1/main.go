@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	grid := puz.InputToStringGrid2D()
+	grid := lib.InputToStringGrid2D()
 
-	var start, end puz.Point2D
-	grid.ForEachPoint(func(p puz.Point2D, s string) {
+	var start, end lib.Point2D
+	grid.ForEachPoint(func(p lib.Point2D, s string) {
 		if p.Y == 0 && s == "." {
 			start = p
 		}
@@ -21,7 +21,7 @@ func main() {
 
 	children := func(s State) []State {
 		var children []State
-		grid.ForEachOrthogonalNeighbor(s.Point2D, func(q puz.Point2D, ch string) {
+		grid.ForEachOrthogonalNeighbor(s.Point2D, func(q lib.Point2D, ch string) {
 			if s.Parent == q {
 				return
 			}
@@ -47,17 +47,17 @@ func main() {
 	var longest int
 	goal := func(s State) bool {
 		if s.Point2D == end {
-			longest = puz.Max(longest, s.N)
+			longest = lib.Max(longest, s.N)
 		}
 		return false
 	}
 
-	puz.BreadthFirstSearch(State{start, puz.Origin2D, 0}, children, goal)
+	lib.BreadthFirstSearch(State{start, lib.Origin2D, 0}, children, goal)
 	fmt.Println(longest)
 }
 
 type State struct {
-	puz.Point2D
-	Parent puz.Point2D
+	lib.Point2D
+	Parent lib.Point2D
 	N      int
 }

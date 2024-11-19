@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"path/filepath"
 	"strings"
 )
@@ -11,7 +11,7 @@ func main() {
 	sizes := make(map[string]int)
 
 	var path []string
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		words := strings.Fields(line)
 
 		switch {
@@ -25,7 +25,7 @@ func main() {
 			path = append(path, words[2])
 
 		case words[0] != "$" && words[0] != "dir":
-			size := puz.ParseInt(words[0])
+			size := lib.ParseInt(words[0])
 
 			// Add this size to the current directory and all parents
 			sizes[filepath.Join(path...)] += size

@@ -3,11 +3,11 @@ package main
 import (
   "fmt"
 
-  "github.com/bbeck/advent-of-code/puz"
+  "github.com/bbeck/puzzles/lib"
 )
 
 func main() {
-  for _, line := range puz.InputToLines() {
+  for _, line := range lib.InputToLines() {
     fmt.Println(line)
   }
 }

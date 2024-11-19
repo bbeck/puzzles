@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	input := puz.InputToString()
+	input := lib.InputToString()
 
 	var room = Room{0x1FF}
 	var bindex, iindex = -1, -1

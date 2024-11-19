@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Next(state puz.Set[int], rules map[string]bool) puz.Set[int] {
+func Next(state lib.Set[int], rules map[string]bool) lib.Set[int] {
 	// Determine the rule key for the pot at position n (looks at n-2 to n+2).
 	key := func(n int) string {
 		var sb strings.Builder
@@ -34,9 +34,9 @@ func Next(state puz.Set[int], rules map[string]bool) puz.Set[int] {
 		return sb.String()
 	}
 
-	min, max := puz.Min(state.Entries()...), puz.Max(state.Entries()...)
+	min, max := lib.Min(state.Entries()...), lib.Max(state.Entries()...)
 
-	var next puz.Set[int]
+	var next lib.Set[int]
 	for i := min - 4; i <= max+4; i++ {
 		if rules[key(i)] {
 			next.Add(i)
@@ -45,11 +45,11 @@ func Next(state puz.Set[int], rules map[string]bool) puz.Set[int] {
 	return next
 }
 
-func InputToState() puz.Set[int] {
-	line := puz.InputToLines()[0]
+func InputToState() lib.Set[int] {
+	line := lib.InputToLines()[0]
 	line = strings.ReplaceAll(line, "initial state: ", "")
 
-	var state puz.Set[int]
+	var state lib.Set[int]
 	for i, c := range line {
 		if c == '#' {
 			state.Add(i)
@@ -60,7 +60,7 @@ func InputToState() puz.Set[int] {
 
 func InputToRules() map[string]bool {
 	rules := make(map[string]bool)
-	for _, line := range puz.InputToLines()[2:] {
+	for _, line := range lib.InputToLines()[2:] {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 		rules[lhs] = rhs == "#"
 	}

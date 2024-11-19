@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -55,7 +55,7 @@ type Tiles []bool
 
 func InputToTiles() Tiles {
 	var tiles Tiles
-	for _, c := range puz.InputToString() {
+	for _, c := range lib.InputToString() {
 		tiles = append(tiles, c == '^')
 	}
 

@@ -3,18 +3,18 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	s := puz.InputToString()
+	s := lib.InputToString()
 	N := len(s)
 
 	var sum int
 	for i := 0; i < N; i++ {
 		j := (i + N/2 + N) % N
 		if s[i] == s[j] {
-			sum += puz.ParseInt(string(s[i]))
+			sum += lib.ParseInt(string(s[i]))
 		}
 	}
 	fmt.Println(sum)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -25,15 +25,15 @@ func main() {
 		counts = next
 	}
 
-	fmt.Println(puz.Sum(puz.GetMapValues(counts)...))
+	fmt.Println(lib.Sum(lib.GetMapValues(counts)...))
 }
 
 func InputToFish() []int {
-	line := puz.InputToString()
+	line := lib.InputToString()
 
 	var fs []int
 	for _, s := range strings.Split(strings.TrimSpace(line), ",") {
-		fs = append(fs, puz.ParseInt(s))
+		fs = append(fs, lib.ParseInt(s))
 	}
 	return fs
 }

@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 )
 
 func main() {
-	panels := make(map[puz.Point2D]int)
+	panels := make(map[lib.Point2D]int)
 
-	var robot puz.Turtle
+	var robot lib.Turtle
 	var isPaintInstruction bool
 
 	cpu := cpus.IntcodeCPU{

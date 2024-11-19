@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -42,13 +42,13 @@ type Value struct {
 
 func InputToValues() map[string]Value {
 	values := make(map[string]Value)
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		line = strings.ReplaceAll(line, ":", "")
 		fields := strings.Fields(line)
 
 		var value Value
 		if len(fields) == 2 {
-			value = Value{IsConstant: true, Value: puz.ParseInt(fields[1])}
+			value = Value{IsConstant: true, Value: lib.ParseInt(fields[1])}
 		} else {
 			value = Value{
 				IsExpression: true,

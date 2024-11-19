@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	s := puz.InputToString()
+	s := lib.InputToString()
 	fmt.Println(DecompressedLength(s))
 }
 

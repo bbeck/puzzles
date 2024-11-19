@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -54,7 +54,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "+", "")
 		opcode, rest, _ := strings.Cut(line, " ")
@@ -63,13 +63,13 @@ func InputToProgram() []Instruction {
 		instruction := Instruction{OpCode: opcode}
 		switch opcode {
 		case "jmp":
-			instruction.Offset = puz.ParseInt(args[0])
+			instruction.Offset = lib.ParseInt(args[0])
 		case "jie":
 			instruction.Register = args[0]
-			instruction.Offset = puz.ParseInt(args[1])
+			instruction.Offset = lib.ParseInt(args[1])
 		case "jio":
 			instruction.Register = args[0]
-			instruction.Offset = puz.ParseInt(args[1])
+			instruction.Offset = lib.ParseInt(args[1])
 		default:
 			instruction.Register = args[0]
 		}

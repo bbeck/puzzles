@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -17,11 +17,11 @@ func main() {
 	grandparents := GetGrandparents("rx", modules)
 	pushes := GetNumPushesToTurnOn(grandparents, modules)
 
-	fmt.Println(puz.LCM(pushes...))
+	fmt.Println(lib.LCM(pushes...))
 }
 
 func GetGrandparents(id string, modules map[string]Module) []string {
-	var gp puz.Set[string]
+	var gp lib.Set[string]
 	for _, parent := range modules[id].Parents {
 		gp.Add(modules[parent].Parents...)
 	}
@@ -30,11 +30,11 @@ func GetGrandparents(id string, modules map[string]Module) []string {
 }
 
 func GetNumPushesToTurnOn(ids []string, modules map[string]Module) []int {
-	needs := puz.SetFrom(ids...)
+	needs := lib.SetFrom(ids...)
 	rounds := make([]int, 0)
 
 	states := make(map[string]bool)
-	pulses := puz.Deque[Pulse]{}
+	pulses := lib.Deque[Pulse]{}
 
 	for n := 1; n < 10000 && len(needs) > 0; n++ {
 		pulses.PushBack(Pulse{Source: "button", Target: "broadcaster", Value: false})
@@ -88,12 +88,12 @@ type Module struct {
 }
 
 func InputToModules() map[string]Module {
-	ids := puz.Set[string]{}
+	ids := lib.Set[string]{}
 	kinds := make(map[string]string)
 	targets := make(map[string][]string)
 	parents := make(map[string][]string)
 
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		kind, id, children := ParseModule(line)
 
 		ids.Add(id)

@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	grid, start := InputToGridAndStart()
 
-	children := func(p puz.Point2D) []puz.Point2D {
+	children := func(p lib.Point2D) []lib.Point2D {
 		cell := grid.GetPoint(p)
 
-		var children []puz.Point2D
+		var children []lib.Point2D
 		if q := p.Up(); cell.N && grid.InBoundsPoint(q) {
 			children = append(children, q)
 		}
@@ -27,13 +27,13 @@ func main() {
 		return children
 	}
 
-	var loop puz.Set[puz.Point2D]
-	isGoal := func(p puz.Point2D) bool {
+	var loop lib.Set[lib.Point2D]
+	isGoal := func(p lib.Point2D) bool {
 		loop.Add(p)
 		return false
 	}
 
-	puz.BreadthFirstSearch(start, children, isGoal)
+	lib.BreadthFirstSearch(start, children, isGoal)
 	fmt.Println(len(loop) / 2)
 }
 
@@ -41,9 +41,9 @@ type Cell struct {
 	N, S, E, W bool
 }
 
-func InputToGridAndStart() (puz.Grid2D[Cell], puz.Point2D) {
-	var start puz.Point2D
-	grid := puz.InputToGrid2D(func(x int, y int, s string) Cell {
+func InputToGridAndStart() (lib.Grid2D[Cell], lib.Point2D) {
+	var start lib.Point2D
+	grid := lib.InputToGrid2D(func(x int, y int, s string) Cell {
 		switch s {
 		case "|": // | is a vertical pipe connecting north and south.
 			return Cell{N: true, S: true}
@@ -58,7 +58,7 @@ func InputToGridAndStart() (puz.Grid2D[Cell], puz.Point2D) {
 		case "F": // F is a 90-degree bend connecting south and east.
 			return Cell{S: true, E: true}
 		case "S": // S is the starting position of the animal
-			start = puz.Point2D{X: x, Y: y}
+			start = lib.Point2D{X: x, Y: y}
 		}
 		return Cell{}
 	})

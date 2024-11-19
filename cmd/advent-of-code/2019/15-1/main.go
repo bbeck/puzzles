@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 )
 
 func main() {
 	open, goal := Explore()
 
-	children := func(p puz.Point2D) []puz.Point2D {
-		var children []puz.Point2D
+	children := func(p lib.Point2D) []lib.Point2D {
+		var children []lib.Point2D
 		for _, child := range p.OrthogonalNeighbors() {
 			if open.Contains(child) {
 				children = append(children, child)
@@ -19,29 +19,29 @@ func main() {
 		return children
 	}
 
-	isGoal := func(p puz.Point2D) bool {
+	isGoal := func(p lib.Point2D) bool {
 		return p == goal
 	}
 
-	if path, ok := puz.BreadthFirstSearch(puz.Origin2D, children, isGoal); ok {
+	if path, ok := lib.BreadthFirstSearch(lib.Origin2D, children, isGoal); ok {
 		fmt.Println(len(path) - 1) // The path includes the starting point.
 	}
 }
 
-var Headings = []puz.Heading{puz.Up, puz.Down, puz.Left, puz.Right}
-var Reverse = map[puz.Heading]puz.Heading{
-	puz.Up:    puz.Down,
-	puz.Down:  puz.Up,
-	puz.Left:  puz.Right,
-	puz.Right: puz.Left,
+var Headings = []lib.Heading{lib.Up, lib.Down, lib.Left, lib.Right}
+var Reverse = map[lib.Heading]lib.Heading{
+	lib.Up:    lib.Down,
+	lib.Down:  lib.Up,
+	lib.Left:  lib.Right,
+	lib.Right: lib.Left,
 }
 
-func Explore() (puz.Set[puz.Point2D], puz.Point2D) {
-	var open puz.Set[puz.Point2D]
-	var goal puz.Point2D
+func Explore() (lib.Set[lib.Point2D], lib.Point2D) {
+	var open lib.Set[lib.Point2D]
+	var goal lib.Point2D
 
 	robot := NewRobot()
-	current := puz.Origin2D
+	current := lib.Origin2D
 
 	var helper func()
 	helper = func() {
@@ -92,12 +92,12 @@ func NewRobot() *Robot {
 	return robot
 }
 
-func (r *Robot) Move(h puz.Heading) int {
-	mapping := map[puz.Heading]int{
-		puz.Up:    1,
-		puz.Down:  2,
-		puz.Left:  3,
-		puz.Right: 4,
+func (r *Robot) Move(h lib.Heading) int {
+	mapping := map[lib.Heading]int{
+		lib.Up:    1,
+		lib.Down:  2,
+		lib.Left:  3,
+		lib.Right: 4,
 	}
 
 	r.Commands <- mapping[h]

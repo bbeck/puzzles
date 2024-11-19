@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 const N = 5
 
 func main() {
-	grids := []puz.BitSet{InputToGrid()}
+	grids := []lib.BitSet{InputToGrid()}
 	for tm := 0; tm < 200; tm++ {
 		grids = Next(grids)
 	}
@@ -20,7 +20,7 @@ func main() {
 	fmt.Println(count)
 }
 
-func Next(grids []puz.BitSet) []puz.BitSet {
+func Next(grids []lib.BitSet) []lib.BitSet {
 	get := func(depth, x, y int) int {
 		if depth < 1 || depth > len(grids) || x < 0 || x >= N || y < 0 || y >= N {
 			return 0
@@ -32,7 +32,7 @@ func Next(grids []puz.BitSet) []puz.BitSet {
 		return 0
 	}
 
-	next := make([]puz.BitSet, len(grids)+2)
+	next := make([]lib.BitSet, len(grids)+2)
 	for n := 0; n < len(next); n++ {
 		for x := 0; x < N; x++ {
 			for y := 0; y < N; y++ {
@@ -111,9 +111,9 @@ func ForEachNeighbor(x, y int, fn func(x, y, delta int)) {
 	}
 }
 
-func InputToGrid() puz.BitSet {
-	var grid puz.BitSet
-	for y, line := range puz.InputToLines() {
+func InputToGrid() lib.BitSet {
+	var grid lib.BitSet
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
 				grid = grid.Add(y*N + x)

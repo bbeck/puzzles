@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	dish := puz.InputToStringGrid2D()
+	dish := lib.InputToStringGrid2D()
 	dish = TiltUp(dish)
 
 	var load int
@@ -19,7 +19,7 @@ func main() {
 	fmt.Println(load)
 }
 
-func TiltUp(dish puz.Grid2D[string]) puz.Grid2D[string] {
+func TiltUp(dish lib.Grid2D[string]) lib.Grid2D[string] {
 	up := func(x, y int) int {
 		for dish.InBounds(x, y-1) && dish.Get(x, y-1) == "." {
 			y--

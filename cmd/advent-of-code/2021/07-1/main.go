@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -15,19 +15,19 @@ func main() {
 	for _, target := range positions {
 		var cost int
 		for _, p := range positions {
-			cost += puz.Abs(target - p)
+			cost += lib.Abs(target - p)
 		}
-		best = puz.Min(best, cost)
+		best = lib.Min(best, cost)
 	}
 	fmt.Println(best)
 }
 
 func InputToPositions() []int {
-	line := puz.InputToString()
+	line := lib.InputToString()
 
 	var fs []int
 	for _, s := range strings.Split(line, ",") {
-		fs = append(fs, puz.ParseInt(s))
+		fs = append(fs, lib.ParseInt(s))
 	}
 	return fs
 }

@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	var adapters puz.Set[int]
-	adapters.Add(puz.InputToInts()...)
+	var adapters lib.Set[int]
+	adapters.Add(lib.InputToInts()...)
 
-	start, end := 0, puz.Max(adapters.Entries()...)
+	start, end := 0, lib.Max(adapters.Entries()...)
 	adapters.Add(start, end)
 
 	fmt.Println(Count(adapters, start, end))
 }
 
-func Count(adapters puz.Set[int], start, end int) int {
+func Count(adapters lib.Set[int], start, end int) int {
 	memo := map[int]int{end: 1}
 
 	var helper func(start int) int

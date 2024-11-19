@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -39,7 +39,7 @@ func (g *Game) IsOk() bool {
 }
 
 func InputToGames() []Game {
-	return puz.InputLinesTo(func(line string) Game {
+	return lib.InputLinesTo(func(line string) Game {
 		line = strings.ReplaceAll(line, "Game ", "")
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, ",", "")
@@ -53,12 +53,12 @@ func InputToGames() []Game {
 				continue
 			}
 
-			subsets[len(subsets)-1][fields[i+1]] = puz.ParseInt(fields[i])
+			subsets[len(subsets)-1][fields[i+1]] = lib.ParseInt(fields[i])
 			i++
 		}
 
 		return Game{
-			ID:      puz.ParseInt(fields[0]),
+			ID:      lib.ParseInt(fields[0]),
 			Subsets: subsets,
 		}
 	})

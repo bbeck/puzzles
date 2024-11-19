@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"sort"
 )
 
 func main() {
 	carts, track := InputToCarts(), InputToTrack()
 
-	var collision *puz.Point2D
+	var collision *lib.Point2D
 	for tm := 0; collision == nil; tm++ {
 		// Rearrange the carts to be in their move order.
 		sort.Slice(carts, func(i, j int) bool {
@@ -18,7 +18,7 @@ func main() {
 		})
 
 		// Keep track of the location of each cart to easily find collisions.
-		var locations puz.Set[puz.Point2D]
+		var locations lib.Set[lib.Point2D]
 		for _, cart := range carts {
 			locations.Add(cart.Location)
 		}
@@ -27,14 +27,14 @@ func main() {
 		for i := 0; i < len(carts); i++ {
 			switch track[carts[i].Location] {
 			case "/":
-				if carts[i].Heading == puz.Up || carts[i].Heading == puz.Down {
+				if carts[i].Heading == lib.Up || carts[i].Heading == lib.Down {
 					carts[i].TurnRight()
 				} else {
 					carts[i].TurnLeft()
 				}
 
 			case "\\":
-				if carts[i].Heading == puz.Up || carts[i].Heading == puz.Down {
+				if carts[i].Heading == lib.Up || carts[i].Heading == lib.Down {
 					carts[i].TurnLeft()
 				} else {
 					carts[i].TurnRight()
@@ -64,15 +64,15 @@ func main() {
 }
 
 type Cart struct {
-	puz.Turtle
+	lib.Turtle
 	Turns int
 }
 
-func InputToTrack() map[puz.Point2D]string {
-	track := make(map[puz.Point2D]string)
-	for y, line := range puz.InputToLines() {
+func InputToTrack() map[lib.Point2D]string {
+	track := make(map[lib.Point2D]string)
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
-			p := puz.Point2D{X: x, Y: y}
+			p := lib.Point2D{X: x, Y: y}
 			switch c {
 			case ' ':
 				continue
@@ -94,21 +94,21 @@ func InputToTrack() map[puz.Point2D]string {
 
 func InputToCarts() []Cart {
 	var carts []Cart
-	for y, line := range puz.InputToLines() {
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
 			cart := Cart{
-				Turtle: puz.Turtle{Location: puz.Point2D{X: x, Y: y}},
+				Turtle: lib.Turtle{Location: lib.Point2D{X: x, Y: y}},
 			}
 
 			switch c {
 			case '^':
-				cart.Heading = puz.Up
+				cart.Heading = lib.Up
 			case '>':
-				cart.Heading = puz.Right
+				cart.Heading = lib.Right
 			case 'v':
-				cart.Heading = puz.Down
+				cart.Heading = lib.Down
 			case '<':
-				cart.Heading = puz.Left
+				cart.Heading = lib.Left
 			default:
 				continue
 			}

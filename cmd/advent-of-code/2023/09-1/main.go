@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -28,10 +28,10 @@ func Extrapolate(ns []int) int {
 }
 
 func InputToIntLines() [][]int {
-	return puz.InputLinesTo(func(line string) []int {
+	return lib.InputLinesTo(func(line string) []int {
 		var ns []int
 		for _, s := range strings.Fields(line) {
-			ns = append(ns, puz.ParseInt(s))
+			ns = append(ns, lib.ParseInt(s))
 		}
 		return ns
 	})

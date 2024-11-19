@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	ship := puz.Point2D{}
-	waypoint := puz.Point2D{X: 10, Y: 1}
+	ship := lib.Point2D{}
+	waypoint := lib.Point2D{X: 10, Y: 1}
 
 	for _, instruction := range InputToInstructions() {
 		switch instruction.Action {
@@ -21,11 +21,11 @@ func main() {
 			waypoint.X -= instruction.Value
 		case "L":
 			for n := 0; n < instruction.Value/90; n++ {
-				waypoint = puz.Point2D{X: -waypoint.Y, Y: waypoint.X}
+				waypoint = lib.Point2D{X: -waypoint.Y, Y: waypoint.X}
 			}
 		case "R":
 			for n := 0; n < instruction.Value/90; n++ {
-				waypoint = puz.Point2D{X: waypoint.Y, Y: -waypoint.X}
+				waypoint = lib.Point2D{X: waypoint.Y, Y: -waypoint.X}
 			}
 		case "F":
 			ship.X += instruction.Value * waypoint.X
@@ -33,7 +33,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(puz.Origin2D.ManhattanDistance(ship))
+	fmt.Println(lib.Origin2D.ManhattanDistance(ship))
 }
 
 type Instruction struct {
@@ -42,10 +42,10 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		return Instruction{
 			Action: string(line[0]),
-			Value:  puz.ParseInt(line[1:]),
+			Value:  lib.ParseInt(line[1:]),
 		}
 	})
 }

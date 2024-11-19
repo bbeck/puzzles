@@ -1,4 +1,4 @@
-package puz
+package lib
 
 // Cube represents a 3D volume in space with its faces aligned with the axes.
 type Cube struct {

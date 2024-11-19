@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -15,11 +15,11 @@ func main() {
 	elf1, elf2 := 0, 1
 	for index == -1 {
 		sum := recipes[elf1] + recipes[elf2]
-		recipes = append(recipes, puz.Digits(sum)...)
+		recipes = append(recipes, lib.Digits(sum)...)
 		elf1 = (elf1 + int(recipes[elf1]) + 1) % len(recipes)
 		elf2 = (elf2 + int(recipes[elf2]) + 1) % len(recipes)
 
-		end := puz.Max(0, len(recipes)-L)
+		end := lib.Max(0, len(recipes)-L)
 		index = bytes.Index(recipes[end:], digits)
 	}
 
@@ -28,8 +28,8 @@ func main() {
 
 func InputToDigits() []byte {
 	var digits []byte
-	for _, c := range puz.InputToString() {
-		digits = append(digits, byte(puz.ParseInt(string(c))))
+	for _, c := range lib.InputToString() {
+		digits = append(digits, byte(lib.ParseInt(string(c))))
 	}
 	return digits
 }

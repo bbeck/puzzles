@@ -1,4 +1,4 @@
-package puz
+package lib
 
 // PriorityQueue represents a min heap.  The zero value for PriorityQueue is
 // an empty heap ready to use.

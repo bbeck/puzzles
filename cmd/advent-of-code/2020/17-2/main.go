@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"math"
 )
 
@@ -15,16 +15,16 @@ func main() {
 	fmt.Println(len(cube))
 }
 
-func Next(cube puz.Set[Point4D]) puz.Set[Point4D] {
-	var next puz.Set[Point4D]
+func Next(cube lib.Set[Point4D]) lib.Set[Point4D] {
+	var next lib.Set[Point4D]
 
 	minW, minX, minY, minZ := math.MaxInt, math.MaxInt, math.MaxInt, math.MaxInt
 	maxW, maxX, maxY, maxZ := math.MinInt, math.MinInt, math.MinInt, math.MinInt
 	for p := range cube {
-		minW, maxW = puz.Min(minW, p.W), puz.Max(maxW, p.W)
-		minX, maxX = puz.Min(minX, p.X), puz.Max(maxX, p.X)
-		minY, maxY = puz.Min(minY, p.Y), puz.Max(maxY, p.Y)
-		minZ, maxZ = puz.Min(minZ, p.Z), puz.Max(maxZ, p.Z)
+		minW, maxW = lib.Min(minW, p.W), lib.Max(maxW, p.W)
+		minX, maxX = lib.Min(minX, p.X), lib.Max(maxX, p.X)
+		minY, maxY = lib.Min(minY, p.Y), lib.Max(maxY, p.Y)
+		minZ, maxZ = lib.Min(minZ, p.Z), lib.Max(maxZ, p.Z)
 	}
 
 	for w := minW - 1; w <= maxW+1; w++ {
@@ -53,9 +53,9 @@ func Next(cube puz.Set[Point4D]) puz.Set[Point4D] {
 	return next
 }
 
-func InputToCube() puz.Set[Point4D] {
-	var cube puz.Set[Point4D]
-	for y, line := range puz.InputToLines() {
+func InputToCube() lib.Set[Point4D] {
+	var cube lib.Set[Point4D]
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
 				cube.Add(Point4D{X: x, Y: y})

@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	positions := InputToPositions()
-	velocities := make([]puz.Point3D, len(positions))
+	velocities := make([]lib.Point3D, len(positions))
 
 	for tm := 1; tm <= 1000; tm++ {
 		UpdateVelocities(positions, velocities)
@@ -26,7 +26,7 @@ func main() {
 	fmt.Println(sum)
 }
 
-func UpdateVelocities(p, v []puz.Point3D) {
+func UpdateVelocities(p, v []lib.Point3D) {
 	deltas := func(a, b int) (int, int) {
 		switch {
 		case a < b:
@@ -55,15 +55,15 @@ func UpdateVelocities(p, v []puz.Point3D) {
 	}
 }
 
-func Energy(p, v puz.Point3D) int {
-	pot := puz.Abs(p.X) + puz.Abs(p.Y) + puz.Abs(p.Z)
-	kin := puz.Abs(v.X) + puz.Abs(v.Y) + puz.Abs(v.Z)
+func Energy(p, v lib.Point3D) int {
+	pot := lib.Abs(p.X) + lib.Abs(p.Y) + lib.Abs(p.Z)
+	kin := lib.Abs(v.X) + lib.Abs(v.Y) + lib.Abs(v.Z)
 	return pot * kin
 }
 
-func InputToPositions() []puz.Point3D {
-	return puz.InputLinesTo(func(line string) puz.Point3D {
-		var p puz.Point3D
+func InputToPositions() []lib.Point3D {
+	return lib.InputLinesTo(func(line string) lib.Point3D {
+		var p lib.Point3D
 		fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
 		return p
 	})

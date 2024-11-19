@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func FFT(digits []int, patterns [][]int) []int {
 		for j := 0; j < len(digits); j++ {
 			sum += digits[j] * patterns[i][j]
 		}
-		output[i] = puz.Abs(sum) % 10
+		output[i] = lib.Abs(sum) % 10
 	}
 
 	return output
@@ -52,8 +52,8 @@ func BuildPattern(base []int, n int, length int) []int {
 
 func InputToDigits() []int {
 	var digits []int
-	for _, s := range puz.InputToString() {
-		digits = append(digits, puz.ParseInt(string(s)))
+	for _, s := range lib.InputToString() {
+		digits = append(digits, lib.ParseInt(string(s)))
 	}
 
 	return digits

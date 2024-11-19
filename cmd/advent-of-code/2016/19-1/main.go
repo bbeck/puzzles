@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	n := puz.InputToInt()
+	n := lib.InputToInt()
 
-	var elves puz.Ring[*Elf]
+	var elves lib.Ring[*Elf]
 	for i := 0; i < n; i++ {
 		elves.InsertAfter(&Elf{ID: i + 1, Presents: 1})
 	}

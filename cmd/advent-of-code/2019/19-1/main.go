@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 )
 
 func main() {

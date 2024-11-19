@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	cities := graph.Vertices()
 
 	var distances []int
-	puz.EnumeratePermutations(len(cities), func(perm []int) bool {
+	lib.EnumeratePermutations(len(cities), func(perm []int) bool {
 		distance := 0
 		for i := 1; i < len(perm); i++ {
 			distance += graph.Edge(cities[perm[i-1]], cities[perm[i]])
@@ -25,11 +25,11 @@ func main() {
 		return false
 	})
 
-	fmt.Println(puz.Max(distances...))
+	fmt.Println(lib.Max(distances...))
 }
 
 type Graph struct {
-	vertices  puz.Set[string]
+	vertices  lib.Set[string]
 	distances map[string]map[string]int
 }
 
@@ -70,7 +70,7 @@ func (g *Graph) Edge(from, to string) int {
 
 func InputToGraph() Graph {
 	var g Graph
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		var from, to string
 		var distance int
 

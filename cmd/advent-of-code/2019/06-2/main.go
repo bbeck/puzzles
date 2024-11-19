@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -40,7 +40,7 @@ type Orbit struct {
 }
 
 func InputToOrbits() []Orbit {
-	return puz.InputLinesTo(func(line string) Orbit {
+	return lib.InputLinesTo(func(line string) Orbit {
 		var orbit Orbit
 		orbit.Parent, orbit.Child, _ = strings.Cut(line, ")")
 		return orbit

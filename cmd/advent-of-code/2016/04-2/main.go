@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -38,13 +38,13 @@ func (r Room) Decrypt() string {
 }
 
 func InputToRooms() []Room {
-	return puz.InputLinesTo(func(line string) Room {
+	return lib.InputLinesTo(func(line string) Room {
 		hyphen := strings.LastIndex(line, "-")
 		bracket := strings.LastIndex(line, "[")
 
 		return Room{
 			Name:     line[:hyphen],
-			SectorID: int32(puz.ParseInt(line[hyphen+1 : bracket])),
+			SectorID: int32(lib.ParseInt(line[hyphen+1 : bracket])),
 			Checksum: line[bracket+1 : len(line)-1],
 		}
 	})

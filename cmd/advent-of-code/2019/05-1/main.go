@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	cpu := cpus.IntcodeCPU{
 		Memory: cpus.InputToIntcodeMemory(),
 		Input:  func() int { return 1 },
-		Output: func(value int) { code = puz.Max(code, value) },
+		Output: func(value int) { code = lib.Max(code, value) },
 	}
 	cpu.Execute()
 

@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 		}
 
 		if capacity > 0 && durability > 0 && flavor > 0 && texture > 0 {
-			best = puz.Max(best, capacity*durability*flavor*texture)
+			best = lib.Max(best, capacity*durability*flavor*texture)
 		}
 	})
 
@@ -59,7 +59,7 @@ type Ingredient struct {
 }
 
 func InputToIngredients() []Ingredient {
-	return puz.InputLinesTo(func(line string) Ingredient {
+	return lib.InputLinesTo(func(line string) Ingredient {
 		line = strings.ReplaceAll(line, ",", "")
 		line = strings.ReplaceAll(line, "capacity", "")
 		line = strings.ReplaceAll(line, "durability", "")

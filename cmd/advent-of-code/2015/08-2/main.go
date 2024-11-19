@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	var difference int
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		difference += EncodeLength(line) - len(line)
 	}
 

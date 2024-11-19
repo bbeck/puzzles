@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"math"
 )
 
 func main() {
-	sizes := puz.InputToInts()
+	sizes := lib.InputToInts()
 
 	best := math.MaxInt
 	ways := make(map[int]int)
@@ -19,7 +19,7 @@ func main() {
 			}
 		}
 
-		best = puz.Min(best, count)
+		best = lib.Min(best, count)
 		ways[count]++
 	})
 

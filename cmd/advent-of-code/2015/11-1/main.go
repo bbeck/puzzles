@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	password := puz.InputToBytes()
+	password := lib.InputToBytes()
 
 	for {
 		password = NextPassword(password)

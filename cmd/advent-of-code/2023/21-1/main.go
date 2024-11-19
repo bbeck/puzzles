@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -10,12 +10,12 @@ func main() {
 	fmt.Println(Count(grid, start, 64))
 }
 
-func Count(g puz.Grid2D[string], p puz.Point2D, n int) int {
-	current := puz.SetFrom(p)
+func Count(g lib.Grid2D[string], p lib.Point2D, n int) int {
+	current := lib.SetFrom(p)
 	for n > 0 {
-		var next puz.Set[puz.Point2D]
+		var next lib.Set[lib.Point2D]
 		for p := range current {
-			g.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, s string) {
+			g.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, s string) {
 				if s != "#" {
 					next.Add(q)
 				}
@@ -29,11 +29,11 @@ func Count(g puz.Grid2D[string], p puz.Point2D, n int) int {
 	return len(current)
 }
 
-func InputToGridAndStartingLocation() (puz.Grid2D[string], puz.Point2D) {
-	grid := puz.InputToStringGrid2D()
+func InputToGridAndStartingLocation() (lib.Grid2D[string], lib.Point2D) {
+	grid := lib.InputToStringGrid2D()
 
-	var start puz.Point2D
-	grid.ForEachPoint(func(p puz.Point2D, s string) {
+	var start lib.Point2D
+	grid.ForEachPoint(func(p lib.Point2D, s string) {
 		if s == "S" {
 			start = p
 		}

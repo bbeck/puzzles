@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func IsCorner(t Tile, tiles []Tile) bool {
 
 type Tile struct {
 	ID int
-	puz.Grid2D[bool]
+	lib.Grid2D[bool]
 }
 
 func (t Tile) Orientations() []Tile {
@@ -53,7 +53,7 @@ func (t Tile) Orientations() []Tile {
 
 func (t Tile) Flip() Tile {
 	N := t.Width
-	s := Tile{ID: t.ID, Grid2D: puz.NewGrid2D[bool](N, N)}
+	s := Tile{ID: t.ID, Grid2D: lib.NewGrid2D[bool](N, N)}
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
 			s.Set(x, y, t.Get(N-x-1, y))
@@ -95,7 +95,7 @@ func (t Tile) FitsOnLeft(s Tile) bool {
 }
 
 func InputToTiles() []Tile {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 	N := len(lines[1])
 
 	var tiles []Tile
@@ -103,7 +103,7 @@ func InputToTiles() []Tile {
 		var id int
 		fmt.Sscanf(lines[base], "Tile %d:", &id)
 
-		grid := puz.NewGrid2D[bool](N, N)
+		grid := lib.NewGrid2D[bool](N, N)
 		for y := 0; y < N; y++ {
 			for x := 0; x < N; x++ {
 				grid.Set(x, y, lines[base+y+1][x] == '#')

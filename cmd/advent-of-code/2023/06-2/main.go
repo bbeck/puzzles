@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -29,13 +29,13 @@ func main() {
 
 func InputToTimeAndDistance() (float64, float64) {
 	var time, distance float64
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		var sb strings.Builder
 		for _, field := range strings.Fields(line)[1:] {
 			sb.WriteString(field)
 		}
 
-		num := float64(puz.ParseInt(sb.String()))
+		num := float64(lib.ParseInt(sb.String()))
 		if strings.HasPrefix(line, "Time") {
 			time = num
 		} else {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"math"
 	"strings"
 )
@@ -24,13 +24,13 @@ func main() {
 }
 
 func InputToBuses() (int, []int) {
-	lines := puz.InputToLines()
-	tm := puz.ParseInt(lines[0])
+	lines := lib.InputToLines()
+	tm := lib.ParseInt(lines[0])
 
 	var buses []int
 	for _, s := range strings.Split(lines[1], ",") {
 		if s != "x" {
-			buses = append(buses, puz.ParseInt(s))
+			buses = append(buses, lib.ParseInt(s))
 		}
 	}
 

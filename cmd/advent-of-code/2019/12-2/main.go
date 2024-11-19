@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	lenY := CycleLength(xs)
 	lenZ := CycleLength(ys)
 	lenX := CycleLength(zs)
-	fmt.Println(puz.LCM(lenX, lenY, lenZ))
+	fmt.Println(lib.LCM(lenX, lenY, lenZ))
 }
 
 func CycleLength(ps []int) int {
@@ -77,9 +77,9 @@ func Equal[T comparable](a, b []T) bool {
 	return true
 }
 
-func InputToPositions() []puz.Point3D {
-	return puz.InputLinesTo(func(line string) puz.Point3D {
-		var p puz.Point3D
+func InputToPositions() []lib.Point3D {
+	return lib.InputLinesTo(func(line string) lib.Point3D {
+		var p lib.Point3D
 		fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
 		return p
 	})

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -14,7 +14,7 @@ func main() {
 		}
 	}
 
-	g := Grid{Grid2D: puz.Grid2D[bool]{
+	g := Grid{Grid2D: lib.Grid2D[bool]{
 		Cells:  []bool{false, true, false, false, false, true, true, true, true},
 		Width:  3,
 		Height: 3,
@@ -40,7 +40,7 @@ func Enhance(g Grid, rules map[uint64]Grid) Grid {
 		N = 3
 	}
 
-	next := puz.NewGrid2D[bool](g.Width/N*(N+1), g.Height/N*(N+1))
+	next := lib.NewGrid2D[bool](g.Width/N*(N+1), g.Height/N*(N+1))
 	for cy := 0; cy < g.NumChunks(); cy++ {
 		for cx := 0; cx < g.NumChunks(); cx++ {
 			// Compute the top left coordinate of this chunk in the next grid
@@ -61,7 +61,7 @@ func Enhance(g Grid, rules map[uint64]Grid) Grid {
 }
 
 type Grid struct {
-	puz.Grid2D[bool]
+	lib.Grid2D[bool]
 }
 
 func (g Grid) ID() uint64 {
@@ -90,7 +90,7 @@ func (g Grid) GetChunk(cx, cy int) Grid {
 		N = 3
 	}
 
-	chunk := puz.NewGrid2D[bool](N, N)
+	chunk := lib.NewGrid2D[bool](N, N)
 	for dy := 0; dy < N; dy++ {
 		for dx := 0; dx < N; dx++ {
 			chunk.Set(dx, dy, g.Get(cx*N+dx, cy*N+dy))
@@ -105,7 +105,7 @@ func (g Grid) Transformations() []Grid {
 		return Grid{g.RotateRight()}
 	}
 	flipH := func(g Grid) Grid {
-		r := puz.NewGrid2D[bool](g.Width, g.Height)
+		r := lib.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
 				r.Set(x, y, g.Get(g.Width-x-1, y))
@@ -114,7 +114,7 @@ func (g Grid) Transformations() []Grid {
 		return Grid{r}
 	}
 	flipV := func(g Grid) Grid {
-		r := puz.NewGrid2D[bool](g.Width, g.Height)
+		r := lib.NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
 				r.Set(x, y, g.Get(x, g.Height-y-1))
@@ -153,7 +153,7 @@ func InputToRules() []Rule {
 		}
 
 		return Grid{
-			Grid2D: puz.Grid2D[bool]{
+			Grid2D: lib.Grid2D[bool]{
 				Cells:  cells,
 				Width:  y + 1, // The grid is always square
 				Height: y + 1,
@@ -161,7 +161,7 @@ func InputToRules() []Rule {
 		}
 	}
 
-	return puz.InputLinesTo(func(line string) Rule {
+	return lib.InputLinesTo(func(line string) Rule {
 		lhs, rhs, _ := strings.Cut(line, " => ")
 		return Rule{from: parse(lhs), to: parse(rhs)}
 	})

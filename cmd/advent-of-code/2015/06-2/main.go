@@ -5,11 +5,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	lights := puz.NewGrid2D[int](1000, 1000)
+	lights := lib.NewGrid2D[int](1000, 1000)
 	for _, instruction := range InputToInstructions() {
 		for x := instruction.TopLeft.X; x <= instruction.BottomRight.X; x++ {
 			for y := instruction.TopLeft.Y; y <= instruction.BottomRight.Y; y++ {
@@ -29,17 +29,17 @@ func main() {
 
 type Instruction struct {
 	Op                   func(int) int
-	TopLeft, BottomRight puz.Point2D
+	TopLeft, BottomRight lib.Point2D
 }
 
 var Ops = map[string]func(int) int{
 	"on":     func(n int) int { return n + 1 },
-	"off":    func(n int) int { return puz.Max(n-1, 0) },
+	"off":    func(n int) int { return lib.Max(n-1, 0) },
 	"toggle": func(n int) int { return n + 2 },
 }
 
 func InputToInstructions() []Instruction {
-	return puz.InputLinesTo(func(line string) Instruction {
+	return lib.InputLinesTo(func(line string) Instruction {
 		// Transform the operation into a single word, this allows it to be parsed by Sscanf
 		line = strings.ReplaceAll(line, "turn on", "on")
 		line = strings.ReplaceAll(line, "turn off", "off")
@@ -53,8 +53,8 @@ func InputToInstructions() []Instruction {
 
 		return Instruction{
 			Op:          Ops[op],
-			TopLeft:     puz.Point2D{X: puz.Min(p1x, p2x), Y: puz.Min(p1y, p2y)},
-			BottomRight: puz.Point2D{X: puz.Max(p1x, p2x), Y: puz.Max(p1y, p2y)},
+			TopLeft:     lib.Point2D{X: lib.Min(p1x, p2x), Y: lib.Min(p1y, p2y)},
+			BottomRight: lib.Point2D{X: lib.Max(p1x, p2x), Y: lib.Max(p1y, p2y)},
 		}
 	})
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -64,12 +64,12 @@ type Row struct {
 }
 
 func InputToRows() []Row {
-	return puz.InputLinesTo(func(line string) Row {
+	return lib.InputLinesTo(func(line string) Row {
 		springs, rhs, _ := strings.Cut(line, " ")
 
 		var groups []int
 		for _, g := range strings.Split(rhs, ",") {
-			groups = append(groups, puz.ParseInt(g))
+			groups = append(groups, lib.ParseInt(g))
 		}
 
 		return Row{Springs: springs, Groups: groups}

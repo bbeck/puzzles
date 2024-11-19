@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -24,7 +24,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 
 	var and, or uint64
 	var instructions []Instruction

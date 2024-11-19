@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -16,8 +16,8 @@ func main() {
 	fmt.Println(len(image))
 }
 
-func Enhance(image puz.Set[puz.Point2D], algorithm []bool, border bool) (puz.Set[puz.Point2D], bool) {
-	tl, br := puz.GetBounds(image.Entries())
+func Enhance(image lib.Set[lib.Point2D], algorithm []bool, border bool) (lib.Set[lib.Point2D], bool) {
+	tl, br := lib.GetBounds(image.Entries())
 
 	index := func(x, y int) int {
 		var n int
@@ -25,7 +25,7 @@ func Enhance(image puz.Set[puz.Point2D], algorithm []bool, border bool) (puz.Set
 			for dx := -1; dx <= 1; dx++ {
 				var value bool
 				if tl.X <= x+dx && x+dx <= br.X && tl.Y <= y+dy && y+dy <= br.Y {
-					value = image.Contains(puz.Point2D{X: x + dx, Y: y + dy})
+					value = image.Contains(lib.Point2D{X: x + dx, Y: y + dy})
 				} else {
 					value = border
 				}
@@ -39,11 +39,11 @@ func Enhance(image puz.Set[puz.Point2D], algorithm []bool, border bool) (puz.Set
 		return n
 	}
 
-	var next puz.Set[puz.Point2D]
+	var next lib.Set[lib.Point2D]
 	for y := tl.Y - 2; y <= br.Y+2; y++ {
 		for x := tl.X - 2; x <= br.X+2; x++ {
 			if algorithm[index(x, y)] {
-				next.Add(puz.Point2D{X: x, Y: y})
+				next.Add(lib.Point2D{X: x, Y: y})
 			}
 		}
 	}
@@ -55,19 +55,19 @@ func Enhance(image puz.Set[puz.Point2D], algorithm []bool, border bool) (puz.Set
 	return next, border
 }
 
-func InputToAlgorithmAndImage() ([]bool, puz.Set[puz.Point2D]) {
-	lines := puz.InputToLines()
+func InputToAlgorithmAndImage() ([]bool, lib.Set[lib.Point2D]) {
+	lines := lib.InputToLines()
 
 	var algorithm []bool
 	for _, c := range lines[0] {
 		algorithm = append(algorithm, c == '#')
 	}
 
-	var image puz.Set[puz.Point2D]
+	var image lib.Set[lib.Point2D]
 	for y := 2; y < len(lines); y++ {
 		for x, c := range lines[y] {
 			if c == '#' {
-				image.Add(puz.Point2D{X: x, Y: y - 2})
+				image.Add(lib.Point2D{X: x, Y: y - 2})
 			}
 		}
 	}

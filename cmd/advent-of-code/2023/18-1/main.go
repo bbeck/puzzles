@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -12,28 +12,28 @@ func main() {
 
 	// Find the starting point for the flood fill.  Look for a point in the top
 	// row that has an empty point below it.
-	var start puz.Point2D
+	var start lib.Point2D
 	for x := 0; x < grid.Width; x++ {
 		if grid.Get(x, 0) == "#" && grid.Get(x, 1) == "." {
-			start = puz.Point2D{X: x, Y: 1}
+			start = lib.Point2D{X: x, Y: 1}
 			break
 		}
 	}
 
 	// Use a BFS to find the interior points of the polygon.
-	var interior puz.Set[puz.Point2D]
-	puz.BreadthFirstSearch(
+	var interior lib.Set[lib.Point2D]
+	lib.BreadthFirstSearch(
 		start,
-		func(p puz.Point2D) []puz.Point2D {
-			var children []puz.Point2D
-			grid.ForEachOrthogonalNeighbor(p, func(q puz.Point2D, s string) {
+		func(p lib.Point2D) []lib.Point2D {
+			var children []lib.Point2D
+			grid.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, s string) {
 				if s == "." {
 					children = append(children, q)
 				}
 			})
 			return children
 		},
-		func(p puz.Point2D) bool {
+		func(p lib.Point2D) bool {
 			interior.Add(p)
 			return false
 		},
@@ -51,31 +51,31 @@ func main() {
 	fmt.Println(len(interior) + perimeter)
 }
 
-func PlanToGrid(plan []Step) puz.Grid2D[string] {
-	var points puz.Set[puz.Point2D]
-	var current puz.Point2D
+func PlanToGrid(plan []Step) lib.Grid2D[string] {
+	var points lib.Set[lib.Point2D]
+	var current lib.Point2D
 	for _, step := range plan {
 		var dx, dy int
 		switch step.Heading {
-		case puz.Up:
+		case lib.Up:
 			dy = -1
-		case puz.Right:
+		case lib.Right:
 			dx = 1
-		case puz.Down:
+		case lib.Down:
 			dy = 1
-		case puz.Left:
+		case lib.Left:
 			dx = -1
 		}
 
 		for n := 0; n < step.Length; n++ {
-			current = puz.Point2D{X: current.X + dx, Y: current.Y + dy}
+			current = lib.Point2D{X: current.X + dx, Y: current.Y + dy}
 			points.Add(current)
 		}
 	}
 
-	tl, br := puz.GetBounds(points.Entries())
+	tl, br := lib.GetBounds(points.Entries())
 
-	grid := puz.NewGrid2D[string](br.X-tl.X+1, br.Y-tl.Y+1)
+	grid := lib.NewGrid2D[string](br.X-tl.X+1, br.Y-tl.Y+1)
 	grid.ForEach(func(x int, y int, _ string) {
 		grid.Set(x, y, ".")
 	})
@@ -87,27 +87,27 @@ func PlanToGrid(plan []Step) puz.Grid2D[string] {
 }
 
 type Step struct {
-	Heading puz.Heading
+	Heading lib.Heading
 	Length  int
 	Color   string
 }
 
 func InputToPlan() []Step {
-	parseHeading := func(s string) puz.Heading {
+	parseHeading := func(s string) lib.Heading {
 		switch s {
 		case "U":
-			return puz.Up
+			return lib.Up
 		case "R":
-			return puz.Right
+			return lib.Right
 		case "D":
-			return puz.Down
+			return lib.Down
 		case "L":
-			return puz.Left
+			return lib.Left
 		}
 		return -1
 	}
 
-	return puz.InputLinesTo(func(line string) Step {
+	return lib.InputLinesTo(func(line string) Step {
 		var heading, color string
 		var length int
 

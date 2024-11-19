@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -30,7 +30,7 @@ func EnumerateAddresses(address, floating uint64, fn func(uint64)) {
 	}
 
 	n := uint(len(ones))
-	for bits := 0; bits < puz.Pow(2, n); bits++ {
+	for bits := 0; bits < lib.Pow(2, n); bits++ {
 		for i, bit := range ones {
 			if bits&(1<<i) == 0 {
 				address &= ^(1 << bit)
@@ -48,7 +48,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 
 	var or, floating uint64
 	var instructions []Instruction

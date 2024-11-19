@@ -2,27 +2,27 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	var seen puz.Set[puz.Point2D]
-	seen.Add(puz.Origin2D)
+	var seen lib.Set[lib.Point2D]
+	seen.Add(lib.Origin2D)
 
-	var location puz.Point2D
+	var location lib.Point2D
 	for _, dir := range InputToDirections() {
-		location = puz.Point2D{X: location.X + dir.X, Y: location.Y + dir.Y}
+		location = lib.Point2D{X: location.X + dir.X, Y: location.Y + dir.Y}
 		seen.Add(location)
 	}
 
 	fmt.Println(len(seen))
 }
 
-func InputToDirections() []puz.Point2D {
-	origin := puz.Origin2D
+func InputToDirections() []lib.Point2D {
+	origin := lib.Origin2D
 
-	var directions []puz.Point2D
-	for _, b := range puz.InputToBytes() {
+	var directions []lib.Point2D
+	for _, b := range lib.InputToBytes() {
 		switch b {
 		case '^':
 			directions = append(directions, origin.Up())

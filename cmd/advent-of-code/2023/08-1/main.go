@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -30,7 +30,7 @@ type Node struct {
 }
 
 func InputToInstructionsAndGraph() (string, *Node) {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 	instructions := lines[0]
 
 	nodes := make(map[string]*Node)

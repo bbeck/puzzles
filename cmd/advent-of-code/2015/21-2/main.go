@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 	var best int
 	EnumeratePlayers(func(player Character, cost int) {
 		if !PlayerWins(player, boss) {
-			best = puz.Max(best, cost)
+			best = lib.Max(best, cost)
 		}
 	})
 
@@ -84,12 +84,12 @@ func EnumeratePlayers(fn func(Character, int)) {
 func PlayerWins(player Character, boss Character) bool {
 	for {
 		// player turn first
-		boss.HitPoints -= puz.Max(player.Damage-boss.Armor, 1)
+		boss.HitPoints -= lib.Max(player.Damage-boss.Armor, 1)
 		if boss.HitPoints <= 0 {
 			return true
 		}
 
-		player.HitPoints -= puz.Max(boss.Damage-player.Armor, 1)
+		player.HitPoints -= lib.Max(boss.Damage-player.Armor, 1)
 		if player.HitPoints <= 0 {
 			return false
 		}
@@ -104,7 +104,7 @@ type Character struct {
 
 func InputToBoss() Character {
 	var boss Character
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		fmt.Sscanf(line, "Hit Points: %d", &boss.HitPoints)
 		fmt.Sscanf(line, "Damage: %d", &boss.Damage)
 		fmt.Sscanf(line, "Armor: %d", &boss.Armor)

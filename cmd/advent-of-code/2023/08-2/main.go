@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	lcm := 1
 	for _, node := range nodes {
 		if strings.HasSuffix(node.ID, "A") {
-			lcm = puz.LCM(lcm, Length(instructions, node))
+			lcm = lib.LCM(lcm, Length(instructions, node))
 		}
 	}
 
@@ -41,7 +41,7 @@ type Node struct {
 }
 
 func InputToInstructionsAndGraph() (string, []*Node) {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 	instructions := lines[0]
 
 	nodes := make(map[string]*Node)
@@ -64,5 +64,5 @@ func InputToInstructionsAndGraph() (string, []*Node) {
 		node.Right = get(fields[2])
 	}
 
-	return instructions, puz.GetMapValues(nodes)
+	return instructions, lib.GetMapValues(nodes)
 }

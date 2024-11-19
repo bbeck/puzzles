@@ -2,24 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	m := puz.InputToIntGrid2D()
+	m := lib.InputToIntGrid2D()
 
-	isLowPoint := func(p puz.Point2D) bool {
+	isLowPoint := func(p lib.Point2D) bool {
 		hp := m.GetPoint(p)
 
 		isLow := true
-		m.ForEachOrthogonalNeighbor(p, func(_ puz.Point2D, hn int) {
+		m.ForEachOrthogonalNeighbor(p, func(_ lib.Point2D, hn int) {
 			isLow = isLow && (hp < hn)
 		})
 		return isLow
 	}
 
 	var risk int
-	m.ForEachPoint(func(p puz.Point2D, height int) {
+	m.ForEachPoint(func(p lib.Point2D, height int) {
 		if isLowPoint(p) {
 			risk += height + 1
 		}

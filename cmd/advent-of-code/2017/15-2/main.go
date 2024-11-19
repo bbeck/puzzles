@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func Next(previous, factor, mod int) int {
 }
 
 func InputToPreviousValues() []int {
-	return puz.InputLinesTo(func(line string) int {
+	return lib.InputLinesTo(func(line string) int {
 		var id string
 		var value int
 		fmt.Sscanf(line, "Generator %s starts with %d", &id, &value)

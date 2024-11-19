@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -50,7 +50,7 @@ var CardStrengths = map[uint8]int{
 }
 
 func Type(cards string) int {
-	var fc puz.FrequencyCounter[rune]
+	var fc lib.FrequencyCounter[rune]
 	for _, c := range cards {
 		fc.Add(c)
 	}
@@ -84,12 +84,12 @@ type Hand struct {
 }
 
 func InputToHands() []Hand {
-	return puz.InputLinesTo(func(line string) Hand {
+	return lib.InputLinesTo(func(line string) Hand {
 		lhs, rhs, _ := strings.Cut(line, " ")
 
 		return Hand{
 			Cards: lhs,
-			Bid:   puz.ParseInt(rhs),
+			Bid:   lib.ParseInt(rhs),
 			Type:  Type(lhs),
 		}
 	})

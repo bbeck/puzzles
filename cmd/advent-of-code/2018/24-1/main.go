@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		//
 		sort.Slice(groups, ByEffectivePower)
 
-		var used puz.Set[*Group]
+		var used lib.Set[*Group]
 		targets := make(map[*Group]*Group)
 		for _, attacker := range groups {
 			defender := ChooseTarget(attacker, groups, used)
@@ -48,7 +48,7 @@ func main() {
 		for _, attacker := range groups {
 			defender := targets[attacker]
 			if defender != nil {
-				defender.Count -= puz.Min(defender.Count, Damage(attacker, defender)/defender.HitPoints)
+				defender.Count -= lib.Min(defender.Count, Damage(attacker, defender)/defender.HitPoints)
 			}
 		}
 
@@ -92,7 +92,7 @@ func Damage(attacker, defender *Group) int {
 	return multiplier * attacker.Count * attacker.AttackPower
 }
 
-func ChooseTarget(attacker *Group, groups []*Group, used puz.Set[*Group]) *Group {
+func ChooseTarget(attacker *Group, groups []*Group, used lib.Set[*Group]) *Group {
 	var defender *Group
 	for _, candidate := range groups {
 		if attacker.Kind == candidate.Kind || candidate.Count <= 0 || used.Contains(candidate) {
@@ -128,8 +128,8 @@ type Group struct {
 	AttackPower int
 	AttackType  string
 	Initiative int
-	Immunities puz.Set[string]
-	Weaknesses puz.Set[string]
+	Immunities lib.Set[string]
+	Weaknesses lib.Set[string]
 }
 
 var regex = regexp.MustCompile(strings.TrimSpace(strings.Join([]string{
@@ -144,7 +144,7 @@ func InputToGroups() []*Group {
 	var groups []*Group
 
 	var kind string
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if len(line) == 0 {
 			continue
 		}
@@ -162,11 +162,11 @@ func InputToGroups() []*Group {
 		fields := MatchFields(line, regex)
 		groups = append(groups, &Group{
 			Kind:        kind,
-			Count:       puz.ParseInt(fields["count"]),
-			HitPoints:   puz.ParseInt(fields["hp"]),
-			AttackPower: puz.ParseInt(fields["ap"]),
+			Count:       lib.ParseInt(fields["count"]),
+			HitPoints:   lib.ParseInt(fields["hp"]),
+			AttackPower: lib.ParseInt(fields["ap"]),
 			AttackType:  fields["at"],
-			Initiative:  puz.ParseInt(fields["initiative"]),
+			Initiative:  lib.ParseInt(fields["initiative"]),
 			Immunities:  ParseModifiers(fields["modifiers"], "immune"),
 			Weaknesses:  ParseModifiers(fields["modifiers"], "weak"),
 		})
@@ -186,12 +186,12 @@ func MatchFields(s string, regex *regexp.Regexp) map[string]string {
 	return fields
 }
 
-func ParseModifiers(s string, kind string) puz.Set[string] {
+func ParseModifiers(s string, kind string) lib.Set[string] {
 	s = strings.ReplaceAll(s, " to ", " ")
 	s = strings.ReplaceAll(s, ",", "")
 	s = strings.ReplaceAll(s, ";", "")
 
-	var modifiers puz.Set[string]
+	var modifiers lib.Set[string]
 	var save bool
 	for _, field := range strings.Fields(s) {
 		if field == kind {

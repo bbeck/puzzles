@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"math/bits"
 )
 
 func main() {
-	m := Maze(puz.InputToInt())
-	start := puz.Point2D{X: 1, Y: 1}
-	target := puz.Point2D{X: 31, Y: 39}
+	m := Maze(lib.InputToInt())
+	start := lib.Point2D{X: 1, Y: 1}
+	target := lib.Point2D{X: 31, Y: 39}
 
-	children := func(p puz.Point2D) []puz.Point2D {
-		var children []puz.Point2D
+	children := func(p lib.Point2D) []lib.Point2D {
+		var children []lib.Point2D
 		for _, n := range p.OrthogonalNeighbors() {
 			if n.X < 0 || n.Y < 0 || !m.IsOpen(n) {
 				continue
@@ -23,15 +23,15 @@ func main() {
 		return children
 	}
 
-	goal := func(p puz.Point2D) bool {
+	goal := func(p lib.Point2D) bool {
 		return p == target
 	}
 
-	cost := func(from, to puz.Point2D) int {
+	cost := func(from, to lib.Point2D) int {
 		return 1
 	}
 
-	_, length, found := puz.AStarSearch(start, children, goal, cost, target.ManhattanDistance)
+	_, length, found := lib.AStarSearch(start, children, goal, cost, target.ManhattanDistance)
 	if !found {
 		fmt.Println("no path found")
 	}
@@ -40,7 +40,7 @@ func main() {
 
 type Maze int
 
-func (m Maze) IsOpen(p puz.Point2D) bool {
+func (m Maze) IsOpen(p lib.Point2D) bool {
 	n := uint(p.X*p.X + 3*p.X + 2*p.X*p.Y + p.Y + p.Y*p.Y + int(m))
 	return bits.OnesCount(n)%2 == 0
 }

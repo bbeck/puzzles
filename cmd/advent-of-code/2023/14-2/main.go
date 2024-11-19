@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	dish := puz.InputToStringGrid2D()
-	dish = puz.WalkCycleWithIdentity(dish, 1_000_000_000, Cycle, ID)
+	dish := lib.InputToStringGrid2D()
+	dish = lib.WalkCycleWithIdentity(dish, 1_000_000_000, Cycle, ID)
 
 	var load int
 	dish.ForEach(func(x int, y int, s string) {
@@ -18,7 +18,7 @@ func main() {
 	fmt.Println(load)
 }
 
-func Cycle(dish puz.Grid2D[string]) puz.Grid2D[string] {
+func Cycle(dish lib.Grid2D[string]) lib.Grid2D[string] {
 	up := func(x, y int) int {
 		for dish.InBounds(x, y-1) && dish.Get(x, y-1) == "." {
 			y--
@@ -45,6 +45,6 @@ func Cycle(dish puz.Grid2D[string]) puz.Grid2D[string] {
 	return dish
 }
 
-func ID(dish puz.Grid2D[string]) string {
+func ID(dish lib.Grid2D[string]) string {
 	return dish.String()
 }

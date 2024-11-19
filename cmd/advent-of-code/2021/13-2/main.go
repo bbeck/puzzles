@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -12,10 +12,10 @@ func main() {
 		points = Fold(points, i)
 	}
 
-	tl, br := puz.GetBounds(points.Entries())
+	tl, br := lib.GetBounds(points.Entries())
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			if points.Contains(puz.Point2D{X: x, Y: y}) {
+			if points.Contains(lib.Point2D{X: x, Y: y}) {
 				fmt.Print("█")
 			} else {
 				fmt.Print(" ")
@@ -25,13 +25,13 @@ func main() {
 	}
 }
 
-func Fold(points puz.Set[puz.Point2D], instr Instruction) puz.Set[puz.Point2D] {
-	var next puz.Set[puz.Point2D]
+func Fold(points lib.Set[lib.Point2D], instr Instruction) lib.Set[lib.Point2D] {
+	var next lib.Set[lib.Point2D]
 	for point := range points {
 		if instr.Axis == "x" && point.X >= instr.Offset {
-			point = puz.Point2D{X: 2*instr.Offset - point.X, Y: point.Y}
+			point = lib.Point2D{X: 2*instr.Offset - point.X, Y: point.Y}
 		} else if instr.Axis == "y" && point.Y >= instr.Offset {
-			point = puz.Point2D{X: point.X, Y: 2*instr.Offset - point.Y}
+			point = lib.Point2D{X: point.X, Y: 2*instr.Offset - point.Y}
 		}
 
 		next.Add(point)
@@ -45,16 +45,16 @@ type Instruction struct {
 	Offset int
 }
 
-func InputToPaper() (puz.Set[puz.Point2D], []Instruction) {
-	var points puz.Set[puz.Point2D]
+func InputToPaper() (lib.Set[lib.Point2D], []Instruction) {
+	var points lib.Set[lib.Point2D]
 	var instructions []Instruction
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if line == "" {
 			continue
 		}
 
 		if !strings.HasPrefix(line, "fold") {
-			var p puz.Point2D
+			var p lib.Point2D
 			fmt.Sscanf(line, "%d,%d", &p.X, &p.Y)
 			points.Add(p)
 		}

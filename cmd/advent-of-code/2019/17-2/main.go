@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 	"strings"
 )
 
@@ -45,22 +45,22 @@ func main() {
 }
 
 type Step struct {
-	Turn    puz.Heading
+	Turn    lib.Heading
 	Forward int
 }
 
-func BuildPath(grid puz.Set[puz.Point2D], robot puz.Turtle) []Step {
-	tryForward := func(r puz.Turtle) bool {
+func BuildPath(grid lib.Set[lib.Point2D], robot lib.Turtle) []Step {
+	tryForward := func(r lib.Turtle) bool {
 		r.Forward(1)
 		return grid.Contains(r.Location)
 	}
 
-	tryLeft := func(r puz.Turtle) bool {
+	tryLeft := func(r lib.Turtle) bool {
 		r.TurnLeft()
 		return tryForward(r)
 	}
 
-	tryRight := func(r puz.Turtle) bool {
+	tryRight := func(r lib.Turtle) bool {
 		r.TurnRight()
 		return tryForward(r)
 	}
@@ -71,12 +71,12 @@ func BuildPath(grid puz.Set[puz.Point2D], robot puz.Turtle) []Step {
 	// structured as a turn followed by some number of steps to move forward.
 	var path []Step
 	for {
-		var turn puz.Heading
+		var turn lib.Heading
 		if tryLeft(robot) {
-			turn = puz.Left
+			turn = lib.Left
 			robot.TurnLeft()
 		} else if tryRight(robot) {
-			turn = puz.Right
+			turn = lib.Right
 			robot.TurnRight()
 		} else {
 			break
@@ -146,12 +146,12 @@ loop:
 	return main, A, B, C
 }
 
-func Load() (puz.Set[puz.Point2D], puz.Turtle) {
-	var grid puz.Set[puz.Point2D]
-	var robot puz.Turtle
+func Load() (lib.Set[lib.Point2D], lib.Turtle) {
+	var grid lib.Set[lib.Point2D]
+	var robot lib.Turtle
 
 	// Build the grid.
-	var current puz.Point2D
+	var current lib.Point2D
 	cpu := cpus.IntcodeCPU{
 		Memory: cpus.InputToIntcodeMemory(),
 		Output: func(value int) {
@@ -163,22 +163,22 @@ func Load() (puz.Set[puz.Point2D], puz.Turtle) {
 				current = current.Right()
 			case '^':
 				grid.Add(current)
-				robot = puz.Turtle{Location: current, Heading: puz.Up}
+				robot = lib.Turtle{Location: current, Heading: lib.Up}
 				current = current.Right()
 			case 'v':
 				grid.Add(current)
-				robot = puz.Turtle{Location: current, Heading: puz.Down}
+				robot = lib.Turtle{Location: current, Heading: lib.Down}
 				current = current.Right()
 			case '<':
 				grid.Add(current)
-				robot = puz.Turtle{Location: current, Heading: puz.Left}
+				robot = lib.Turtle{Location: current, Heading: lib.Left}
 				current = current.Right()
 			case '>':
 				grid.Add(current)
-				robot = puz.Turtle{Location: current, Heading: puz.Right}
+				robot = lib.Turtle{Location: current, Heading: lib.Right}
 				current = current.Right()
 			case '\n':
-				current = puz.Point2D{X: 0, Y: current.Y + 1}
+				current = lib.Point2D{X: 0, Y: current.Y + 1}
 			}
 		},
 	}

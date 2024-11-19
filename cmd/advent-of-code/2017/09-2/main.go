@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	length := GarbageLength(puz.InputToString())
+	length := GarbageLength(lib.InputToString())
 	fmt.Println(length)
 }
 

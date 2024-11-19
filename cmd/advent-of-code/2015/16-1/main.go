@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 var Target = map[string]int{
@@ -45,7 +45,7 @@ type Aunt struct {
 }
 
 func InputToAunts() []Aunt {
-	return puz.InputLinesTo(func(line string) Aunt {
+	return lib.InputLinesTo(func(line string) Aunt {
 		line = strings.ReplaceAll(line, ":", "")
 		line = strings.ReplaceAll(line, ",", "")
 

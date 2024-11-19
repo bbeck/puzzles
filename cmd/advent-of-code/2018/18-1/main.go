@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	area := Area{puz.InputToStringGrid2D()}
+	area := Area{lib.InputToStringGrid2D()}
 	for n := 0; n < 10; n++ {
 		area = Next(area)
 	}
@@ -20,7 +20,7 @@ func main() {
 }
 
 func Next(area Area) Area {
-	next := Area{puz.NewGrid2D[string](area.Width, area.Height)}
+	next := Area{lib.NewGrid2D[string](area.Width, area.Height)}
 	area.ForEach(func(x, y int, value string) {
 		counts := make(map[string]int)
 		area.ForEachNeighbor(x, y, func(_, _ int, value string) {
@@ -40,4 +40,4 @@ func Next(area Area) Area {
 	return next
 }
 
-type Area struct{ puz.Grid2D[string] }
+type Area struct{ lib.Grid2D[string] }

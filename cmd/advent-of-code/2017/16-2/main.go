@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 
 	start := "abcdefghijklmnop"
 
-	current := puz.WalkCycle(start, 1_000_000_000, dance)
+	current := lib.WalkCycle(start, 1_000_000_000, dance)
 	fmt.Println(current)
 }
 
@@ -30,7 +30,7 @@ type Instruction func([]byte)
 const L = 16
 
 func InputToInstructions() []Instruction {
-	fields := strings.Split(puz.InputToString(), ",")
+	fields := strings.Split(lib.InputToString(), ",")
 
 	var instructions []Instruction
 	for _, field := range fields {
@@ -38,7 +38,7 @@ func InputToInstructions() []Instruction {
 
 		switch field[0] {
 		case 's':
-			n := puz.ParseInt(field[1:])
+			n := lib.ParseInt(field[1:])
 			instruction = func(bs []byte) {
 				cs := make([]byte, L)
 				copy(cs, bs[L-n:])
@@ -48,7 +48,7 @@ func InputToInstructions() []Instruction {
 
 		case 'x':
 			sa, sb, _ := strings.Cut(field[1:], "/")
-			a, b := puz.ParseInt(sa), puz.ParseInt(sb)
+			a, b := lib.ParseInt(sa), lib.ParseInt(sb)
 			instruction = func(bs []byte) {
 				bs[a], bs[b] = bs[b], bs[a]
 			}

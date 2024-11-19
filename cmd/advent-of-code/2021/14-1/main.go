@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -21,7 +21,7 @@ func main() {
 		template = sb.String()
 	}
 
-	var fc puz.FrequencyCounter[rune]
+	var fc lib.FrequencyCounter[rune]
 	for _, c := range template {
 		fc.Add(c)
 	}
@@ -31,7 +31,7 @@ func main() {
 }
 
 func InputToTemplateAndRules() (string, map[string]string) {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 
 	template := lines[0]
 

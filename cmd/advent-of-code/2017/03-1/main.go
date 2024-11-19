@@ -2,22 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	n := puz.InputToInt()
+	n := lib.InputToInt()
 	c := SpiralCoordinate(n)
-	fmt.Println(puz.Origin2D.ManhattanDistance(c))
+	fmt.Println(lib.Origin2D.ManhattanDistance(c))
 }
 
-func SpiralCoordinate(n int) puz.Point2D {
-	var turtle puz.Turtle
+func SpiralCoordinate(n int) lib.Point2D {
+	var turtle lib.Turtle
 	turtle.TurnRight()
 
 	// Edges represent the distance along the edges that we're traveling.
 	// We use a container since we have to configure multiple edges at a time.
-	var edges puz.Stack[int]
+	var edges lib.Stack[int]
 	edges.Push(1)
 	edges.Push(1)
 

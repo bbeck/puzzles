@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	grove := InputToGrove()
 
 	moves := []Move{
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Up(), !grove.Contains(p.Up().Left()) && !grove.Contains(p.Up()) && !grove.Contains(p.Up().Right())
 		},
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Down(), !grove.Contains(p.Down().Left()) && !grove.Contains(p.Down()) && !grove.Contains(p.Down().Right())
 		},
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Left(), !grove.Contains(p.Left()) && !grove.Contains(p.Left().Up()) && !grove.Contains(p.Left().Down())
 		},
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Right(), !grove.Contains(p.Right()) && !grove.Contains(p.Right().Up()) && !grove.Contains(p.Right().Down())
 		},
 	}
@@ -46,7 +46,7 @@ func main() {
 			moved--
 
 			dx, dy := t.X-f.X, t.Y-f.Y
-			grove.Add(puz.Point2D{X: t.X + dx, Y: t.Y + dy})
+			grove.Add(lib.Point2D{X: t.X + dx, Y: t.Y + dy})
 		}
 
 		if moved == 0 {
@@ -56,10 +56,10 @@ func main() {
 	fmt.Println(round)
 }
 
-type Move func(puz.Point2D) (puz.Point2D, bool)
+type Move func(lib.Point2D) (lib.Point2D, bool)
 
-func DetermineElfTargets(grove puz.Set[puz.Point2D], moves []Move, round int) map[puz.Point2D]puz.Point2D {
-	targets := make(map[puz.Point2D]puz.Point2D)
+func DetermineElfTargets(grove lib.Set[lib.Point2D], moves []Move, round int) map[lib.Point2D]lib.Point2D {
+	targets := make(map[lib.Point2D]lib.Point2D)
 
 	for p := range grove {
 		targets[p] = p
@@ -87,12 +87,12 @@ func DetermineElfTargets(grove puz.Set[puz.Point2D], moves []Move, round int) ma
 	return targets
 }
 
-func InputToGrove() puz.Set[puz.Point2D] {
-	var grove puz.Set[puz.Point2D]
-	for y, line := range puz.InputToLines() {
+func InputToGrove() lib.Set[lib.Point2D] {
+	var grove lib.Set[lib.Point2D]
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
-				grove.Add(puz.Point2D{X: x, Y: y})
+				grove.Add(lib.Point2D{X: x, Y: y})
 			}
 		}
 	}

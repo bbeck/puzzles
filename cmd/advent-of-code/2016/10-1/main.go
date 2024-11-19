@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -27,8 +27,8 @@ func main() {
 			continue
 		}
 
-		min := puz.Min(values[bot.ID][0], action.Value)
-		max := puz.Max(values[bot.ID][0], action.Value)
+		min := lib.Min(values[bot.ID][0], action.Value)
+		max := lib.Max(values[bot.ID][0], action.Value)
 		values[bot.ID] = nil
 
 		if min == TargetMin && max == TargetMax {
@@ -54,7 +54,7 @@ type Bot struct {
 
 func InputToBots() map[int]Bot {
 	bots := make(map[int]Bot)
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if !strings.HasPrefix(line, "bot") {
 			continue
 		}
@@ -78,7 +78,7 @@ type Action struct {
 
 func InputToInitializations() []Action {
 	var initializations []Action
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if !strings.HasPrefix(line, "value") {
 			continue
 		}

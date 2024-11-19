@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"reflect"
 	"regexp"
 	"strings"
@@ -53,7 +53,7 @@ func IdentifyOperations() []Operation {
 	}
 
 	// Start with every opcode being able to be any operation
-	var possibilities [16]puz.Set[string]
+	var possibilities [16]lib.Set[string]
 	for i := 0; i < len(possibilities); i++ {
 		for op := range operations {
 			possibilities[i].Add(op)
@@ -62,7 +62,7 @@ func IdentifyOperations() []Operation {
 
 	// Filter opcode possibilities by what each sample says
 	for _, sample := range InputToSamples() {
-		var possible puz.Set[string]
+		var possible lib.Set[string]
 		for op, operation := range operations {
 			regs := make([]int, len(sample.Before))
 			copy(regs, sample.Before[:])
@@ -81,7 +81,7 @@ func IdentifyOperations() []Operation {
 	// the list of possibilities and identifying opcodes that only have one
 	// possibility.  Once a mapping is identified it can be removed from the set
 	// of possibilities for other opcodes.
-	var mapped puz.Set[string]
+	var mapped lib.Set[string]
 	mapping := make(map[int]string)
 	for len(mapping) < len(operations) {
 		for opcode, possible := range possibilities {
@@ -114,12 +114,12 @@ type Sample struct {
 }
 
 func InputToSamples() []Sample {
-	input := puz.InputToString()
+	input := lib.InputToString()
 	regex := regexp.MustCompile(`\d+`)
 
 	var nums []int
 	for _, s := range regex.FindAllString(input, -1) {
-		nums = append(nums, puz.ParseInt(s))
+		nums = append(nums, lib.ParseInt(s))
 	}
 
 	var samples []Sample
@@ -142,12 +142,12 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	input := puz.InputToString()
+	input := lib.InputToString()
 	regex := regexp.MustCompile(`\d+`)
 
 	var nums []int
 	for _, s := range regex.FindAllString(input, -1) {
-		nums = append(nums, puz.ParseInt(s))
+		nums = append(nums, lib.ParseInt(s))
 	}
 
 	var instructions []Instruction

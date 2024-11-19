@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 const Size = 35651584
 
 func main() {
-	data := puz.InputToBytes()
+	data := lib.InputToBytes()
 	for len(data) < Size {
 		data = Expand(data)
 	}

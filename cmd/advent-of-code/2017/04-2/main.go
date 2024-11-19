@@ -5,12 +5,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	var count int
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if IsValid(line) {
 			count++
 		}
@@ -19,7 +19,7 @@ func main() {
 }
 
 func IsValid(s string) bool {
-	var seen puz.Set[string]
+	var seen lib.Set[string]
 	for _, word := range strings.Fields(s) {
 		if !seen.Add(Canonicalize(word)) {
 			return false

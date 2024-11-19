@@ -5,18 +5,18 @@ import (
 	"math"
 	"sort"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	locations := InputToAsteroidLocations()
 
 	// This station location was determined from the solution to part 1.
-	station := puz.Point2D{X: 30, Y: 34}
+	station := lib.Point2D{X: 30, Y: 34}
 
 	// Treat the station as the origin and determine the angle each location
 	// makes with the positive y-axis.
-	angles := make(map[puz.Point2D]float64)
+	angles := make(map[lib.Point2D]float64)
 	for _, p := range locations {
 		dx, dy := p.X-station.X, p.Y-station.Y
 
@@ -40,7 +40,7 @@ func main() {
 	})
 
 	// Index the locations in a ring in their order around the station.
-	var r puz.Ring[puz.Point2D]
+	var r lib.Ring[lib.Point2D]
 	for _, p := range locations {
 		r.InsertAfter(p)
 	}
@@ -52,7 +52,7 @@ func main() {
 	// different angle.  This technically has a bug where it will enter an
 	// infinite loop if all remaining locations have the same angle.  In practice
 	// this doesn't happen.
-	var last puz.Point2D
+	var last lib.Point2D
 	for n := 0; n < 200; n++ {
 		last = r.Remove()
 		for angles[r.Current()] == angles[last] {
@@ -62,12 +62,12 @@ func main() {
 	fmt.Println(last.X*100 + last.Y)
 }
 
-func InputToAsteroidLocations() []puz.Point2D {
-	var locations []puz.Point2D
-	for y, line := range puz.InputToLines() {
+func InputToAsteroidLocations() []lib.Point2D {
+	var locations []lib.Point2D
+	for y, line := range lib.InputToLines() {
 		for x, b := range line {
 			if b == '#' {
-				locations = append(locations, puz.Point2D{X: x, Y: y})
+				locations = append(locations, lib.Point2D{X: x, Y: y})
 			}
 		}
 	}

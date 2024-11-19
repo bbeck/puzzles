@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	prefix := puz.InputToString()
+	prefix := lib.InputToString()
 
 	var password string
 	for nonce := 0; len(password) < 8; nonce++ {

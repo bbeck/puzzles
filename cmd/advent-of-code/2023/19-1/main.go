@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	var sum int
 	for _, p := range parts {
 		if Eval("in", p, workflows) == "A" {
-			sum += puz.Sum(puz.GetMapValues(p)...)
+			sum += lib.Sum(lib.GetMapValues(p)...)
 		}
 	}
 	fmt.Println(sum)
@@ -51,7 +51,7 @@ func InputToWorkflowsAndParts() (map[string][]Rule, []Part) {
 	workflows := make(map[string][]Rule)
 	parts := make([]Part, 0)
 
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if line == "" {
 			continue
 		}
@@ -87,7 +87,7 @@ func ParseWorkflow(line string) (string, []Rule) {
 		case 4:
 			rule.Attribute = parts[0]
 			rule.Op = parts[1]
-			rule.Value = puz.ParseInt(parts[2])
+			rule.Value = lib.ParseInt(parts[2])
 			rule.Goto = parts[3]
 		}
 
@@ -115,7 +115,7 @@ func ParsePart(s string) Part {
 
 	part := make(map[string]int)
 	for i := 0; i < len(fields); i += 2 {
-		part[fields[i]] = puz.ParseInt(fields[i+1])
+		part[fields[i]] = lib.ParseInt(fields[i+1])
 	}
 	return part
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 }
 
 func Pour(world World) bool {
-	p := puz.Point2D{X: 500, Y: 0}
+	p := lib.Point2D{X: 500, Y: 0}
 
 	for p.Y < world.Height-1 {
 		if q := p.Down(); world.InBoundsPoint(q) && world.GetPoint(q) == Empty {
@@ -50,12 +50,12 @@ const (
 )
 
 type World struct {
-	puz.Grid2D[int]
+	lib.Grid2D[int]
 }
 
 func InputToWorld() World {
-	var walls puz.Set[puz.Point2D]
-	for _, line := range puz.InputToLines() {
+	var walls lib.Set[lib.Point2D]
+	for _, line := range lib.InputToLines() {
 		points := strings.Split(line, " -> ")
 
 		current := ParsePoint(points[0])
@@ -64,7 +64,7 @@ func InputToWorld() World {
 		for _, s := range points[1:] {
 			end := ParsePoint(s)
 
-			dx, dy := puz.Sign(end.X-current.X), puz.Sign(end.Y-current.Y)
+			dx, dy := lib.Sign(end.X-current.X), lib.Sign(end.Y-current.Y)
 			for current != end {
 				current.X += dx
 				current.Y += dy
@@ -77,13 +77,13 @@ func InputToWorld() World {
 	// infinitely to the left and right, but we know that in the worst case the
 	// flow of sand goes along the line y=x, so we only need to go as wide as we
 	// are high.
-	tl, br := puz.GetBounds(walls.Entries())
+	tl, br := lib.GetBounds(walls.Entries())
 	for x := tl.X - br.Y; x <= br.X+br.Y; x++ {
-		walls.Add(puz.Point2D{X: x, Y: br.Y + 2})
+		walls.Add(lib.Point2D{X: x, Y: br.Y + 2})
 	}
 
-	_, br = puz.GetBounds(walls.Entries())
-	grid := puz.NewGrid2D[int](br.X+1, br.Y+1)
+	_, br = lib.GetBounds(walls.Entries())
+	grid := lib.NewGrid2D[int](br.X+1, br.Y+1)
 	for p := range walls {
 		grid.SetPoint(p, Wall)
 	}
@@ -91,8 +91,8 @@ func InputToWorld() World {
 	return World{grid}
 }
 
-func ParsePoint(s string) puz.Point2D {
-	var p puz.Point2D
+func ParsePoint(s string) lib.Point2D {
+	var p lib.Point2D
 	_, _ = fmt.Sscanf(s, "%d,%d", &p.X, &p.Y)
 	return p
 }

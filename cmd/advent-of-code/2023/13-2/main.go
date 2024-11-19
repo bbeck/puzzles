@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 var Smudge = map[string]string{
@@ -32,7 +32,7 @@ func main() {
 	fmt.Println(sum)
 }
 
-func FindReflection(p puz.Grid2D[string], skipCol, skipRow int) (int, int, bool) {
+func FindReflection(p lib.Grid2D[string], skipCol, skipRow int) (int, int, bool) {
 	if col, found := FindVerticalReflection(p, skipCol); found {
 		return col, 0, true
 	}
@@ -42,14 +42,14 @@ func FindReflection(p puz.Grid2D[string], skipCol, skipRow int) (int, int, bool)
 	return 0, 0, false
 }
 
-func FindVerticalReflection(p puz.Grid2D[string], skip int) (int, bool) {
+func FindVerticalReflection(p lib.Grid2D[string], skip int) (int, bool) {
 outer:
 	for rhs := 1; rhs < p.Width; rhs++ {
 		if rhs == skip {
 			continue
 		}
 
-		N := puz.Min(rhs, p.Width-rhs)
+		N := lib.Min(rhs, p.Width-rhs)
 
 		for y := 0; y < p.Height; y++ {
 			for n := 1; n <= N; n++ {
@@ -67,18 +67,18 @@ outer:
 	return 0, false
 }
 
-func FindHorizontalReflection(p puz.Grid2D[string], skip int) (int, bool) {
+func FindHorizontalReflection(p lib.Grid2D[string], skip int) (int, bool) {
 	return FindVerticalReflection(p.RotateLeft(), skip)
 }
 
-func InputToPatterns() []puz.Grid2D[string] {
-	chunks := puz.Split(puz.InputToLines(), func(s string) bool {
+func InputToPatterns() []lib.Grid2D[string] {
+	chunks := lib.Split(lib.InputToLines(), func(s string) bool {
 		return s != ""
 	})
 
-	var patterns []puz.Grid2D[string]
+	var patterns []lib.Grid2D[string]
 	for _, chunk := range chunks {
-		pattern := puz.NewGrid2D[string](len(chunk[0]), len(chunk))
+		pattern := lib.NewGrid2D[string](len(chunk[0]), len(chunk))
 		for y := 0; y < len(chunk); y++ {
 			for x := 0; x < len(chunk[y]); x++ {
 				pattern.Set(x, y, string(chunk[y][x]))

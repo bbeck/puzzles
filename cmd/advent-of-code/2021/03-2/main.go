@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	ns := puz.SetFrom(puz.InputToLines()...)
+	ns := lib.SetFrom(lib.InputToLines()...)
 
 	o2 := ns
 	for pos := 0; len(o2) > 1; pos++ {
@@ -28,13 +28,13 @@ func main() {
 		}
 	}
 
-	a := puz.ParseIntWithBase(o2.Entries()[0], 2)
-	b := puz.ParseIntWithBase(co2.Entries()[0], 2)
+	a := lib.ParseIntWithBase(o2.Entries()[0], 2)
+	b := lib.ParseIntWithBase(co2.Entries()[0], 2)
 	fmt.Println(a * b)
 }
 
-func Partition(ns puz.Set[string], position int) (puz.Set[string], puz.Set[string]) {
-	var zs, os puz.Set[string]
+func Partition(ns lib.Set[string], position int) (lib.Set[string], lib.Set[string]) {
+	var zs, os lib.Set[string]
 	for n := range ns {
 		if n[position] == '0' {
 			zs.Add(n)

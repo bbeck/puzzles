@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	best := math.MaxInt
 	for p, stepsP := range s0 {
 		if stepsQ, found := s1[p]; found {
-			best = puz.Min(best, stepsP+stepsQ)
+			best = lib.Min(best, stepsP+stepsQ)
 		}
 	}
 	fmt.Println(best)
@@ -26,10 +26,10 @@ type Path struct {
 	Lengths []int
 }
 
-func (p Path) Steps() map[puz.Point2D]int {
-	steps := make(map[puz.Point2D]int)
+func (p Path) Steps() map[lib.Point2D]int {
+	steps := make(map[lib.Point2D]int)
 
-	var current puz.Point2D
+	var current lib.Point2D
 	var count int
 	for i := 0; i < len(p.Dirs); i++ {
 		for n := 0; n < p.Lengths[i]; n++ {
@@ -55,11 +55,11 @@ func (p Path) Steps() map[puz.Point2D]int {
 }
 
 func InputToPaths() []Path {
-	return puz.InputLinesTo(func(line string) Path {
+	return lib.InputLinesTo(func(line string) Path {
 		var path Path
 		for _, part := range strings.Split(line, ",") {
 			path.Dirs = append(path.Dirs, string(part[0]))
-			path.Lengths = append(path.Lengths, puz.ParseInt(part[1:]))
+			path.Lengths = append(path.Lengths, lib.ParseInt(part[1:]))
 		}
 
 		return path

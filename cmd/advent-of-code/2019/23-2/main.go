@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 	"sync"
 )
 
@@ -29,10 +29,10 @@ func main() {
 }
 
 type NAT struct {
-	Mutex          sync.Mutex
-	Buffers        [N]puz.Deque[int]
-	Idle           puz.BitSet
-	ToForward      []int // The last received packet that can be forwarded
+	Mutex     sync.Mutex
+	Buffers   [N]lib.Deque[int]
+	Idle      lib.BitSet
+	ToForward []int // The last received packet that can be forwarded
 	LastForwardedY int
 	Duplicates     chan int
 }

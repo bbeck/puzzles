@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"log"
 	"strings"
 )
@@ -86,11 +86,11 @@ func Move(x, y int) Operation {
 }
 
 func InputToOperations() []Operation {
-	return puz.InputLinesTo(func(line string) Operation {
+	return lib.InputLinesTo(func(line string) Operation {
 		tokens := strings.Fields(line)
 		if tokens[0] == "swap" && tokens[1] == "position" {
-			x := puz.ParseInt(tokens[2])
-			y := puz.ParseInt(tokens[5])
+			x := lib.ParseInt(tokens[2])
+			y := lib.ParseInt(tokens[5])
 			return SwapPositions(x, y)
 		}
 
@@ -101,7 +101,7 @@ func InputToOperations() []Operation {
 		}
 
 		if tokens[0] == "rotate" && (tokens[1] == "left" || tokens[1] == "right") {
-			x := puz.ParseInt(tokens[2])
+			x := lib.ParseInt(tokens[2])
 			return Rotate(tokens[1], x)
 		}
 
@@ -111,13 +111,13 @@ func InputToOperations() []Operation {
 		}
 
 		if tokens[0] == "reverse" {
-			x := puz.ParseInt(tokens[2])
-			y := puz.ParseInt(tokens[4])
+			x := lib.ParseInt(tokens[2])
+			y := lib.ParseInt(tokens[4])
 			return Reverse(x, y)
 		}
 		if tokens[0] == "move" {
-			x := puz.ParseInt(tokens[2])
-			y := puz.ParseInt(tokens[5])
+			x := lib.ParseInt(tokens[2])
+			y := lib.ParseInt(tokens[5])
 			return Move(x, y)
 		}
 

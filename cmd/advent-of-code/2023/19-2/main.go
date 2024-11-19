@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 // 167409079868000 expected
@@ -88,14 +88,14 @@ type Interval struct {
 
 func (i Interval) Intersect(j Interval) Interval {
 	return Interval{
-		Start: puz.Max(i.Start, j.Start),
-		End:   puz.Min(i.End, j.End),
+		Start: lib.Max(i.Start, j.Start),
+		End:   lib.Min(i.End, j.End),
 	}
 }
 
 func InputToWorkflows() map[string][]Rule {
 	workflows := make(map[string][]Rule)
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if line == "" {
 			continue
 		}
@@ -129,7 +129,7 @@ func ParseWorkflow(line string) (string, []Rule) {
 		case 4:
 			rule.Attribute = parts[0]
 			rule.Op = parts[1]
-			rule.Value = puz.ParseInt(parts[2])
+			rule.Value = lib.ParseInt(parts[2])
 			rule.Goto = parts[3]
 		}
 

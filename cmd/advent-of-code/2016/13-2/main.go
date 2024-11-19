@@ -2,25 +2,25 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"math/bits"
 )
 
 func main() {
-	m := Maze(puz.InputToInt())
-	start := puz.Point2D{X: 1, Y: 1}
+	m := Maze(lib.InputToInt())
+	start := lib.Point2D{X: 1, Y: 1}
 
 	// Remember the distance from the start of each location we visit.
-	distances := make(map[puz.Point2D]int)
+	distances := make(map[lib.Point2D]int)
 
-	children := func(p puz.Point2D) []puz.Point2D {
+	children := func(p lib.Point2D) []lib.Point2D {
 		// If this node is too far away from the start then don't explore any of
 		// its children.
 		if distances[p] >= 50 {
 			return nil
 		}
 
-		var children []puz.Point2D
+		var children []lib.Point2D
 		for _, n := range p.OrthogonalNeighbors() {
 			if n.X < 0 || n.Y < 0 || !m.IsOpen(n) {
 				continue
@@ -40,11 +40,11 @@ func main() {
 		return children
 	}
 
-	goal := func(puz.Point2D) bool {
+	goal := func(lib.Point2D) bool {
 		return false
 	}
 
-	puz.BreadthFirstSearch(start, children, goal)
+	lib.BreadthFirstSearch(start, children, goal)
 
 	var count int
 	for _, distance := range distances {
@@ -57,7 +57,7 @@ func main() {
 
 type Maze int
 
-func (m Maze) IsOpen(p puz.Point2D) bool {
+func (m Maze) IsOpen(p lib.Point2D) bool {
 	n := uint(p.X*p.X + 3*p.X + 2*p.X*p.Y + p.Y + p.Y*p.Y + int(m))
 	return bits.OnesCount(n)%2 == 0
 }

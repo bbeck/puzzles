@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -20,7 +20,7 @@ func main() {
 }
 
 func InputToOutputDigits() [][]string {
-	return puz.InputLinesTo(func(line string) []string {
+	return lib.InputLinesTo(func(line string) []string {
 		_, rhs, _ := strings.Cut(line, " | ")
 		return strings.Fields(rhs)
 	})

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"sort"
 	"strings"
 )
@@ -14,9 +14,9 @@ func main() {
 	// set is empty then we haven't yet processed any foods containing it and
 	// initialize it to this food's ingredients.  Otherwise, restrict the set of
 	// ingredients that could contain the allergen by this food's ingredients.
-	mapping := make(map[string]puz.Set[string])
+	mapping := make(map[string]lib.Set[string])
 	for _, f := range food {
-		ingredients := puz.SetFrom(f.Ingredients...)
+		ingredients := lib.SetFrom(f.Ingredients...)
 
 		for _, a := range f.Allergens {
 			if len(mapping[a]) == 0 {
@@ -30,7 +30,7 @@ func main() {
 	assignments := make(map[string]string)
 	for len(mapping) > 0 {
 		for a, fs := range mapping {
-			fs = fs.DifferenceElems(puz.GetMapValues(assignments)...)
+			fs = fs.DifferenceElems(lib.GetMapValues(assignments)...)
 
 			if len(fs) == 1 {
 				food := fs.Entries()[0]
@@ -41,7 +41,7 @@ func main() {
 		}
 	}
 
-	allergens := puz.GetMapKeys(assignments)
+	allergens := lib.GetMapKeys(assignments)
 	sort.Strings(allergens)
 
 	var foods []string
@@ -56,7 +56,7 @@ type Food struct {
 }
 
 func InputToFood() []Food {
-	return puz.InputLinesTo(func(line string) Food {
+	return lib.InputLinesTo(func(line string) Food {
 		line = strings.ReplaceAll(line, "(", "")
 		line = strings.ReplaceAll(line, ")", "")
 		line = strings.ReplaceAll(line, ",", "")

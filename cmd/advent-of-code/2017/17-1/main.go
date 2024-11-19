@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	stride := puz.InputToInt()
+	stride := lib.InputToInt()
 
-	var ring puz.Ring[int]
+	var ring lib.Ring[int]
 	for n := 0; n <= 2017; n++ {
 		ring.NextN(stride)
 		ring.InsertAfter(n)

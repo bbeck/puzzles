@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func Compare(lhs, rhs any) int {
 
 	case IsList(lhs) && IsList(rhs):
 		lhs, rhs := lhs.([]any), rhs.([]any)
-		for i := 0; i < puz.Min(len(lhs), len(rhs)); i++ {
+		for i := 0; i < lib.Min(len(lhs), len(rhs)); i++ {
 			cmp := Compare(lhs[i], rhs[i])
 			if cmp != 0 {
 				return cmp
@@ -56,7 +56,7 @@ func IsList(n any) bool {
 
 func InputToNumbers() []any {
 	var numbers []any
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if len(line) == 0 {
 			continue
 		}

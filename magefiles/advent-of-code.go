@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"github.com/bitfield/script"
 	"github.com/magefile/mage/mg"
 	"io"
@@ -102,9 +102,9 @@ func (aoc AdventOfCode) Verify() error {
 
 			// Parse the year/day/part prefix on each line
 			fields := strings.Split(line, " ")
-			year := puz.ParseInt(fields[0])
-			day := puz.ParseInt(fields[1])
-			part := puz.ParseInt(fields[2])
+			year := lib.ParseInt(fields[0])
+			day := lib.ParseInt(fields[1])
+			part := lib.ParseInt(fields[2])
 
 			if year == Year && day == Day && part == Part {
 				_, _ = buf.WriteString(strings.Join(fields[3:], " "))

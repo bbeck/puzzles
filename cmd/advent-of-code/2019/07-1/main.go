@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 
-	"github.com/bbeck/advent-of-code/puz/cpus"
+	"github.com/bbeck/advent-of-code/lib/cpus"
 )
 
 const N = 5
 
 func main() {
 	var best int
-	puz.EnumeratePermutations(N, func(settings []int) bool {
-		best = puz.Max(best, TestSettings(settings))
+	lib.EnumeratePermutations(N, func(settings []int) bool {
+		best = lib.Max(best, TestSettings(settings))
 		return false
 	})
 	fmt.Println(best)

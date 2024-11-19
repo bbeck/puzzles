@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 		"9":     9,
 	}
 
-	nums := puz.InputLinesTo[int](func(line string) int {
+	nums := lib.InputLinesTo[int](func(line string) int {
 		L := len(line)
 
 		var first, last int
@@ -48,5 +48,5 @@ func main() {
 		return 10*first + last
 	})
 
-	fmt.Println(puz.Sum(nums...))
+	fmt.Println(lib.Sum(nums...))
 }

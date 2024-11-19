@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 const Key = 811589153
@@ -55,7 +55,7 @@ type Node struct {
 func InputToNodes() ([]*Node, *Node) {
 	var nodes []*Node
 	var zero *Node
-	for _, n := range puz.InputToInts() {
+	for _, n := range lib.InputToInts() {
 		node := &Node{Value: n * Key}
 		nodes = append(nodes, node)
 

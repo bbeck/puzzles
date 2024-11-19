@@ -2,26 +2,26 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	grid := puz.InputToIntGrid2D()
+	grid := lib.InputToIntGrid2D()
 
 	var best int
-	grid.ForEachPoint(func(p puz.Point2D, _ int) {
+	grid.ForEachPoint(func(p lib.Point2D, _ int) {
 		counts := []int{
-			Count(grid, p, puz.Left),
-			Count(grid, p, puz.Right),
-			Count(grid, p, puz.Up),
-			Count(grid, p, puz.Down),
+			Count(grid, p, lib.Left),
+			Count(grid, p, lib.Right),
+			Count(grid, p, lib.Up),
+			Count(grid, p, lib.Down),
 		}
-		best = puz.Max(best, puz.Product(counts...))
+		best = lib.Max(best, lib.Product(counts...))
 	})
 	fmt.Println(best)
 }
 
-func Count(g puz.Grid2D[int], p puz.Point2D, h puz.Heading) int {
+func Count(g lib.Grid2D[int], p lib.Point2D, h lib.Heading) int {
 	height := g.GetPoint(p)
 
 	var count int

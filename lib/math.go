@@ -1,4 +1,4 @@
-package puz
+package lib
 
 import "math"
 

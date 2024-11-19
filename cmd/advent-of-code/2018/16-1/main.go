@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"reflect"
 	"regexp"
 	"strings"
@@ -44,7 +44,7 @@ func main() {
 
 	var count int
 	for _, sample := range InputToSamples() {
-		var possibilities puz.Set[string]
+		var possibilities lib.Set[string]
 		for op, instruction := range operations {
 			regs := make([]int, len(sample.Before))
 			copy(regs, sample.Before[:])
@@ -74,12 +74,12 @@ type Sample struct {
 }
 
 func InputToSamples() []Sample {
-	input := puz.InputToString()
+	input := lib.InputToString()
 	regex := regexp.MustCompile(`\d+`)
 
 	var nums []int
 	for _, s := range regex.FindAllString(input, -1) {
-		nums = append(nums, puz.ParseInt(s))
+		nums = append(nums, lib.ParseInt(s))
 	}
 
 	var samples []Sample

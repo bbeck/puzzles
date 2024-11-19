@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 }
 
 func Play(d1, d2 Deck) (int, Deck) {
-	var seen puz.Set[string]
+	var seen lib.Set[string]
 
 	for !d1.Empty() && !d2.Empty() {
 		if !seen.Add(d1.ID() + "|" + d2.ID()) {
@@ -56,7 +56,7 @@ func Play(d1, d2 Deck) (int, Deck) {
 	}
 }
 
-type Deck struct{ puz.Deque[byte] }
+type Deck struct{ lib.Deque[byte] }
 
 func (d Deck) Len() byte {
 	return byte(d.Deque.Len())
@@ -77,10 +77,10 @@ func (d Deck) Copy(n byte) Deck {
 }
 
 func InputToDecks() (Deck, Deck) {
-	var decks [2]puz.Deque[byte]
+	var decks [2]lib.Deque[byte]
 
 	current := -1
-	for _, line := range puz.InputToLines() {
+	for _, line := range lib.InputToLines() {
 		if len(line) == 0 {
 			continue
 		}
@@ -90,7 +90,7 @@ func InputToDecks() (Deck, Deck) {
 			continue
 		}
 
-		card := byte(puz.ParseInt(line))
+		card := byte(lib.ParseInt(line))
 		decks[current].PushBack(card)
 	}
 

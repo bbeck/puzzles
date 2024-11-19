@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
-	ids := puz.InputToLines()
+	ids := lib.InputToLines()
 
 	var i, j int
 outer:

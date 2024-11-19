@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	var count int
 	for pw := low; pw <= high; pw++ {
-		if IsPossiblePassword(puz.Digits(pw)) {
+		if IsPossiblePassword(lib.Digits(pw)) {
 			count++
 		}
 	}
@@ -37,6 +37,6 @@ func IsPossiblePassword(digits []int) bool {
 }
 
 func InputToRange(year, day int) (int, int) {
-	parts := strings.Split(puz.InputToString(), "-")
-	return puz.ParseInt(parts[0]), puz.ParseInt(parts[1])
+	parts := strings.Split(lib.InputToString(), "-")
+	return lib.ParseInt(parts[0]), lib.ParseInt(parts[1])
 }

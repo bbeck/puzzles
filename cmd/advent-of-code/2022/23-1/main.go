@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	grove := InputToGrove()
 
 	moves := []Move{
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Up(), !grove.Contains(p.Up().Left()) && !grove.Contains(p.Up()) && !grove.Contains(p.Up().Right())
 		},
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Down(), !grove.Contains(p.Down().Left()) && !grove.Contains(p.Down()) && !grove.Contains(p.Down().Right())
 		},
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Left(), !grove.Contains(p.Left()) && !grove.Contains(p.Left().Up()) && !grove.Contains(p.Left().Down())
 		},
-		func(p puz.Point2D) (puz.Point2D, bool) {
+		func(p lib.Point2D) (lib.Point2D, bool) {
 			return p.Right(), !grove.Contains(p.Right()) && !grove.Contains(p.Right().Up()) && !grove.Contains(p.Right().Down())
 		},
 	}
@@ -35,10 +35,10 @@ func main() {
 	}
 
 	var count int
-	tl, br := puz.GetBounds(grove.Entries())
+	tl, br := lib.GetBounds(grove.Entries())
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			if !grove.Contains(puz.Point2D{X: x, Y: y}) {
+			if !grove.Contains(lib.Point2D{X: x, Y: y}) {
 				count++
 			}
 		}
@@ -46,11 +46,11 @@ func main() {
 	fmt.Println(count)
 }
 
-type Move func(puz.Point2D) (puz.Point2D, bool)
+type Move func(lib.Point2D) (lib.Point2D, bool)
 
-func DetermineElfTargets(grove puz.Set[puz.Point2D], moves []Move, round int) (map[puz.Point2D]puz.Point2D, map[puz.Point2D]int) {
-	targets := make(map[puz.Point2D]puz.Point2D)
-	counts := make(map[puz.Point2D]int)
+func DetermineElfTargets(grove lib.Set[lib.Point2D], moves []Move, round int) (map[lib.Point2D]lib.Point2D, map[lib.Point2D]int) {
+	targets := make(map[lib.Point2D]lib.Point2D)
+	counts := make(map[lib.Point2D]int)
 
 	for p := range grove {
 		var numNeighbors int
@@ -80,12 +80,12 @@ func DetermineElfTargets(grove puz.Set[puz.Point2D], moves []Move, round int) (m
 	return targets, counts
 }
 
-func InputToGrove() puz.Set[puz.Point2D] {
-	var grove puz.Set[puz.Point2D]
-	for y, line := range puz.InputToLines() {
+func InputToGrove() lib.Set[lib.Point2D] {
+	var grove lib.Set[lib.Point2D]
+	for y, line := range lib.InputToLines() {
 		for x, c := range line {
 			if c == '#' {
-				grove.Add(puz.Point2D{X: x, Y: y})
+				grove.Add(lib.Point2D{X: x, Y: y})
 			}
 		}
 	}

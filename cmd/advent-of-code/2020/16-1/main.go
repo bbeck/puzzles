@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
 func main() {
 	fields, tickets := InputToFieldsAndTickets()
 
-	var valid puz.Set[int]
+	var valid lib.Set[int]
 	for _, rs := range fields {
 		for _, r := range rs {
 			for i := r.Min; i <= r.Max; i++ {
@@ -34,7 +34,7 @@ type Range struct {
 }
 
 func InputToFieldsAndTickets() (map[string][]Range, [][]int) {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 	fields := make(map[string][]Range)
 
 	var index int
@@ -44,8 +44,8 @@ func InputToFieldsAndTickets() (map[string][]Range, [][]int) {
 		min1, max1, _ := strings.Cut(r1, "-")
 		min2, max2, _ := strings.Cut(r2, "-")
 
-		fields[key] = append(fields[key], Range{Min: puz.ParseInt(min1), Max: puz.ParseInt(max1)})
-		fields[key] = append(fields[key], Range{Min: puz.ParseInt(min2), Max: puz.ParseInt(max2)})
+		fields[key] = append(fields[key], Range{Min: lib.ParseInt(min1), Max: lib.ParseInt(max1)})
+		fields[key] = append(fields[key], Range{Min: lib.ParseInt(min2), Max: lib.ParseInt(max2)})
 	}
 
 	// Skip over my ticket and blank lines
@@ -55,7 +55,7 @@ func InputToFieldsAndTickets() (map[string][]Range, [][]int) {
 	for ; index < len(lines); index++ {
 		var values []int
 		for _, s := range strings.Split(lines[index], ",") {
-			values = append(values, puz.ParseInt(s))
+			values = append(values, lib.ParseInt(s))
 		}
 
 		tickets = append(tickets, values)

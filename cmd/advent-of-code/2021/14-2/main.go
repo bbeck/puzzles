@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -12,13 +12,13 @@ func main() {
 	// The string grows way too long to keep building at higher iteration counts.
 	// Instead, we'll keep all present pairs in a frequency counter and deal with
 	// all pairs of the same letters at one time.
-	var counts puz.FrequencyCounter[string]
+	var counts lib.FrequencyCounter[string]
 	for i := 0; i < len(template)-1; i++ {
 		counts.Add(template[i : i+2])
 	}
 
 	for iter := 0; iter < 40; iter++ {
-		var next puz.FrequencyCounter[string]
+		var next lib.FrequencyCounter[string]
 		for _, entry := range counts.Entries() {
 			mid := rules[entry.Value]
 			lhs := entry.Value[:1] + mid
@@ -34,7 +34,7 @@ func main() {
 	// due to appearing as the first and second character in a pair.  The very
 	// first and last character of the template will be off by one due to
 	// appearing as only one character of a pair.
-	var elements puz.FrequencyCounter[string]
+	var elements lib.FrequencyCounter[string]
 	for _, entry := range counts.Entries() {
 		elements.AddWithCount(string(entry.Value[0]), entry.Count)
 		elements.AddWithCount(string(entry.Value[1]), entry.Count)
@@ -46,7 +46,7 @@ func main() {
 }
 
 func InputToTemplateAndRules() (string, map[string]string) {
-	lines := puz.InputToLines()
+	lines := lib.InputToLines()
 
 	template := lines[0]
 

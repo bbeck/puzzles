@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	var sum int
 	Walk(root, func(n Node) {
-		sum += puz.Sum(n.Metadata...)
+		sum += lib.Sum(n.Metadata...)
 	})
 	fmt.Println(sum)
 }
@@ -30,9 +30,9 @@ type Node struct {
 }
 
 func InputToTree() Node {
-	var ns puz.Deque[int]
-	for _, s := range strings.Fields(puz.InputToString()) {
-		ns.PushBack(puz.ParseInt(s))
+	var ns lib.Deque[int]
+	for _, s := range strings.Fields(lib.InputToString()) {
+		ns.PushBack(lib.ParseInt(s))
 	}
 
 	var next func() Node

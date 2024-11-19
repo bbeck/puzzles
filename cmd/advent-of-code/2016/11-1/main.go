@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 	"strings"
 )
 
@@ -49,7 +49,7 @@ func main() {
 		return steps
 	}
 
-	_, length, found := puz.AStarSearch(state, Children, goal, cost, heuristic)
+	_, length, found := lib.AStarSearch(state, Children, goal, cost, heuristic)
 	if !found {
 		fmt.Println("no path found")
 	}
@@ -188,7 +188,7 @@ func (s State) Dump() string {
 
 func InputToState() State {
 	var state State
-	for floor, line := range puz.InputToLines() {
+	for floor, line := range lib.InputToLines() {
 		line = strings.ReplaceAll(line, "The ", "")
 		line = strings.ReplaceAll(line, " a ", " ")
 		line = strings.ReplaceAll(line, " and ", " ")

@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/puz"
+	"github.com/bbeck/advent-of-code/lib"
 )
 
 func main() {
 	banks := InputToBanks()
 	N := len(banks)
 
-	var seen puz.Set[string]
+	var seen lib.Set[string]
 	var cycle int
 	for cycle = 1; ; cycle++ {
 		remaining, index := Choose(banks)
@@ -56,8 +56,8 @@ func Choose(banks []int) (int, int) {
 
 func InputToBanks() []int {
 	var banks []int
-	for _, field := range strings.Fields(puz.InputToString()) {
-		banks = append(banks, puz.ParseInt(field))
+	for _, field := range strings.Fields(lib.InputToString()) {
+		banks = append(banks, lib.ParseInt(field))
 	}
 	return banks
 }
