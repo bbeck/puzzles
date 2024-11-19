@@ -2,39 +2,41 @@
 
 mage := go run mage.go
 
-# By default assume we're running on Advent of Code
-SITE ?= AdventOfCode
-
 ## run the solution for the specified SITE/YEAR/DAY/PART
 .PHONY: run
 run:
-	@$(mage) $(SITE):run
+	@$(mage) run
 
 ## run the solution for the specified SITE/YEAR/DAY/PART whenever a file changes
 .PHONY: watch
 watch:
-	@$(mage) $(SITE):watch
+	@$(mage) watch
 
 ## verify the solution output for the specified SITE/YEAR/DAY/PART
 .PHONY: verify
 verify:
-	@$(mage) $(SITE):verify
+	@$(mage) verify
+
+## run the solution for the specified SITE/YEAR/DAY/PART whenever a file changes
+.PHONY: next
+next:
+	@$(mage) next
 
 ## run all solutions for the specified SITE/YEAR
 .PHONY: run-year
 run-year:
-	@$(mage) $(SITE):ListYear                                      | \
+	@$(mage) ListYear                                              | \
 	while read year day part; do                                     \
 	  printf "YEAR=%d DAY=%02d PART=%d " $${year} $${day} $${part};  \
-	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) $(SITE):run;   \
+	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) run;           \
 	done
 
 ## verify the solution output of the specified SITE/YEAR
 .PHONY: verify-year
 verify-year:
-	@$(mage) $(SITE):ListYear                                      | \
+	@$(mage) ListYear                                              | \
 	while read year day part; do                                     \
-	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) $(SITE):verify;   \
+	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) verify;        \
 	done
 
 ## display this help message

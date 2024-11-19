@@ -40,13 +40,30 @@ func InputFilename() string {
 	// Determine the path to the input.txt relative to the working directory.
 	wd, _ := os.Getwd()
 
-	if strings.HasSuffix(wd, fmt.Sprintf("/cmd/%s/%s/%s-%s", site, year, day, part)) {
-		// We're in the problem's directory, the input is in the part 1 directory.
-		return fmt.Sprintf("../%s-1/input.txt", day)
+	switch site {
+	case "advent-of-code":
+		// For Advent of Code there's a single input shared by all parts.  The
+		// input always resides in the part 1 directory.
+		if strings.HasSuffix(wd, fmt.Sprintf("/cmd/%s/%s/%s-%s", site, year, day, part)) {
+			// We're in the problem's directory.
+			return fmt.Sprintf("../%s-1/input.txt", day)
+		}
+
+		// Assume we're in the root of the project.
+		return fmt.Sprintf("cmd/%s/%s/%s-1/input.txt", site, year, day)
+
+	case "everybody-codes":
+		// For Everybody Codes there's a separate input for each part.
+		if strings.HasSuffix(wd, fmt.Sprintf("/cmd/%s/%s/%s-%s", site, year, day, part)) {
+			return "input.txt"
+		}
+
+		// Assume we're in the root of the project.
+		return fmt.Sprintf("cmd/%s/%s/%s-%s/input.txt", site, year, day, part)
 	}
 
-	// Assume we're in the root of the project.
-	return fmt.Sprintf("cmd/%s/%s/%s-1/input.txt", site, year, day)
+	log.Fatalf("unable to locate input.txt")
+	return ""
 }
 
 // InputToBytes reads the entire input file into a slice of bytes.
