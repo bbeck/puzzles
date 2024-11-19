@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/puzzles/lib"
 )
 
 func main() {

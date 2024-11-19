@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/puzzles/lib"
 	"log"
 	"strings"
 )

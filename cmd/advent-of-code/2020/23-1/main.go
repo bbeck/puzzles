@@ -3,7 +3,7 @@ package main
 import (
 	"container/ring"
 	"fmt"
-	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/puzzles/lib"
 )
 
 func main() {

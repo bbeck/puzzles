@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/puzzles/lib"
 )
 
 var Vault = lib.Point2D{X: 3, Y: 3}

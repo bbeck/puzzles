@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/advent-of-code/lib"
-	"github.com/bbeck/advent-of-code/lib/cpus"
+	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/cpus"
 	"runtime"
 )
 

@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bbeck/advent-of-code/lib"
+	"github.com/bbeck/puzzles/lib"
 )
 
 var Target = map[string]int{

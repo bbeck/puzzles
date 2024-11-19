@@ -1,4 +1,4 @@
-module github.com/bbeck/advent-of-code
+module github.com/bbeck/puzzles
 
 go 1.22
 
