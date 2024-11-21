@@ -127,6 +127,36 @@ func (g *Grid2D[T]) ForEachOrthogonalNeighborPoint(p Point2D, fn func(Point2D, T
 	}
 }
 
+// Map returns a new copy of the grid that has been transformed by a mapping
+// function.
+func (g *Grid2D[T]) Map(fn func(int, int, T) T) Grid2D[T] {
+	W, H := g.Width, g.Height
+
+	r := NewGrid2D[T](W, H)
+	for y := 0; y < H; y++ {
+		for x := 0; x < W; x++ {
+			r.Set(x, y, fn(x, y, g.Get(x, y)))
+		}
+	}
+
+	return r
+}
+
+// MapPoint returns a new copy of the grid that has been transformed by a
+// mapping function.
+func (g *Grid2D[T]) MapPoint(fn func(Point2D, T) T) Grid2D[T] {
+	W, H := g.Width, g.Height
+
+	r := NewGrid2D[T](W, H)
+	for y := 0; y < H; y++ {
+		for x := 0; x < W; x++ {
+			r.Set(x, y, fn(Point2D{X: x, Y: y}, g.Get(x, y)))
+		}
+	}
+
+	return r
+}
+
 // RotateLeft returns a new copy of the grid that has been rotated
 // counterclockwise 90 degrees.
 func (g *Grid2D[T]) RotateLeft() Grid2D[T] {
