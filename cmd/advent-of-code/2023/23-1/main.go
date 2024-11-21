@@ -21,7 +21,7 @@ func main() {
 
 	children := func(s State) []State {
 		var children []State
-		grid.ForEachOrthogonalNeighbor(s.Point2D, func(q lib.Point2D, ch string) {
+		grid.ForEachOrthogonalNeighborPoint(s.Point2D, func(q lib.Point2D, ch string) {
 			if s.Parent == q {
 				return
 			}

@@ -26,7 +26,7 @@ func main() {
 		start,
 		func(p lib.Point2D) []lib.Point2D {
 			var children []lib.Point2D
-			grid.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, s string) {
+			grid.ForEachOrthogonalNeighborPoint(p, func(q lib.Point2D, s string) {
 				if s == "." {
 					children = append(children, q)
 				}

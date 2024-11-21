@@ -151,7 +151,7 @@ func Count(g lib.Grid2D[string], p lib.Point2D, n int) int {
 		}
 
 		var children []State
-		g.ForEachOrthogonalNeighbor(s.Point2D, func(q lib.Point2D, ch string) {
+		g.ForEachOrthogonalNeighborPoint(s.Point2D, func(q lib.Point2D, ch string) {
 			if !seen.Contains(q) && ch != "#" {
 				children = append(children, State{q, s.N - 1})
 			}

@@ -16,7 +16,7 @@ func main() {
 			children = append(children, State{Time: s.Time + 1, Location: s.Location})
 		}
 
-		next.ForEachOrthogonalNeighbor(s.Location, func(n lib.Point2D, bs lib.BitSet) {
+		next.ForEachOrthogonalNeighborPoint(s.Location, func(n lib.Point2D, bs lib.BitSet) {
 			if bs == 0 {
 				children = append(children, State{Time: s.Time + 1, Location: n})
 			}

@@ -12,7 +12,7 @@ func main() {
 
 	children := func(p lib.Point2D) []lib.Point2D {
 		var children []lib.Point2D
-		cave.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, _ int) {
+		cave.ForEachOrthogonalNeighborPoint(p, func(q lib.Point2D, _ int) {
 			children = append(children, q)
 		})
 		return children

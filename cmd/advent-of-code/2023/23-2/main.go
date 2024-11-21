@@ -71,7 +71,7 @@ func FindVertices(grid lib.Grid2D[string]) ([]lib.Point2D, int, int) {
 		}
 
 		var count int
-		grid.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, s string) {
+		grid.ForEachOrthogonalNeighborPoint(p, func(q lib.Point2D, s string) {
 			if s != "#" {
 				count++
 			}
@@ -87,7 +87,7 @@ func FindVertices(grid lib.Grid2D[string]) ([]lib.Point2D, int, int) {
 func Distance(grid lib.Grid2D[string], start, end lib.Point2D, blocked lib.Set[lib.Point2D]) (int, bool) {
 	children := func(p lib.Point2D) []lib.Point2D {
 		var children []lib.Point2D
-		grid.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, ch string) {
+		grid.ForEachOrthogonalNeighborPoint(p, func(q lib.Point2D, ch string) {
 			if ch != "#" && !blocked.Contains(q) {
 				children = append(children, q)
 			}

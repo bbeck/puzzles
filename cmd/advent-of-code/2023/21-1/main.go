@@ -15,7 +15,7 @@ func Count(g lib.Grid2D[string], p lib.Point2D, n int) int {
 	for n > 0 {
 		var next lib.Set[lib.Point2D]
 		for p := range current {
-			g.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, s string) {
+			g.ForEachOrthogonalNeighborPoint(p, func(q lib.Point2D, s string) {
 				if s != "#" {
 					next.Add(q)
 				}

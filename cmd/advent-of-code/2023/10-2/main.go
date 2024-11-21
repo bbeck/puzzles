@@ -104,7 +104,7 @@ func Flood(grid lib.Grid2D[Cell], p lib.Point2D, seen lib.Set[lib.Point2D]) lib.
 		return seen
 	}
 
-	grid.ForEachOrthogonalNeighbor(p, func(q lib.Point2D, _ Cell) {
+	grid.ForEachOrthogonalNeighborPoint(p, func(q lib.Point2D, _ Cell) {
 		seen = Flood(grid, q, seen)
 	})
 	return seen

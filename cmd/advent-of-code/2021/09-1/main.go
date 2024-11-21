@@ -12,7 +12,7 @@ func main() {
 		hp := m.GetPoint(p)
 
 		isLow := true
-		m.ForEachOrthogonalNeighbor(p, func(_ lib.Point2D, hn int) {
+		m.ForEachOrthogonalNeighborPoint(p, func(_ lib.Point2D, hn int) {
 			isLow = isLow && (hp < hn)
 		})
 		return isLow

@@ -22,7 +22,7 @@ func main() {
 		pv := grid.GetPoint(p)
 
 		var children []lib.Point2D
-		grid.ForEachOrthogonalNeighbor(p, func(child lib.Point2D, cv byte) {
+		grid.ForEachOrthogonalNeighborPoint(p, func(child lib.Point2D, cv byte) {
 			if cv >= pv-1 {
 				children = append(children, child)
 			}

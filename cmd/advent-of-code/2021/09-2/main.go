@@ -15,7 +15,7 @@ func main() {
 			return
 		}
 
-		m.ForEachOrthogonalNeighbor(p, func(n lib.Point2D, height int) {
+		m.ForEachOrthogonalNeighborPoint(p, func(n lib.Point2D, height int) {
 			if height == 9 {
 				return
 			}

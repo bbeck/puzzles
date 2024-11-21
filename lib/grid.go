@@ -105,7 +105,21 @@ func (g *Grid2D[T]) ForEachNeighborPoint(p Point2D, fn func(Point2D, T)) {
 // ForEachOrthogonalNeighbor invokes a callback for each orthogonal neighbor
 // of a point.  The neighboring point along with the value are passed into the
 // callback.
-func (g *Grid2D[T]) ForEachOrthogonalNeighbor(p Point2D, fn func(Point2D, T)) {
+func (g *Grid2D[T]) ForEachOrthogonalNeighbor(x0, y0 int, fn func(int, int, T)) {
+	for d := -1; d <= 1; d += 2 {
+		if g.InBounds(x0+d, y0) {
+			fn(x0+d, y0, g.Get(x0+d, y0))
+		}
+		if g.InBounds(x0, y0+d) {
+			fn(x0, y0+d, g.Get(x0, y0+d))
+		}
+	}
+}
+
+// ForEachOrthogonalNeighborPoint invokes a callback for each orthogonal
+// neighbor of a point.  The neighboring point along with the value are passed
+// into the callback.
+func (g *Grid2D[T]) ForEachOrthogonalNeighborPoint(p Point2D, fn func(Point2D, T)) {
 	for _, n := range p.OrthogonalNeighbors() {
 		if g.InBoundsPoint(n) {
 			fn(n, g.GetPoint(n))

@@ -82,7 +82,7 @@ func GridToGraph(grid lib.Grid2D[int], entrance lib.Point2D) map[lib.Point2D]map
 
 	children := func(p lib.Point2D) []lib.Point2D {
 		var children []lib.Point2D
-		grid.ForEachOrthogonalNeighbor(p, func(child lib.Point2D, value int) {
+		grid.ForEachOrthogonalNeighborPoint(p, func(child lib.Point2D, value int) {
 			if value != Wall {
 				children = append(children, child)
 			}
