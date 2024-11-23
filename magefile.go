@@ -225,8 +225,8 @@ func Verify() error {
 		fmt.Printf("✅ SITE=%s YEAR=%d DAY=%02d PART=%d %s\n", site.ID, problem.Year, problem.Day, problem.Part, aLines[0])
 	} else {
 		fmt.Printf("❌ SITE=%s YEAR=%d DAY=%02d PART=%d\n", site.ID, problem.Year, problem.Day, problem.Part)
-		fmt.Println("ACTUAL:", strings.TrimRight(actual, "\n"))
 		fmt.Println("EXPECT:", strings.TrimRight(expected, "\n"))
+		fmt.Println("ACTUAL:", strings.TrimRight(actual, "\n"))
 		fmt.Println()
 	}
 
