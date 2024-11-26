@@ -5,13 +5,12 @@ import (
 	. "github.com/bbeck/puzzles/lib"
 )
 
-var Values = map[string]int{
-	"#": 1,
-}
-
 func main() {
 	grid := InputToGrid2D(func(_ int, _ int, s string) int {
-		return Values[s]
+		if s == "#" {
+			return 1
+		}
+		return 0
 	})
 
 	for {
