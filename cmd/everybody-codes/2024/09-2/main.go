@@ -1,0 +1,38 @@
+package main
+
+import (
+	"fmt"
+	"math"
+
+	. "github.com/bbeck/puzzles/lib"
+)
+
+func main() {
+	dots := []int{1, 3, 5, 10, 15, 16, 20, 24, 25, 30}
+
+	var sum int
+	for _, beetle := range InputToInts() {
+		sum += FindMin(beetle, dots, map[int]int{0: 0})
+	}
+	fmt.Println(sum)
+}
+
+func FindMin(beetle int, dots []int, seen map[int]int) int {
+	if value, ok := seen[beetle]; ok {
+		return value
+	}
+
+	best := math.MaxInt
+	for _, dot := range dots {
+		if dot > beetle {
+			continue
+		}
+
+		if count := FindMin(beetle-dot, dots, seen); count < math.MaxInt {
+			best = Min(best, count+1)
+		}
+	}
+
+	seen[beetle] = best
+	return best
+}
