@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"reflect"
 	"strconv"
 	"strings"
@@ -441,8 +442,19 @@ func RunHelper() (string, error) {
 	}
 	defer func() { _ = os.Chdir(pwd) }()
 
+	var out bytes.Buffer
+
 	// Run the script
-	return script.Exec("go run .").String()
+	cmd := exec.Command("go", "run", ".")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = &out
+	cmd.Stderr = &out
+	err = cmd.Start()
+	if err != nil {
+		return out.String(), err
+	}
+	err = cmd.Wait()
+	return out.String(), err
 }
 
 func Lookup(key string) (string, error) {
