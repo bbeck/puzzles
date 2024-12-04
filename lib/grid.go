@@ -33,6 +33,13 @@ func (g *Grid2D[T]) SetPoint(p Point2D, value T) {
 	g.Set(p.X, p.Y, value)
 }
 
+// Fill sets the value at all locations in the grid to a specific value.
+func (g *Grid2D[T]) Fill(value T) {
+	for n := 0; n < len(g.Cells); n++ {
+		g.Cells[n] = value
+	}
+}
+
 // Get retrieves the value in the grid at the location specified by the X
 // and Y coordinate.  If the location doesn't contain a value then the zero
 // value of the underlying grid type will be returned.
