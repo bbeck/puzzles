@@ -29,23 +29,20 @@ type Turtle struct {
 }
 
 func (t *Turtle) Forward(n int) {
-	var move func(d Point2D) Point2D
+	var dx, dy int
 	switch t.Heading {
 	case Up:
-		move = func(p Point2D) Point2D { return p.Up() }
+		dy = -1
 	case Right:
-		move = func(p Point2D) Point2D { return p.Right() }
+		dx = 1
 	case Down:
-		move = func(p Point2D) Point2D { return p.Down() }
+		dy = 1
 	case Left:
-		move = func(p Point2D) Point2D { return p.Left() }
-	default:
-		return
+		dx = -1
 	}
 
-	for ; n > 0; n-- {
-		t.Location = move(t.Location)
-	}
+	t.Location.X += n * dx
+	t.Location.Y += n * dy
 }
 
 func (t *Turtle) TurnLeft() {
