@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	. "github.com/bbeck/puzzles/lib"
@@ -10,35 +11,39 @@ import (
 func main() {
 	var sum int
 	for _, e := range InputToEquations() {
-		if IsSolvable(e) {
+		if IsSolvable(e.Answer, e.Nums) {
 			sum += e.Answer
 		}
 	}
 	fmt.Println(sum)
 }
 
-func IsSolvable(e Equation) bool {
-	N := len(e.Nums) - 1
+func IsSolvable(answer int, nums []int) bool {
+	if len(nums) == 1 {
+		return nums[0] == answer
+	}
 
-	var found bool
-	EnumerateChoices(3, N, func(choice []int) bool {
-		value := e.Nums[0]
-		for b := 0; b < N; b++ {
-			switch choice[b] {
-			case 0: // +
-				value += e.Nums[b+1]
-			case 1: // *
-				value *= e.Nums[b+1]
-			case 2: // ||
-				value = JoinDigits(append(Digits(value), Digits(e.Nums[b+1])...))
-			}
+	rest := nums[:len(nums)-1]
+	last := nums[len(nums)-1]
+
+	// We're able to multiply if the last number divides the answer evenly.
+	if answer%last == 0 {
+		if IsSolvable(answer/last, rest) {
+			return true
 		}
+	}
 
-		found = value == e.Answer
-		return found
-	})
+	// We're able to multiply if the answer ends in the same digits as the last
+	// number.
+	N := Pow(10, 1+uint(math.Floor(math.Log10(float64(last)))))
+	if answer%N == last%N {
+		if IsSolvable(answer/N, rest) {
+			return true
+		}
+	}
 
-	return found
+	// Otherwise try adding.
+	return IsSolvable(answer-last, rest)
 }
 
 type Equation struct {
