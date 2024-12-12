@@ -24,12 +24,12 @@ func main() {
 	fmt.Println(strings.Join(squires, ""))
 }
 
-func Run(instructions string) int {
-	var essence int
-	power := 10
+func Run(instructions []string) int {
+	N := len(instructions)
 
-	for step := 0; step < 10; step++ {
-		action := string(instructions[step%len(instructions)])
+	var essence int
+	for power, step := 10, 0; step < 10; step++ {
+		action := instructions[step%N]
 
 		switch action {
 		case "+":
@@ -43,12 +43,14 @@ func Run(instructions string) int {
 	return essence
 }
 
-func InputToInstructions() map[string]string {
-	instructions := make(map[string]string)
+func InputToInstructions() map[string][]string {
+	instructions := make(map[string][]string)
 	for _, line := range InputToLines() {
-		lhs, rhs, _ := strings.Cut(line, ":")
-		rhs = strings.ReplaceAll(rhs, ",", "")
-		instructions[lhs] = rhs
+		line = strings.ReplaceAll(line, ":", " ")
+		line = strings.ReplaceAll(line, ",", " ")
+		fields := strings.Fields(line)
+
+		instructions[fields[0]] = fields[1:]
 	}
 
 	return instructions

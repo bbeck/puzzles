@@ -24,45 +24,39 @@ func main() {
 	fmt.Println(strings.Join(knights, ""))
 }
 
-func Run(instructions string, track string) int {
+func Run(instructions []string, track []string) int {
+	NI, NT := len(instructions), len(track)
+
 	var essence int
-	power := 10
-
-	for step := 0; step < 10*len(track); step++ {
-		ta := string(track[step%len(track)])
-		ka := string(instructions[step%len(instructions)])
-
-		var aa string
-		if ta == "+" || ta == "-" {
-			aa = ta
-		} else {
-			aa = ka
-		}
-
-		switch aa {
-		case "+":
+	for power, step := 10, 0; step < 10*NT; step++ {
+		switch ti := track[step%NT]; {
+		case ti == "+" || (ti == "=" && instructions[step%NI] == "+"):
 			power++
-		case "-":
+		case ti == "-" || (ti == "=" && instructions[step%NI] == "-"):
 			power--
 		}
+
 		essence += power
 	}
 
 	return essence
 }
 
-func InputToInstructions() map[string]string {
-	instructions := make(map[string]string)
+func InputToInstructions() map[string][]string {
+	instructions := make(map[string][]string)
 	for _, line := range InputToLines() {
-		lhs, rhs, _ := strings.Cut(line, ":")
-		rhs = strings.ReplaceAll(rhs, ",", "")
-		instructions[lhs] = rhs
+		line = strings.ReplaceAll(line, ":", " ")
+		line = strings.ReplaceAll(line, ",", " ")
+		fields := strings.Fields(line)
+
+		instructions[fields[0]] = fields[1:]
 	}
 
 	return instructions
 }
 
-const Track = `
+func GetTrack() []string {
+	s := `
 S-=++=-==++=++=-=+=-=+=+=--=-=++=-==++=-+=-=+=-=+=+=++=-+==++=++=-=-=--
 -                                                                     -
 =                                                                     =
@@ -72,28 +66,30 @@ S-=++=-==++=++=-=+=-=+=+=--=-=++=-==++=-+=-=+=-=+=+=++=-+==++=++=-=-=--
 =                                                                     =
 -                                                                     -
 --==++++==+=+++-=+=-=+=-+-=+-=+-=+=-=+=--=+++=++=+++==++==--=+=++==+++-
-`
+	`
+	s = strings.ReplaceAll(s, "S", "=")
+	s = strings.TrimSpace(s)
+	grid := strings.Split(s, "\n")
 
-func GetTrack() string {
-	lines := strings.Split(strings.TrimSpace(Track), "\n")
-	W, H := len(lines[0]), len(lines)
+	W, H := len(grid[0]), len(grid)
 
-	var sb strings.Builder
+	var track []string
+
 	// top
 	for x := 1; x < W; x++ {
-		sb.WriteRune(rune(lines[0][x]))
+		track = append(track, grid[0][x:x+1])
 	}
 	// right
 	for y := 1; y < H-1; y++ {
-		sb.WriteRune(rune(lines[y][W-1]))
+		track = append(track, grid[y][W-1:W])
 	}
 	// bottom
 	for x := W - 1; x >= 0; x-- {
-		sb.WriteRune(rune(lines[H-1][x]))
+		track = append(track, grid[H-1][x:x+1])
 	}
 	// left
 	for y := H - 2; y >= 0; y-- {
-		sb.WriteRune(rune(lines[y][0]))
+		track = append(track, grid[y][0:1])
 	}
-	return sb.String()
+	return track
 }

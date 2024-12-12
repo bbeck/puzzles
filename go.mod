@@ -1,6 +1,6 @@
 module github.com/bbeck/puzzles
 
-go 1.22
+go 1.23
 
 require (
 	github.com/bitfield/script v0.23.0

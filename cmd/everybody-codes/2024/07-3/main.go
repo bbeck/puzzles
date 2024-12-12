@@ -11,69 +11,53 @@ func main() {
 	track := GetTrack()
 
 	opponent := Run(instructions["A"], track)
-	chs := []string{"+", "+", "+", "+", "+", "-", "-", "-", "=", "=", "="}
 
-	var seen Set[string]
 	var wins int
-	EnumeratePermutations(len(chs), func(ns []int) bool {
-		elems := make([]string, len(chs))
-		for i, n := range ns {
-			elems[i] = chs[n]
+	for ins := range UniquePermutations(strings.Split("+++++---===", "")) {
+		if score := Run(ins, track); score > opponent {
+			wins++
 		}
-
-		ins := strings.Join(elems, "")
-		if seen.Add(ins) {
-			score := Run(ins, track)
-			if score > opponent {
-				wins++
-			}
-		}
-
-		return false
-	})
-
+	}
 	fmt.Println(wins)
 }
 
-func Run(instructions string, track string) int {
+func Run(instructions []string, track []string) int {
+	NI, NT := len(instructions), len(track)
+
+	// The track has a length of 340 and the instructions have a length of 11.
+	// The gcd(340, 11) = 1, so in theory we should cycle every 11 laps around
+	// the track.  Therefore to figure out the winner, we only need to measure
+	// who is winning after 11 laps instead of 2024.
 	var essence int
-	power := 10
-
-	for step := 0; step < 2024*len(track); step++ {
-		ta := string(track[step%len(track)])
-		ka := string(instructions[step%len(instructions)])
-
-		var aa string
-		if ta == "+" || ta == "-" {
-			aa = ta
-		} else {
-			aa = ka
-		}
-
-		switch aa {
-		case "+":
+	for power, step := 10, 0; step < 11*NT; step++ {
+		switch ti := track[step%NT]; {
+		case ti == "+" || (ti == "=" && instructions[step%NI] == "+"):
 			power++
-		case "-":
+		case ti == "-" || (ti == "=" && instructions[step%NI] == "-"):
 			power--
 		}
+
 		essence += power
 	}
 
 	return essence
 }
 
-func InputToInstructions() map[string]string {
-	instructions := make(map[string]string)
+func InputToInstructions() map[string][]string {
+	instructions := make(map[string][]string)
 	for _, line := range InputToLines() {
-		lhs, rhs, _ := strings.Cut(line, ":")
-		rhs = strings.ReplaceAll(rhs, ",", "")
-		instructions[lhs] = rhs
+		line = strings.ReplaceAll(line, ":", " ")
+		line = strings.ReplaceAll(line, ",", " ")
+		fields := strings.Fields(line)
+
+		instructions[fields[0]] = fields[1:]
 	}
 
 	return instructions
 }
 
-const Track = `
+func GetTrack() []string {
+	s := `
 S+= +=-== +=++=     =+=+=--=    =-= ++=     +=-  =+=++=-+==+ =++=-=-=--
 - + +   + =   =     =      =   == = - -     - =  =         =-=        -
 = + + +-- =-= ==-==-= --++ +  == == = +     - =  =    ==++=    =++=-=++
@@ -84,26 +68,24 @@ S+= +=-== +=++=     =+=+=--=    =-= ++=     +=-  =+=++=-+==+ =++=-=-=--
 -               = = = =   +  +  ==+ = = +   =        ++    =          -
 -               = + + =   +  -  = + = = +   =        +     =          -
 --==++++==+=+++-= =-= =-+-=  =+-= =-= =--   +=++=+++==     -=+=++==+++-
-`
+	`
+	s = strings.ReplaceAll(s, "S", "=")
+	s = strings.TrimSpace(s)
+	grid := strings.Split(s, "\n")
 
-func GetTrack() string {
-	lines := strings.Split(strings.TrimSpace(Track), "\n")
-
-	var sb strings.Builder
 	t := Turtle{Heading: Right}
+	var start = t.Location
 
+	var track []string
 	for {
-		next := Step(t, lines)
-		ch := rune(lines[next.Location.Y][next.Location.X])
-		sb.WriteRune(ch)
+		t = Step(t, grid)
+		track = append(track, string(grid[t.Location.Y][t.Location.X]))
 
-		if ch == 'S' {
+		if t.Location == start {
 			break
 		}
-
-		t = next
 	}
-	return sb.String()
+	return track
 }
 
 func Step(t Turtle, grid []string) Turtle {
