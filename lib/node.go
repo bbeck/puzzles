@@ -1,5 +1,10 @@
 package lib
 
+import (
+	"math"
+	"slices"
+)
+
 // ChildrenFunc is a function that is called to determine the children of a
 // node.
 type ChildrenFunc[T any] func(node T) []T
@@ -57,6 +62,146 @@ func BreadthFirstSearchWithIdentity[T, I comparable](root T, children ChildrenFu
 // CostFunc determines the cost of transitioning from one node to one of its
 // child nodes.
 type CostFunc[T any] func(from, to T) int
+
+// Dijkstra finds all shortest paths from the start node to all other nodes in
+// the graph.  To accomplish this is runs Dijkstra's algorithm.
+//
+// The Dijkstra function returns two values.  The first is the mapping
+// containing the costs to reach each node from the start node.  The second is
+// the mapping of a given node to its predecessors on a shortest path.
+func Dijkstra[T comparable](start T, children ChildrenFunc[T], cost CostFunc[T]) (map[T]int, map[T][]T) {
+	dist := map[T]int{start: 0}
+	prev := make(map[T]Set[T])
+
+	var queue PriorityQueue[T]
+	queue.Push(start, 0)
+
+	for !queue.Empty() {
+		u := queue.Pop()
+
+		for _, v := range children(u) {
+			alt := dist[u] + cost(u, v)
+			dv, ok := dist[v]
+
+			switch {
+			case !ok || alt < dv:
+				// We haven't seen v before, or we just found a shorter path to it.
+				prev[v] = SetFrom(u)
+				dist[v] = alt
+				queue.Push(v, alt)
+
+			case alt == dv:
+				// We found another, equivalent cost path to v
+				prev[v] = prev[v].UnionElems(u)
+			}
+		}
+	}
+
+	prevS := make(map[T][]T)
+	for k, s := range prev {
+		prevS[k] = s.Entries()
+	}
+
+	return dist, prevS
+}
+
+// ShortestPath determines the shortest path from the start node to a goal node.
+// If there are multiple goal nodes, paths to the one with the smallest cost
+// will be returned.
+func ShortestPath[T comparable](start T, children ChildrenFunc[T], g GoalFunc[T], cost CostFunc[T]) ([]T, int) {
+	dist, prev := Dijkstra(start, children, cost)
+
+	var end T
+	var best = math.MaxInt
+	for d, c := range dist {
+		if g(d) && c < best {
+			end = d
+			best = c
+			// Don't break because if there are multiple goal nodes we need to find
+			// the one with the smallest cost.  It doesn't matter which we find since
+			// we just need to return a single shortest path.
+		}
+	}
+
+	current := end
+	var path []T
+	for {
+		path = append([]T{current}, path...)
+		parents, present := prev[current]
+		if !present {
+			break
+		}
+		current = parents[0]
+	}
+
+	return path, best
+}
+
+// AllShortestPaths returns all shortest paths from the start node to a goal
+// node.
+func AllShortestPaths[T comparable](start T, children ChildrenFunc[T], g GoalFunc[T], cost CostFunc[T]) ([][]T, int) {
+	dist, pred := Dijkstra(start, children, cost)
+
+	// Determine which goal nodes shortest paths end at.
+	best := math.MaxInt
+	var goals []T
+	for node, c := range dist {
+		switch {
+		case !g(node):
+			continue
+		case c == best:
+			goals = append(goals, node)
+		case c < best:
+			best = c
+			goals = []T{node}
+		}
+	}
+
+	// Now that we know the goal nodes, translate them into paths.  The following
+	// algorithm is inspired by the _build_paths_from_predecessors function from
+	// networkx.
+	// https://networkx.org/documentation/stable/_modules/networkx/algorithms/shortest_paths/generic.html
+
+	var paths [][]T
+
+	// These slices along with the top variable form a stack of a tuple (T, int).
+	var ts = goals
+	var is = []int{0}
+	var top int
+
+	seen := SetFrom(goals...)
+
+	for top >= 0 {
+		node, i := ts[top], is[top]
+		if node == start {
+			paths = append(paths, slices.Clone(ts[:top+1]))
+		}
+
+		if len(pred[node]) <= i {
+			seen.Remove(node)
+			top--
+			continue
+		}
+
+		is[top] = i + 1
+
+		next := pred[node][i]
+		if !seen.Add(next) {
+			continue
+		}
+
+		top++
+		if top == len(ts) {
+			ts = append(ts, next)
+			is = append(is, 0)
+		} else {
+			ts[top] = next
+			is[top] = 0
+		}
+	}
+
+	return paths, best
+}
 
 // HeuristicFunc provides an estimate of the cost to reach the goal node from a
 // given node.
