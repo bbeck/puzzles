@@ -31,6 +31,14 @@ run-year:
 	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) run;           \
 	done
 
+## verify the solution output of the specified SITE/YEAR/DAY
+.PHONY: verify-day
+verify-day:
+	@$(mage) ListDay                                               | \
+	while read year day part; do                                     \
+	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) verify;        \
+	done
+
 ## verify the solution output of the specified SITE/YEAR
 .PHONY: verify-year
 verify-year:

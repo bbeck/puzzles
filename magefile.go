@@ -234,6 +234,21 @@ func Verify() error {
 	return nil
 }
 
+// ListDay enumerates all parts that exist for a day.
+//
+//goland:noinspection GoUnusedExportedFunction
+func ListDay() {
+	mg.Deps(ParseEnv)
+
+	for part := 1; part <= site.NumParts; part++ {
+		// Check if a main.go file exists
+		path := fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, problem.Day, part)
+		if script.IfExists(path).Error() == nil {
+			fmt.Printf("%d %d %d\n", problem.Year, problem.Day, part)
+		}
+	}
+}
+
 // ListYear enumerates all days and parts that are expected for the year.
 //
 //goland:noinspection GoUnusedExportedFunction
