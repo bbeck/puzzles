@@ -74,8 +74,8 @@ var site Site
 func Run() error {
 	mg.Deps(ParseEnv, DownloadInput)
 
-	output, err := RunHelper()
-	fmt.Print(output)
+	output, duration, err := RunHelper()
+	fmt.Printf("%s [%dms]\n", strings.TrimSuffix(output, "\n"), duration.Milliseconds())
 	return err
 }
 
@@ -199,7 +199,7 @@ func Verify() error {
 		return err
 	}
 
-	actual, err := RunHelper()
+	actual, duration, err := RunHelper()
 	if err != nil {
 		return err
 	}
@@ -223,9 +223,9 @@ func Verify() error {
 	aLines := convert(actual)
 
 	if reflect.DeepEqual(aLines, eLines) {
-		fmt.Printf("✅ SITE=%s YEAR=%d DAY=%02d PART=%d %s\n", site.ID, problem.Year, problem.Day, problem.Part, aLines[0])
+		fmt.Printf("✅ SITE=%s YEAR=%d DAY=%02d PART=%d %s [%dms]\n", site.ID, problem.Year, problem.Day, problem.Part, aLines[0], duration.Milliseconds())
 	} else {
-		fmt.Printf("❌ SITE=%s YEAR=%d DAY=%02d PART=%d\n", site.ID, problem.Year, problem.Day, problem.Part)
+		fmt.Printf("❌ SITE=%s YEAR=%d DAY=%02d PART=%d [%dms]\n", site.ID, problem.Year, problem.Day, problem.Part, duration.Milliseconds())
 		fmt.Println("EXPECT:", strings.TrimRight(expected, "\n"))
 		fmt.Println("ACTUAL:", strings.TrimRight(actual, "\n"))
 		fmt.Println()
@@ -437,23 +437,23 @@ func DownloadEverybodyCodesInput() error {
 // Helpers
 //
 
-func RunHelper() (string, error) {
+func RunHelper() (string, time.Duration, error) {
 	dir := fmt.Sprintf("%s/%d/%02d-%d", site.Directory, problem.Year, problem.Day, problem.Part)
 	err := script.IfExists(dir).Error()
 	if err != nil {
-		return "", fmt.Errorf("%s does not exist", dir)
+		return "", 0, fmt.Errorf("%s does not exist", dir)
 	}
 
 	// Change to the new directory, but be sure to return to the current
 	// directory on exit in case we are running multiple programs.
 	pwd, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	err = os.Chdir(dir)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	defer func() { _ = os.Chdir(pwd) }()
 
@@ -464,12 +464,13 @@ func RunHelper() (string, error) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = &out
 	cmd.Stderr = &out
+	tm := time.Now()
 	err = cmd.Start()
 	if err != nil {
-		return out.String(), err
+		return out.String(), 0, err
 	}
 	err = cmd.Wait()
-	return out.String(), err
+	return out.String(), time.Since(tm), err
 }
 
 func Lookup(key string) (string, error) {
