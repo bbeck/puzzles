@@ -75,7 +75,20 @@ func Run() error {
 	mg.Deps(ParseEnv, DownloadInput)
 
 	output, duration, err := RunHelper()
-	fmt.Printf("%s [%dms]\n", strings.TrimSuffix(output, "\n"), duration.Milliseconds())
+	if err == nil {
+		// Show the output plus the duration.  Put the duration on a line of its
+		// own if the output has multiple lines in it.
+		output = strings.TrimSuffix(output, "\n")
+		if strings.Contains(output, "\n") {
+			fmt.Println(output)
+			fmt.Printf("[%dms]\n", duration.Milliseconds())
+		} else {
+			fmt.Print(output)
+			fmt.Printf(" [%dms]\n", duration.Milliseconds())
+		}
+	} else {
+		fmt.Print(output)
+	}
 	return err
 }
 
