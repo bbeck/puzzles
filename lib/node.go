@@ -2,7 +2,6 @@ package lib
 
 import (
 	"math"
-	"slices"
 )
 
 // ChildrenFunc is a function that is called to determine the children of a
@@ -174,7 +173,7 @@ func AllShortestPaths[T comparable](start T, children ChildrenFunc[T], g GoalFun
 	for top >= 0 {
 		node, i := ts[top], is[top]
 		if node == start {
-			paths = append(paths, slices.Clone(ts[:top+1]))
+			paths = append(paths, Reversed(ts[:top+1]))
 		}
 
 		if len(pred[node]) <= i {
