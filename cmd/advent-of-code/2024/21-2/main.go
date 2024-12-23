@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	memo := make(map[MemoKey]int)
+	memo := make(map[string]int)
 
 	var sum int
 	for _, code := range InputToLines() {
@@ -42,18 +42,14 @@ func ToKeypad(s string) Keypad {
 	return keypad
 }
 
-type MemoKey struct {
-	code string
-	n    int
-}
-
-func MinLength(code string, n int, keypad Keypad, memo map[MemoKey]int) int {
-	key := MemoKey{code: code, n: n}
-	if v, ok := memo[key]; ok {
-		return v
-	}
+func MinLength(code string, n int, keypad Keypad, memo map[string]int) int {
 	if n < 0 {
 		return 1
+	}
+
+	key := fmt.Sprintf("%s|%d", code, n)
+	if v, ok := memo[key]; ok {
+		return v
 	}
 
 	var current Point2D
