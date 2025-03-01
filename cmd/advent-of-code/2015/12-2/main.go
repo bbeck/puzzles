@@ -3,36 +3,30 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	s := lib.InputToString()
-
-	var tree interface{}
-	if err := json.Unmarshal([]byte(s), &tree); err != nil {
-		log.Fatalf("error parsing json: %+v", err)
-	}
-
-	sum := Sum(tree)
+	var tree any
+	json.Unmarshal(in.Bytes(), &tree)
+	sum := Walk(tree)
 	fmt.Println(sum)
 }
 
-func Sum(root interface{}) int {
+func Walk(root any) int {
 	switch elem := root.(type) {
 	case float64:
 		return int(elem)
 
-	case []interface{}:
+	case []any:
 		var sum int
-		for i := 0; i < len(elem); i++ {
-			sum += Sum(elem[i])
+		for i := range elem {
+			sum += Walk(elem[i])
 		}
 		return sum
 
-	case map[string]interface{}:
+	case map[string]any:
 		var sum int
 		for _, v := range elem {
 			// If this object has a key with a value of "red" then it should be ignored.
@@ -40,7 +34,7 @@ func Sum(root interface{}) int {
 				return 0
 			}
 
-			sum += Sum(v)
+			sum += Walk(v)
 		}
 		return sum
 	}

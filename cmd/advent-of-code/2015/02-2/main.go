@@ -2,37 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"log"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
-type Box struct {
-	l, w, h int
-}
-
-func (b Box) Volume() int {
-	return b.l * b.w * b.h
-}
-func (b Box) RibbonLength() int {
-	dimensions := []int{b.l, b.w, b.h}
-	return 2*(lib.Sum(dimensions...)-lib.Max(dimensions...)) + b.Volume()
-}
-
 func main() {
-	length := 0
-	for _, box := range InputToBoxes() {
-		length += box.RibbonLength()
+	var length int
+	for in.HasNext() {
+		L, W, H := in.Int(), in.Int(), in.Int()
+		length += 2*(Sum(L, W, H)-Max(L, W, H)) + (L * W * H)
 	}
 	fmt.Println(length)
-}
-
-func InputToBoxes() []Box {
-	parser := func(line string) Box {
-		var box Box
-		if _, err := fmt.Sscanf(line, "%dx%dx%d", &box.l, &box.w, &box.h); err != nil {
-			log.Fatalf("unable to parse line: %v", err)
-		}
-		return box
-	}
-	return lib.InputLinesTo(parser)
 }

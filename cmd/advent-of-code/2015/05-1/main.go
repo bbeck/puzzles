@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var count int
-	for _, line := range lib.InputToLines() {
-		if IsNice(line) {
+	for in.HasNext() {
+		if IsNice(in.String()) {
 			count++
 		}
 	}
@@ -27,14 +27,17 @@ func ContainsThreeVowels(s string) bool {
 	for _, c := range s {
 		if c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' {
 			count++
+			if count >= 3 {
+				return true
+			}
 		}
 	}
 
-	return count >= 3
+	return false
 }
 
 func ContainsDoubleLetter(s string) bool {
-	for i := 0; i < len(s)-1; i++ {
+	for i := range len(s) - 1 {
 		if s[i] == s[i+1] {
 			return true
 		}

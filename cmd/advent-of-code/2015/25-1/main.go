@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	row, col := InputToCoordinate()
+	row, col := in.Int(), in.Int()
 
 	// We first have to figure out which element of the sequence our coordinate
 	// corresponds to.
@@ -45,19 +43,4 @@ func main() {
 		code = (code * 252533) % 33554393
 	}
 	fmt.Println(code)
-}
-
-func InputToCoordinate() (int, int) {
-	p := lib.InputLinesTo(func(line string) lib.Point2D {
-		line = strings.ReplaceAll(line, "To continue, please consult the code grid in the manual.", "")
-		line = strings.TrimSpace(line)
-
-		var p lib.Point2D
-		if _, err := fmt.Sscanf(line, "Enter the code at row %d, column %d.", &p.X, &p.Y); err != nil {
-			log.Fatalf("unable to parse line: %v", err)
-		}
-		return p
-	})[0]
-
-	return p.X, p.Y
 }

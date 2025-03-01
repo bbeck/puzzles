@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	lights := lib.NewGrid2D[int](1000, 1000)
+	lights := NewGrid2D[int](1000, 1000)
 	for _, instruction := range InputToInstructions() {
 		for x := instruction.TopLeft.X; x <= instruction.BottomRight.X; x++ {
 			for y := instruction.TopLeft.Y; y <= instruction.BottomRight.Y; y++ {
@@ -19,8 +18,8 @@ func main() {
 	}
 
 	var brightness int
-	for y := 0; y < lights.Height; y++ {
-		for x := 0; x < lights.Width; x++ {
+	for y := range lights.Height {
+		for x := range lights.Width {
 			brightness += lights.Get(x, y)
 		}
 	}
@@ -29,32 +28,26 @@ func main() {
 
 type Instruction struct {
 	Op                   func(int) int
-	TopLeft, BottomRight lib.Point2D
+	TopLeft, BottomRight Point2D
 }
 
 var Ops = map[string]func(int) int{
-	"on":     func(n int) int { return n + 1 },
-	"off":    func(n int) int { return lib.Max(n-1, 0) },
-	"toggle": func(n int) int { return n + 2 },
+	"turn on":  func(n int) int { return n + 1 },
+	"turn off": func(n int) int { return Max(n-1, 0) },
+	"toggle":   func(n int) int { return n + 2 },
 }
 
 func InputToInstructions() []Instruction {
-	return lib.InputLinesTo(func(line string) Instruction {
-		// Transform the operation into a single word, this allows it to be parsed by Sscanf
-		line = strings.ReplaceAll(line, "turn on", "on")
-		line = strings.ReplaceAll(line, "turn off", "off")
+	var instructions []Instruction
+	for in.HasNext() {
+		op := in.OneOf("turn on", "turn off", "toggle")
+		p1x, p1y, p2x, p2y := in.Int(), in.Int(), in.Int(), in.Int()
 
-		var op string
-		var p1x, p1y, p2x, p2y int
-		_, err := fmt.Sscanf(line, "%s %d,%d through %d,%d", &op, &p1x, &p1y, &p2x, &p2y)
-		if err != nil {
-			log.Fatalf("unable to parse line: %v", err)
-		}
-
-		return Instruction{
+		instructions = append(instructions, Instruction{
 			Op:          Ops[op],
-			TopLeft:     lib.Point2D{X: lib.Min(p1x, p2x), Y: lib.Min(p1y, p2y)},
-			BottomRight: lib.Point2D{X: lib.Max(p1x, p2x), Y: lib.Max(p1y, p2y)},
-		}
-	})
+			TopLeft:     Point2D{X: Min(p1x, p2x), Y: Min(p1y, p2y)},
+			BottomRight: Point2D{X: Max(p1x, p2x), Y: Max(p1y, p2y)},
+		})
+	}
+	return instructions
 }

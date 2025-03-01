@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"math"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	desired := lib.InputToInt()
+	desired := in.Int()
 
 	var house int
 	for house = 1; ; house++ {

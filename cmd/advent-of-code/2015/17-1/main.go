@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	sizes := lib.InputToInts()
+	sizes := in.Ints()
 
 	var count int
 	EnumerateWays(sizes, func(containers []bool) {

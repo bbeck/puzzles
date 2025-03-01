@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	floor := 0
-	for _, c := range lib.InputToString() {
-		switch c {
+	var floor int
+	for in.HasNext() {
+		switch in.Byte() {
 		case '(':
 			floor++
 		case ')':

@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	program := InputToProgram()
+
 	registers := make(map[string]uint)
 
 	var pc int
@@ -54,26 +55,21 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return lib.InputLinesTo(func(line string) Instruction {
-		line = strings.ReplaceAll(line, ",", "")
-		line = strings.ReplaceAll(line, "+", "")
-		opcode, rest, _ := strings.Cut(line, " ")
-		args := strings.Fields(rest)
+	return in.LinesTo(func(in *in.Scanner[Instruction]) Instruction {
+		var opcode = in.String()
+		arg1, arg2 := in.Cut(", ")
 
-		instruction := Instruction{OpCode: opcode}
-		switch opcode {
-		case "jmp":
-			instruction.Offset = lib.ParseInt(args[0])
-		case "jie":
-			instruction.Register = args[0]
-			instruction.Offset = lib.ParseInt(args[1])
-		case "jio":
-			instruction.Register = args[0]
-			instruction.Offset = lib.ParseInt(args[1])
-		default:
-			instruction.Register = args[0]
+		var register string
+		var offset int
+		if n, err := strconv.Atoi(arg1); err == nil {
+			offset = n
+		} else {
+			register = arg1
+		}
+		if n, err := strconv.Atoi(arg2); err == nil {
+			offset = n
 		}
 
-		return instruction
+		return Instruction{OpCode: opcode, Register: register, Offset: offset}
 	})
 }

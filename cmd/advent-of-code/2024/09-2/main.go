@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
 	"slices"
+
+	. "github.com/bbeck/puzzles/lib"
 )
 
 func main() {
@@ -74,7 +75,7 @@ type File struct {
 func InputToFiles() []File {
 	var files []File
 	var offset int
-	for i, bs := range Chunk(InputToBytes(), 2) {
+	for i, bs := range Chunks(InputToBytes(), 2) {
 		var l, g int
 		l = ParseInt(string(bs[0]))
 		if len(bs) == 2 {

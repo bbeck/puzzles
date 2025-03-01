@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -14,7 +13,7 @@ func main() {
 	var best int
 	EnumeratePossibleRecipes(ingredients, func(amounts []int) {
 		var capacity, durability, flavor, texture int
-		for i := 0; i < len(amounts); i++ {
+		for i := range amounts {
 			capacity += amounts[i] * ingredients[i].Capacity
 			durability += amounts[i] * ingredients[i].Durability
 			flavor += amounts[i] * ingredients[i].Flavor
@@ -22,7 +21,7 @@ func main() {
 		}
 
 		if capacity > 0 && durability > 0 && flavor > 0 && texture > 0 {
-			best = lib.Max(best, capacity*durability*flavor*texture)
+			best = Max(best, capacity*durability*flavor*texture)
 		}
 	})
 
@@ -59,27 +58,14 @@ type Ingredient struct {
 }
 
 func InputToIngredients() []Ingredient {
-	return lib.InputLinesTo(func(line string) Ingredient {
-		line = strings.ReplaceAll(line, ",", "")
-		line = strings.ReplaceAll(line, "capacity", "")
-		line = strings.ReplaceAll(line, "durability", "")
-		line = strings.ReplaceAll(line, "flavor", "")
-		line = strings.ReplaceAll(line, "texture", "")
-		line = strings.ReplaceAll(line, "calories", "")
-
-		var ingredient Ingredient
-		_, err := fmt.Sscanf(line,
-			"%s %d %d %d %d %d",
-			&ingredient.Name,
-			&ingredient.Capacity,
-			&ingredient.Durability,
-			&ingredient.Flavor,
-			&ingredient.Texture,
-			&ingredient.Calories,
-		)
-		if err != nil {
-			log.Fatalf("unable to parse line: %v", err)
+	return in.LinesTo(func(in *in.Scanner[Ingredient]) Ingredient {
+		return Ingredient{
+			Name:       in.String(),
+			Capacity:   in.Int(),
+			Durability: in.Int(),
+			Flavor:     in.Int(),
+			Texture:    in.Int(),
+			Calories:   in.Int(),
 		}
-		return ingredient
 	})
 }

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var count int
-	for _, line := range lib.InputToLines() {
-		if IsNice(line) {
+	for in.HasNext() {
+		if IsNice(in.String()) {
 			count++
 		}
 	}
@@ -23,7 +23,7 @@ func IsNice(s string) bool {
 }
 
 func ContainsRepeatPair(s string) bool {
-	for i := 0; i < len(s)-3; i++ {
+	for i := range len(s) - 3 {
 		if strings.Contains(s[i+2:], s[i:i+2]) {
 			return true
 		}
@@ -33,7 +33,7 @@ func ContainsRepeatPair(s string) bool {
 }
 
 func ContainsSplitRepeat(s string) bool {
-	for i := 0; i < len(s)-2; i++ {
+	for i := range len(s) - 2 {
 		if s[i] == s[i+2] {
 			return true
 		}

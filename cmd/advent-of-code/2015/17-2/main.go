@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"math"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	sizes := lib.InputToInts()
+	sizes := in.Ints()
 
 	best := math.MaxInt
 	ways := make(map[int]int)
@@ -19,7 +21,7 @@ func main() {
 			}
 		}
 
-		best = lib.Min(best, count)
+		best = Min(best, count)
 		ways[count]++
 	})
 

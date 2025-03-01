@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	desired := lib.InputToInt()
+	desired := in.Int()
 
 	houses := make([]int, desired+1)
 	for elf := 1; elf <= desired; elf++ {

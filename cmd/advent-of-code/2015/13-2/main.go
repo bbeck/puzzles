@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"math"
-	"sort"
-	"strings"
+	"slices"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -21,8 +21,8 @@ func main() {
 	people = graph.Vertices()
 
 	best := math.MinInt
-	lib.EnumeratePermutations(len(people), func(perm []int) bool {
-		best = lib.Max(best, Happiness(graph, perm))
+	EnumeratePermutations(len(people), func(perm []int) bool {
+		best = Max(best, Happiness(graph, perm))
 		return false
 	})
 
@@ -34,7 +34,7 @@ func Happiness(graph Graph, perm []int) int {
 	N := len(people)
 
 	var happiness int
-	for i := 0; i < len(perm); i++ {
+	for i := range perm {
 		person := people[perm[i]]
 		left := people[perm[(i-1+N)%N]]
 		right := people[perm[(i+1)%N]]
@@ -47,7 +47,7 @@ func Happiness(graph Graph, perm []int) int {
 }
 
 type Graph struct {
-	vertices  lib.Set[string]
+	vertices  Set[string]
 	distances map[string]map[string]int
 }
 
@@ -66,16 +66,13 @@ func (g *Graph) AddEdge(from, to string, distance int) {
 
 func (g *Graph) Vertices() []string {
 	entries := g.vertices.Entries()
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i] < entries[j]
-	})
+	slices.Sort(entries)
 	return entries
 }
 
 func (g *Graph) Edge(from, to string) int {
-	var edge int
 	if g.distances == nil || g.distances[from] == nil {
-		return edge
+		return 0
 	}
 
 	return g.distances[from][to]
@@ -83,22 +80,16 @@ func (g *Graph) Edge(from, to string) int {
 
 func InputToGraph() Graph {
 	var g Graph
-	for _, line := range lib.InputToLines() {
-		// Transform the line to remove filler words to make it easier to parse by Sscanf.
-		line = strings.ReplaceAll(line, " would ", " ")
-		line = strings.ReplaceAll(line, " happiness units by sitting next to ", " ")
-		line = strings.ReplaceAll(line, ".", "")
-
+	for in.HasNext() {
 		var from, to string
 		var gainlose string
 		var amount int
 
-		if _, err := fmt.Sscanf(line, "%s %s %d %s", &from, &gainlose, &amount, &to); err == nil {
-			if gainlose == "lose" {
-				amount = -amount
-			}
-			g.AddEdge(from, to, amount)
+		in.Scanf("%s would %s %d happiness units by sitting next to %s.", &from, &gainlose, &amount, &to)
+		if gainlose == "lose" {
+			amount = -amount
 		}
+		g.AddEdge(from, to, amount)
 	}
 
 	return g

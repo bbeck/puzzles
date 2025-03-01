@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"sort"
 
-	"github.com/bbeck/puzzles/lib"
+	"slices"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -15,7 +17,7 @@ func main() {
 	cities := graph.Vertices()
 
 	var distances []int
-	lib.EnumeratePermutations(len(cities), func(perm []int) bool {
+	EnumeratePermutations(len(cities), func(perm []int) bool {
 		distance := 0
 		for i := 1; i < len(perm); i++ {
 			distance += graph.Edge(cities[perm[i-1]], cities[perm[i]])
@@ -25,11 +27,11 @@ func main() {
 		return false
 	})
 
-	fmt.Println(lib.Min(distances...))
+	fmt.Println(Min(distances...))
 }
 
 type Graph struct {
-	vertices  lib.Set[string]
+	vertices  Set[string]
 	distances map[string]map[string]int
 }
 
@@ -53,16 +55,13 @@ func (g *Graph) AddEdge(from, to string, distance int) {
 
 func (g *Graph) Vertices() []string {
 	entries := g.vertices.Entries()
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i] < entries[j]
-	})
+	slices.Sort(entries)
 	return entries
 }
 
 func (g *Graph) Edge(from, to string) int {
-	var edge int
 	if g.distances == nil || g.distances[from] == nil {
-		return edge
+		return 0
 	}
 
 	return g.distances[from][to]
@@ -70,13 +69,11 @@ func (g *Graph) Edge(from, to string) int {
 
 func InputToGraph() Graph {
 	var g Graph
-	for _, line := range lib.InputToLines() {
+	for in.HasNext() {
 		var from, to string
 		var distance int
-
-		if _, err := fmt.Sscanf(line, "%s to %s = %d", &from, &to, &distance); err == nil {
-			g.AddEdge(from, to, distance)
-		}
+		in.Scanf("%s to %s = %d", &from, &to, &distance)
+		g.AddEdge(from, to, distance)
 	}
 
 	return g

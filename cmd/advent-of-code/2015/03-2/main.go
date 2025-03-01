@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	var seen lib.Set[lib.Point2D]
-	seen.Add(lib.Origin2D)
+	var seen Set[Point2D] = SetFrom(Origin2D)
 
-	var santa, robot lib.Point2D
-	for i, dir := range InputToDirections() {
-		if i%2 == 0 {
-			santa = lib.Point2D{X: santa.X + dir.X, Y: santa.Y + dir.Y}
+	var santa, robot Point2D
+	for n, dir := range InputToHeadings() {
+		if n%2 == 0 {
+			santa = santa.Move(dir)
 		} else {
-			robot = lib.Point2D{X: robot.X + dir.X, Y: robot.Y + dir.Y}
+			robot = robot.Move(dir)
 		}
 		seen.Add(santa, robot)
 	}
@@ -22,22 +23,20 @@ func main() {
 	fmt.Println(len(seen))
 }
 
-func InputToDirections() []lib.Point2D {
-	origin := lib.Origin2D
-
-	var directions []lib.Point2D
-	for _, b := range lib.InputToBytes() {
-		switch b {
+func InputToHeadings() []Heading {
+	var headings []Heading
+	for in.HasNext() {
+		switch in.Byte() {
 		case '^':
-			directions = append(directions, origin.Up())
+			headings = append(headings, Up)
 		case '<':
-			directions = append(directions, origin.Left())
+			headings = append(headings, Left)
 		case '>':
-			directions = append(directions, origin.Right())
+			headings = append(headings, Right)
 		case 'v':
-			directions = append(directions, origin.Down())
+			headings = append(headings, Down)
 		}
 	}
 
-	return directions
+	return headings
 }

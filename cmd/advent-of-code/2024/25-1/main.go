@@ -32,7 +32,7 @@ func Fits(key, lock []int) bool {
 func InputToLocksAndKeys() ([][]int, [][]int) {
 	var locks, keys [][]int
 
-	for _, chunk := range Chunk(InputToLines(), 8) {
+	for _, chunk := range Chunks(InputToLines(), 8) {
 		var current []int
 		for x := 0; x < 5; x++ {
 			var count int

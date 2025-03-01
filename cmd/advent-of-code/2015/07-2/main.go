@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"strconv"
 	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -21,23 +22,24 @@ func Evaluate(circuit Circuit, variable string, memory map[string]uint16) uint16
 
 	// Sometimes we're asked to evaluate a numeric constant.
 	if n, err := strconv.Atoi(variable); err == nil {
+		memory[variable] = uint16(n)
 		return uint16(n)
 	}
 
 	var value uint16
-	switch expr := circuit[variable]; expr.Kind {
-	case "nullary":
-		value = Evaluate(circuit, expr.RHS, memory)
+	switch expr := circuit[variable]; len(expr) {
+	case 1:
+		value = Evaluate(circuit, expr[0], memory)
 
-	case "urnary":
-		switch expr.Op {
+	case 2:
+		switch op := expr[0]; op {
 		case "NOT":
-			value = ^Evaluate(circuit, expr.RHS, memory)
+			value = ^Evaluate(circuit, expr[1], memory)
 		}
 
-	case "binary":
-		lhs, rhs := Evaluate(circuit, expr.LHS, memory), Evaluate(circuit, expr.RHS, memory)
-		switch expr.Op {
+	case 3:
+		lhs, rhs := Evaluate(circuit, expr[0], memory), Evaluate(circuit, expr[2], memory)
+		switch op := expr[1]; op {
 		case "AND":
 			value = lhs & rhs
 		case "OR":
@@ -53,45 +55,14 @@ func Evaluate(circuit Circuit, variable string, memory map[string]uint16) uint16
 	return value
 }
 
-type Circuit map[string]Expression
+type Circuit map[string][]string
 
 func InputToCircuit() Circuit {
 	circuit := make(Circuit)
-	for _, line := range lib.InputToLines() {
-		parts := strings.Split(line, " -> ")
-		circuit[parts[1]] = ParseExpression(parts[0])
+	for in.HasNext() {
+		lhs, rhs := in.Cut(" -> ")
+		circuit[rhs] = strings.Fields(lhs)
 	}
 
 	return circuit
-}
-
-type Expression struct {
-	Kind         string
-	LHS, Op, RHS string
-}
-
-func ParseExpression(s string) Expression {
-	terms := strings.Fields(s)
-
-	if len(terms) == 1 {
-		return Expression{
-			Kind: "nullary",
-			RHS:  terms[0],
-		}
-	}
-
-	if len(terms) == 2 {
-		return Expression{
-			Kind: "urnary",
-			Op:   terms[0],
-			RHS:  terms[1],
-		}
-	}
-
-	return Expression{
-		Kind: "binary",
-		LHS:  terms[0],
-		Op:   terms[1],
-		RHS:  terms[2],
-	}
 }

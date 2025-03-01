@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 var Target = map[string]func(int) bool{
@@ -40,35 +38,22 @@ func Matches(aunt Aunt, target map[string]func(int) bool) bool {
 }
 
 type Aunt struct {
-	Id     string
+	Id     int
 	Fields map[string]int
 }
 
 func InputToAunts() []Aunt {
-	return lib.InputLinesTo(func(line string) Aunt {
-		line = strings.ReplaceAll(line, ":", "")
-		line = strings.ReplaceAll(line, ",", "")
-
-		var id, compound1, compound2, compound3 string
-		var value1, value2, value3 int
-		_, err := fmt.Sscanf(
-			line,
-			"Sue %s %s %d %s %d %s %d",
-			&id,
-			&compound1, &value1,
-			&compound2, &value2,
-			&compound3, &value3,
-		)
-		if err != nil {
-			log.Fatalf("unable to parse line: %v", err)
-		}
+	return in.LinesTo(func(in *in.Scanner[Aunt]) Aunt {
+		var id, v1, v2, v3 int
+		var f1, f2, f3 string
+		in.Scanf("Sue %d: %s: %d, %s: %d, %s: %d", &id, &f1, &v1, &f2, &v2, &f3, &v3)
 
 		return Aunt{
 			Id: id,
 			Fields: map[string]int{
-				compound1: value1,
-				compound2: value2,
-				compound3: value3,
+				f1: v1,
+				f2: v2,
+				f3: v3,
 			},
 		}
 	})

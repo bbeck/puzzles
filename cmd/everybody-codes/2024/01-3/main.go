@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/bbeck/puzzles/lib"
 )
 
@@ -17,7 +18,7 @@ var Empties = map[byte]int{
 
 func main() {
 	var count int
-	for _, group := range lib.Chunk(lib.InputToBytes(), 3) {
+	for _, group := range lib.Chunks(lib.InputToBytes(), 3) {
 		count += Potions[group[0]] + Potions[group[1]] + Potions[group[2]]
 
 		switch Empties[group[0]] + Empties[group[1]] + Empties[group[2]] {

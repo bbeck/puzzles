@@ -12,20 +12,20 @@ import (
 	"strings"
 )
 
-var CallerDirectoryRegexp = regexp.MustCompile(
-	`.*/([^/]+)/([0-9]{4})/([0-9]{2})[-]([0-9])/main.go$`,
-)
+// Filename determines the input file for a specific day's part.
+func Filename() string {
+	var regex = regexp.MustCompile(
+		`.*/([^/]+)/([0-9]{4})/([0-9]{2})[-]([0-9])/main.go$`,
+	)
 
-// InputFilename determines the input file for a specific day's part.
-func InputFilename() string {
 	// Determine the site, year, day and part from the caller.  In all cases I've
 	// tested this info has been present in the caller entry, it may be at a
 	// different level depending on how many method calls happened first.
 	var m []string
-	for n := 0; n < 10; n++ {
+	for n := range 10 {
 		_, caller, _, _ := runtime.Caller(n)
 
-		m = CallerDirectoryRegexp.FindStringSubmatch(caller)
+		m = regex.FindStringSubmatch(caller)
 		if m != nil {
 			break
 		}
@@ -68,7 +68,7 @@ func InputFilename() string {
 
 // InputToBytes reads the entire input file into a slice of bytes.
 func InputToBytes() []byte {
-	bs, err := os.ReadFile(InputFilename())
+	bs, err := os.ReadFile(Filename())
 	if err != nil {
 		log.Fatalf("unable to read input.txt: %+v", err)
 	}
@@ -84,7 +84,7 @@ func InputToString() string {
 // InputToLines reads the input file into a slice of strings with each string
 // representing a line of the file.  The newline character is not included.
 func InputToLines() []string {
-	file, err := os.Open(InputFilename())
+	file, err := os.Open(Filename())
 	if err != nil {
 		log.Fatalf("unable to open input.txt: %+v", err)
 	}

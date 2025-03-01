@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	replacements := InputToReplacements()
-	molecule := InputToMolecule()
+	replacements, molecule := InputToReplacementsAndMolecule()
 
-	var molecules lib.Set[string]
-	for start := 0; start < len(molecule); start++ {
+	var molecules Set[string]
+	for start := range len(molecule) {
 		for prefix, values := range replacements {
 			if !strings.HasPrefix(molecule[start:], prefix) {
 				continue
@@ -28,24 +28,16 @@ func main() {
 	fmt.Println(len(molecules))
 }
 
-func InputToReplacements() map[string][]string {
+func InputToReplacementsAndMolecule() (map[string][]string, string) {
 	replacements := make(map[string][]string)
-	for _, line := range lib.InputToLines() {
-		lhs, rhs, ok := strings.Cut(line, " => ")
-		if ok {
-			replacements[lhs] = append(replacements[lhs], rhs)
-		}
+
+	chunk := in.Chunk()
+	for chunk.HasNext() {
+		lhs, rhs := chunk.Cut(" => ")
+		replacements[lhs] = append(replacements[lhs], rhs)
 	}
 
-	return replacements
-}
+	molecules := in.Line()
 
-func InputToMolecule() string {
-	for _, line := range lib.InputToLines() {
-		if len(line) > 0 && !strings.Contains(line, "=>") {
-			return line
-		}
-	}
-
-	return ""
+	return replacements, molecules
 }

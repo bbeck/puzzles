@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	prefix := lib.InputToString()
+	var prefix = in.String()
 
 	var nonce int
 	for nonce = 0; ; nonce++ {

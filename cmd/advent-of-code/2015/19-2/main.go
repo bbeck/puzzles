@@ -5,12 +5,11 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	replacements := InputToReplacements()
-	molecule := InputToMolecule()
+	replacements, molecule := InputToReplacementsAndMolecule()
 
 	// Keep attempting to find a path, if we fail we'll reorder the replacements
 	// in the hope that trying a different order will succeed.
@@ -61,24 +60,16 @@ type Replacement struct {
 	LHS, RHS string
 }
 
-func InputToReplacements() []Replacement {
+func InputToReplacementsAndMolecule() ([]Replacement, string) {
+	chunk := in.Chunk()
+
 	var replacements []Replacement
-	for _, line := range lib.InputToLines() {
-		lhs, rhs, ok := strings.Cut(line, " => ")
-		if ok {
-			replacements = append(replacements, Replacement{LHS: lhs, RHS: rhs})
-		}
+	for chunk.HasNext() {
+		lhs, rhs := chunk.Cut(" => ")
+		replacements = append(replacements, Replacement{LHS: lhs, RHS: rhs})
 	}
 
-	return replacements
-}
+	molecule := in.String()
 
-func InputToMolecule() string {
-	for _, line := range lib.InputToLines() {
-		if len(line) > 0 && !strings.Contains(line, "=>") {
-			return line
-		}
-	}
-
-	return ""
+	return replacements, molecule
 }

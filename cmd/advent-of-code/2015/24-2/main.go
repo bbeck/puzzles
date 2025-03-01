@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"math"
+
+	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	packages := lib.InputToInts()
+	packages := in.Ints()
 	target := lib.Sum(packages...) / 4
 
 	// Find all candidates for the passenger compartment.  This partition should
@@ -27,7 +30,7 @@ func main() {
 		}
 
 		size = len(partition)
-		entanglement := lib.Product(partition...)
+		entanglement := Product(partition...)
 		if entanglement >= best {
 			return true
 		}
@@ -60,17 +63,17 @@ func main() {
 }
 
 func FindPartitions(weight int, packages []int, fn func(partition, remaining []int) bool) {
-	all := lib.SetFrom(packages...)
+	all := SetFrom(packages...)
 
 	var done bool
 	for size := 1; !done && size < len(packages); size++ {
-		lib.EnumerateCombinations(len(packages), size, func(indices []int) bool {
+		EnumerateCombinations(len(packages), size, func(indices []int) bool {
 			partition := make([]int, 0, size)
 			for _, index := range indices {
 				partition = append(partition, packages[index])
 			}
 
-			if lib.Sum(partition...) == weight {
+			if Sum(partition...) == weight {
 				remaining := all.DifferenceElems(partition...)
 				done = fn(partition, remaining.Entries())
 			}

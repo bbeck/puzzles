@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	lights := InputToLights()
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		lights = Next(lights)
 	}
 
@@ -42,7 +43,7 @@ func Next(lights lib.Grid2D[bool]) lib.Grid2D[bool] {
 }
 
 func InputToLights() lib.Grid2D[bool] {
-	return lib.InputToGrid2D(func(x, y int, s string) bool {
+	return in.ToGrid2D(func(x, y int, s string) bool {
 		return s == "#"
 	})
 }

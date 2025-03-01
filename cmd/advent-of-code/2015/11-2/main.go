@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	password := lib.InputToBytes()
-
-	for i := 0; i < 2; i++ {
+	password := []byte(in.String())
+	for range 2 {
 		for {
 			password = NextPassword(password)
 			if IsValid(password) {
@@ -39,7 +38,7 @@ func IsValid(password []byte) bool {
 }
 
 func HasStraight(bs []byte) bool {
-	for i := 0; i < len(bs)-3; i++ {
+	for i := range len(bs) - 3 {
 		if bs[i+1] == bs[i]+1 && bs[i+2] == bs[i+1]+1 {
 			return true
 		}

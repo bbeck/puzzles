@@ -3,16 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	var digits []int
-	for _, c := range lib.InputToString() {
-		digits = append(digits, lib.ParseInt(string(c)))
-	}
-
-	for i := 0; i < 40; i++ {
+	digits := Digits(in.Int())
+	for range 40 {
 		digits = LookAndSay(digits)
 	}
 

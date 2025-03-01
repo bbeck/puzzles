@@ -27,7 +27,7 @@ var ArrowKeypad = ToKeypad(`.^A<v>`)
 
 func ToKeypad(s string) Keypad {
 	pts := make(map[string]Point2D)
-	for y, line := range Chunk([]byte(s), 3) {
+	for y, line := range Chunks([]byte(s), 3) {
 		for x, ch := range line {
 			if ch != '.' {
 				pts[string(ch)] = Point2D{X: x, Y: y}

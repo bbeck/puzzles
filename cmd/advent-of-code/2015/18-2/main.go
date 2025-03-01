@@ -3,21 +3,22 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	lights := InputToLights()
 	TurnOnCorners(lights)
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		lights = Next(lights)
 		TurnOnCorners(lights)
 	}
 
 	var count int
-	for y := 0; y < lights.Height; y++ {
-		for x := 0; x < lights.Width; x++ {
+	for y := range lights.Height {
+		for x := range lights.Width {
 			if lights.Get(x, y) {
 				count++
 			}
@@ -26,15 +27,15 @@ func main() {
 	fmt.Println(count)
 }
 
-func TurnOnCorners(lights lib.Grid2D[bool]) {
+func TurnOnCorners(lights Grid2D[bool]) {
 	lights.Set(0, 0, true)
 	lights.Set(lights.Width-1, 0, true)
 	lights.Set(0, lights.Height-1, true)
 	lights.Set(lights.Width-1, lights.Height-1, true)
 }
 
-func Next(lights lib.Grid2D[bool]) lib.Grid2D[bool] {
-	next := lib.NewGrid2D[bool](lights.Width, lights.Height)
+func Next(lights Grid2D[bool]) Grid2D[bool] {
+	next := NewGrid2D[bool](lights.Width, lights.Height)
 	lights.ForEach(func(x, y int, value bool) {
 		var count int
 		lights.ForEachNeighbor(x, y, func(x, y int, value bool) {
@@ -53,8 +54,8 @@ func Next(lights lib.Grid2D[bool]) lib.Grid2D[bool] {
 	return next
 }
 
-func InputToLights() lib.Grid2D[bool] {
-	return lib.InputToGrid2D(func(x, y int, s string) bool {
+func InputToLights() Grid2D[bool] {
+	return in.ToGrid2D(func(x, y int, s string) bool {
 		return s == "#"
 	})
 }

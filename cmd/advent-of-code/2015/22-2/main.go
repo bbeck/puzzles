@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -31,7 +34,7 @@ func main() {
 		return 53*turns + 173*turns/6
 	}
 
-	_, mana, found := lib.AStarSearch(state, children, isGoal, cost, heuristic)
+	_, mana, found := AStarSearch(state, children, isGoal, cost, heuristic)
 	if found {
 		fmt.Println(mana)
 	}
@@ -180,11 +183,8 @@ func (s State) BossAttacks() State {
 }
 
 func InputToBoss() Boss {
-	var boss Boss
-	for _, line := range lib.InputToLines() {
-		fmt.Sscanf(line, "Hit Points: %d", &boss.HitPoints)
-		fmt.Sscanf(line, "Damage: %d", &boss.Damage)
+	return Boss{
+		HitPoints: in.Int(),
+		Damage:    in.Int(),
 	}
-
-	return boss
 }

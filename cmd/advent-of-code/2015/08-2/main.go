@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var difference int
-	for _, line := range lib.InputToLines() {
+	for in.HasNext() {
+		line := in.Line()
 		difference += EncodeLength(line) - len(line)
 	}
 

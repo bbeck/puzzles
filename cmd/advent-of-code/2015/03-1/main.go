@@ -2,38 +2,37 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	var seen lib.Set[lib.Point2D]
-	seen.Add(lib.Origin2D)
+	var seen Set[Point2D] = SetFrom(Origin2D)
 
-	var location lib.Point2D
-	for _, dir := range InputToDirections() {
-		location = lib.Point2D{X: location.X + dir.X, Y: location.Y + dir.Y}
+	var location Point2D
+	for _, dir := range InputToHeadings() {
+		location = location.Move(dir)
 		seen.Add(location)
 	}
 
 	fmt.Println(len(seen))
 }
 
-func InputToDirections() []lib.Point2D {
-	origin := lib.Origin2D
-
-	var directions []lib.Point2D
-	for _, b := range lib.InputToBytes() {
-		switch b {
+func InputToHeadings() []Heading {
+	var headings []Heading
+	for in.HasNext() {
+		switch in.Byte() {
 		case '^':
-			directions = append(directions, origin.Up())
+			headings = append(headings, Up)
 		case '<':
-			directions = append(directions, origin.Left())
+			headings = append(headings, Left)
 		case '>':
-			directions = append(directions, origin.Right())
+			headings = append(headings, Right)
 		case 'v':
-			directions = append(directions, origin.Down())
+			headings = append(headings, Down)
 		}
 	}
 
-	return directions
+	return headings
 }
