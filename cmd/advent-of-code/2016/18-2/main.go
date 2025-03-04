@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 	}
 
 	var count int
-	for row := 0; row < len(rows); row++ {
+	for row := range rows {
 		for _, tile := range rows[row] {
 			if tile == Safe {
 				count++
@@ -31,7 +32,7 @@ func Next(tiles Tiles) Tiles {
 	}
 
 	var next Tiles
-	for col := 0; col < len(tiles); col++ {
+	for col := range tiles {
 		var L, C, R bool
 		if col > 0 {
 			L = tiles[col-1]
@@ -55,8 +56,8 @@ type Tiles []bool
 
 func InputToTiles() Tiles {
 	var tiles Tiles
-	for _, c := range lib.InputToString() {
-		tiles = append(tiles, c == '^')
+	for in.HasNext() {
+		tiles = append(tiles, in.Byte() == '^')
 	}
 
 	return tiles

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	s := lib.InputToString()
+	s := in.String()
 	fmt.Println(DecompressedLength(s))
 }
 

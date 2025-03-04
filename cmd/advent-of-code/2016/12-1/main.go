@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -55,32 +55,28 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return lib.InputLinesTo(func(line string) Instruction {
-		opcode, rest, _ := strings.Cut(line, " ")
-		args := strings.Fields(rest)
-
-		instruction := Instruction{OpCode: opcode}
-		switch opcode {
+	return in.LinesTo(func(in *in.Scanner[Instruction]) Instruction {
+		switch fields := in.Fields(); fields[0] {
 		case "cpy":
-			if n, err := strconv.Atoi(args[0]); err == nil {
-				instruction.Immediate = n
-			} else {
-				instruction.SourceRegister = args[0]
+			if n, err := strconv.Atoi(fields[1]); err == nil {
+				return Instruction{OpCode: fields[0], Immediate: n, TargetRegister: fields[2]}
 			}
-			instruction.TargetRegister = args[1]
-		case "inc":
-			instruction.TargetRegister = args[0]
-		case "dec":
-			instruction.TargetRegister = args[0]
-		case "jnz":
-			if n, err := strconv.Atoi(args[0]); err == nil {
-				instruction.Immediate = n
-			} else {
-				instruction.SourceRegister = args[0]
-			}
-			instruction.Offset = lib.ParseInt(args[1])
-		}
+			return Instruction{OpCode: fields[0], SourceRegister: fields[1], TargetRegister: fields[2]}
 
-		return instruction
+		case "inc":
+			return Instruction{OpCode: fields[0], TargetRegister: fields[1]}
+
+		case "dec":
+			return Instruction{OpCode: fields[0], TargetRegister: fields[1]}
+
+		case "jnz":
+			if n, err := strconv.Atoi(fields[1]); err == nil {
+				return Instruction{OpCode: fields[0], Immediate: n, Offset: ParseInt(fields[2])}
+			}
+			return Instruction{OpCode: fields[0], SourceRegister: fields[1], Offset: ParseInt(fields[2])}
+
+		default:
+			panic(fmt.Sprintf("unknown opcode: %s", fields[0]))
+		}
 	})
 }

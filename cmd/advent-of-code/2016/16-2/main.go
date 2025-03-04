@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 const Size = 35651584
 
 func main() {
-	data := lib.InputToBytes()
+	data := []byte(in.String())
 	for len(data) < Size {
 		data = Expand(data)
 	}

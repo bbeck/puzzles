@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	var seen lib.Set[lib.Point2D]
-	var turtle lib.Turtle
+	var seen Set[Point2D]
+	var turtle Turtle
 
 outer:
 	for _, direction := range InputToDirections() {
@@ -27,7 +28,7 @@ outer:
 		}
 	}
 
-	fmt.Println(lib.Origin2D.ManhattanDistance(turtle.Location))
+	fmt.Println(Origin2D.ManhattanDistance(turtle.Location))
 }
 
 type Direction struct {
@@ -36,16 +37,14 @@ type Direction struct {
 }
 
 func InputToDirections() []Direction {
-	input := lib.InputToString()
-	input = strings.ReplaceAll(input, ",", "")
+	in.Remove(", ")
 
 	var directions []Direction
-	for _, part := range strings.Fields(input) {
+	for in.HasNext() {
 		directions = append(directions, Direction{
-			Turn:  part[0],
-			Steps: lib.ParseInt(part[1:]),
+			Turn:  in.Byte(),
+			Steps: in.Int(),
 		})
 	}
-
 	return directions
 }

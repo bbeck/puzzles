@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"sort"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -36,11 +35,9 @@ type Range struct {
 }
 
 func InputToRanges() []Range {
-	return lib.InputLinesTo(func(line string) Range {
-		start, end, _ := strings.Cut(line, "-")
-		return Range{
-			Start: lib.ParseInt(start),
-			End:   lib.ParseInt(end),
-		}
+	return in.LinesTo(func(in *in.Scanner[Range]) Range {
+		var start, end int
+		in.Scanf("%d-%d", &start, &end)
+		return Range{Start: start, End: end}
 	})
 }

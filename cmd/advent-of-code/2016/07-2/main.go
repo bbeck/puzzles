@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 func SupportsSSL(a Address) bool {
 	var abas []string
 	for _, supernet := range a.Supernets {
-		for start := 0; start < len(supernet)-2; start++ {
+		for start := range len(supernet) - 2 {
 			c0, c1, c2 := supernet[start], supernet[start+1], supernet[start+2]
 			if c0 != c1 && c0 == c2 {
 				abas = append(abas, supernet[start:start+3])
@@ -46,13 +47,14 @@ type Address struct {
 }
 
 func InputToAddresses() []Address {
-	return lib.InputLinesTo(func(line string) Address {
+	return in.LinesTo(func(in *in.Scanner[Address]) Address {
+		var line = in.Line()
 		line = strings.ReplaceAll(line, "[", " ")
 		line = strings.ReplaceAll(line, "]", " ")
-		parts := strings.Split(line, " ")
+		fields := strings.Fields(line)
 
 		var address Address
-		for i, part := range parts {
+		for i, part := range fields {
 			if i%2 == 0 {
 				address.Supernets = append(address.Supernets, part)
 			} else {

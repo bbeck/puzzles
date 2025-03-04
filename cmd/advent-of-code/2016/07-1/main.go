@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 func SupportsTLS(a Address) bool {
 	found := func(parts []string) bool {
 		for _, s := range parts {
-			for start := 0; start < len(s)-3; start++ {
+			for start := range len(s) - 3 {
 				c0, c1, c2, c3 := s[start], s[start+1], s[start+2], s[start+3]
 				if c0 != c2 && c0 == c3 && c1 == c2 {
 					return true
@@ -39,13 +40,14 @@ type Address struct {
 }
 
 func InputToAddresses() []Address {
-	return lib.InputLinesTo(func(line string) Address {
+	return in.LinesTo(func(in *in.Scanner[Address]) Address {
+		var line = in.Line()
 		line = strings.ReplaceAll(line, "[", " ")
 		line = strings.ReplaceAll(line, "]", " ")
-		parts := strings.Split(line, " ")
+		fields := strings.Fields(line)
 
 		var address Address
-		for i, part := range parts {
+		for i, part := range fields {
 			if i%2 == 0 {
 				address.Supernets = append(address.Supernets, part)
 			} else {

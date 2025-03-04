@@ -56,8 +56,10 @@ type Instruction struct {
 
 func InputToProgram() []Instruction {
 	return in.LinesTo(func(in *in.Scanner[Instruction]) Instruction {
+		in.Remove(",")
+
 		var opcode = in.String()
-		arg1, arg2 := in.Cut(", ")
+		var arg1, arg2 = in.Cut(" ")
 
 		var register string
 		var offset int

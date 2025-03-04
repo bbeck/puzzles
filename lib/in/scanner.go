@@ -124,16 +124,9 @@ func (bs *Scanner[T]) HasNext() bool {
 	return false
 }
 
-func (bs *Scanner[T]) skipUntilDigitCharacter() {
-	for len(*bs) > 0 {
-		if '0' <= (*bs)[0] && (*bs)[0] <= '9' {
-			break
-		}
-		if (*bs)[0] == '-' && len(*bs) > 1 && '0' <= (*bs)[1] && (*bs)[1] <= '9' {
-			break
-		}
-		*bs = (*bs)[1:]
-	}
+// HasPrefix returns true if the scanner starts with the given prefix.
+func (bs *Scanner[T]) HasPrefix(prefix string) bool {
+	return bytes.HasPrefix(*bs, []byte(prefix))
 }
 
 // Int returns the next integer from the scanner.
@@ -236,6 +229,11 @@ func (bs *Scanner[T]) OneOf(options ...string) string {
 	panic("no matching option")
 }
 
+// Remove removes all occurrences of the given string from the scanner.
+func (bs *Scanner[T]) Remove(s string) {
+	*bs = []byte(strings.ReplaceAll(string(*bs), s, ""))
+}
+
 var scanfMemo = make(map[string]*regexp.Regexp)
 
 // Scanf reads the next line from the scanner and parses it according to the
@@ -280,8 +278,6 @@ func (bs *Scanner[T]) Scanf(format string, args ...any) {
 				sb.WriteString(regexp.QuoteMeta(string(format[i])))
 			}
 		}
-
-		sb.WriteString(`$`)
 
 		regex = regexp.MustCompile(sb.String())
 		scanfMemo[format] = regex
@@ -340,6 +336,18 @@ func (bs *Scanner[T]) String() string {
 
 func isWhitespace(b byte) bool {
 	return b == ' ' || b == '\f' || b == '\n' || b == '\r' || b == '\t' || b == '\v'
+}
+
+func (bs *Scanner[T]) skipUntilDigitCharacter() {
+	for len(*bs) > 0 {
+		if '0' <= (*bs)[0] && (*bs)[0] <= '9' {
+			break
+		}
+		if (*bs)[0] == '-' && len(*bs) > 1 && '0' <= (*bs)[1] && (*bs)[1] <= '9' {
+			break
+		}
+		*bs = (*bs)[1:]
+	}
 }
 
 func panicf(format string, args ...interface{}) {

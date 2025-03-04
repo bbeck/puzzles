@@ -3,19 +3,20 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	n := lib.InputToInt()
+	n := in.Int()
 
-	var elves lib.Ring[*Elf]
-	for i := 0; i < n; i++ {
+	var elves Ring[*Elf]
+	for i := range n {
 		elves.InsertAfter(&Elf{ID: i + 1, Presents: 1})
 	}
 	elves.Next()
 
-	for i := 0; i < n-1; i++ {
+	for range n - 1 {
 		current := elves.Current()
 		next := elves.Next()
 		current.Presents += next.Presents

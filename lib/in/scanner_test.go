@@ -295,6 +295,32 @@ func TestScannerHasNext(t *testing.T) {
 	}
 }
 
+func TestScannerHasPrefix(t *testing.T) {
+	type test struct {
+		input  []byte
+		prefix string
+		want   bool
+	}
+
+	tests := []test{
+		{input: []byte("abc"), prefix: "a", want: true},
+		{input: []byte("abc"), prefix: "ab", want: true},
+		{input: []byte("abc"), prefix: "abc", want: true},
+		{input: []byte("abc"), prefix: "abcd", want: false},
+		{input: []byte("abc"), prefix: "b", want: false},
+		{input: []byte("abc"), prefix: "c", want: false},
+		{input: []byte("abc"), prefix: "", want: true},
+		{input: []byte(""), prefix: "", want: true},
+		{input: []byte(""), prefix: "a", want: false},
+	}
+	for _, test := range tests {
+		t.Run(string(test.input), func(t *testing.T) {
+			scanner := Scanner[any](test.input)
+			assert.Equal(t, test.want, scanner.HasPrefix(test.prefix))
+		})
+	}
+}
+
 func TestScannerInt(t *testing.T) {
 	type test struct {
 		input     []byte
@@ -489,6 +515,30 @@ func TestScannerOneOfError(t *testing.T) {
 		t.Run(string(test.input), func(t *testing.T) {
 			scanner := Scanner[any](test.input)
 			assert.Panics(t, func() { scanner.OneOf(test.options...) })
+		})
+	}
+}
+
+func TestScannerRemove(t *testing.T) {
+	type test struct {
+		input     []byte
+		remove    string
+		remaining []byte
+	}
+
+	tests := []test{
+		{input: []byte("abc"), remove: "a", remaining: []byte("bc")},
+		{input: []byte("abc"), remove: "b", remaining: []byte("ac")},
+		{input: []byte("abc"), remove: "c", remaining: []byte("ab")},
+		{input: []byte("abc"), remove: "d", remaining: []byte("abc")},
+		{input: []byte("abc"), remove: "ab", remaining: []byte("c")},
+		{input: []byte("abc"), remove: "abc", remaining: []byte("")},
+	}
+	for _, test := range tests {
+		t.Run(string(test.input), func(t *testing.T) {
+			scanner := Scanner[any](test.input)
+			scanner.Remove(test.remove)
+			assert.Equal(t, test.remaining, []byte(scanner))
 		})
 	}
 }

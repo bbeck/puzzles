@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	bots := InputToBots()
+	bots, actions := InputToBotsAndActions()
 	values := make(map[int][]int)
 	outputs := make(map[int]int)
 
 	var bot Bot
-	var actions = InputToInitializations()
 	for len(actions) > 0 {
 		var action Action
 		action, actions = actions[0], actions[1:]
@@ -23,8 +23,8 @@ func main() {
 			continue
 		}
 
-		min := lib.Min(values[bot.ID][0], action.Value)
-		max := lib.Max(values[bot.ID][0], action.Value)
+		min := Min(values[bot.ID][0], action.Value)
+		max := Max(values[bot.ID][0], action.Value)
 		values[bot.ID] = nil
 
 		if bot.LowKind == "bot" {
@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(lib.Product(outputs[0], outputs[1], outputs[2]))
+	fmt.Println(Product(outputs[0], outputs[1], outputs[2]))
 }
 
 type Bot struct {
@@ -48,43 +48,28 @@ type Bot struct {
 	Low, High         int
 }
 
-func InputToBots() map[int]Bot {
-	bots := make(map[int]Bot)
-	for _, line := range lib.InputToLines() {
-		if !strings.HasPrefix(line, "bot") {
-			continue
-		}
-
-		line = strings.ReplaceAll(line, "gives low to ", "")
-		line = strings.ReplaceAll(line, "and high to ", "")
-
-		var bot Bot
-		fmt.Sscanf(line, "bot %d %s %d %s %d", &bot.ID, &bot.LowKind, &bot.Low, &bot.HighKind, &bot.High)
-
-		bots[bot.ID] = bot
-	}
-
-	return bots
-}
-
 type Action struct {
 	Value int
 	Bot   int
 }
 
-func InputToInitializations() []Action {
-	var initializations []Action
-	for _, line := range lib.InputToLines() {
-		if !strings.HasPrefix(line, "value") {
-			continue
+func InputToBotsAndActions() (map[int]Bot, []Action) {
+	var bots = make(map[int]Bot)
+	var actions []Action
+
+	for in.HasNext() {
+		switch {
+		case in.HasPrefix("bot"):
+			var bot Bot
+			in.Scanf("bot %d gives low to %s %d and high to %s %d", &bot.ID, &bot.LowKind, &bot.Low, &bot.HighKind, &bot.High)
+			bots[bot.ID] = bot
+
+		case in.HasPrefix("value"):
+			var action Action
+			in.Scanf("value %d goes to bot %d", &action.Value, &action.Bot)
+			actions = append(actions, action)
 		}
-
-		line = strings.ReplaceAll(line, "goes to bot ", "")
-
-		var initialization Action
-		fmt.Sscanf(line, "value %d %d", &initialization.Value, &initialization.Bot)
-		initializations = append(initializations, initialization)
 	}
 
-	return initializations
+	return bots, actions
 }

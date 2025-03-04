@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -14,8 +16,8 @@ func main() {
 			return false
 		}
 
-		for e := 0; e < ElementCount; e++ {
-			for c := 0; c < ComponentCount; c++ {
+		for e := range ElementCount {
+			for c := range ComponentCount {
 				if !s.Floors[FloorCount-1][e][c] {
 					return false
 				}
@@ -33,10 +35,10 @@ func main() {
 		// Pretend that we have an elevator that can magically transport 2 items at a time from
 		// a floor to the top floor, moving one floor at a time and ignoring any other constraints.
 		var steps int
-		for floor := 0; floor < FloorCount-1; floor++ {
+		for floor := range FloorCount - 1 {
 			var count int
-			for e := 0; e < ElementCount; e++ {
-				for c := 0; c < ComponentCount; c++ {
+			for e := range ElementCount {
+				for c := range ComponentCount {
 					if s.Floors[floor][e][c] {
 						count++
 					}
@@ -49,7 +51,7 @@ func main() {
 		return steps
 	}
 
-	_, length, found := lib.AStarSearch(state, Children, goal, cost, heuristic)
+	_, length, found := AStarSearch(state, Children, goal, cost, heuristic)
 	if !found {
 		fmt.Println("no path found")
 	}
@@ -62,7 +64,7 @@ func Children(s State) []State {
 		// if a chip is ever left in the same area as another RTG, and it's not
 		// connected to its own RTG, the chip will be fried.
 		var numGenerators, numUnshieldedChips int
-		for i := 0; i < ElementCount; i++ {
+		for i := range ElementCount {
 			if floor[i][GeneratorIndex] {
 				numGenerators++
 				continue
@@ -82,7 +84,7 @@ func Children(s State) []State {
 			continue
 		}
 
-		for i := 0; i < ElementCount*ComponentCount; i++ {
+		for i := range ElementCount * ComponentCount {
 			e1 := i / ComponentCount
 			c1 := i % ComponentCount
 			if !s.Floors[s.Elevator][e1][c1] {
@@ -167,8 +169,8 @@ func (s State) Dump() string {
 			sb.WriteString(". ")
 		}
 
-		for elem := 0; elem < ElementCount; elem++ {
-			for component := 0; component < ComponentCount; component++ {
+		for elem := range ElementCount {
+			for component := range ComponentCount {
 				if s.Floors[floor][elem][component] {
 					sb.WriteString(Abbreviations[elem][component])
 					sb.WriteString(" ")
@@ -188,19 +190,16 @@ func (s State) Dump() string {
 
 func InputToState() State {
 	var state State
-	for floor, line := range lib.InputToLines() {
-		line = strings.ReplaceAll(line, "The ", "")
-		line = strings.ReplaceAll(line, " a ", " ")
-		line = strings.ReplaceAll(line, " and ", " ")
-		line = strings.ReplaceAll(line, "floor contains ", "")
-		line = strings.ReplaceAll(line, "-compatible", "")
-		line = strings.ReplaceAll(line, " nothing relevant", "")
-		line = strings.ReplaceAll(line, ",", "")
-		line = strings.ReplaceAll(line, ".", "")
-		parts := strings.Split(line, " ")
+	for floor := 0; in.HasNext(); floor++ {
+		var line = in.Line()
 
-		for i := 1; i < len(parts); i += 2 {
-			state.Floors[floor][Elements[parts[i]]][Components[parts[i+1]]] = true
+		for element, eid := range Elements {
+			if strings.Contains(line, fmt.Sprintf("%s generator", element)) {
+				state.Floors[floor][eid][GeneratorIndex] = true
+			}
+			if strings.Contains(line, fmt.Sprintf("%s-compatible microchip", element)) {
+				state.Floors[floor][eid][MicrochipIndex] = true
+			}
 		}
 	}
 

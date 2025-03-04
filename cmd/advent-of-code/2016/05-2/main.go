@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	prefix := lib.InputToString()
+	prefix := in.String()
 
 	password := make([]uint8, 8)
 	for nonce, count := 0, 0; count < 8; nonce++ {

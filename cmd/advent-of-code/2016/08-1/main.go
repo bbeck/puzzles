@@ -2,20 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"log"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	screen := lib.NewGrid2D[bool](50, 6)
+	screen := NewGrid2D[bool](50, 6)
 	for _, instruction := range InputToInstructions() {
-		if instruction.Kind == "rect" {
+		switch instruction.Kind {
+		case "rect":
 			Rect(screen, instruction.Width, instruction.Height)
-		}
-		if instruction.Kind == "rotate" && instruction.Width > 0 {
+
+		case "rotate row":
 			RotateRow(screen, instruction.Row, instruction.Width)
-		}
-		if instruction.Kind == "rotate" && instruction.Height > 0 {
+
+		case "rotate column":
 			RotateCol(screen, instruction.Col, instruction.Height)
 		}
 	}
@@ -29,32 +31,32 @@ func main() {
 	fmt.Println(count)
 }
 
-func Rect(screen lib.Grid2D[bool], width, height int) {
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
+func Rect(screen Grid2D[bool], width, height int) {
+	for y := range height {
+		for x := range width {
 			screen.Set(x, y, true)
 		}
 	}
 }
 
-func RotateRow(screen lib.Grid2D[bool], y int, distance int) {
+func RotateRow(screen Grid2D[bool], y int, distance int) {
 	var row []bool
-	for x := 0; x < screen.Width; x++ {
+	for x := range screen.Width {
 		row = append(row, screen.Get(x, y))
 	}
 
-	for x := 0; x < screen.Width; x++ {
+	for x := range screen.Width {
 		screen.Set(x, y, row[(x-distance+screen.Width)%screen.Width])
 	}
 }
 
-func RotateCol(screen lib.Grid2D[bool], x int, distance int) {
+func RotateCol(screen Grid2D[bool], x int, distance int) {
 	var col []bool
-	for y := 0; y < screen.Height; y++ {
+	for y := range screen.Height {
 		col = append(col, screen.Get(x, y))
 	}
 
-	for y := 0; y < screen.Height; y++ {
+	for y := range screen.Height {
 		screen.Set(x, y, col[(y-distance+screen.Height)%screen.Height])
 	}
 }
@@ -66,18 +68,25 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return lib.InputLinesTo(func(line string) Instruction {
-		var instruction Instruction
-		if _, err := fmt.Sscanf(line, "%s %dx%d", &instruction.Kind, &instruction.Width, &instruction.Height); err == nil {
-			return instruction
+	return in.LinesTo(func(in *in.Scanner[Instruction]) Instruction {
+		switch {
+		case in.HasPrefix("rect"):
+			var width, height int
+			in.Scanf("rect %dx%d", &width, &height)
+			return Instruction{Kind: "rect", Width: width, Height: height}
+
+		case in.HasPrefix("rotate row"):
+			var row, distance int
+			in.Scanf("rotate row y=%d by %d", &row, &distance)
+			return Instruction{Kind: "rotate row", Row: row, Width: distance}
+
+		case in.HasPrefix("rotate column"):
+			var col, distance int
+			in.Scanf("rotate column x=%d by %d", &col, &distance)
+			return Instruction{Kind: "rotate column", Col: col, Height: distance}
+
+		default:
+			return Instruction{} // should never happen
 		}
-		if _, err := fmt.Sscanf(line, "%s row y=%d by %d", &instruction.Kind, &instruction.Row, &instruction.Width); err == nil {
-			return instruction
-		}
-		if _, err := fmt.Sscanf(line, "%s column x=%d by %d", &instruction.Kind, &instruction.Col, &instruction.Height); err == nil {
-			return instruction
-		}
-		log.Fatalf("unable to parse line: %s", line)
-		return instruction
 	})
 }

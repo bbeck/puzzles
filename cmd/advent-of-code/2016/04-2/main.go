@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -20,32 +20,33 @@ func main() {
 
 type Room struct {
 	Name     string
-	SectorID int32
+	SectorID int
 	Checksum string
 }
 
 func (r Room) Decrypt() string {
 	bs := []byte(r.Name)
-	for i := 0; i < len(bs); i++ {
+	for i := range bs {
 		if bs[i] == '-' {
 			continue
 		}
 
-		bs[i] = 'a' + byte((int32(bs[i]-'a')+r.SectorID)%26)
+		bs[i] = 'a' + byte((int(bs[i]-'a')+r.SectorID)%26)
 	}
 
 	return string(bs)
 }
 
 func InputToRooms() []Room {
-	return lib.InputLinesTo(func(line string) Room {
-		hyphen := strings.LastIndex(line, "-")
-		bracket := strings.LastIndex(line, "[")
+	return in.LinesTo(func(in *in.Scanner[Room]) Room {
+		var letters, checksum string
+		var number int
+		in.Scanf("%s-%d[%s]", &letters, &number, &checksum)
 
 		return Room{
-			Name:     line[:hyphen],
-			SectorID: int32(lib.ParseInt(line[hyphen+1 : bracket])),
-			Checksum: line[bracket+1 : len(line)-1],
+			Name:     letters,
+			SectorID: number,
+			Checksum: checksum,
 		}
 	})
 }

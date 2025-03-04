@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	digits := lib.InputLinesTo(func(line string) string {
-		return KeypadDigit(line)
+	digits := in.LinesTo[string](func(s *in.Scanner[string]) string {
+		return KeypadDigit(s.String())
 	})
 
 	fmt.Println(strings.Join(digits, ""))
@@ -23,12 +24,12 @@ var Keypad = []string{
 	".....",
 }
 
-var Start = lib.Point2D{X: 2, Y: 2}
+var Start = Point2D{X: 2, Y: 2}
 
 func KeypadDigit(s string) string {
 	p := Start
 	for _, c := range s {
-		var next lib.Point2D
+		var next Point2D
 		switch c {
 		case 'U':
 			next = p.Up()

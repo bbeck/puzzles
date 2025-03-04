@@ -4,12 +4,13 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	salt := lib.InputToString()
+	salt := in.String()
 
 	var keys []int
 	for nonce := 0; len(keys) < 64; nonce++ {

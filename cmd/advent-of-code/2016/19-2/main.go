@@ -3,26 +3,26 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	n := lib.InputToInt()
+	n := in.Int()
 
 	// create each elf
 	elves := make([]*Elf, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		elves[i] = &Elf{id: i + 1, presents: 1}
 	}
 
 	// now that the elves are created, link them together in a ring
-	for i := 0; i < n; i++ {
+	for i := range n {
 		elves[i].prev = elves[(i-1+n)%n]
 		elves[i].next = elves[(i+1+n)%n]
 	}
 
 	elf1, elf2 := elves[0], elves[n/2]
-	for i := 0; i < n-1; i++ {
+	for i := range n - 1 {
 		// elf1 steals from elf2
 		elf1.presents += elf2.presents
 

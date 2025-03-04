@@ -4,12 +4,13 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	salt := lib.InputToString()
+	salt := in.String()
 
 	var keys []int
 	for nonce := 0; len(keys) < 64; nonce++ {
@@ -46,7 +47,7 @@ func Hash(prefix string, nonce int) string {
 }
 
 func FindTriple(s string) (byte, bool) {
-	for i := 0; i < len(s)-2; i++ {
+	for i := range len(s) - 2 {
 		if s[i] == s[i+1] && s[i] == s[i+2] {
 			return s[i], true
 		}

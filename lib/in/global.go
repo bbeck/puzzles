@@ -58,9 +58,9 @@ func HasNext() bool {
 	return scanner.HasNext()
 }
 
-func ToGrid2D[T any](fn func(x, y int, s string) T) Grid2D[T] {
+func HasPrefix(prefix string) bool {
 	initialize()
-	return as[T]().Grid2D(fn)
+	return scanner.HasPrefix(prefix)
 }
 
 func Int() int {
@@ -88,13 +88,24 @@ func OneOf(options ...string) string {
 	return scanner.OneOf(options...)
 }
 
+func Remove(s string) {
+	initialize()
+	scanner.Remove(s)
+}
+
 func Scanf(format string, a ...interface{}) {
 	initialize()
 	scanner.Scanf(format, a...)
 }
+
 func String() string {
 	initialize()
 	return scanner.String()
+}
+
+func ToGrid2D[T any](fn func(x, y int, s string) T) Grid2D[T] {
+	initialize()
+	return as[T]().Grid2D(fn)
 }
 
 // As will reinterpret the scanner with the type T so that we can parse the data

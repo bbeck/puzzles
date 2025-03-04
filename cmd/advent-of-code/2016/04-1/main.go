@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"sort"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -25,7 +27,7 @@ type Room struct {
 }
 
 func (r Room) IsReal() bool {
-	var counter lib.FrequencyCounter[rune]
+	var counter FrequencyCounter[rune]
 	for _, c := range r.Name {
 		if c == '-' {
 			continue
@@ -50,14 +52,15 @@ func (r Room) IsReal() bool {
 }
 
 func InputToRooms() []Room {
-	return lib.InputLinesTo(func(line string) Room {
-		hyphen := strings.LastIndex(line, "-")
-		bracket := strings.LastIndex(line, "[")
+	return in.LinesTo(func(in *in.Scanner[Room]) Room {
+		var letters, checksum string
+		var number int
+		in.Scanf("%s-%d[%s]", &letters, &number, &checksum)
 
 		return Room{
-			Name:     line[:hyphen],
-			SectorID: lib.ParseInt(line[hyphen+1 : bracket]),
-			Checksum: line[bracket+1 : len(line)-1],
+			Name:     strings.ReplaceAll(letters, "-", ""),
+			SectorID: number,
+			Checksum: checksum,
 		}
 	})
 }

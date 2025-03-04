@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	lines := lib.InputToLines()
-
-	counters := make([]lib.FrequencyCounter[rune], len(lines[0]))
-	for _, line := range lines {
-		for i, c := range line {
-			counters[i].Add(c)
+	var counters [8]FrequencyCounter[rune]
+	for in.HasNext() {
+		for i, b := range in.String() {
+			counters[i].Add(b)
 		}
 	}
 

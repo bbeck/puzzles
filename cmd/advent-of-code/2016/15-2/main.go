@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 		positions = append(positions, disc.Size)
 	}
 
-	tm := lib.ChineseRemainderTheorem(offsets, positions)
+	tm := ChineseRemainderTheorem(offsets, positions)
 	fmt.Println(tm)
 }
 
@@ -33,15 +34,9 @@ type Disc struct {
 }
 
 func InputToDiscs() []Disc {
-	return lib.InputLinesTo(func(line string) Disc {
-		line = strings.ReplaceAll(line, "Disc #", "")
-		line = strings.ReplaceAll(line, "has ", "")
-		line = strings.ReplaceAll(line, "positions; at time=", "")
-		line = strings.ReplaceAll(line, ", it is at position", "")
-		line = strings.ReplaceAll(line, ".", "")
-
-		var id, size, tm, offset int
-		fmt.Sscanf(line, "%d %d %d %d", &id, &size, &tm, &offset)
+	return in.LinesTo(func(in *in.Scanner[Disc]) Disc {
+		var id, size, offset int
+		in.Scanf("Disc #%d has %d positions; at time=0, it is at position %d.", &id, &size, &offset)
 
 		// This only works because all of our disk offsets are specified at tm=0.
 		return Disc{Size: size, Offset: offset}
