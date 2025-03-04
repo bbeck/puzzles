@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -12,7 +11,7 @@ func main() {
 
 	// The program that's the root of the tree is the one that never appears as
 	// a child of any other program.
-	var all, children lib.Set[string]
+	var all, children Set[string]
 	for _, program := range programs {
 		all.Add(program.ID)
 		children.Add(program.Children...)
@@ -29,16 +28,13 @@ type Program struct {
 }
 
 func InputToPrograms() []Program {
-	return lib.InputLinesTo(func(line string) Program {
-		line = strings.ReplaceAll(line, ",", "")
-		line = strings.ReplaceAll(line, "->", "")
-		line = strings.ReplaceAll(line, "(", "")
-		line = strings.ReplaceAll(line, ")", "")
+	return in.LinesToS(func(in in.Scanner[Program]) Program {
+		in.Remove("(", ")", "->", ",")
 
-		fields := strings.Fields(line)
+		var fields = in.Fields()
 		return Program{
 			ID:       fields[0],
-			Weight:   lib.ParseInt(fields[1]),
+			Weight:   ParseInt(fields[1]),
 			Children: fields[2:],
 		}
 	})

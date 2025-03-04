@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
+	lengths := append([]byte(in.Line()), []byte{17, 31, 73, 47, 23}...)
+
 	var buffer []byte
 	for i := 0; i <= 255; i++ {
 		buffer = append(buffer, byte(i))
@@ -14,7 +16,7 @@ func main() {
 
 	var current, skip byte
 	for round := 0; round < 64; round++ {
-		for _, length := range InputToLengths() {
+		for _, length := range lengths {
 			Reverse(buffer, current, length)
 			current += length + skip
 			skip++
@@ -39,14 +41,4 @@ func Hash(buffer []byte) string {
 	}
 
 	return hex.EncodeToString(hash)
-}
-
-func InputToLengths() []byte {
-	var lengths []byte
-	for _, c := range lib.InputToString() {
-		lengths = append(lengths, byte(c))
-	}
-	lengths = append(lengths, []byte{17, 31, 73, 47, 23}...)
-
-	return lengths
 }

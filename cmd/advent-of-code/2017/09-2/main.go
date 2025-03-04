@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	length := GarbageLength(lib.InputToString())
+	length := GarbageLength(in.Line())
 	fmt.Println(length)
 }
 

@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"strconv"
-	"strings"
 )
 
 func main() {
@@ -70,22 +69,17 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return lib.InputLinesTo(func(line string) Instruction {
-		fields := strings.Fields(line)
-		opcode := fields[0]
-		args := fields[1:]
-		parsed := make([]int, len(args))
+	return in.LinesToS(func(in in.Scanner[Instruction]) Instruction {
+		var opcode = in.String()
+		var args = in.Fields()
 
+		var parsed = make([]int, len(args))
 		for i, arg := range args {
 			if n, err := strconv.Atoi(arg); err == nil {
 				parsed[i] = n
 			}
 		}
 
-		return Instruction{
-			OpCode: opcode,
-			Args:   args,
-			Parsed: parsed,
-		}
+		return Instruction{OpCode: opcode, Args: args, Parsed: parsed}
 	})
 }

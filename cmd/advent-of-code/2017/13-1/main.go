@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -35,13 +33,7 @@ type Layer struct {
 }
 
 func InputToLayers() []Layer {
-	return lib.InputLinesTo(func(line string) Layer {
-		line = strings.ReplaceAll(line, ":", "")
-		fields := strings.Fields(line)
-
-		return Layer{
-			Depth: lib.ParseInt(fields[0]),
-			Range: lib.ParseInt(fields[1]),
-		}
+	return in.LinesToS(func(in in.Scanner[Layer]) Layer {
+		return Layer{Depth: in.Int(), Range: in.Int()}
 	})
 }

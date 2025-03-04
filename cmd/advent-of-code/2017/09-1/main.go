@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	score := Score(lib.InputToString())
+	score := Score(in.Line())
 	fmt.Println(score)
 }
 

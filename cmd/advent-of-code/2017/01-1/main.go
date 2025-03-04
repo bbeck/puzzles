@@ -3,18 +3,19 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	s := lib.InputToString()
+	s := in.Line()
 	N := len(s)
 
 	var sum int
-	for i := 0; i < N; i++ {
-		j := (i + 1 + N) % N
+	for i := range N {
+		j := (i + 1) % N
 		if s[i] == s[j] {
-			sum += lib.ParseInt(string(s[i]))
+			sum += ParseInt(string(s[i]))
 		}
 	}
 	fmt.Println(sum)

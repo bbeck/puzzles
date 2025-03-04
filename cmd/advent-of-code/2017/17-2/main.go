@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	stride := lib.InputToInt()
+	stride := in.Int()
 
 	// Remember the value after the 0
 	var after int

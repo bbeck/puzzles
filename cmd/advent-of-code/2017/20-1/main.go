@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"math"
 )
 
@@ -14,7 +15,7 @@ func main() {
 	distance := math.MaxInt
 
 	for id, particle := range InputToParticles() {
-		d := lib.Origin3D.ManhattanDistance(particle.Position(T))
+		d := Origin3D.ManhattanDistance(particle.Position(T))
 		if d < distance {
 			distance = d
 			closest = id
@@ -25,14 +26,14 @@ func main() {
 }
 
 type Particle struct {
-	p, v, a lib.Point3D
+	p, v, a Point3D
 }
 
-func (p Particle) Position(t int) lib.Point3D {
+func (p Particle) Position(t int) Point3D {
 	// The position of a particle undergoing constant acceleration at a time t in
 	// the future is given by: p(t) = p0 + v0*t + 1/2*a*t^2
 	t2 := t * t / 2
-	return lib.Point3D{
+	return Point3D{
 		X: p.p.X + p.v.X*t + p.a.X*t2,
 		Y: p.p.X + p.v.Y*t + p.a.Y*t2,
 		Z: p.p.X + p.v.Z*t + p.a.Z*t2,
@@ -40,13 +41,11 @@ func (p Particle) Position(t int) lib.Point3D {
 }
 
 func InputToParticles() []Particle {
-	return lib.InputLinesTo(func(line string) Particle {
-		var particle Particle
-		fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
-			&particle.p.X, &particle.p.Y, &particle.p.Z,
-			&particle.v.X, &particle.v.Y, &particle.v.Z,
-			&particle.a.X, &particle.a.Y, &particle.a.Z,
-		)
-		return particle
+	return in.LinesToS(func(in in.Scanner[Particle]) Particle {
+		return Particle{
+			p: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+			v: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+			a: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+		}
 	})
 }

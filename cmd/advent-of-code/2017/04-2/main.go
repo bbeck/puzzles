@@ -5,13 +5,14 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var count int
-	for _, line := range lib.InputToLines() {
-		if IsValid(line) {
+	for in.HasNext() {
+		if IsValid(in.Line()) {
 			count++
 		}
 	}
@@ -19,7 +20,7 @@ func main() {
 }
 
 func IsValid(s string) bool {
-	var seen lib.Set[string]
+	var seen Set[string]
 	for _, word := range strings.Fields(s) {
 		if !seen.Add(Canonicalize(word)) {
 			return false

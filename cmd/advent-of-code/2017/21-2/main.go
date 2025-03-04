@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"strings"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
+	"math"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 		}
 	}
 
-	g := Grid{Grid2D: lib.Grid2D[bool]{
+	g := Grid{Grid2D: Grid2D[bool]{
 		Cells:  []bool{false, true, false, false, false, true, true, true, true},
 		Width:  3,
 		Height: 3,
@@ -40,7 +41,7 @@ func Enhance(g Grid, rules map[uint64]Grid) Grid {
 		N = 3
 	}
 
-	next := lib.NewGrid2D[bool](g.Width/N*(N+1), g.Height/N*(N+1))
+	next := NewGrid2D[bool](g.Width/N*(N+1), g.Height/N*(N+1))
 	for cy := 0; cy < g.NumChunks(); cy++ {
 		for cx := 0; cx < g.NumChunks(); cx++ {
 			// Compute the top left coordinate of this chunk in the next grid
@@ -61,7 +62,7 @@ func Enhance(g Grid, rules map[uint64]Grid) Grid {
 }
 
 type Grid struct {
-	lib.Grid2D[bool]
+	Grid2D[bool]
 }
 
 func (g Grid) ID() uint64 {
@@ -90,7 +91,7 @@ func (g Grid) GetChunk(cx, cy int) Grid {
 		N = 3
 	}
 
-	chunk := lib.NewGrid2D[bool](N, N)
+	chunk := NewGrid2D[bool](N, N)
 	for dy := 0; dy < N; dy++ {
 		for dx := 0; dx < N; dx++ {
 			chunk.Set(dx, dy, g.Get(cx*N+dx, cy*N+dy))
@@ -105,7 +106,7 @@ func (g Grid) Transformations() []Grid {
 		return Grid{g.RotateRight()}
 	}
 	flipH := func(g Grid) Grid {
-		r := lib.NewGrid2D[bool](g.Width, g.Height)
+		r := NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
 				r.Set(x, y, g.Get(g.Width-x-1, y))
@@ -114,7 +115,7 @@ func (g Grid) Transformations() []Grid {
 		return Grid{r}
 	}
 	flipV := func(g Grid) Grid {
-		r := lib.NewGrid2D[bool](g.Width, g.Height)
+		r := NewGrid2D[bool](g.Width, g.Height)
 		for y := 0; y < g.Height; y++ {
 			for x := 0; x < g.Width; x++ {
 				r.Set(x, y, g.Get(x, g.Height-y-1))
@@ -140,29 +141,21 @@ type Rule struct {
 }
 
 func InputToRules() []Rule {
-	parse := func(s string) Grid {
+	in.Remove("/")
+
+	grid := func(s string) Grid {
+		n := int(math.Sqrt(float64(len(s))))
+
 		var cells []bool
-		var y int
-		for _, c := range s {
-			if c == '/' {
-				y++
-				continue
-			}
-
-			cells = append(cells, c == '#')
+		for _, ch := range s {
+			cells = append(cells, ch == '#')
 		}
 
-		return Grid{
-			Grid2D: lib.Grid2D[bool]{
-				Cells:  cells,
-				Width:  y + 1, // The grid is always square
-				Height: y + 1,
-			},
-		}
+		return Grid{Grid2D: Grid2D[bool]{Cells: cells, Height: n, Width: n}}
 	}
 
-	return lib.InputLinesTo(func(line string) Rule {
-		lhs, rhs, _ := strings.Cut(line, " => ")
-		return Rule{from: parse(lhs), to: parse(rhs)}
+	return in.LinesToS(func(in in.Scanner[Rule]) Rule {
+		var lhs, rhs = in.Cut(" => ")
+		return Rule{from: grid(lhs), to: grid(rhs)}
 	})
 }

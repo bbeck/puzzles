@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"strings"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -12,8 +12,8 @@ func main() {
 }
 
 func LongestBridge(components []Component) int {
-	var helper func(needed int, used lib.BitSet) (int, int)
-	helper = func(needed int, used lib.BitSet) (int, int) {
+	var helper func(needed int, used BitSet) (int, int)
+	helper = func(needed int, used BitSet) (int, int) {
 		var bestLength, bestStrength int
 		for i, c := range components {
 			var next int
@@ -50,11 +50,7 @@ type Component struct {
 }
 
 func InputToComponents() []Component {
-	return lib.InputLinesTo(func(line string) Component {
-		lhs, rhs, _ := strings.Cut(line, "/")
-		return Component{
-			L: lib.ParseInt(lhs),
-			R: lib.ParseInt(rhs),
-		}
+	return in.LinesToS(func(in in.Scanner[Component]) Component {
+		return Component{L: in.Int(), R: in.Int()}
 	})
 }

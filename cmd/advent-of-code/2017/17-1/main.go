@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/puzzles/lib/in"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
 )
 
 func main() {
-	stride := lib.InputToInt()
+	stride := in.Int()
 
-	var ring lib.Ring[int]
+	var ring Ring[int]
 	for n := 0; n <= 2017; n++ {
 		ring.NextN(stride)
 		ring.InsertAfter(n)

@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	target := lib.InputToInt()
-	sums := map[lib.Point2D]int{
-		lib.Origin2D: 1,
+	target := in.Int()
+	sums := map[Point2D]int{
+		Origin2D: 1,
 	}
 
 	var sum int
@@ -31,13 +32,13 @@ func main() {
 	fmt.Println(sum)
 }
 
-func SpiralCoordinate(n int) lib.Point2D {
-	var turtle lib.Turtle
+func SpiralCoordinate(n int) Point2D {
+	var turtle Turtle
 	turtle.TurnRight()
 
 	// Edges represent the distance along the edges that we're traveling.
 	// We use a container since we have to configure multiple edges at a time.
-	var edges lib.Stack[int]
+	var edges Stack[int]
 	edges.Push(1)
 	edges.Push(1)
 

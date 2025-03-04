@@ -2,15 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"strings"
 )
 
 func main() {
-	grid := lib.InputToStringGrid2D()
+	grid := in.ToGrid2D(func(x, y int, s string) string {
+		return s
+	})
 
 	var visited strings.Builder
-	turtle := lib.Turtle{Location: FindStart(grid), Heading: lib.Down}
+	turtle := Turtle{Location: FindStart(grid), Heading: Down}
 	for {
 		if c := grid.GetPoint(turtle.Location); c >= "A" && c <= "Z" {
 			visited.WriteString(c)
@@ -41,18 +44,18 @@ func main() {
 	fmt.Println(visited.String())
 }
 
-func CanMoveForward(g lib.Grid2D[string], t lib.Turtle) bool {
+func CanMoveForward(g Grid2D[string], t Turtle) bool {
 	next := t.Location.Move(t.Heading)
 	return g.InBoundsPoint(next) && g.GetPoint(next) != Empty
 }
 
-func FindStart(g lib.Grid2D[string]) lib.Point2D {
+func FindStart(g Grid2D[string]) Point2D {
 	for x := 0; x < g.Width; x++ {
 		if g.Get(x, 0) != Empty {
-			return lib.Point2D{X: x, Y: 0}
+			return Point2D{X: x, Y: 0}
 		}
 	}
-	return lib.Point2D{}
+	return Point2D{}
 }
 
 const Empty string = " "

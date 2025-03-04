@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	key := lib.InputToString()
+	key := in.Line()
 
-	grid := lib.NewGrid2D[bool](128, 128)
+	grid := NewGrid2D[bool](128, 128)
 	for row := 0; row < grid.Height; row++ {
 		hash := KnotHash(fmt.Sprintf("%s-%d", key, row))
 
@@ -23,14 +24,14 @@ func main() {
 	}
 
 	// Build a disjoint set from the grid, linking together any connected points.
-	var ds lib.DisjointSet[lib.Point2D]
+	var ds DisjointSet[Point2D]
 	for row := 0; row < grid.Height; row++ {
 		for col := 0; col < grid.Width; col++ {
 			if !grid.Get(col, row) {
 				continue
 			}
 
-			p := lib.Point2D{X: col, Y: row}
+			p := Point2D{X: col, Y: row}
 			ds.Add(p) // Even if there are no neighbors, we need to add this point.
 
 			for _, neighbor := range p.OrthogonalNeighbors() {
@@ -46,10 +47,10 @@ func main() {
 	}
 
 	// Determine how many non-overlapping sets there are in the disjoint set.
-	var set lib.Set[lib.Point2D]
+	var set Set[Point2D]
 	for row := 0; row < grid.Height; row++ {
 		for col := 0; col < grid.Width; col++ {
-			p := lib.Point2D{X: col, Y: row}
+			p := Point2D{X: col, Y: row}
 			if elem, found := ds.Find(p); found {
 				set.Add(elem)
 			}
@@ -70,7 +71,7 @@ func KnotHash(s string) []byte {
 	var current, skip byte
 	for round := 0; round < 64; round++ {
 		for _, length := range bs {
-			Reverse(buffer, current, length)
+			ReverseSegment(buffer, current, length)
 			current += length + skip
 			skip++
 		}
@@ -86,7 +87,7 @@ func KnotHash(s string) []byte {
 	return hash
 }
 
-func Reverse[T any](buffer []T, current, length byte) {
+func ReverseSegment[T any](buffer []T, current, length byte) {
 	for i := byte(0); i < length/2; i++ {
 		buffer[current+i], buffer[current+length-i-1] = buffer[current+length-i-1], buffer[current+i]
 	}

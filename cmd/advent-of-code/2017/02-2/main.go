@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"log"
-	"strings"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -18,28 +17,19 @@ func main() {
 
 func FindEvenlyDivisible(row []int) (int, int) {
 	for i := 0; i < len(row); i++ {
-		for j := 0; j < len(row); j++ {
-			if i == j {
-				continue
-			}
-
-			if row[i]%row[j] == 0 {
-				return row[i], row[j]
+		for j := i + 1; j < len(row); j++ {
+			a, b := Max(row[i], row[j]), Min(row[i], row[j])
+			if a%b == 0 {
+				return a, b
 			}
 		}
 	}
 
-	log.Fatalf("unable to find evenly divisible pair: %v", row)
-	return 0, 0
+	panic("unable to find evenly divisible pair")
 }
 
 func InputToRows() [][]int {
-	return lib.InputLinesTo(func(line string) []int {
-		var row []int
-		for _, s := range strings.Fields(line) {
-			row = append(row, lib.ParseInt(s))
-		}
-
-		return row
+	return in.LinesToS(func(in in.Scanner[[]int]) []int {
+		return in.Ints()
 	})
 }

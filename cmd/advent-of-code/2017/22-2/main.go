@@ -2,22 +2,19 @@ package main
 
 import (
 	"fmt"
-	"math"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	var infections int
-
 	grid, center := InputToGrid()
-	turtle := lib.Turtle{Location: center}
+	turtle := Turtle{Location: center}
+
+	var infections int
 	for n := 0; n < 10000000; n++ {
-		var state string
+		var state = Clean
 		if s, ok := grid[turtle.Location]; ok {
 			state = s
-		} else {
-			state = Clean
 		}
 
 		switch state {
@@ -42,8 +39,6 @@ func main() {
 	fmt.Println(infections)
 }
 
-type Grid map[lib.Point2D]string
-
 const (
 	Clean    = "."
 	Infected = "#"
@@ -51,20 +46,18 @@ const (
 	Flagged  = "F"
 )
 
-func InputToGrid() (Grid, lib.Point2D) {
-	grid := make(Grid)
-	minX, minY := math.MaxInt, math.MaxInt
-	maxX, maxY := math.MinInt, math.MinInt
-	for y, line := range lib.InputToLines() {
-		for x, c := range line {
-			grid[lib.Point2D{X: x, Y: y}] = string(c)
-			minX = lib.Min(minX, x)
-			maxX = lib.Max(maxX, x)
+func InputToGrid() (map[Point2D]string, Point2D) {
+	var grid = make(map[Point2D]string)
+
+	var x, y int
+	var ch rune
+	for in.HasNext() {
+		for x, ch = range in.Line() {
+			grid[Point2D{X: x, Y: y}] = string(ch)
 		}
-		minY = lib.Min(minY, y)
-		maxY = lib.Max(maxY, y)
+
+		y++
 	}
 
-	center := lib.Point2D{X: (maxX - minX) / 2, Y: (maxY - minY) / 2}
-	return grid, center
+	return grid, Point2D{X: x / 2, Y: y / 2}
 }

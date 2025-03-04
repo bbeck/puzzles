@@ -3,9 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -21,7 +20,7 @@ func main() {
 
 	start := "abcdefghijklmnop"
 
-	current := lib.WalkCycle(start, 1_000_000_000, dance)
+	current := WalkCycle(start, 1_000_000_000, dance)
 	fmt.Println(current)
 }
 
@@ -30,38 +29,35 @@ type Instruction func([]byte)
 const L = 16
 
 func InputToInstructions() []Instruction {
-	fields := strings.Split(lib.InputToString(), ",")
+	in.Remove(",")
 
 	var instructions []Instruction
-	for _, field := range fields {
-		var instruction Instruction
-
-		switch field[0] {
+	for in.HasNext() {
+		switch in.Byte() {
 		case 's':
-			n := lib.ParseInt(field[1:])
-			instruction = func(bs []byte) {
+			var n = in.Int()
+			instructions = append(instructions, func(bs []byte) {
 				cs := make([]byte, L)
 				copy(cs, bs[L-n:])
 				copy(cs[n:], bs[:L-n])
 				copy(bs, cs)
-			}
+			})
 
 		case 'x':
-			sa, sb, _ := strings.Cut(field[1:], "/")
-			a, b := lib.ParseInt(sa), lib.ParseInt(sb)
-			instruction = func(bs []byte) {
+			var a, b = in.Int(), in.Int()
+			instructions = append(instructions, func(bs []byte) {
 				bs[a], bs[b] = bs[b], bs[a]
-			}
+			})
 
 		case 'p':
-			a, b, _ := strings.Cut(field[1:], "/")
-			instruction = func(bs []byte) {
-				ia, ib := bytes.IndexByte(bs, a[0]), bytes.IndexByte(bs, b[0])
+			var a = in.Byte()
+			in.Expect("/")
+			var b = in.Byte()
+			instructions = append(instructions, func(bs []byte) {
+				ia, ib := bytes.IndexByte(bs, a), bytes.IndexByte(bs, b)
 				bs[ia], bs[ib] = bs[ib], bs[ia]
-			}
+			})
 		}
-
-		instructions = append(instructions, instruction)
 	}
 
 	return instructions

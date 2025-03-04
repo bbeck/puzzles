@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	banks := InputToBanks()
+	banks := in.Ints()
 	N := len(banks)
 
-	var seen lib.Set[string]
+	var seen Set[string]
 	last := make(map[string]int)
 
 	var cycle int
@@ -56,12 +55,4 @@ func Choose(banks []int) (int, int) {
 	}
 
 	return max, index
-}
-
-func InputToBanks() []int {
-	var banks []int
-	for _, field := range strings.Fields(lib.InputToString()) {
-		banks = append(banks, lib.ParseInt(field))
-	}
-	return banks
 }

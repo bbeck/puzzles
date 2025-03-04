@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	n := lib.InputToInt()
+	n := in.Int()
 	c := SpiralCoordinate(n)
-	fmt.Println(lib.Origin2D.ManhattanDistance(c))
+	fmt.Println(Origin2D.ManhattanDistance(c))
 }
 
-func SpiralCoordinate(n int) lib.Point2D {
-	var turtle lib.Turtle
+func SpiralCoordinate(n int) Point2D {
+	var turtle Turtle
 	turtle.TurnRight()
 
 	// Edges represent the distance along the edges that we're traveling.
 	// We use a container since we have to configure multiple edges at a time.
-	var edges lib.Stack[int]
+	var edges Stack[int]
 	edges.Push(1)
 	edges.Push(1)
 

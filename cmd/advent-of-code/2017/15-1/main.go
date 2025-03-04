@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -22,10 +22,10 @@ func main() {
 }
 
 func InputToPreviousValues() []int {
-	return lib.InputLinesTo(func(line string) int {
+	return in.LinesToS(func(in in.Scanner[int]) int {
 		var id string
 		var value int
-		fmt.Sscanf(line, "Generator %s starts with %d", &id, &value)
+		in.Scanf("Generator %s starts with %d", &id, &value)
 		return value
 	})
 }

@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	particles := InputToParticles()
 
 	for tm := 0; tm < 1000; tm++ {
-		positions := make(map[lib.Point3D][]Particle)
+		positions := make(map[Point3D][]Particle)
 		for i := 0; i < len(particles); i++ {
 			particles[i].Step()
 			positions[particles[i].pos] = append(positions[particles[i].pos], particles[i])
@@ -30,7 +31,7 @@ func main() {
 }
 
 type Particle struct {
-	pos, vel, acc lib.Point3D
+	pos, vel, acc Point3D
 }
 
 func (p *Particle) Step() {
@@ -43,13 +44,11 @@ func (p *Particle) Step() {
 }
 
 func InputToParticles() []Particle {
-	return lib.InputLinesTo(func(line string) Particle {
-		var particle Particle
-		fmt.Sscanf(line, "p=<%d,%d,%d>, v=<%d,%d,%d>, a=<%d,%d,%d>",
-			&particle.pos.X, &particle.pos.Y, &particle.pos.Z,
-			&particle.vel.X, &particle.vel.Y, &particle.vel.Z,
-			&particle.acc.X, &particle.acc.Y, &particle.acc.Z,
-		)
-		return particle
+	return in.LinesToS(func(in in.Scanner[Particle]) Particle {
+		return Particle{
+			pos: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+			vel: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+			acc: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+		}
 	})
 }

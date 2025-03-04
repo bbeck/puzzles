@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bbeck/puzzles/lib"
-	"strings"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -45,22 +45,22 @@ func InputToProgram() []Instruction {
 		"!=": func(a int, b int) bool { return a != b },
 	}
 
-	condition := func(register string, op string, lim string) func(map[string]int) bool {
-		limit := lib.ParseInt(lim)
-
+	condition := func(register string, op string, limit int) func(map[string]int) bool {
 		return func(registers map[string]int) bool {
 			return conditions[op](registers[register], limit)
 		}
 	}
 
-	return lib.InputLinesTo(func(line string) Instruction {
-		fields := strings.Fields(line)
+	return in.LinesToS(func(in in.Scanner[Instruction]) Instruction {
+		var register, op, cregister, cop string
+		var amount, camount int
+		in.Scanf("%s %s %d if %s %s %d", &register, &op, &amount, &cregister, &cop, &camount)
 
 		return Instruction{
-			Register:  fields[0],
-			Op:        fields[1],
-			Amount:    lib.ParseInt(fields[2]),
-			Condition: condition(fields[4], fields[5], fields[6]),
+			Register:  register,
+			Op:        op,
+			Amount:    amount,
+			Condition: condition(cregister, cop, camount),
 		}
 	})
 }

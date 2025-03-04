@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	key := lib.InputToString()
+	key := in.Line()
 
-	grid := lib.NewGrid2D[bool](128, 128)
+	grid := NewGrid2D[bool](128, 128)
 	for row := 0; row < grid.Height; row++ {
 		hash := KnotHash(fmt.Sprintf("%s-%d", key, row))
 
@@ -45,7 +46,7 @@ func KnotHash(s string) []byte {
 	var current, skip byte
 	for round := 0; round < 64; round++ {
 		for _, length := range bs {
-			Reverse(buffer, current, length)
+			ReverseSegment(buffer, current, length)
 			current += length + skip
 			skip++
 		}
@@ -61,7 +62,7 @@ func KnotHash(s string) []byte {
 	return hash
 }
 
-func Reverse[T any](buffer []T, current, length byte) {
+func ReverseSegment[T any](buffer []T, current, length byte) {
 	for i := byte(0); i < length/2; i++ {
 		buffer[current+i], buffer[current+length-i-1] = buffer[current+length-i-1], buffer[current+i]
 	}

@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	offsets := lib.InputToInts()
+	offsets := in.Ints()
 
 	var steps int
 	for pc := 0; pc >= 0 && pc < len(offsets); steps++ {
