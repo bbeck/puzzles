@@ -40,7 +40,7 @@ type Address struct {
 }
 
 func InputToAddresses() []Address {
-	return in.LinesTo(func(in *in.Scanner[Address]) Address {
+	return in.LinesToS(func(in in.Scanner[Address]) Address {
 		var line = in.Line()
 		line = strings.ReplaceAll(line, "[", " ")
 		line = strings.ReplaceAll(line, "]", " ")

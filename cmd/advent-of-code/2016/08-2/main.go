@@ -75,7 +75,7 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return in.LinesTo(func(in *in.Scanner[Instruction]) Instruction {
+	return in.LinesToS(func(in in.Scanner[Instruction]) Instruction {
 		switch {
 		case in.HasPrefix("rect"):
 			var width, height int
@@ -93,7 +93,7 @@ func InputToInstructions() []Instruction {
 			return Instruction{Kind: "rotate column", Col: col, Height: distance}
 
 		default:
-			return Instruction{} // should never happen
+			panic("unsupported prefix")
 		}
 	})
 }

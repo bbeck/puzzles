@@ -34,7 +34,7 @@ type Disc struct {
 }
 
 func InputToDiscs() []Disc {
-	return in.LinesTo(func(in *in.Scanner[Disc]) Disc {
+	return in.LinesToS(func(in in.Scanner[Disc]) Disc {
 		var id, size, offset int
 		in.Scanf("Disc #%d has %d positions; at time=0, it is at position %d.", &id, &size, &offset)
 

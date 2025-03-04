@@ -3,16 +3,23 @@ package in
 import (
 	"bytes"
 	"fmt"
+	. "github.com/bbeck/puzzles/lib"
 	"regexp"
 	"strings"
-
-	. "github.com/bbeck/puzzles/lib"
 )
 
-// Scanner is a wrapper around a byte slice that provides a convenient way to
-// read input data.  It is designed to take an unused type parameter to allow
-// for generic methods that operate on the underlying byte slice and convert
-// data to an arbitrary type.
+// Scanner is a wrapper around a slice of bytes that provides a convenient way
+// to read and parse input data.
+//
+// The methods of a Scanner come in two flavors.  By default, methods receive
+// and return strings since this is generally what the user desires.  However,
+// where it makes sense methods also include a version with an S suffix that
+// returns Scanner(s) instead of strings.  These versions are useful when the
+// input needs to be parsed further.
+//
+// NOTE: The Scanner type unfortunately requires the use of an unused type
+// parameters to allow some methods to have arguments that utilize a type
+// parameter.
 type Scanner[T any] []byte
 
 // Byte returns the next byte from the scanner.
@@ -32,42 +39,46 @@ func (bs *Scanner[T]) Bytes() []byte {
 		panic("no more bytes")
 	}
 
-	var copy = []byte(*bs)
+	var cs = []byte(*bs)
 	*bs = []byte{}
-	return copy
+	return cs
 }
 
-// Chunk returns a scanner for the next group of lines.  A group of lines is
-// defined as a sequence of lines separated by one or more blank lines.
-func (bs *Scanner[T]) Chunk() Scanner[T] {
+// Chunk returns the next sequence of lines in the Scanner up until one or more
+// blank lines.
+func (bs *Scanner[T]) Chunk() []string {
 	if len(*bs) == 0 {
 		panic("no more bytes")
 	}
 
-	var buf bytes.Buffer
-	var last byte
-	for bs.HasNext() {
-		var b = bs.Byte()
-		if b == '\n' && last == '\n' {
-			last = 0
-			break
-		}
+	var lines []string
 
-		buf.WriteByte(b)
-		last = b
-	}
-
-	// Consume any leading newlines.
-	for len(*bs) > 0 && (*bs)[0] == '\n' {
+	// Consume any leading newline characters
+	for bs.HasPrefix("\n") {
 		*bs = (*bs)[1:]
 	}
 
-	var chunk = buf.Bytes()
-	if isWhitespace(chunk[len(chunk)-1]) {
-		chunk = chunk[:len(chunk)-1]
+	// Collect lines until we run into an empty line or the end of the bytes
+	for len(*bs) > 0 {
+		line := bs.Line()
+		if line == "" {
+			break
+		}
+		lines = append(lines, line)
 	}
 
-	return Scanner[T](chunk)
+	// Consume any remaining newline characters
+	for bs.HasPrefix("\n") {
+		*bs = (*bs)[1:]
+	}
+
+	return lines
+}
+
+// ChunkS returns a scanner for the next sequence of lines in the Scanner up
+// until one or more blank lines.
+func (bs *Scanner[T]) ChunkS() Scanner[T] {
+	return Scanner[T](strings.Join(bs.Chunk(), "\n"))
 }
 
 // Cut splits the current line into two parts at the first occurrence of sep.
@@ -77,9 +88,15 @@ func (bs *Scanner[T]) Cut(sep string) (string, string) {
 		panic("empty separator")
 	}
 
-	var line = bs.Line()
-	lhs, rhs, _ := strings.Cut(line, sep)
+	lhs, rhs, _ := strings.Cut(bs.Line(), sep)
 	return lhs, rhs
+}
+
+// CutS splits the current line into two parts at the first occurrence of sep.
+// If sep is not found, the second part is empty.
+func (bs *Scanner[T]) CutS(sep string) (Scanner[T], Scanner[T]) {
+	var lhs, rhs = bs.Cut(sep)
+	return Scanner[T](lhs), Scanner[T](rhs)
 }
 
 // Expect ensures that the next string from the scanner is equal to s.
@@ -91,9 +108,20 @@ func (bs *Scanner[T]) Expect(s string) {
 	*bs = (*bs)[len(s):]
 }
 
-// Fields splits the current line into fields.
+// Fields splits the current line into fields around one or more consecutive
+// whitespace characters.
 func (bs *Scanner[T]) Fields() []string {
 	return strings.Fields(bs.Line())
+}
+
+// FieldsS splits the current line into fields around one or more consecutive
+// whitespace characters.
+func (bs *Scanner[T]) FieldsS() []Scanner[T] {
+	var scanners []Scanner[T]
+	for _, s := range bs.Fields() {
+		scanners = append(scanners, Scanner[T](s))
+	}
+	return scanners
 }
 
 // Grid2D builds a Grid2D instance from the input using the provided function
@@ -176,7 +204,7 @@ func (bs *Scanner[T]) Ints() []int {
 }
 
 // Line returns the next line from the scanner.  The line is delimited by a
-// newline.
+// newline except the last line which isn't required to have a newline.
 func (bs *Scanner[T]) Line() string {
 	if len(*bs) == 0 {
 		panic("no more bytes")
@@ -184,7 +212,6 @@ func (bs *Scanner[T]) Line() string {
 
 	var b byte
 	var sb strings.Builder
-
 	for len(*bs) > 0 {
 		b, *bs = (*bs)[0], (*bs)[1:]
 		if b == '\n' {
@@ -196,14 +223,22 @@ func (bs *Scanner[T]) Line() string {
 	return sb.String()
 }
 
-// LinesTo transforms each line in the scanner to an arbitrary type.
-func (bs *Scanner[T]) LinesTo(fn func(*Scanner[T]) T) []T {
+// LinesTo transforms each line in the scanner to an arbitrary type.  The
+// arbitrary type is determined by the fn argument's return value.
+func (bs *Scanner[T]) LinesTo(fn func(string) T) []T {
 	var ts []T
 	for bs.HasNext() {
-		var s = Scanner[T]([]byte(bs.Line()))
-		ts = append(ts, fn(&s))
+		ts = append(ts, fn(bs.Line()))
 	}
 	return ts
+}
+
+// LinesToS transforms each line in the scanner to an arbirary type via a new
+// scanner with just the line's contents.
+func (bs *Scanner[T]) LinesToS(fn func(Scanner[T]) T) []T {
+	return bs.LinesTo(func(s string) T {
+		return fn(Scanner[T](s))
+	})
 }
 
 // OneOf returns the next string from the scanner that matches one of the given
@@ -213,7 +248,6 @@ func (bs *Scanner[T]) OneOf(options ...string) string {
 	for len(*bs) > 0 && isWhitespace((*bs)[0]) {
 		*bs = (*bs)[1:]
 	}
-
 	var opts = SetFrom(options...)
 	var sb strings.Builder
 
@@ -229,9 +263,11 @@ func (bs *Scanner[T]) OneOf(options ...string) string {
 	panic("no matching option")
 }
 
-// Remove removes all occurrences of the given string from the scanner.
-func (bs *Scanner[T]) Remove(s string) {
-	*bs = []byte(strings.ReplaceAll(string(*bs), s, ""))
+// Remove removes all occurrences of the given string(s) from the scanner.
+func (bs *Scanner[T]) Remove(s ...string) {
+	for _, remove := range s {
+		*bs = []byte(strings.ReplaceAll(string(*bs), remove, ""))
+	}
 }
 
 var scanfMemo = make(map[string]*regexp.Regexp)
@@ -249,7 +285,7 @@ var scanfMemo = make(map[string]*regexp.Regexp)
 // around the limitation of the standard library's scan functions that tokens
 // must be separated by whitespace.
 func (bs *Scanner[T]) Scanf(format string, args ...any) {
-	var regex *regexp.Regexp = scanfMemo[format]
+	var regex = scanfMemo[format]
 	if regex == nil {
 		var sb strings.Builder
 		sb.WriteString(`^`)
@@ -262,7 +298,11 @@ func (bs *Scanner[T]) Scanf(format string, args ...any) {
 					sb.WriteString(`(-?\d+)`)
 					i++
 				case 's':
-					sb.WriteString(`(.+)`)
+					if len(format) > i+2 && format[i+2] == '?' {
+						sb.WriteString(`(.*)`)
+					} else {
+						sb.WriteString(`(.+)`)
+					}
 					i++
 				case 'w':
 					sb.WriteString(`(\w+)`)
@@ -334,10 +374,6 @@ func (bs *Scanner[T]) String() string {
 	return sb.String()
 }
 
-func isWhitespace(b byte) bool {
-	return b == ' ' || b == '\f' || b == '\n' || b == '\r' || b == '\t' || b == '\v'
-}
-
 func (bs *Scanner[T]) skipUntilDigitCharacter() {
 	for len(*bs) > 0 {
 		if '0' <= (*bs)[0] && (*bs)[0] <= '9' {
@@ -348,6 +384,10 @@ func (bs *Scanner[T]) skipUntilDigitCharacter() {
 		}
 		*bs = (*bs)[1:]
 	}
+}
+
+func isWhitespace(b byte) bool {
+	return b == ' ' || b == '\f' || b == '\n' || b == '\r' || b == '\t' || b == '\v'
 }
 
 func panicf(format string, args ...interface{}) {

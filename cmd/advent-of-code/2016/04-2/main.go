@@ -38,7 +38,7 @@ func (r Room) Decrypt() string {
 }
 
 func InputToRooms() []Room {
-	return in.LinesTo(func(in *in.Scanner[Room]) Room {
+	return in.LinesToS(func(in in.Scanner[Room]) Room {
 		var letters, checksum string
 		var number int
 		in.Scanf("%s-%d[%s]", &letters, &number, &checksum)

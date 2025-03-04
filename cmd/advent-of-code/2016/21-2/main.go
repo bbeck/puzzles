@@ -103,7 +103,7 @@ func MovePosition(x, y int) Operation {
 }
 
 func InputToOperations() []Operation {
-	return in.LinesTo(func(in *in.Scanner[Operation]) Operation {
+	return in.LinesToS(func(in in.Scanner[Operation]) Operation {
 		switch {
 		case in.HasPrefix("swap position"):
 			var x, y int

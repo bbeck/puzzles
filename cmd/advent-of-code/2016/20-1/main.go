@@ -35,7 +35,7 @@ type Range struct {
 }
 
 func InputToRanges() []Range {
-	return in.LinesTo(func(in *in.Scanner[Range]) Range {
+	return in.LinesToS(func(in in.Scanner[Range]) Range {
 		var start, end int
 		in.Scanf("%d-%d", &start, &end)
 		return Range{Start: start, End: end}

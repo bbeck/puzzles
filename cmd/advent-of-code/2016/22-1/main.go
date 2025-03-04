@@ -34,7 +34,7 @@ func InputToNodes() []Node {
 	in.Line()
 	in.Line()
 
-	return in.LinesTo(func(in *in.Scanner[Node]) Node {
+	return in.LinesToS(func(in in.Scanner[Node]) Node {
 		return Node{
 			Point2D: Point2D{X: in.Int(), Y: in.Int()},
 			Size:    in.Int(),

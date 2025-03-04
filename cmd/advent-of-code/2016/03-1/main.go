@@ -28,7 +28,7 @@ func (t Triangle) IsValid() bool {
 }
 
 func InputToTriangles() []Triangle {
-	return in.LinesTo(func(in *in.Scanner[Triangle]) Triangle {
+	return in.LinesToS(func(in in.Scanner[Triangle]) Triangle {
 		return Triangle{Side1: in.Int(), Side2: in.Int(), Side3: in.Int()}
 	})
 }

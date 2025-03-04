@@ -9,10 +9,9 @@ import (
 )
 
 func main() {
-	digits := in.LinesTo[string](func(s *in.Scanner[string]) string {
-		return KeypadDigit(s.String())
+	digits := in.LinesTo[string](func(s string) string {
+		return KeypadDigit(s)
 	})
-
 	fmt.Println(strings.Join(digits, ""))
 }
 

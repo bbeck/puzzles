@@ -87,7 +87,7 @@ type Instruction struct {
 }
 
 func InputToProgram() []Instruction {
-	return in.LinesTo(func(in *in.Scanner[Instruction]) Instruction {
+	return in.LinesToS(func(in in.Scanner[Instruction]) Instruction {
 		var opcode = in.String()
 		var args = in.Fields()
 

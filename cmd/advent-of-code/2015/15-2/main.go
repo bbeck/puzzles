@@ -59,7 +59,7 @@ type Ingredient struct {
 }
 
 func InputToIngredients() []Ingredient {
-	return in.LinesTo(func(in *in.Scanner[Ingredient]) Ingredient {
+	return in.LinesToS(func(in in.Scanner[Ingredient]) Ingredient {
 		return Ingredient{
 			Name:       in.String(),
 			Capacity:   in.Int(),

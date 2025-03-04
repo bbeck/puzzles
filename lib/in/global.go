@@ -1,9 +1,9 @@
 package in
 
 import (
-	"os"
-
+	"bytes"
 	. "github.com/bbeck/puzzles/lib"
+	"os"
 )
 
 var scanner Scanner[any]
@@ -19,7 +19,9 @@ func initialize() {
 			panicf("unable to read input.txt: %+v", err)
 		}
 
-		scanner = Scanner[any](fin)
+		// Remove any trailing newline characters, but leave any other whitespace
+		// intact.
+		scanner = bytes.TrimRight(fin, "\n")
 	}
 }
 
@@ -33,14 +35,24 @@ func Bytes() []byte {
 	return scanner.Bytes()
 }
 
-func Chunk() Scanner[any] {
+func Chunk() []string {
 	initialize()
 	return scanner.Chunk()
+}
+
+func ChunkS() Scanner[any] {
+	initialize()
+	return scanner.ChunkS()
 }
 
 func Cut(sep string) (string, string) {
 	initialize()
 	return scanner.Cut(sep)
+}
+
+func CutS[T any](sep string) (Scanner[T], Scanner[T]) {
+	initialize()
+	return as[T]().CutS(sep)
 }
 
 func Expect(s string) {
@@ -51,6 +63,11 @@ func Expect(s string) {
 func Fields() []string {
 	initialize()
 	return scanner.Fields()
+}
+
+func FieldsS[T any]() []Scanner[T] {
+	initialize()
+	return as[T]().FieldsS()
 }
 
 func HasNext() bool {
@@ -78,9 +95,14 @@ func Line() string {
 	return scanner.Line()
 }
 
-func LinesTo[T any](fn func(*Scanner[T]) T) []T {
+func LinesTo[T any](fn func(string) T) []T {
 	initialize()
 	return as[T]().LinesTo(fn)
+}
+
+func LinesToS[T any](fn func(Scanner[T]) T) []T {
+	initialize()
+	return as[T]().LinesToS(fn)
 }
 
 func OneOf(options ...string) string {
@@ -88,9 +110,9 @@ func OneOf(options ...string) string {
 	return scanner.OneOf(options...)
 }
 
-func Remove(s string) {
+func Remove(s ...string) {
 	initialize()
-	scanner.Remove(s)
+	scanner.Remove(s...)
 }
 
 func Scanf(format string, a ...interface{}) {
@@ -108,8 +130,8 @@ func ToGrid2D[T any](fn func(x, y int, s string) T) Grid2D[T] {
 	return as[T]().Grid2D(fn)
 }
 
-// As will reinterpret the scanner with the type T so that we can parse the data
-// as/ a new type.  The underlying byte slices are shared between the scanners
+// As will reinterpret the Scanner with the type T so that we can parse the data
+// as a new type.  The underlying byte slices are shared between the scanners
 // so data will only be read a single time.
 func as[T any]() *Scanner[T] {
 	var s = Scanner[T](scanner)

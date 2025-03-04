@@ -31,7 +31,7 @@ func main() {
 func InputToReplacementsAndMolecule() (map[string][]string, string) {
 	replacements := make(map[string][]string)
 
-	chunk := in.Chunk()
+	chunk := in.ChunkS()
 	for chunk.HasNext() {
 		lhs, rhs := chunk.Cut(" => ")
 		replacements[lhs] = append(replacements[lhs], rhs)

@@ -61,7 +61,7 @@ type Replacement struct {
 }
 
 func InputToReplacementsAndMolecule() ([]Replacement, string) {
-	chunk := in.Chunk()
+	chunk := in.ChunkS()
 
 	var replacements []Replacement
 	for chunk.HasNext() {
