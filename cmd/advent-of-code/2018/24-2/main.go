@@ -2,17 +2,28 @@ package main
 
 import (
 	"fmt"
-	"regexp"
 	"sort"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
+	groups := InputToGroups()
+
 	var best int
 	sort.Search(1<<10, func(boost int) bool {
-		if result := Run(boost); result > 0 {
+		// Apply the boost
+		var updated []*Group
+		for _, group := range groups {
+			g := *group
+			if g.Kind == "immune" {
+				g.AttackPower += boost
+			}
+			updated = append(updated, &g)
+		}
+
+		if result := Run(updated); result > 0 {
 			best = result
 			return true
 		}
@@ -22,16 +33,7 @@ func main() {
 	fmt.Println(best)
 }
 
-func Run(boost int) int {
-	groups := InputToGroups()
-
-	// Apply the boost
-	for _, group := range groups {
-		if group.Kind == "immune" {
-			group.AttackPower += boost
-		}
-	}
-
+func Run(groups []*Group) int {
 	ByEffectivePower := func(i, j int) bool {
 		gi, gj := groups[i], groups[j]
 		if pi, pj := EffectivePower(gi), EffectivePower(gj); pi != pj {
@@ -50,7 +52,7 @@ func Run(boost int) int {
 		//
 		sort.Slice(groups, ByEffectivePower)
 
-		var used lib.Set[*Group]
+		var used Set[*Group]
 		targets := make(map[*Group]*Group)
 		for _, attacker := range groups {
 			defender := ChooseTarget(attacker, groups, used)
@@ -73,7 +75,7 @@ func Run(boost int) int {
 		for _, attacker := range groups {
 			defender := targets[attacker]
 			if defender != nil {
-				defender.Count -= lib.Min(defender.Count, Damage(attacker, defender)/defender.HitPoints)
+				defender.Count -= Min(defender.Count, Damage(attacker, defender)/defender.HitPoints)
 			}
 		}
 
@@ -116,7 +118,7 @@ func Damage(attacker, defender *Group) int {
 	return multiplier * attacker.Count * attacker.AttackPower
 }
 
-func ChooseTarget(attacker *Group, groups []*Group, used lib.Set[*Group]) *Group {
+func ChooseTarget(attacker *Group, groups []*Group, used Set[*Group]) *Group {
 	var defender *Group
 	for _, candidate := range groups {
 		if attacker.Kind == candidate.Kind || candidate.Count <= 0 || used.Contains(candidate) {
@@ -145,89 +147,75 @@ func ChooseTarget(attacker *Group, groups []*Group, used lib.Set[*Group]) *Group
 }
 
 type Group struct {
-	ID          int
 	Kind        string
 	Count       int
 	HitPoints   int
 	AttackPower int
 	AttackType  string
-	Initiative int
-	Immunities lib.Set[string]
-	Weaknesses lib.Set[string]
+	Initiative  int
+	Immunities  Set[string]
+	Weaknesses  Set[string]
 }
-
-var regex = regexp.MustCompile(strings.TrimSpace(strings.Join([]string{
-	`(?P<count>\d+) units`,
-	`each with (?P<hp>\d+) hit points`,
-	`(?:\((?P<modifiers>.*)\))?`,
-	`with an attack that does (?P<ap>\d+) (?P<at>\S+) damage`,
-	`at initiative (?P<initiative>\d+)`,
-}, "\\s?")))
 
 func InputToGroups() []*Group {
 	var groups []*Group
-
 	var kind string
-	for _, line := range lib.InputToLines() {
-		if len(line) == 0 {
-			continue
-		}
 
-		if line == "Immune System:" {
+	for in.HasNext() {
+		switch {
+		case in.HasPrefix("Immune System:"):
 			kind = "immune"
-			continue
-		}
+			in.Line()
 
-		if line == "Infection:" {
+		case in.HasPrefix("Infection:"):
 			kind = "infection"
-			continue
-		}
+			in.Line()
 
-		fields := MatchFields(line, regex)
-		groups = append(groups, &Group{
-			Kind:        kind,
-			Count:       lib.ParseInt(fields["count"]),
-			HitPoints:   lib.ParseInt(fields["hp"]),
-			AttackPower: lib.ParseInt(fields["ap"]),
-			AttackType:  fields["at"],
-			Initiative:  lib.ParseInt(fields["initiative"]),
-			Immunities:  ParseModifiers(fields["modifiers"], "immune"),
-			Weaknesses:  ParseModifiers(fields["modifiers"], "weak"),
-		})
+		case in.HasPrefix("\n"):
+			in.Line()
+
+		default:
+			var modifiers in.Scanner[any]
+
+			var group = Group{Kind: kind}
+			in.Scanf(
+				"%d units each with %d hit points"+
+					"%s"+
+					"with an attack that does %d %s damage "+
+					"at initiative %d",
+				&group.Count,
+				&group.HitPoints,
+				&modifiers,
+				&group.AttackPower,
+				&group.AttackType,
+				&group.Initiative,
+			)
+
+			group.Immunities, group.Weaknesses = ParseModifiers(modifiers)
+			groups = append(groups, &group)
+		}
 	}
 
 	return groups
 }
 
-func MatchFields(s string, regex *regexp.Regexp) map[string]string {
-	fields := make(map[string]string)
+func ParseModifiers(in in.Scanner[any]) (Set[string], Set[string]) {
+	in.Remove("(", ")", ";", ",")
 
-	names := regex.SubexpNames()
-	matches := regex.FindStringSubmatch(s)
-	for i := 1; i < len(names); i++ {
-		fields[names[i]] = matches[i]
-	}
-	return fields
-}
-
-func ParseModifiers(s string, kind string) lib.Set[string] {
-	s = strings.ReplaceAll(s, " to ", " ")
-	s = strings.ReplaceAll(s, ",", "")
-	s = strings.ReplaceAll(s, ";", "")
-
-	var modifiers lib.Set[string]
-	var save bool
-	for _, field := range strings.Fields(s) {
-		if field == kind {
-			save = true
-			continue
-		} else if field == "immune" || field == "weak" {
-			save = false
-			continue
-		} else if save {
-			modifiers.Add(field)
+	var immunities, weaknesses Set[string]
+	var current *Set[string]
+	for _, field := range in.Fields() {
+		switch field {
+		case "immune":
+			current = &immunities
+		case "weak":
+			current = &weaknesses
+		default:
+			if current != nil {
+				current.Add(field)
+			}
 		}
 	}
 
-	return modifiers
+	return immunities, weaknesses
 }

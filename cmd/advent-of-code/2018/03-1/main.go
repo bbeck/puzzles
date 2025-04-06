@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	area := lib.Make2D[int](1001, 1001)
+	area := Make2D[int](1001, 1001) // TODO: Grid2D instead?
 	for _, claim := range InputToClaims() {
 		for dx := 0; dx < claim.Width; dx++ {
 			for dy := 0; dy < claim.Height; dy++ {
@@ -16,8 +17,8 @@ func main() {
 	}
 
 	var count int
-	for y := 0; y <= 1000; y++ {
-		for x := 0; x <= 1000; x++ {
+	for y := range 1000 {
+		for x := range 1000 {
 			if area[y][x] > 1 {
 				count++
 			}
@@ -28,14 +29,14 @@ func main() {
 
 type Claim struct {
 	ID            string
-	TL            lib.Point2D
+	TL            Point2D
 	Width, Height int
 }
 
 func InputToClaims() []Claim {
-	return lib.InputLinesTo(func(line string) Claim {
-		var claim Claim
-		fmt.Sscanf(line, "#%s @ %d,%d: %dx%d", &claim.ID, &claim.TL.X, &claim.TL.Y, &claim.Width, &claim.Height)
-		return claim
+	return in.LinesToS(func(in in.Scanner[Claim]) Claim {
+		var c Claim
+		in.Scanf("#%d @ %d,%d: %dx%d", &c.ID, &c.TL.X, &c.TL.Y, &c.Width, &c.Height)
+		return c
 	})
 }

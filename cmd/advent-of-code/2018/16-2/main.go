@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"reflect"
-	"regexp"
-	"strings"
 )
 
 func main() {
-	operations := IdentifyOperations()
+	samples, instructions := InputToSamplesAndInstructions()
+	operations := IdentifyOperations(samples)
 
 	regs := make([]int, 4)
-	for _, instruction := range InputToProgram() {
+	for _, instruction := range instructions {
 		operations[instruction.OpCode](instruction.A, instruction.B, instruction.C, regs)
 	}
 	fmt.Println(regs[0])
 }
 
-func IdentifyOperations() []Operation {
+func IdentifyOperations(samples []Sample) []Operation {
 	gt := func(a, b int) int {
 		if a > b {
 			return 1
@@ -53,7 +53,7 @@ func IdentifyOperations() []Operation {
 	}
 
 	// Start with every opcode being able to be any operation
-	var possibilities [16]lib.Set[string]
+	var possibilities [16]Set[string]
 	for i := 0; i < len(possibilities); i++ {
 		for op := range operations {
 			possibilities[i].Add(op)
@@ -61,8 +61,8 @@ func IdentifyOperations() []Operation {
 	}
 
 	// Filter opcode possibilities by what each sample says
-	for _, sample := range InputToSamples() {
-		var possible lib.Set[string]
+	for _, sample := range samples {
+		var possible Set[string]
 		for op, operation := range operations {
 			regs := make([]int, len(sample.Before))
 			copy(regs, sample.Before[:])
@@ -81,7 +81,7 @@ func IdentifyOperations() []Operation {
 	// the list of possibilities and identifying opcodes that only have one
 	// possibility.  Once a mapping is identified it can be removed from the set
 	// of possibilities for other opcodes.
-	var mapped lib.Set[string]
+	var mapped Set[string]
 	mapping := make(map[int]string)
 	for len(mapping) < len(operations) {
 		for opcode, possible := range possibilities {
@@ -113,51 +113,38 @@ type Sample struct {
 	A, B, C int
 }
 
-func InputToSamples() []Sample {
-	input := lib.InputToString()
-	regex := regexp.MustCompile(`\d+`)
-
-	var nums []int
-	for _, s := range regex.FindAllString(input, -1) {
-		nums = append(nums, lib.ParseInt(s))
-	}
-
-	var samples []Sample
-	for i := 0; i < strings.Count(input, "Before"); i++ {
-		var sample Sample
-		sample.Before = [4]int{nums[12*i+0], nums[12*i+1], nums[12*i+2], nums[12*i+3]}
-		sample.OpCode = nums[12*i+4]
-		sample.A = nums[12*i+5]
-		sample.B = nums[12*i+6]
-		sample.C = nums[12*i+7]
-		sample.After = [4]int{nums[12*i+8], nums[12*i+9], nums[12*i+10], nums[12*i+11]}
-		samples = append(samples, sample)
-	}
-	return samples
-}
-
 type Instruction struct {
 	OpCode  int
 	A, B, C int
 }
 
-func InputToProgram() []Instruction {
-	input := lib.InputToString()
-	regex := regexp.MustCompile(`\d+`)
+func InputToSamplesAndInstructions() ([]Sample, []Instruction) {
+	var samples []Sample
+	for in.HasNext() {
+		if !in.HasPrefix("Before") {
+			break
+		}
 
-	var nums []int
-	for _, s := range regex.FindAllString(input, -1) {
-		nums = append(nums, lib.ParseInt(s))
+		chunk := in.ChunkS()
+		samples = append(samples, Sample{
+			Before: [4]int{chunk.Int(), chunk.Int(), chunk.Int(), chunk.Int()},
+			OpCode: chunk.Int(),
+			A:      chunk.Int(),
+			B:      chunk.Int(),
+			C:      chunk.Int(),
+			After:  [4]int{chunk.Int(), chunk.Int(), chunk.Int(), chunk.Int()},
+		})
 	}
 
 	var instructions []Instruction
-	for i := 12 * strings.Count(input, "Before"); i < len(nums); i += 4 {
+	for in.HasNext() {
 		instructions = append(instructions, Instruction{
-			OpCode: nums[i],
-			A:      nums[i+1],
-			B:      nums[i+2],
-			C:      nums[i+3],
+			OpCode: in.Int(),
+			A:      in.Int(),
+			B:      in.Int(),
+			C:      in.Int(),
 		})
 	}
-	return instructions
+
+	return samples, instructions
 }

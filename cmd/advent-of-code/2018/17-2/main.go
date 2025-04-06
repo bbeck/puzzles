@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"log"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 		}
 	}
 
-	Down(world, springX, 1)
+	Drip(world, springX, 1)
 
 	var wet int
 	world.ForEach(func(x, y int, value int) {
@@ -28,7 +28,7 @@ func main() {
 	fmt.Println(wet)
 }
 
-func Down(world World, x, y int) {
+func Drip(world World, x, y int) {
 	if world.Get(x, y) != Empty {
 		return
 	}
@@ -43,7 +43,7 @@ func Down(world World, x, y int) {
 
 	// If below us is empty, then flow down into it.
 	if world.Get(x, downY) == Empty {
-		Down(world, x, downY)
+		Drip(world, x, downY)
 	}
 
 	// At this point everything below us has been determined.  If we're
@@ -77,7 +77,7 @@ func Side(world World, x, y, dx int) bool {
 		world.Set(x, y, Flow)
 		return Side(world, x+dx, y, dx)
 	case below == Empty:
-		Down(world, x, y)
+		Drip(world, x, y)
 	}
 
 	return false
@@ -90,43 +90,44 @@ const (
 	Flow
 )
 
-type World struct{ lib.Grid2D[int] }
+type World struct{ Grid2D[int] }
 
 func InputToWorld() World {
+	type Line []Point2D
+
 	// Convert the input into line segments
-	type Line []lib.Point2D
-	lines := lib.InputLinesTo(func(s string) Line {
-		var x1, x2, y1, y2 int
+	var lines = in.LinesToS(func(in in.Scanner[Line]) Line {
 		var line Line
-		if _, err := fmt.Sscanf(s, "x=%d, y=%d..%d", &x1, &y1, &y2); err == nil {
+		switch {
+		case in.HasPrefix("x="):
+			var x, y1, y2 = in.Int(), in.Int(), in.Int()
 			for y := y1; y <= y2; y++ {
-				line = append(line, lib.Point2D{X: x1, Y: y})
+				line = append(line, Point2D{X: x, Y: y})
 			}
-			return line
-		}
-		if _, err := fmt.Sscanf(s, "y=%d, x=%d..%d", &y1, &x1, &x2); err == nil {
+
+		case in.HasPrefix("y="):
+			var y, x1, x2 = in.Int(), in.Int(), in.Int()
 			for x := x1; x <= x2; x++ {
-				line = append(line, lib.Point2D{X: x, Y: y1})
+				line = append(line, Point2D{X: x, Y: y})
 			}
-			return line
 		}
-		log.Fatalf("unable to parse line: %s", s)
+
 		return line
 	})
 
 	// Determine the bounding box of the line segments.
-	var ps []lib.Point2D
+	var ps []Point2D
 	for _, line := range lines {
 		ps = append(ps, line...)
 	}
-	tl, br := lib.GetBounds(ps)
+	tl, br := GetBounds(ps)
 
 	// Determine the offsets to apply to each line segment that removes empty
 	// space to the left of them.
 	x0, y0 := tl.X-1, tl.Y
 
 	// Build the world from the line segments.
-	world := lib.NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
+	world := NewGrid2D[int](br.X-tl.X+2, br.Y-tl.Y+1)
 	for _, line := range lines {
 		for _, p := range line {
 			world.Set(p.X-x0, p.Y-y0, Wall)

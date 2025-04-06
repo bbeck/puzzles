@@ -2,21 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"math"
 )
 
 func main() {
 	points := InputToPoints()
-	tl, br := lib.GetBounds(points)
+	tl, br := GetBounds(points)
 
 	// This grid contains the index of the closest point, or -1 if no single
 	// point is closest to this location.  The only portions of the grid that
 	// have values are the ones within the bounds of our points.
-	grid := lib.NewGrid2D[int](br.X+1, br.Y+1)
+	grid := NewGrid2D[int](br.X+1, br.Y+1)
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			cell := lib.Point2D{X: x, Y: y}
+			cell := Point2D{X: x, Y: y}
 			grid.SetPoint(cell, -1) // initialize
 
 			var best = math.MaxInt // how far away the closest point is
@@ -41,7 +42,7 @@ func main() {
 	}
 
 	// An area is infinite if it touches the edge
-	var infinite lib.Set[int]
+	var infinite Set[int]
 	for x := tl.X; x <= br.X; x++ {
 		infinite.Add(grid.Get(x, tl.Y), grid.Get(x, br.Y))
 	}
@@ -56,17 +57,15 @@ func main() {
 			n := grid.Get(x, y)
 			if !infinite.Contains(n) {
 				sizes[n]++
-				largest = lib.Max(largest, sizes[n])
+				largest = Max(largest, sizes[n])
 			}
 		}
 	}
 	fmt.Println(largest)
 }
 
-func InputToPoints() []lib.Point2D {
-	return lib.InputLinesTo(func(line string) lib.Point2D {
-		var p lib.Point2D
-		fmt.Sscanf(line, "%d, %d", &p.X, &p.Y)
-		return p
+func InputToPoints() []Point2D {
+	return in.LinesToS[Point2D](func(in in.Scanner[Point2D]) Point2D {
+		return Point2D{X: in.Int(), Y: in.Int()}
 	})
 }

@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	serial := lib.InputToInt()
+	serial := in.Int()
 
 	// Partial sums that sum all cells above and to the left of the current one
-	grid := lib.NewGrid2D[int](301, 301)
+	grid := NewGrid2D[int](301, 301)
 	for x := 1; x < grid.Width; x++ {
 		rack := x + 10
 
@@ -23,7 +24,7 @@ func main() {
 	}
 
 	var best int
-	var p lib.Point2D
+	var p Point2D
 	var size int
 	for n := 1; n <= grid.Width; n++ {
 		for x := 1; x < grid.Width-n; x++ {
@@ -31,7 +32,7 @@ func main() {
 				total := grid.Get(x+n-1, y+n-1) - grid.Get(x-1, y+n-1) - grid.Get(x+n-1, y-1) + grid.Get(x-1, y-1)
 				if total > best {
 					best = total
-					p = lib.Point2D{X: x, Y: y}
+					p = Point2D{X: x, Y: y}
 					size = n
 				}
 			}

@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -52,7 +51,7 @@ func main() {
 		return cave.target.ManhattanDistance(s.location)
 	}
 
-	_, total, _ := lib.AStarSearch(State{lib.Origin2D, Torch}, children, goal, cost, heuristic)
+	_, total, _ := AStarSearch(State{Origin2D, Torch}, children, goal, cost, heuristic)
 	fmt.Println(total)
 }
 
@@ -75,17 +74,17 @@ var ValidTerrainEquipment = map[int]map[int]bool{
 }
 
 type State struct {
-	location  lib.Point2D
+	location  Point2D
 	equipment int
 }
 
 type Cave struct {
-	geologic map[lib.Point2D]int
+	geologic map[Point2D]int
 	depth    int
-	target   lib.Point2D
+	target   Point2D
 }
 
-func (c Cave) Geologic(p lib.Point2D) int {
+func (c Cave) Geologic(p Point2D) int {
 	if _, found := c.geologic[p]; !found {
 		var geologic int
 		switch {
@@ -105,26 +104,15 @@ func (c Cave) Geologic(p lib.Point2D) int {
 	return c.geologic[p]
 }
 
-func (c Cave) Get(p lib.Point2D) int {
+func (c Cave) Get(p Point2D) int {
 	return c.Geologic(p) % 3
 }
 
 func InputToCave() Cave {
-	var depth int
-	var target lib.Point2D
-
-	for _, line := range lib.InputToLines() {
-		k, v, _ := strings.Cut(line, ": ")
-		if k == "depth" {
-			depth = lib.ParseInt(v)
-		} else if k == "target" {
-			x, y, _ := strings.Cut(v, ",")
-			target = lib.Point2D{X: lib.ParseInt(x), Y: lib.ParseInt(y)}
-		}
-	}
+	depth, target := in.Int(), Point2D{X: in.Int(), Y: in.Int()}
 
 	return Cave{
-		geologic: make(map[lib.Point2D]int),
+		geologic: make(map[Point2D]int),
 		depth:    depth,
 		target:   target,
 	}

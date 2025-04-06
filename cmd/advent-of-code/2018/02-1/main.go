@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var sum2, sum3 int
-	for _, line := range lib.InputToLines() {
-		var counter lib.FrequencyCounter[rune]
+
+	for in.HasNext() {
+		var line = in.Line()
+
+		var counter FrequencyCounter[rune]
 		for _, c := range line {
 			counter.Add(c)
 		}

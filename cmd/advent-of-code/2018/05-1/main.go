@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	matches := make(map[rune]rune)
-	for i := 0; i < 26; i++ {
-		matches[rune('a'+i)] = rune('A' + i)
-		matches[rune('A'+i)] = rune('a' + i)
+	matches := make(map[byte]byte)
+	for i := range byte(26) {
+		matches['a'+i] = 'A' + i
+		matches['A'+i] = 'a' + i
 	}
 
-	var stack lib.Stack[rune]
-	for _, c := range lib.InputToString() {
+	var stack Stack[byte]
+	for in.HasNext() {
+		c := in.Byte()
 		if stack.Peek() == matches[c] {
 			stack.Pop()
 		} else {

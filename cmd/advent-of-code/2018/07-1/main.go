@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"sort"
 	"strings"
 )
@@ -14,7 +15,7 @@ func main() {
 }
 
 type Graph struct {
-	Vertices lib.Set[string]
+	Vertices Set[string]
 	Parents  map[string][]string
 }
 
@@ -27,7 +28,7 @@ func (g *Graph) AddEdge(child, parent string) {
 	g.Parents[child] = append(g.Parents[child], parent)
 }
 
-func (g Graph) TopologicalSort() []string {
+func (g *Graph) TopologicalSort() []string {
 	var vertices []string
 	for len(g.Vertices) > 0 {
 		choice := g.Choose()
@@ -70,9 +71,9 @@ func Remove[T comparable](s []T, elem T) []T {
 
 func InputToGraph() Graph {
 	var graph Graph
-	for _, line := range lib.InputToLines() {
+	for in.HasNext() {
 		var parent, child string
-		fmt.Sscanf(line, "Step %s must be finished before step %s can begin.", &parent, &child)
+		in.Scanf("Step %s must be finished before step %s can begin.", &parent, &child)
 
 		graph.AddEdge(child, parent)
 	}

@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -78,24 +76,15 @@ type Instruction struct {
 }
 
 func InputToProgram() (int, []Instruction) {
-	var ipr int
-	var instructions []Instruction
+	ipr := in.Int()
+	in.Expect("\n")
 
-	for _, line := range lib.InputToLines() {
-		fields := strings.Fields(line)
-
-		if fields[0] == "#ip" {
-			ipr = lib.ParseInt(fields[1])
-			continue
+	return ipr, in.LinesToS(func(in in.Scanner[Instruction]) Instruction {
+		return Instruction{
+			OpCode: in.String(),
+			A:      in.Int(),
+			B:      in.Int(),
+			C:      in.Int(),
 		}
-
-		instructions = append(instructions, Instruction{
-			OpCode: fields[0],
-			A:      lib.ParseInt(fields[1]),
-			B:      lib.ParseInt(fields[2]),
-			C:      lib.ParseInt(fields[3]),
-		})
-	}
-
-	return ipr, instructions
+	})
 }

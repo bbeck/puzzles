@@ -2,70 +2,69 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"sort"
-	"strings"
 )
 
 func main() {
-	var maxID, maxMinute, maxSleep int
-	for _, guard := range InputToGuards() {
+	guards := InputToGuards()
+
+	var guard, minute, most int
+	for id := range guards {
 		for tm := 0; tm < 60; tm++ {
-			if guard.Sleep[tm] > maxSleep {
-				maxID = guard.ID
-				maxMinute = tm
-				maxSleep = guard.Sleep[tm]
+			if guards[id][tm] > most {
+				guard = id
+				minute = tm
+				most = guards[id][tm]
 			}
 		}
 	}
 
-	fmt.Println(maxID * maxMinute)
+	fmt.Println(guard * minute)
 }
 
-type Guard struct {
-	ID    int
-	Sleep [60]int
-}
+func InputToGuards() map[int][60]int {
+	type DatedMessage struct {
+		in.Scanner[DatedMessage]
 
-func InputToGuards() []Guard {
-	lines := lib.InputToLines()
-	sort.Strings(lines) // Sort into time order
-
-	sleep := make(map[int][60]int) // number of times each guard was asleep at the given minute
-
-	var current int // the current guard
-	var asleep int  // the minute the current guard fell asleep
-
-	for _, line := range lines {
-		line = strings.ReplaceAll(line, "[", "")
-		line = strings.ReplaceAll(line, "]", "")
-		line = strings.ReplaceAll(line, "#", "")
-		line = strings.ReplaceAll(line, ":", " ")
-		line = strings.ReplaceAll(line, "-", " ")
-		fields := strings.Fields(line)
-
-		minute := lib.ParseInt(fields[4])
-
-		if strings.Contains(line, "begins shift") {
-			current = lib.ParseInt(fields[6])
-		}
-
-		if strings.Contains(line, "falls asleep") {
-			asleep = minute
-		}
-
-		if strings.Contains(line, "wakes up") {
-			for tm := asleep; tm < minute; tm++ {
-				schedule := sleep[current]
-				schedule[tm]++
-				sleep[current] = schedule
-			}
-		}
+		Date   string
+		Minute int
 	}
 
-	var guards []Guard
-	for id, schedule := range sleep {
-		guards = append(guards, Guard{ID: id, Sleep: schedule})
+	var messages = in.LinesToS(func(s in.Scanner[DatedMessage]) DatedMessage {
+		var year, month, day, hour, minute int
+		var message in.Scanner[DatedMessage]
+		s.Scanf("[%d-%d-%d %d:%d] %s", &year, &month, &day, &hour, &minute, &message)
+
+		return DatedMessage{
+			Scanner: message,
+			Date:    fmt.Sprintf("%4d-%02d-%02d %02d:%02d", year, month, day, hour, minute),
+			Minute:  minute,
+		}
+	})
+
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].Date < messages[j].Date
+	})
+
+	var guards = make(map[int][60]int)
+
+	var id, asleep int
+	for _, message := range messages {
+		switch {
+		case message.HasPrefix("Guard"):
+			message.Scanf("Guard #%d begins shift", &id)
+
+		case message.HasPrefix("falls asleep"):
+			asleep = message.Minute
+
+		case message.HasPrefix("wakes up"):
+			for tm := asleep; tm < message.Minute; tm++ {
+				guard := guards[id]
+				guard[tm]++
+				guards[id] = guard
+			}
+		}
 	}
 
 	return guards

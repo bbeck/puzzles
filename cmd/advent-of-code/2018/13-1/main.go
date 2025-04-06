@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"sort"
 )
 
 func main() {
-	carts, track := InputToCarts(), InputToTrack()
+	carts, track := InputToCartsAndTrack()
 
-	var collision *lib.Point2D
+	var collision *Point2D
 	for tm := 0; collision == nil; tm++ {
 		// Rearrange the carts to be in their move order.
 		sort.Slice(carts, func(i, j int) bool {
@@ -18,7 +19,7 @@ func main() {
 		})
 
 		// Keep track of the location of each cart to easily find collisions.
-		var locations lib.Set[lib.Point2D]
+		var locations Set[Point2D]
 		for _, cart := range carts {
 			locations.Add(cart.Location)
 		}
@@ -27,14 +28,14 @@ func main() {
 		for i := 0; i < len(carts); i++ {
 			switch track[carts[i].Location] {
 			case "/":
-				if carts[i].Heading == lib.Up || carts[i].Heading == lib.Down {
+				if carts[i].Heading == Up || carts[i].Heading == Down {
 					carts[i].TurnRight()
 				} else {
 					carts[i].TurnLeft()
 				}
 
 			case "\\":
-				if carts[i].Heading == lib.Up || carts[i].Heading == lib.Down {
+				if carts[i].Heading == Up || carts[i].Heading == Down {
 					carts[i].TurnLeft()
 				} else {
 					carts[i].TurnRight()
@@ -64,58 +65,40 @@ func main() {
 }
 
 type Cart struct {
-	lib.Turtle
+	Turtle
 	Turns int
 }
 
-func InputToTrack() map[lib.Point2D]string {
-	track := make(map[lib.Point2D]string)
-	for y, line := range lib.InputToLines() {
-		for x, c := range line {
-			p := lib.Point2D{X: x, Y: y}
-			switch c {
-			case ' ':
-				continue
-			case '^':
-				track[p] = "|"
-			case '>':
-				track[p] = "-"
-			case 'v':
-				track[p] = "|"
-			case '<':
-				track[p] = "-"
-			default:
-				track[p] = string(c)
-			}
-		}
-	}
-	return track
-}
-
-func InputToCarts() []Cart {
+func InputToCartsAndTrack() ([]Cart, map[Point2D]string) {
 	var carts []Cart
-	for y, line := range lib.InputToLines() {
-		for x, c := range line {
-			cart := Cart{
-				Turtle: lib.Turtle{Location: lib.Point2D{X: x, Y: y}},
-			}
+	var track = make(map[Point2D]string)
 
-			switch c {
+	for y := 0; in.HasNext(); y++ {
+		for x, ch := range in.Line() {
+			p := Point2D{X: x, Y: y}
+
+			switch ch {
 			case '^':
-				cart.Heading = lib.Up
-			case '>':
-				cart.Heading = lib.Right
-			case 'v':
-				cart.Heading = lib.Down
-			case '<':
-				cart.Heading = lib.Left
-			default:
-				continue
-			}
+				track[p] = "|"
+				carts = append(carts, Cart{Turtle: Turtle{Location: p, Heading: Up}})
 
-			carts = append(carts, cart)
+			case '>':
+				track[p] = "-"
+				carts = append(carts, Cart{Turtle: Turtle{Location: p, Heading: Right}})
+
+			case 'v':
+				track[p] = "|"
+				carts = append(carts, Cart{Turtle: Turtle{Location: p, Heading: Down}})
+
+			case '<':
+				track[p] = "-"
+				carts = append(carts, Cart{Turtle: Turtle{Location: p, Heading: Left}})
+
+			default:
+				track[p] = string(ch)
+			}
 		}
 	}
 
-	return carts
+	return carts, track
 }

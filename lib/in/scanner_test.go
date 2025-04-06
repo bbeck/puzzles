@@ -511,6 +511,31 @@ func TestScannerHasNext(t *testing.T) {
 	}
 }
 
+func TestScannerHasNextLine(t *testing.T) {
+	type test struct {
+		input []byte
+		want  bool
+	}
+
+	tests := []test{
+		{input: nil, want: false},
+		{input: []byte(""), want: false},
+		{input: []byte("a"), want: false},
+		{input: []byte("abc"), want: false},
+		{input: []byte(""), want: false},
+		{input: []byte(" "), want: false},
+		{input: []byte(" \r\n"), want: false},
+		{input: []byte(" \r\na"), want: true},
+		{input: nil, want: false},
+	}
+	for _, test := range tests {
+		t.Run(string(test.input), func(t *testing.T) {
+			scanner := Scanner[any](test.input)
+			assert.Equal(t, test.want, scanner.HasNextLine())
+		})
+	}
+}
+
 func TestScannerHasPrefix(t *testing.T) {
 	type test struct {
 		input  []byte
@@ -888,6 +913,11 @@ func TestScannerScanf(t *testing.T) {
 			format: "[%d] .=* (%s.%w)",
 			want:   []any{2, "abc", "def"},
 		},
+		{
+			input:  []byte("abc 123"),
+			format: "%s",
+			want:   []any{Scanner[any]("abc 123")},
+		},
 	}
 	for _, test := range tests {
 		t.Run(string(test.input), func(t *testing.T) {
@@ -902,6 +932,9 @@ func TestScannerScanf(t *testing.T) {
 				case string:
 					var arg string
 					args = append(args, &arg)
+				case Scanner[any]:
+					var arg Scanner[any]
+					args = append(args, &arg)
 				default:
 					panic("unsupported type")
 				}
@@ -915,6 +948,8 @@ func TestScannerScanf(t *testing.T) {
 					assert.Equal(t, expected, *args[i].(*int))
 				case string:
 					assert.Equal(t, expected, *args[i].(*string))
+				case Scanner[any]:
+					assert.Equal(t, expected, *args[i].(*Scanner[any]))
 				}
 			}
 		})

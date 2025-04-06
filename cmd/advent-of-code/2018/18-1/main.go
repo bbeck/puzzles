@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	area := Area{lib.InputToStringGrid2D()}
+	area := in.ToGrid2D(func(x, y int, s string) string { return s })
 	for n := 0; n < 10; n++ {
 		area = Next(area)
 	}
@@ -19,9 +20,8 @@ func main() {
 	fmt.Println(counts["|"] * counts["#"])
 }
 
-func Next(area Area) Area {
-	next := Area{lib.NewGrid2D[string](area.Width, area.Height)}
-	area.ForEach(func(x, y int, value string) {
+func Next(area Grid2D[string]) Grid2D[string] {
+	return area.Map(func(x int, y int, value string) string {
 		counts := make(map[string]int)
 		area.ForEachNeighbor(x, y, func(_, _ int, value string) {
 			counts[value]++
@@ -34,10 +34,7 @@ func Next(area Area) Area {
 		} else if value == "#" && (counts["#"] < 1 || counts["|"] < 1) {
 			value = "."
 		}
-		next.Set(x, y, value)
+
+		return value
 	})
-
-	return next
 }
-
-type Area struct{ lib.Grid2D[string] }

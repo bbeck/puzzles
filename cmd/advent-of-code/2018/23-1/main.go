@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"sort"
 )
 
@@ -23,14 +24,15 @@ func main() {
 }
 
 type Nanobot struct {
-	lib.Point3D
+	Point3D
 	R int
 }
 
 func InputToNanobots() []Nanobot {
-	return lib.InputLinesTo(func(line string) Nanobot {
-		var bot Nanobot
-		fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &bot.X, &bot.Y, &bot.Z, &bot.R)
-		return bot
+	return in.LinesToS[Nanobot](func(s in.Scanner[Nanobot]) Nanobot {
+		return Nanobot{
+			Point3D: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+			R:       in.Int(),
+		}
 	})
 }

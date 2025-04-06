@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	serial := lib.InputToInt()
+	serial := in.Int()
 
-	grid := lib.NewGrid2D[int](301, 301)
+	grid := NewGrid2D[int](301, 301)
 	for x := 1; x < grid.Width; x++ {
 		rack := x + 10
 
@@ -20,7 +21,7 @@ func main() {
 	}
 
 	var best int
-	var p lib.Point2D
+	var p Point2D
 	for x := 1; x < grid.Width-3; x++ {
 		for y := 1; y < grid.Height-3; y++ {
 			var total int
@@ -32,7 +33,7 @@ func main() {
 
 			if total > best {
 				best = total
-				p = lib.Point2D{X: x, Y: y}
+				p = Point2D{X: x, Y: y}
 			}
 		}
 	}

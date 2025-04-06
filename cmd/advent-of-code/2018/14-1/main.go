@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	N := lib.InputToInt()
+	N := in.Int()
 	recipes := []int{3, 7}
 
 	elf1, elf2 := 0, 1
 	for N+10-len(recipes) > 0 {
 		sum := recipes[elf1] + recipes[elf2]
-		recipes = append(recipes, lib.Digits(sum)...)
+		recipes = append(recipes, Digits(sum)...)
 		elf1 = (elf1 + recipes[elf1] + 1) % len(recipes)
 		elf2 = (elf2 + recipes[elf2] + 1) % len(recipes)
 	}

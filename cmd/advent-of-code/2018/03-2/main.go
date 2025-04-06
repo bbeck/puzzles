@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	claims := InputToClaims()
 
-	var set lib.DisjointSet[string]
-	area := lib.Make2D[string](1001, 1001)
+	var set DisjointSet[string]
+	area := Make2D[string](1001, 1001)
 	for _, claim := range claims {
 		set.Add(claim.ID)
 
@@ -34,14 +35,14 @@ func main() {
 
 type Claim struct {
 	ID            string
-	TL            lib.Point2D
+	TL            Point2D
 	Width, Height int
 }
 
 func InputToClaims() []Claim {
-	return lib.InputLinesTo(func(line string) Claim {
-		var claim Claim
-		fmt.Sscanf(line, "#%s @ %d,%d: %dx%d", &claim.ID, &claim.TL.X, &claim.TL.Y, &claim.Width, &claim.Height)
-		return claim
+	return in.LinesToS(func(in in.Scanner[Claim]) Claim {
+		var c Claim
+		in.Scanf("#%d @ %d,%d: %dx%d", &c.ID, &c.TL.X, &c.TL.Y, &c.Width, &c.Height)
+		return c
 	})
 }

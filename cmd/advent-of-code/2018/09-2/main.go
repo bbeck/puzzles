@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	numPlayers, numMarbles := InputToParameters()
 	numMarbles *= 100
 
-	var ring lib.Ring[int]
+	var ring Ring[int]
 	ring.InsertAfter(0)
 
 	scores := make([]int, numPlayers)
@@ -27,11 +28,11 @@ func main() {
 		scores[elf] += marble + ring.Remove()
 	}
 
-	fmt.Println(lib.Max(scores...))
+	fmt.Println(Max(scores...))
 }
 
 func InputToParameters() (int, int) {
 	var numPlayers, numMarbles int
-	fmt.Sscanf(lib.InputToString(), "%d players; last marble is worth %d points", &numPlayers, &numMarbles)
+	in.Scanf("%d players; last marble is worth %d points", &numPlayers, &numMarbles)
 	return numPlayers, numMarbles
 }

@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var frequency int
-	for _, i := range lib.InputToInts() {
+	for _, i := range in.Ints() {
 		frequency += i
 	}
 

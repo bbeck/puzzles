@@ -3,7 +3,8 @@ package main
 import (
 	"container/heap"
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 	}
 	heap.Init(cubes)
 
-	var cube Cube
+	var cube Cube3D
 	for len(*cubes) > 0 {
 		cube = heap.Pop(cubes).(Entry).Cube
 
@@ -44,57 +45,57 @@ func main() {
 		}
 	}
 
-	fmt.Println(lib.Origin3D.ManhattanDistance(cube.Point3D))
+	fmt.Println(Origin3D.ManhattanDistance(cube.Point3D))
 }
 
-func GetInitialCube(bots []Nanobot) Cube {
+func GetInitialCube(bots []Nanobot) Cube3D {
 	// Ensure that the dimensions of the cube returned are a power of two so as
 	// we subdivide we always end up with integer dimensions.
 	max := 1
 	for _, b := range bots {
-		for max < lib.Abs(b.X)+b.R || max < lib.Abs(b.Y)+b.R || max < lib.Abs(b.Z)+b.R {
+		for max < Abs(b.X)+b.R || max < Abs(b.Y)+b.R || max < Abs(b.Z)+b.R {
 			max *= 2
 		}
 	}
 
-	return Cube{
-		Point3D: lib.Point3D{X: -max, Y: -max, Z: -max},
+	return Cube3D{
+		Point3D: Point3D{X: -max, Y: -max, Z: -max},
 		W:       2 * max, H: 2 * max, D: 2 * max,
 	}
 }
 
-type Cube struct {
-	lib.Point3D
+type Cube3D struct {
+	Point3D
 	W, H, D int
 }
 
-func (c Cube) Volume() int {
+func (c Cube3D) Volume() int {
 	return c.W * c.H * c.D
 }
 
-func (c Cube) Octants() [8]Cube {
+func (c Cube3D) Octants() [8]Cube3D {
 	x, y, z := c.X, c.Y, c.Z
 	dx, dy, dz := c.W/2, c.H/2, c.D/2
 
-	return [8]Cube{
-		{Point3D: lib.Point3D{X: x, Y: y, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x + dx, Y: y, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x + dx, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x + dx, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
-		{Point3D: lib.Point3D{X: x + dx, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
+	return [8]Cube3D{
+		{Point3D: Point3D{X: x, Y: y, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x + dx, Y: y, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x + dx, Y: y + dy, Z: z}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x + dx, Y: y, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
+		{Point3D: Point3D{X: x + dx, Y: y + dy, Z: z + dz}, W: dx, H: dy, D: dz},
 	}
 }
 
-func (c Cube) GetNumIntersectingBots(bots []Nanobot) int {
+func (c Cube3D) GetNumIntersectingBots(bots []Nanobot) int {
 	var count int
 	for _, b := range bots {
-		closest := lib.Point3D{
-			X: lib.Min(lib.Max(b.X, c.X), c.X+c.W-1),
-			Y: lib.Min(lib.Max(b.Y, c.Y), c.Y+c.H-1),
-			Z: lib.Min(lib.Max(b.Z, c.Z), c.Z+c.D-1),
+		closest := Point3D{
+			X: Min(Max(b.X, c.X), c.X+c.W-1),
+			Y: Min(Max(b.Y, c.Y), c.Y+c.H-1),
+			Z: Min(Max(b.Z, c.Z), c.Z+c.D-1),
 		}
 
 		if closest.ManhattanDistance(b.Point3D) <= b.R {
@@ -106,7 +107,7 @@ func (c Cube) GetNumIntersectingBots(bots []Nanobot) int {
 }
 
 type Entry struct {
-	Cube  Cube
+	Cube  Cube3D
 	Count int
 }
 
@@ -119,8 +120,8 @@ func (h Heap) Less(i, j int) bool {
 		return h[i].Count > h[j].Count
 	}
 
-	di := lib.Origin3D.ManhattanDistance(h[i].Cube.Point3D)
-	dj := lib.Origin3D.ManhattanDistance(h[j].Cube.Point3D)
+	di := Origin3D.ManhattanDistance(h[i].Cube.Point3D)
+	dj := Origin3D.ManhattanDistance(h[j].Cube.Point3D)
 	return di < dj
 }
 
@@ -134,15 +135,15 @@ func (h *Heap) Pop() any {
 }
 
 type Nanobot struct {
-	lib.Point3D
+	Point3D
 	R int
 }
 
 func InputToNanobots() []Nanobot {
-	return lib.InputLinesTo(func(line string) Nanobot {
-		var p lib.Point3D
-		var r int
-		fmt.Sscanf(line, "pos=<%d,%d,%d>, r=%d", &p.X, &p.Y, &p.Z, &r)
-		return Nanobot{Point3D: p, R: r}
+	return in.LinesToS[Nanobot](func(s in.Scanner[Nanobot]) Nanobot {
+		return Nanobot{
+			Point3D: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
+			R:       in.Int(),
+		}
 	})
 }

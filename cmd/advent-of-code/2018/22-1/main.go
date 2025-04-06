@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	depth, target := InputToParameters()
+	depth, target := in.Int(), Point2D{X: in.Int(), Y: in.Int()}
 
-	cave := lib.NewGrid2D[int](target.X+1, target.Y+1)
+	cave := NewGrid2D[int](target.X+1, target.Y+1)
 	for y := 0; y <= target.Y; y++ {
 		for x := 0; x <= target.X; x++ {
 			var geologic int
@@ -37,21 +36,4 @@ func main() {
 		}
 	}
 	fmt.Println(risk)
-}
-
-func InputToParameters() (int, lib.Point2D) {
-	var depth int
-	var target lib.Point2D
-
-	for _, line := range lib.InputToLines() {
-		k, v, _ := strings.Cut(line, ": ")
-		if k == "depth" {
-			depth = lib.ParseInt(v)
-		} else if k == "target" {
-			x, y, _ := strings.Cut(v, ",")
-			target = lib.Point2D{X: lib.ParseInt(x), Y: lib.ParseInt(y)}
-		}
-	}
-
-	return depth, target
 }

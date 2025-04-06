@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	state, rules := InputToState(), InputToRules()
+	state, rules := InputToStateAndRules()
 	for i := 0; i < 20; i++ {
 		state = Next(state, rules)
 	}
@@ -20,7 +21,7 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Next(state lib.Set[int], rules map[string]bool) lib.Set[int] {
+func Next(state Set[int], rules map[string]bool) Set[int] {
 	// Determine the rule key for the pot at position n (looks at n-2 to n+2).
 	key := func(n int) string {
 		var sb strings.Builder
@@ -34,9 +35,9 @@ func Next(state lib.Set[int], rules map[string]bool) lib.Set[int] {
 		return sb.String()
 	}
 
-	min, max := lib.Min(state.Entries()...), lib.Max(state.Entries()...)
+	min, max := Min(state.Entries()...), Max(state.Entries()...)
 
-	var next lib.Set[int]
+	var next Set[int]
 	for i := min - 4; i <= max+4; i++ {
 		if rules[key(i)] {
 			next.Add(i)
@@ -45,25 +46,26 @@ func Next(state lib.Set[int], rules map[string]bool) lib.Set[int] {
 	return next
 }
 
-func InputToState() lib.Set[int] {
-	line := lib.InputToLines()[0]
-	line = strings.ReplaceAll(line, "initial state: ", "")
+func InputToStateAndRules() (Set[int], map[string]bool) {
+	var state Set[int]
 
-	var state lib.Set[int]
-	for i, c := range line {
-		if c == '#' {
+	var s string
+	in.Scanf("initial state: %s", &s)
+	for i, ch := range s {
+		if ch == '#' {
 			state.Add(i)
 		}
 	}
-	return state
-}
 
-func InputToRules() map[string]bool {
-	rules := make(map[string]bool)
-	for _, line := range lib.InputToLines()[2:] {
-		lhs, rhs, _ := strings.Cut(line, " => ")
+	// Skip blank line
+	in.Line()
+
+	var rules = make(map[string]bool)
+	for in.HasNext() {
+		var lhs, rhs string
+		in.Scanf("%s => %s", &lhs, &rhs)
 		rules[lhs] = rhs == "#"
 	}
 
-	return rules
+	return state, rules
 }

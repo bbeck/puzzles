@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"strings"
 )
 
 func main() {
-	area := Area{lib.InputToStringGrid2D()}
-	area = lib.WalkCycleWithIdentity(area, 1_000_000_000, Next, Key)
+	area := in.ToGrid2D(func(x, y int, s string) string { return s })
+	area = WalkCycleWithIdentity(area, 1_000_000_000, Next, Key)
 
 	counts := make(map[string]int)
 	area.ForEach(func(_, _ int, value string) {
@@ -17,9 +18,8 @@ func main() {
 	fmt.Println(counts["|"] * counts["#"])
 }
 
-func Next(area Area) Area {
-	next := Area{lib.NewGrid2D[string](area.Width, area.Height)}
-	area.ForEach(func(x, y int, value string) {
+func Next(area Grid2D[string]) Grid2D[string] {
+	return area.Map(func(x int, y int, value string) string {
 		counts := make(map[string]int)
 		area.ForEachNeighbor(x, y, func(_, _ int, value string) {
 			counts[value]++
@@ -32,16 +32,13 @@ func Next(area Area) Area {
 		} else if value == "#" && (counts["#"] < 1 || counts["|"] < 1) {
 			value = "."
 		}
-		next.Set(x, y, value)
-	})
 
-	return next
+		return value
+	})
 }
 
-func Key(area Area) string {
+func Key(area Grid2D[string]) string {
 	var sb strings.Builder
 	area.ForEach(func(x, y int, value string) { sb.WriteString(value) })
 	return sb.String()
 }
-
-type Area struct{ lib.Grid2D[string] }

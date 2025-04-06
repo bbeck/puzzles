@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 	"reflect"
-	"regexp"
-	"strings"
 )
 
 func main() {
@@ -44,7 +43,7 @@ func main() {
 
 	var count int
 	for _, sample := range InputToSamples() {
-		var possibilities lib.Set[string]
+		var possibilities Set[string]
 		for op, instruction := range operations {
 			regs := make([]int, len(sample.Before))
 			copy(regs, sample.Before[:])
@@ -74,24 +73,22 @@ type Sample struct {
 }
 
 func InputToSamples() []Sample {
-	input := lib.InputToString()
-	regex := regexp.MustCompile(`\d+`)
-
-	var nums []int
-	for _, s := range regex.FindAllString(input, -1) {
-		nums = append(nums, lib.ParseInt(s))
-	}
-
 	var samples []Sample
-	for i := 0; i < strings.Count(input, "Before"); i++ {
-		var sample Sample
-		sample.Before = [4]int{nums[12*i+0], nums[12*i+1], nums[12*i+2], nums[12*i+3]}
-		sample.OpCode = nums[12*i+4]
-		sample.A = nums[12*i+5]
-		sample.B = nums[12*i+6]
-		sample.C = nums[12*i+7]
-		sample.After = [4]int{nums[12*i+8], nums[12*i+9], nums[12*i+10], nums[12*i+11]}
-		samples = append(samples, sample)
+	for in.HasNext() {
+		if !in.HasPrefix("Before") {
+			break
+		}
+
+		chunk := in.ChunkS()
+		samples = append(samples, Sample{
+			Before: [4]int{chunk.Int(), chunk.Int(), chunk.Int(), chunk.Int()},
+			OpCode: chunk.Int(),
+			A:      chunk.Int(),
+			B:      chunk.Int(),
+			C:      chunk.Int(),
+			After:  [4]int{chunk.Int(), chunk.Int(), chunk.Int(), chunk.Int()},
+		})
 	}
+
 	return samples
 }

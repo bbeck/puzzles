@@ -3,9 +3,10 @@ package in
 import (
 	"bytes"
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
 	"regexp"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
 )
 
 // Scanner is a wrapper around a slice of bytes that provides a convenient way
@@ -152,6 +153,18 @@ func (bs *Scanner[T]) HasNext() bool {
 	return false
 }
 
+// HasNextLine returns true if there are more lines to read.  There is a next
+// line if there is a newline character followed by at least one byte.
+func (bs *Scanner[T]) HasNextLine() bool {
+	for i := range *bs {
+		if (*bs)[i] == '\n' {
+			return len(*bs) > i+1
+		}
+	}
+
+	return false
+}
+
 // HasPrefix returns true if the scanner starts with the given prefix.
 func (bs *Scanner[T]) HasPrefix(prefix string) bool {
 	return bytes.HasPrefix(*bs, []byte(prefix))
@@ -233,7 +246,7 @@ func (bs *Scanner[T]) LinesTo(fn func(string) T) []T {
 	return ts
 }
 
-// LinesToS transforms each line in the scanner to an arbirary type via a new
+// LinesToS transforms each line in the scanner to an arbitrary type via a new
 // scanner with just the line's contents.
 func (bs *Scanner[T]) LinesToS(fn func(Scanner[T]) T) []T {
 	return bs.LinesTo(func(s string) T {
@@ -298,11 +311,7 @@ func (bs *Scanner[T]) Scanf(format string, args ...any) {
 					sb.WriteString(`(-?\d+)`)
 					i++
 				case 's':
-					if len(format) > i+2 && format[i+2] == '?' {
-						sb.WriteString(`(.*)`)
-					} else {
-						sb.WriteString(`(.+)`)
-					}
+					sb.WriteString(`(.+)`)
 					i++
 				case 'w':
 					sb.WriteString(`(\w+)`)
@@ -341,6 +350,8 @@ func (bs *Scanner[T]) Scanf(format string, args ...any) {
 			*v = ParseInt(matches[i])
 		case *string:
 			*v = matches[i]
+		case *Scanner[T]:
+			*v = Scanner[T](matches[i])
 		default:
 			panicf("unsupported type: %T", v)
 		}

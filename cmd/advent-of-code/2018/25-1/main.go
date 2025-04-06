@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	ps := InputToPoints()
 
-	var ds lib.DisjointSet[Point4D]
-	for i := 0; i < len(ps); i++ {
+	var ds DisjointSet[Point4D]
+	for i := range ps {
 		ds.Add(ps[i])
 
 		for j := i + 1; j < len(ps); j++ {
@@ -21,7 +23,7 @@ func main() {
 		}
 	}
 
-	var constellations lib.Set[Point4D]
+	var constellations Set[Point4D]
 	for _, p := range ps {
 		c, _ := ds.Find(p)
 		constellations.Add(c)
@@ -34,13 +36,11 @@ type Point4D struct {
 }
 
 func (p Point4D) ManhattanDistance(q Point4D) int {
-	return lib.Abs(q.W-p.W) + lib.Abs(q.X-p.X) + lib.Abs(q.Y-p.Y) + lib.Abs(q.Z-p.Z)
+	return Abs(q.W-p.W) + Abs(q.X-p.X) + Abs(q.Y-p.Y) + Abs(q.Z-p.Z)
 }
 
 func InputToPoints() []Point4D {
-	return lib.InputLinesTo(func(line string) Point4D {
-		var p Point4D
-		fmt.Sscanf(line, "%d,%d,%d,%d", &p.W, &p.X, &p.Y, &p.Z)
-		return p
+	return in.LinesToS(func(in.Scanner[Point4D]) Point4D {
+		return Point4D{W: in.Int(), X: in.Int(), Y: in.Int(), Z: in.Int()}
 	})
 }

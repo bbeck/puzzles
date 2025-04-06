@@ -75,6 +75,11 @@ func HasNext() bool {
 	return scanner.HasNext()
 }
 
+func HasNextLine() bool {
+	initialize()
+	return scanner.HasNextLine()
+}
+
 func HasPrefix(prefix string) bool {
 	initialize()
 	return scanner.HasPrefix(prefix)

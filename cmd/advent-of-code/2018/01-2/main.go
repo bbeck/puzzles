@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/puzzles/lib/in"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
 )
 
 func main() {
-	deltas := lib.InputToInts()
+	deltas := in.Ints()
 
-	var seen lib.Set[int]
+	var seen Set[int]
 	var frequency int
 
 outer:

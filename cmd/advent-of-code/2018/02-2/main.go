@@ -2,33 +2,33 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"strings"
 )
 
 func main() {
-	ids := lib.InputToLines()
+	ids := InputToLines()
 
-	var i, j int
-outer:
-	for i = 0; i < len(ids); i++ {
-		for j = i + 1; j < len(ids); j++ {
-			var count int
-			for c := 0; count < 2 && c < len(ids[i]); c++ {
-				if ids[i][c] != ids[j][c] {
-					count++
-				}
-			}
-
-			if count < 2 {
-				break outer
+	for i := 0; i < len(ids); i++ {
+		for j := i + 1; j < len(ids); j++ {
+			if dist, common := Distance(ids[i], ids[j]); dist == 1 {
+				fmt.Println(common)
 			}
 		}
 	}
+}
 
-	for k := 0; k < len(ids[i]); k++ {
-		if ids[i][k] == ids[j][k] {
-			fmt.Printf("%c", ids[i][k])
+func Distance(a, b string) (int, string) {
+	var dist int
+	var sb strings.Builder
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			dist++
+			continue
 		}
+
+		sb.WriteByte(a[i])
 	}
-	fmt.Println()
+
+	return dist, sb.String()
 }

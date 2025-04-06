@@ -2,23 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	points, velocities := InputToPoints(), InputToVelocities()
+	points, velocities := InputToPointsAndVelocities()
 
-	var tl, br lib.Point2D
+	var tl, br Point2D
 	var tm int
 	for tm = 1; ; tm++ {
 		for i := 0; i < len(points); i++ {
-			points[i] = lib.Point2D{
+			points[i] = Point2D{
 				X: points[i].X + velocities[i].X,
 				Y: points[i].Y + velocities[i].Y,
 			}
 		}
 
-		tl, br = lib.GetBounds(points)
+		tl, br = GetBounds(points)
 		if br.Y-tl.Y <= 10 { // Characters are 10 pixels high
 			break
 		}
@@ -27,20 +28,12 @@ func main() {
 	fmt.Println(tm)
 }
 
-func InputToPoints() []lib.Point2D {
-	var unused int
-	return lib.InputLinesTo(func(line string) lib.Point2D {
-		var p lib.Point2D
-		fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &p.X, &p.Y, &unused, &unused)
-		return p
-	})
-}
+func InputToPointsAndVelocities() ([]Point2D, []Point2D) {
+	var ps, vs []Point2D
+	for in.HasNextLine() {
+		ps = append(ps, Point2D{X: in.Int(), Y: in.Int()})
+		vs = append(vs, Point2D{X: in.Int(), Y: in.Int()})
+	}
 
-func InputToVelocities() []lib.Point2D {
-	var unused int
-	return lib.InputLinesTo(func(line string) lib.Point2D {
-		var p lib.Point2D
-		fmt.Sscanf(line, "position=<%d, %d> velocity=<%d, %d>", &unused, &unused, &p.X, &p.Y)
-		return p
-	})
+	return ps, vs
 }

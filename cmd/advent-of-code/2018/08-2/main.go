@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var value func(Node) int
 	value = func(n Node) int {
 		if len(n.Children) == 0 {
-			return lib.Sum(n.Metadata...)
+			return Sum(n.Metadata...)
 		}
 
 		var sum int
@@ -35,9 +34,9 @@ type Node struct {
 }
 
 func InputToTree() Node {
-	var ns lib.Deque[int]
-	for _, s := range strings.Fields(lib.InputToString()) {
-		ns.PushBack(lib.ParseInt(s))
+	var ns Deque[int]
+	for in.HasNext() {
+		ns.PushBack(in.Int())
 	}
 
 	var next func() Node

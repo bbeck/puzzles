@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/bbeck/puzzles/lib/in"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
 )
 
 func main() {
-	state, rules := InputToState(), InputToRules()
+	state, rules := InputToStateAndRules()
 
 	// We can observe by looking at the first set of iterations that the state
 	// eventually gets into a repeating pattern.  The number of pots doesn't
@@ -16,7 +17,7 @@ func main() {
 	// iterate until we determine we've repeated a state and then from there
 	// we'll calculate how many more steps we need to move to finish the
 	// evolution.
-	var seen lib.Set[string]
+	var seen Set[string]
 	var n int
 	for {
 		state = Next(state, rules)
@@ -34,10 +35,10 @@ func main() {
 	fmt.Println(sum)
 }
 
-func Next(state lib.Set[int], rules map[string]bool) lib.Set[int] {
-	min, max := lib.Min(state.Entries()...), lib.Max(state.Entries()...)
+func Next(state Set[int], rules map[string]bool) Set[int] {
+	min, max := Min(state.Entries()...), Max(state.Entries()...)
 
-	var next lib.Set[int]
+	var next Set[int]
 	for i := min - 4; i <= max+4; i++ {
 		if rules[RangeKey(state, i-2, i+2)] {
 			next.Add(i)
@@ -46,7 +47,7 @@ func Next(state lib.Set[int], rules map[string]bool) lib.Set[int] {
 	return next
 }
 
-func RangeKey(state lib.Set[int], min, max int) string {
+func RangeKey(state Set[int], min, max int) string {
 	var sb strings.Builder
 	for i := min; i <= max; i++ {
 		if state.Contains(i) {
@@ -58,30 +59,31 @@ func RangeKey(state lib.Set[int], min, max int) string {
 	return sb.String()
 }
 
-func Key(state lib.Set[int]) string {
-	min, max := lib.Min[int](state.Entries()...), lib.Max[int](state.Entries()...)
+func Key(state Set[int]) string {
+	min, max := Min[int](state.Entries()...), Max[int](state.Entries()...)
 	return RangeKey(state, min, max)
 }
 
-func InputToState() lib.Set[int] {
-	line := lib.InputToLines()[0]
-	line = strings.ReplaceAll(line, "initial state: ", "")
+func InputToStateAndRules() (Set[int], map[string]bool) {
+	var state Set[int]
 
-	var state lib.Set[int]
-	for i, c := range line {
-		if c == '#' {
+	var s string
+	in.Scanf("initial state: %s", &s)
+	for i, ch := range s {
+		if ch == '#' {
 			state.Add(i)
 		}
 	}
-	return state
-}
 
-func InputToRules() map[string]bool {
-	rules := make(map[string]bool)
-	for _, line := range lib.InputToLines()[2:] {
-		lhs, rhs, _ := strings.Cut(line, " => ")
+	// Skip blank line
+	in.Line()
+
+	var rules = make(map[string]bool)
+	for in.HasNext() {
+		var lhs, rhs string
+		in.Scanf("%s => %s", &lhs, &rhs)
 		rules[lhs] = rhs == "#"
 	}
 
-	return rules
+	return state, rules
 }
