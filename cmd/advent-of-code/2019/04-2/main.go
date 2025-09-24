@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	low, high := InputToRange(2019, 4)
+	low, high := InputToRange()
 
 	var count int
 	for pw := low; pw <= high; pw++ {
-		if IsPossiblePassword(lib.Digits(pw)) {
+		if IsPossiblePassword(Digits(pw)) {
 			count++
 		}
 	}
@@ -36,7 +36,8 @@ func IsPossiblePassword(digits []int) bool {
 	return len(digits) == 6 && hasDouble && isNonDecreasing
 }
 
-func InputToRange(year, day int) (int, int) {
-	parts := strings.Split(lib.InputToString(), "-")
-	return lib.ParseInt(parts[0]), lib.ParseInt(parts[1])
+func InputToRange() (int, int) {
+	var low, high int
+	in.Scanf("%d-%d", &low, &high)
+	return low, high
 }

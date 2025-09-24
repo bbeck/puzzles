@@ -25,7 +25,7 @@ func main() {
 
 		"RUN",
 	}
-
+	
 	inputs := make(chan int, 1024)
 	for _, line := range program {
 		for _, c := range line {

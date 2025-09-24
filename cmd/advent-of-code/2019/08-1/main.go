@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 const (
@@ -15,7 +16,7 @@ const (
 func main() {
 	layers := InputToLayers()
 
-	counters := make([]lib.FrequencyCounter[int], len(layers))
+	counters := make([]FrequencyCounter[int], len(layers))
 	for i, layer := range layers {
 		for _, b := range layer {
 			counters[i].Add(b)
@@ -33,8 +34,8 @@ type Layer []int
 
 func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range lib.InputToString() {
-		digits = append(digits, lib.ParseInt(string(b)))
+	for _, b := range in.String() {
+		digits = append(digits, ParseInt(string(b)))
 	}
 
 	var layers []Layer

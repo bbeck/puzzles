@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -16,7 +18,7 @@ func main() {
 	lenY := CycleLength(xs)
 	lenZ := CycleLength(ys)
 	lenX := CycleLength(zs)
-	fmt.Println(lib.LCM(lenX, lenY, lenZ))
+	fmt.Println(LCM(lenX, lenY, lenZ))
 }
 
 func CycleLength(ps []int) int {
@@ -51,7 +53,7 @@ func Update(p, v []int) {
 		}
 	}
 
-	for i := 0; i < len(p); i++ {
+	for i := range p {
 		for j := i + 1; j < len(p); j++ {
 			di, dj := deltas(p[i], p[j])
 			v[i] += di
@@ -59,7 +61,7 @@ func Update(p, v []int) {
 		}
 	}
 
-	for i := 0; i < len(p); i++ {
+	for i := range p {
 		p[i] += v[i]
 	}
 }
@@ -69,7 +71,7 @@ func Equal[T comparable](a, b []T) bool {
 		return false
 	}
 
-	for i := 0; i < len(a); i++ {
+	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
@@ -77,10 +79,8 @@ func Equal[T comparable](a, b []T) bool {
 	return true
 }
 
-func InputToPositions() []lib.Point3D {
-	return lib.InputLinesTo(func(line string) lib.Point3D {
-		var p lib.Point3D
-		fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
-		return p
+func InputToPositions() []Point3D {
+	return in.LinesToS[Point3D](func(in in.Scanner[Point3D]) Point3D {
+		return Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()}
 	})
 }

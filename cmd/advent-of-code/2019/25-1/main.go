@@ -3,14 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"github.com/bbeck/puzzles/lib/cpus"
 	"math/rand"
 	"regexp"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
+	memory := cpus.InputToIntcodeMemory()
+
 	// The map is not symmetric -- there is at least one door that is directional
 	// and doesn't have the same rooms on both sides.
 	//
@@ -31,19 +34,19 @@ func main() {
 	//
 	// Since the map is quite small our approach will be to try all possible
 	// combinations of items to pick up.
-	var ignore lib.Set[string]
+	var ignore Set[string]
 	ignore.Add("giant electromagnet")
 	ignore.Add("escape pod")
 	ignore.Add("molten lava")
 	ignore.Add("photons")
 	ignore.Add("infinite loop")
 
-	var path []lib.Heading
+	var path []Heading
 	var items []string
 
 	var lens []int
 	for i := 0; i < 10; i++ {
-		p, is := Explore(ignore)
+		p, is := Explore(memory.Copy(), ignore)
 		lens = append(lens, len(p))
 		if len(path) == 0 || len(p) < len(path) {
 			path = p
@@ -53,13 +56,13 @@ func main() {
 
 	var code *string
 	for k := 1; k < len(items) && code == nil; k++ {
-		lib.EnumerateCombinations(len(items), k, func(ints []int) bool {
-			var pickup lib.Set[string]
+		EnumerateCombinations(len(items), k, func(ints []int) bool {
+			var pickup Set[string]
 			for _, n := range ints {
 				pickup.Add(items[n])
 			}
 
-			robot, current := NewRobot()
+			robot, current := NewRobot(memory.Copy())
 			for _, heading := range path {
 				for item := range current.Items.Intersect(pickup) {
 					robot.Take(item)
@@ -69,7 +72,7 @@ func main() {
 			}
 
 			// Try moving into the pressure sensitive room
-			current = robot.Move(lib.Right)
+			current = robot.Move(Right)
 
 			if robot.Code != "" {
 				code = &robot.Code
@@ -83,24 +86,24 @@ func main() {
 	fmt.Println(*code)
 }
 
-func Explore(ignore lib.Set[string]) ([]lib.Heading, []string) {
+func Explore(memory cpus.Memory, ignore Set[string]) ([]Heading, []string) {
 	// We'll randomly walk through the map taking note of which item's we've
 	// seen.  Once we end up in the security checkpoint after having seen all
 	// 13 items then we'll return along that path.  We'll avoid the room with the
 	// pressure sensitive floor as well since we'll get trapped in it without
 	// the right items.  The pressure sensitive floor room is to the right of
 	// the security checkpoint.
-	var items lib.Set[string]
-	var path []lib.Heading
+	var items Set[string]
+	var path []Heading
 
-	robot, current := NewRobot()
+	robot, current := NewRobot(memory)
 	for len(items) < 13 || current.ID != "Security Checkpoint" {
 		items = items.Union(current.Items)
 
 		doors := current.Doors
 		if current.ID == "Security Checkpoint" {
 			// The pressure sensitive floor is to the east.  Avoid it.
-			doors = doors.DifferenceElems(lib.Right)
+			doors = doors.DifferenceElems(Right)
 		}
 
 		choices := doors.Entries()
@@ -115,8 +118,8 @@ func Explore(ignore lib.Set[string]) ([]lib.Heading, []string) {
 
 type Room struct {
 	ID    string
-	Doors lib.Set[lib.Heading]
-	Items lib.Set[string]
+	Doors Set[Heading]
+	Items Set[string]
 }
 
 type Robot struct {
@@ -126,7 +129,7 @@ type Robot struct {
 	Code    string
 }
 
-func NewRobot() (*Robot, Room) {
+func NewRobot(memory cpus.Memory) (*Robot, Room) {
 	command := make(chan int)
 	rooms := make(chan Room)
 
@@ -135,7 +138,7 @@ func NewRobot() (*Robot, Room) {
 	var robot *Robot
 	robot = &Robot{
 		CPU: &cpus.IntcodeCPU{
-			Memory: cpus.InputToIntcodeMemory(),
+			Memory: memory,
 			Input: func() int {
 				return <-command
 			},
@@ -166,16 +169,16 @@ func NewRobot() (*Robot, Room) {
 	return robot, <-rooms
 }
 
-func (r *Robot) Move(heading lib.Heading) Room {
+func (r *Robot) Move(heading Heading) Room {
 	var command string
 	switch heading {
-	case lib.Up:
+	case Up:
 		command = "north"
-	case lib.Left:
+	case Left:
 		command = "west"
-	case lib.Right:
+	case Right:
 		command = "east"
-	case lib.Down:
+	case Down:
 		command = "south"
 	}
 
@@ -208,19 +211,19 @@ func ParseRoom(s string) (Room, error) {
 	}
 	id := IDRegex.FindStringSubmatch(s)[1]
 
-	var doors lib.Set[lib.Heading]
-	var items lib.Set[string]
+	var doors Set[Heading]
+	var items Set[string]
 	for _, matches := range ListRegex.FindAllStringSubmatch(s, -1) {
 		for _, match := range matches[1:] {
 			switch match {
 			case "north":
-				doors.Add(lib.Up)
+				doors.Add(Up)
 			case "west":
-				doors.Add(lib.Left)
+				doors.Add(Left)
 			case "east":
-				doors.Add(lib.Right)
+				doors.Add(Right)
 			case "south":
-				doors.Add(lib.Down)
+				doors.Add(Down)
 			default:
 				items.Add(match)
 			}

@@ -5,7 +5,8 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 	best := math.MaxInt
 	for p, stepsP := range s0 {
 		if stepsQ, found := s1[p]; found {
-			best = lib.Min(best, stepsP+stepsQ)
+			best = Min(best, stepsP+stepsQ)
 		}
 	}
 	fmt.Println(best)
@@ -26,13 +27,13 @@ type Path struct {
 	Lengths []int
 }
 
-func (p Path) Steps() map[lib.Point2D]int {
-	steps := make(map[lib.Point2D]int)
+func (p Path) Steps() map[Point2D]int {
+	steps := make(map[Point2D]int)
 
-	var current lib.Point2D
+	var current Point2D
 	var count int
-	for i := 0; i < len(p.Dirs); i++ {
-		for n := 0; n < p.Lengths[i]; n++ {
+	for i := range p.Dirs {
+		for range p.Lengths[i] {
 			switch p.Dirs[i] {
 			case "U":
 				current = current.Up()
@@ -55,13 +56,12 @@ func (p Path) Steps() map[lib.Point2D]int {
 }
 
 func InputToPaths() []Path {
-	return lib.InputLinesTo(func(line string) Path {
+	return in.LinesTo(func(line string) Path {
 		var path Path
-		for _, part := range strings.Split(line, ",") {
+		for part := range strings.SplitSeq(line, ",") {
 			path.Dirs = append(path.Dirs, string(part[0]))
-			path.Lengths = append(path.Lengths, lib.ParseInt(part[1:]))
+			path.Lengths = append(path.Lengths, ParseInt(part[1:]))
 		}
-
 		return path
 	})
 }

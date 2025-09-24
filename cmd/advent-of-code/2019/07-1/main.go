@@ -2,25 +2,27 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 
+	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 const N = 5
 
 func main() {
+	var memory = cpus.InputToIntcodeMemory()
+
 	var best int
-	lib.EnumeratePermutations(N, func(settings []int) bool {
-		best = lib.Max(best, TestSettings(settings))
+	EnumeratePermutations(N, func(settings []int) bool {
+		best = Max(best, TestSettings(memory.Copy(), settings))
 		return false
 	})
 	fmt.Println(best)
 }
 
-func TestSettings(settings []int) int {
+func TestSettings(memory cpus.Memory, settings []int) int {
 	var chans [N + 1]chan int
-	for i := 0; i < len(chans); i++ {
+	for i := range len(chans) {
 		chans[i] = make(chan int, 2)
 	}
 
@@ -33,9 +35,9 @@ func TestSettings(settings []int) int {
 	chans[0] <- 0
 
 	var amps [N]cpus.IntcodeCPU
-	for i := 0; i < N; i++ {
+	for i := range N {
 		i := i
-		amps[i].Memory = cpus.InputToIntcodeMemory()
+		amps[i].Memory = memory.Copy()
 		amps[i].Input = func() int { return <-chans[i] }
 		amps[i].Output = func(value int) { chans[i+1] <- value }
 		go amps[i].Execute()

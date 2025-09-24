@@ -2,20 +2,22 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
-	var count int
+	var memory = cpus.InputToIntcodeMemory()
 
-	for x := 0; x < 50; x++ {
-		for y := 0; y < 50; y++ {
+	var count int
+	for x := range 50 {
+		for y := range 50 {
 			inputs := make(chan int, 2)
 			inputs <- x
 			inputs <- y
 
 			cpu := cpus.IntcodeCPU{
-				Memory: cpus.InputToIntcodeMemory(),
+				Memory: memory.Copy(),
 				Input:  func() int { return <-inputs },
 				Output: func(value int) { count += value },
 			}

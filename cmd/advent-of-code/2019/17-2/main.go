@@ -2,13 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"github.com/bbeck/puzzles/lib/cpus"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
-	grid, turtle := Load()
+	memory := cpus.InputToIntcodeMemory()
+
+	grid, turtle := Load(memory)
 	path := BuildPath(grid, turtle)
 
 	main, A, B, C := BuildRules(path)
@@ -23,7 +26,6 @@ func main() {
 	}
 
 	// Force the robot to wake.
-	memory := cpus.InputToIntcodeMemory()
 	memory[0] = 2
 
 	// Wire the program as input.
@@ -45,22 +47,22 @@ func main() {
 }
 
 type Step struct {
-	Turn    lib.Heading
+	Turn    Heading
 	Forward int
 }
 
-func BuildPath(grid lib.Set[lib.Point2D], robot lib.Turtle) []Step {
-	tryForward := func(r lib.Turtle) bool {
+func BuildPath(grid Set[Point2D], robot Turtle) []Step {
+	tryForward := func(r Turtle) bool {
 		r.Forward(1)
 		return grid.Contains(r.Location)
 	}
 
-	tryLeft := func(r lib.Turtle) bool {
+	tryLeft := func(r Turtle) bool {
 		r.TurnLeft()
 		return tryForward(r)
 	}
 
-	tryRight := func(r lib.Turtle) bool {
+	tryRight := func(r Turtle) bool {
 		r.TurnRight()
 		return tryForward(r)
 	}
@@ -71,12 +73,12 @@ func BuildPath(grid lib.Set[lib.Point2D], robot lib.Turtle) []Step {
 	// structured as a turn followed by some number of steps to move forward.
 	var path []Step
 	for {
-		var turn lib.Heading
+		var turn Heading
 		if tryLeft(robot) {
-			turn = lib.Left
+			turn = Left
 			robot.TurnLeft()
 		} else if tryRight(robot) {
-			turn = lib.Right
+			turn = Right
 			robot.TurnRight()
 		} else {
 			break
@@ -146,14 +148,14 @@ loop:
 	return main, A, B, C
 }
 
-func Load() (lib.Set[lib.Point2D], lib.Turtle) {
-	var grid lib.Set[lib.Point2D]
-	var robot lib.Turtle
+func Load(memory cpus.Memory) (Set[Point2D], Turtle) {
+	var grid Set[Point2D]
+	var robot Turtle
 
 	// Build the grid.
-	var current lib.Point2D
+	var current Point2D
 	cpu := cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(),
+		Memory: memory.Copy(),
 		Output: func(value int) {
 			switch value {
 			case '.':
@@ -163,22 +165,22 @@ func Load() (lib.Set[lib.Point2D], lib.Turtle) {
 				current = current.Right()
 			case '^':
 				grid.Add(current)
-				robot = lib.Turtle{Location: current, Heading: lib.Up}
+				robot = Turtle{Location: current, Heading: Up}
 				current = current.Right()
 			case 'v':
 				grid.Add(current)
-				robot = lib.Turtle{Location: current, Heading: lib.Down}
+				robot = Turtle{Location: current, Heading: Down}
 				current = current.Right()
 			case '<':
 				grid.Add(current)
-				robot = lib.Turtle{Location: current, Heading: lib.Left}
+				robot = Turtle{Location: current, Heading: Left}
 				current = current.Right()
 			case '>':
 				grid.Add(current)
-				robot = lib.Turtle{Location: current, Heading: lib.Right}
+				robot = Turtle{Location: current, Heading: Right}
 				current = current.Right()
 			case '\n':
-				current = lib.Point2D{X: 0, Y: current.Y + 1}
+				current = Point2D{X: 0, Y: current.Y + 1}
 			}
 		},
 	}

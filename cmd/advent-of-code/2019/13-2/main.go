@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
-	var ball, paddle lib.Point2D
+	var ball, paddle Point2D
 	var score int
 
 	input := func() int {
@@ -29,9 +29,9 @@ func main() {
 
 		switch {
 		case id == 3:
-			paddle = lib.Point2D{X: x, Y: y}
+			paddle = Point2D{X: x, Y: y}
 		case id == 4:
-			ball = lib.Point2D{X: x, Y: y}
+			ball = Point2D{X: x, Y: y}
 		case id > 4 && x == -1 && y == 0:
 			score = id
 		}

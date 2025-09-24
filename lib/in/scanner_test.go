@@ -1,10 +1,11 @@
 package in
 
 import (
-	"github.com/alecthomas/assert/v2"
-	. "github.com/bbeck/puzzles/lib"
 	"strings"
 	"testing"
+
+	"github.com/alecthomas/assert/v2"
+	. "github.com/bbeck/puzzles/lib"
 )
 
 func TestScannerByte(t *testing.T) {

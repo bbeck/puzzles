@@ -2,13 +2,19 @@ package cpus
 
 import (
 	"log"
-	"strings"
+	"maps"
 	"sync/atomic"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 type Memory map[int]int
+
+func (m Memory) Copy() Memory {
+	var newMemory = make(Memory)
+	maps.Copy(newMemory, m)
+	return newMemory
+}
 
 type IntcodeCPU struct {
 	Memory  Memory
@@ -160,8 +166,8 @@ func (cpu *IntcodeCPU) Step() {
 
 func InputToIntcodeMemory() Memory {
 	opcodes := make(Memory)
-	for addr, s := range strings.Split(lib.InputToString(), ",") {
-		opcodes[addr] = lib.ParseInt(s)
+	for addr, i := range in.Ints() {
+		opcodes[addr] = i
 	}
 
 	return opcodes

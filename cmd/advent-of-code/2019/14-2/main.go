@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"sort"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func Reduce(chemicals map[string]int, reactions map[string]Reaction) {
 				continue
 			}
 
-			multiplier := lib.Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
+			multiplier := Max(1, chemicals[reaction.Output.Symbol]/reaction.Output.Quantity)
 			chemicals[reaction.Output.Symbol] -= multiplier * reaction.Output.Quantity
 			for _, input := range reaction.Inputs {
 				chemicals[input.Symbol] += multiplier * input.Quantity
@@ -56,22 +56,16 @@ type Reaction struct {
 }
 
 func InputToReactions() []Reaction {
-	return lib.InputLinesTo(func(line string) Reaction {
-		lhs, rhs, _ := strings.Cut(line, " => ")
+	return in.LinesToS[Reaction](func(in in.Scanner[Reaction]) Reaction {
+		in.Remove(",")
+		lhs, rhs := in.CutS(" => ")
 
-		var reaction Reaction
-		for _, s := range strings.Split(lhs, ", ") {
-			quantity, symbol, _ := strings.Cut(s, " ")
-			reaction.Inputs = append(reaction.Inputs, Chemical{
-				Symbol:   symbol,
-				Quantity: lib.ParseInt(quantity),
-			})
+		var inputs []Chemical
+		for lhs.HasNext() {
+			inputs = append(inputs, Chemical{Quantity: lhs.Int(), Symbol: lhs.String()})
 		}
 
-		quantity, symbol, _ := strings.Cut(rhs, " ")
-		reaction.Output.Symbol = symbol
-		reaction.Output.Quantity = lib.ParseInt(quantity)
-
-		return reaction
+		var output = Chemical{Quantity: rhs.Int(), Symbol: rhs.String()}
+		return Reaction{Inputs: inputs, Output: output}
 	})
 }

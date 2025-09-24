@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/bbeck/puzzles/lib"
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -11,20 +12,20 @@ func main() {
 
 	var best int
 	for _, p := range locations {
-		best = lib.Max(best, NumVisible(p, locations))
+		best = Max(best, NumVisible(p, locations))
 	}
 	fmt.Println(best)
 }
 
-func NumVisible(p lib.Point2D, qs []lib.Point2D) int {
+func NumVisible(p Point2D, qs []Point2D) int {
 	// Consider p as the center of a coordinate system.  Within each quadrant of
 	// the coordinate system only a single point with a slope can be seen by p.
-	var slopes [4]lib.Set[Slope]
+	var slopes [4]Set[Slope]
 	for _, q := range qs {
 		if p == q {
 			continue
 		}
-		
+
 		var quadrant int
 		if q.X < p.X {
 			quadrant += 1
@@ -44,15 +45,13 @@ type Slope struct {
 	dy, dx int
 }
 
-func InputToAsteroidLocations() []lib.Point2D {
-	var locations []lib.Point2D
-	for y, line := range lib.InputToLines() {
-		for x, b := range line {
-			if b == '#' {
-				locations = append(locations, lib.Point2D{X: x, Y: y})
-			}
+func InputToAsteroidLocations() []Point2D {
+	var locations []Point2D
+	in.ToGrid2D(func(x, y int, s string) string {
+		if s == "#" {
+			locations = append(locations, Point2D{X: x, Y: y})
 		}
-	}
-
+		return s
+	})
 	return locations
 }

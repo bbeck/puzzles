@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -40,9 +39,8 @@ type Orbit struct {
 }
 
 func InputToOrbits() []Orbit {
-	return lib.InputLinesTo(func(line string) Orbit {
-		var orbit Orbit
-		orbit.Parent, orbit.Child, _ = strings.Cut(line, ")")
-		return orbit
+	return in.LinesToS(func(in in.Scanner[Orbit]) Orbit {
+		parent, child := in.Cut(")")
+		return Orbit{Parent: parent, Child: child}
 	})
 }

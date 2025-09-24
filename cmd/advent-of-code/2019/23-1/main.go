@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"github.com/bbeck/puzzles/lib/cpus"
 	"runtime"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
-	inputs := map[int]chan lib.Point2D{255: make(chan lib.Point2D)}
+	memory := cpus.InputToIntcodeMemory()
+	inputs := map[int]chan Point2D{255: make(chan Point2D)}
 	var computers []*cpus.IntcodeCPU
 
 	for n := 0; n < 50; n++ {
-		inputs[n] = make(chan lib.Point2D)
-		computers = append(computers, NewComputer(n, inputs))
+		inputs[n] = make(chan Point2D)
+		computers = append(computers, NewComputer(n, memory.Copy(), inputs))
 	}
 
 	for _, computer := range computers {
@@ -28,14 +30,14 @@ func main() {
 	fmt.Println(p.Y)
 }
 
-func NewComputer(id int, inputs map[int]chan lib.Point2D) *cpus.IntcodeCPU {
+func NewComputer(id int, memory cpus.Memory, inputs map[int]chan Point2D) *cpus.IntcodeCPU {
 	var buffer []int
 
 	var hasSentId bool
-	var point *lib.Point2D
+	var point *Point2D
 
 	return &cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(),
+		Memory: memory,
 		Input: func() int {
 			if !hasSentId {
 				hasSentId = true
@@ -67,7 +69,7 @@ func NewComputer(id int, inputs map[int]chan lib.Point2D) *cpus.IntcodeCPU {
 				addr, x, y := buffer[0], buffer[1], buffer[2]
 				buffer = nil
 
-				inputs[addr] <- lib.Point2D{X: x, Y: y}
+				inputs[addr] <- Point2D{X: x, Y: y}
 			}
 		},
 	}

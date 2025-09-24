@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 const (
@@ -17,8 +19,8 @@ const (
 func main() {
 	layers := InputToLayers()
 
-	for y := 0; y < Height; y++ {
-		for x := 0; x < Width; x++ {
+	for y := range Height {
+		for x := range Width {
 			switch Color(layers, x, y) {
 			case Black:
 				fmt.Print(" ")
@@ -46,8 +48,8 @@ type Layer []int
 
 func InputToLayers() []Layer {
 	var digits []int
-	for _, b := range lib.InputToString() {
-		digits = append(digits, lib.ParseInt(string(b)))
+	for _, b := range in.String() {
+		digits = append(digits, ParseInt(string(b)))
 	}
 
 	var layers []Layer

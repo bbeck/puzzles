@@ -7,12 +7,13 @@ import (
 )
 
 func main() {
+	memory := cpus.InputToIntcodeMemory()
 	var noun, verb int
 
 loop:
-	for noun = 0; noun < 100; noun++ {
-		for verb = 0; verb < 100; verb++ {
-			output := Execute(noun, verb)
+	for noun = range 100 {
+		for verb = range 100 {
+			output := Execute(memory.Copy(), noun, verb)
 			if output == 19690720 {
 				break loop
 			}
@@ -22,15 +23,11 @@ loop:
 	fmt.Println(100*noun + verb)
 }
 
-func Execute(noun, verb int) int {
-	memory := cpus.InputToIntcodeMemory()
+func Execute(memory cpus.Memory, noun, verb int) int {
 	memory[1] = noun
 	memory[2] = verb
 
-	cpu := cpus.IntcodeCPU{
-		Memory: memory,
-	}
+	cpu := cpus.IntcodeCPU{Memory: memory}
 	cpu.Execute()
-
 	return memory[0]
 }

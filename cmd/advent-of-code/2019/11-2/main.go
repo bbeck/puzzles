@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
-	var robot lib.Turtle
+	var robot Turtle
 	var isPaintInstruction bool
 
 	// The robot starts on a white panel
-	panels := map[lib.Point2D]int{
+	panels := map[Point2D]int{
 		robot.Location: 1,
 	}
 
@@ -37,10 +38,10 @@ func main() {
 	}
 	cpu.Execute()
 
-	tl, br := lib.GetBounds(lib.GetMapKeys(panels))
+	tl, br := GetBounds(GetMapKeys(panels))
 	for y := tl.Y; y <= br.Y; y++ {
 		for x := tl.X; x <= br.X; x++ {
-			if panels[lib.Point2D{X: x, Y: y}] == 1 {
+			if panels[Point2D{X: x, Y: y}] == 1 {
 				fmt.Print("█")
 			} else {
 				fmt.Print(" ")

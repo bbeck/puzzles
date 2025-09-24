@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var fuel int
-	for _, mass := range lib.InputToInts() {
+	for _, mass := range in.Ints() {
 		fuel += Fuel(mass)
 	}
 

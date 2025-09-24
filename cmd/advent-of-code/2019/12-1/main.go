@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	positions := InputToPositions()
-	velocities := make([]lib.Point3D, len(positions))
+	velocities := make([]Point3D, len(positions))
 
 	for tm := 1; tm <= 1000; tm++ {
 		UpdateVelocities(positions, velocities)
 
-		for i := 0; i < len(positions); i++ {
+		for i := range positions {
 			positions[i].X += velocities[i].X
 			positions[i].Y += velocities[i].Y
 			positions[i].Z += velocities[i].Z
@@ -20,13 +22,13 @@ func main() {
 	}
 
 	var sum int
-	for i := 0; i < len(positions); i++ {
+	for i := range positions {
 		sum += Energy(positions[i], velocities[i])
 	}
 	fmt.Println(sum)
 }
 
-func UpdateVelocities(p, v []lib.Point3D) {
+func UpdateVelocities(p, v []Point3D) {
 	deltas := func(a, b int) (int, int) {
 		switch {
 		case a < b:
@@ -38,7 +40,7 @@ func UpdateVelocities(p, v []lib.Point3D) {
 		}
 	}
 
-	for i := 0; i < len(p); i++ {
+	for i := range p {
 		for j := i + 1; j < len(p); j++ {
 			dxi, dxj := deltas(p[i].X, p[j].X)
 			dyi, dyj := deltas(p[i].Y, p[j].Y)
@@ -55,16 +57,14 @@ func UpdateVelocities(p, v []lib.Point3D) {
 	}
 }
 
-func Energy(p, v lib.Point3D) int {
-	pot := lib.Abs(p.X) + lib.Abs(p.Y) + lib.Abs(p.Z)
-	kin := lib.Abs(v.X) + lib.Abs(v.Y) + lib.Abs(v.Z)
+func Energy(p, v Point3D) int {
+	pot := Abs(p.X) + Abs(p.Y) + Abs(p.Z)
+	kin := Abs(v.X) + Abs(v.Y) + Abs(v.Z)
 	return pot * kin
 }
 
-func InputToPositions() []lib.Point3D {
-	return lib.InputLinesTo(func(line string) lib.Point3D {
-		var p lib.Point3D
-		fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
-		return p
+func InputToPositions() []Point3D {
+	return in.LinesToS[Point3D](func(in in.Scanner[Point3D]) Point3D {
+		return Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()}
 	})
 }

@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
 	open, goal := Explore()
 
-	children := func(p lib.Point2D) []lib.Point2D {
-		var children []lib.Point2D
+	children := func(p Point2D) []Point2D {
+		var children []Point2D
 		for _, child := range p.OrthogonalNeighbors() {
 			if open.Contains(child) {
 				children = append(children, child)
@@ -19,29 +20,29 @@ func main() {
 		return children
 	}
 
-	isGoal := func(p lib.Point2D) bool {
+	isGoal := func(p Point2D) bool {
 		return p == goal
 	}
 
-	if path, ok := lib.BreadthFirstSearch(lib.Origin2D, children, isGoal); ok {
+	if path, ok := BreadthFirstSearch(Origin2D, children, isGoal); ok {
 		fmt.Println(len(path) - 1) // The path includes the starting point.
 	}
 }
 
-var Headings = []lib.Heading{lib.Up, lib.Down, lib.Left, lib.Right}
-var Reverse = map[lib.Heading]lib.Heading{
-	lib.Up:    lib.Down,
-	lib.Down:  lib.Up,
-	lib.Left:  lib.Right,
-	lib.Right: lib.Left,
+var Headings = []Heading{Up, Down, Left, Right}
+var Opposite = map[Heading]Heading{
+	Up:    Down,
+	Down:  Up,
+	Left:  Right,
+	Right: Left,
 }
 
-func Explore() (lib.Set[lib.Point2D], lib.Point2D) {
-	var open lib.Set[lib.Point2D]
-	var goal lib.Point2D
+func Explore() (Set[Point2D], Point2D) {
+	var open Set[Point2D]
+	var goal Point2D
 
 	robot := NewRobot()
-	current := lib.Origin2D
+	current := Origin2D
 
 	var helper func()
 	helper = func() {
@@ -60,8 +61,8 @@ func Explore() (lib.Set[lib.Point2D], lib.Point2D) {
 				helper()
 			}
 
-			robot.Move(Reverse[heading])
-			current = current.Move(Reverse[heading])
+			robot.Move(Opposite[heading])
+			current = current.Move(Opposite[heading])
 		}
 	}
 	helper()
@@ -92,12 +93,12 @@ func NewRobot() *Robot {
 	return robot
 }
 
-func (r *Robot) Move(h lib.Heading) int {
-	mapping := map[lib.Heading]int{
-		lib.Up:    1,
-		lib.Down:  2,
-		lib.Left:  3,
-		lib.Right: 4,
+func (r *Robot) Move(h Heading) int {
+	mapping := map[Heading]int{
+		Up:    1,
+		Down:  2,
+		Left:  3,
+		Right: 4,
 	}
 
 	r.Commands <- mapping[h]

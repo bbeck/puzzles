@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 func main() {
-	panels := make(map[lib.Point2D]int)
+	panels := make(map[Point2D]int)
 
-	var robot lib.Turtle
+	var robot Turtle
 	var isPaintInstruction bool
 
 	cpu := cpus.IntcodeCPU{

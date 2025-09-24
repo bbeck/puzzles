@@ -2,20 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"github.com/bbeck/puzzles/lib/cpus"
 	"sync"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/cpus"
 )
 
 const N = 50
 
 func main() {
+	memory := cpus.InputToIntcodeMemory()
 	nat := NewNAT()
 
 	var computers [N]cpus.IntcodeCPU
 	for addr := 0; addr < N; addr++ {
 		nat.Send(addr, addr) // initialize with address of each computer
-		computers[addr] = *NewComputer(addr, nat)
+		computers[addr] = *NewComputer(addr, memory.Copy(), nat)
 	}
 
 	for addr := 0; addr < N; addr++ {
@@ -29,10 +31,10 @@ func main() {
 }
 
 type NAT struct {
-	Mutex     sync.Mutex
-	Buffers   [N]lib.Deque[int]
-	Idle      lib.BitSet
-	ToForward []int // The last received packet that can be forwarded
+	Mutex          sync.Mutex
+	Buffers        [N]Deque[int]
+	Idle           BitSet
+	ToForward      []int // The last received packet that can be forwarded
 	LastForwardedY int
 	Duplicates     chan int
 }
@@ -87,11 +89,11 @@ func (n *NAT) Wait() int {
 	return <-n.Duplicates
 }
 
-func NewComputer(id int, nat *NAT) *cpus.IntcodeCPU {
+func NewComputer(id int, memory cpus.Memory, nat *NAT) *cpus.IntcodeCPU {
 	var buffer []int
 
 	return &cpus.IntcodeCPU{
-		Memory: cpus.InputToIntcodeMemory(),
+		Memory: memory,
 		Input:  func() int { return nat.Receive(id) },
 		Output: func(value int) {
 			buffer = append(buffer, value)

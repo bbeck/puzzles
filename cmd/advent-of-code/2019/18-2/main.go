@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -13,7 +15,7 @@ func main() {
 	grid.SetPoint(entrance.Left(), Wall)
 	grid.SetPoint(entrance.Right(), Wall)
 
-	entrances := [4]lib.Point2D{
+	entrances := [4]Point2D{
 		entrance.Up().Left(),
 		entrance.Up().Right(),
 		entrance.Down().Left(),
@@ -24,7 +26,7 @@ func main() {
 
 	children := func(s State) []State {
 		var children []State
-		for i := 0; i < len(s.Locations); i++ {
+		for i := range len(s.Locations) {
 			for p := range graph[s.Locations[i]] {
 				value := grid.GetPoint(p)
 
@@ -55,7 +57,7 @@ func main() {
 
 	cost := func(from, to State) int {
 		var sum int
-		for i := 0; i < len(from.Locations); i++ {
+		for i := range len(from.Locations) {
 			sum += graph[from.Locations[i]][to.Locations[i]]
 		}
 		return sum
@@ -66,13 +68,13 @@ func main() {
 	}
 
 	start := State{Locations: entrances}
-	_, c, _ := lib.AStarSearch(start, children, goal, cost, heuristic)
+	_, c, _ := AStarSearch(start, children, goal, cost, heuristic)
 	fmt.Println(c)
 }
 
 type State struct {
-	Locations [4]lib.Point2D
-	Keys      lib.BitSet
+	Locations [4]Point2D
+	Keys      BitSet
 }
 
 const (
@@ -86,10 +88,10 @@ func KeyID(s string) int          { return int(s[0] - 'a') }
 func DoorID(s string) int         { return int(s[0] - 'A' + 26) }
 func KeyIDForDoorID(door int) int { return door - 26 }
 
-func GridToGraph(grid lib.Grid2D[int], entrances [4]lib.Point2D) map[lib.Point2D]map[lib.Point2D]int {
+func GridToGraph(grid Grid2D[int], entrances [4]Point2D) map[Point2D]map[Point2D]int {
 	// Collect the key/door locations along with the entrance location.
 	ps := entrances[:]
-	grid.ForEachPoint(func(p lib.Point2D, value int) {
+	grid.ForEachPoint(func(p Point2D, value int) {
 		if value != Empty && value != Wall {
 			ps = append(ps, p)
 		}
@@ -97,14 +99,14 @@ func GridToGraph(grid lib.Grid2D[int], entrances [4]lib.Point2D) map[lib.Point2D
 
 	// Determine the distance between all pairs of points of interest.  Ignore
 	// any paths that include a 3rd point of interest.
-	graph := make(map[lib.Point2D]map[lib.Point2D]int)
+	graph := make(map[Point2D]map[Point2D]int)
 	for _, p := range ps {
-		graph[p] = make(map[lib.Point2D]int)
+		graph[p] = make(map[Point2D]int)
 	}
 
-	children := func(p lib.Point2D) []lib.Point2D {
-		var children []lib.Point2D
-		grid.ForEachOrthogonalNeighborPoint(p, func(child lib.Point2D, value int) {
+	children := func(p Point2D) []Point2D {
+		var children []Point2D
+		grid.ForEachOrthogonalNeighborPoint(p, func(child Point2D, value int) {
 			if value != Wall {
 				children = append(children, child)
 			}
@@ -112,9 +114,9 @@ func GridToGraph(grid lib.Grid2D[int], entrances [4]lib.Point2D) map[lib.Point2D
 		return children
 	}
 
-	for i := 0; i < len(ps); i++ {
+	for i := range ps {
 		for j := i + 1; j < len(ps); j++ {
-			path, ok := lib.BreadthFirstSearch(ps[i], children, func(p lib.Point2D) bool { return p == ps[j] })
+			path, ok := BreadthFirstSearch(ps[i], children, func(p Point2D) bool { return p == ps[j] })
 
 			if ok {
 				for _, p := range path[1 : len(path)-2] {
@@ -135,11 +137,11 @@ func GridToGraph(grid lib.Grid2D[int], entrances [4]lib.Point2D) map[lib.Point2D
 	return graph
 }
 
-func InputToGrid() (lib.Grid2D[int], lib.Point2D) {
-	var entrance lib.Point2D
-	return lib.InputToGrid2D(func(x int, y int, s string) int {
+func InputToGrid() (Grid2D[int], Point2D) {
+	var entrance Point2D
+	return in.ToGrid2D[int](func(x, y int, s string) int {
 		if s == "@" {
-			entrance = lib.Point2D{X: x, Y: y}
+			entrance = Point2D{X: x, Y: y}
 		} else if s == "#" {
 			return Wall
 		} else if s >= "a" && s <= "z" {
@@ -147,7 +149,6 @@ func InputToGrid() (lib.Grid2D[int], lib.Point2D) {
 		} else if s >= "A" && s <= "Z" {
 			return DoorID(s)
 		}
-
 		return Empty
 	}), entrance
 }

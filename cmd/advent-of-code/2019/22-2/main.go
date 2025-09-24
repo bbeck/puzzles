@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"log"
 	"math/big"
-	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 // This reddit comment was very helpful in deriving the math:
@@ -109,18 +108,20 @@ type Instruction struct {
 }
 
 func InputToInstructions() []Instruction {
-	return lib.InputLinesTo(func(line string) Instruction {
-		if strings.HasPrefix(line, "deal into new stack") {
+	return in.LinesToS(func(in in.Scanner[Instruction]) Instruction {
+		switch {
+		case in.HasPrefix("deal into new stack"):
 			return Instruction{Kind: DealNewStack}
-		} else if strings.HasPrefix(line, "cut") {
-			arg := lib.ParseInt(strings.Split(line, " ")[1])
+		case in.HasPrefix("cut"):
+			var arg int
+			in.Scanf("cut %d", &arg)
 			return Instruction{Kind: Cut, Arg: int64(arg)}
-		} else if strings.HasPrefix(line, "deal with increment") {
-			arg := lib.ParseInt(strings.Split(line, " ")[3])
+		case in.HasPrefix("deal with increment"):
+			var arg int
+			in.Scanf("deal with increment %d", &arg)
 			return Instruction{Kind: DealWithIncrement, Arg: int64(arg)}
-		} else {
-			log.Fatalf("unrecognized line: %s", line)
-			return Instruction{}
+		default:
+			panic("unsupported prefix")
 		}
 	})
 }

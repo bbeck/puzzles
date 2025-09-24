@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -14,11 +16,11 @@ func main() {
 		patterns = append(patterns, BuildPattern([]int{0, 1, 0, -1}, digit, len(digits)))
 	}
 
-	for n := 0; n < 100; n++ {
+	for range 100 {
 		digits = FFT(digits, patterns)
 	}
 
-	for n := 0; n < 8; n++ {
+	for n := range 8 {
 		fmt.Print(digits[n])
 	}
 	fmt.Println()
@@ -26,12 +28,12 @@ func main() {
 
 func FFT(digits []int, patterns [][]int) []int {
 	output := make([]int, len(digits))
-	for i := 0; i < len(digits); i++ {
+	for i := range digits {
 		var sum int
-		for j := 0; j < len(digits); j++ {
+		for j := range digits {
 			sum += digits[j] * patterns[i][j]
 		}
-		output[i] = lib.Abs(sum) % 10
+		output[i] = Abs(sum) % 10
 	}
 
 	return output
@@ -41,7 +43,7 @@ func BuildPattern(base []int, n int, length int) []int {
 	var pattern []int
 	for len(pattern) < length+1 {
 		for _, digit := range base {
-			for c := 0; c < n; c++ {
+			for range n {
 				pattern = append(pattern, digit)
 			}
 		}
@@ -52,9 +54,8 @@ func BuildPattern(base []int, n int, length int) []int {
 
 func InputToDigits() []int {
 	var digits []int
-	for _, s := range lib.InputToString() {
-		digits = append(digits, lib.ParseInt(string(s)))
+	for in.HasNext() {
+		digits = append(digits, ParseInt(string(in.Byte())))
 	}
-
 	return digits
 }

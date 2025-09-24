@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 const N = 5
@@ -15,7 +17,7 @@ func main() {
 	// we seek.
 	grid := InputToGrid()
 
-	var seen lib.Set[lib.BitSet]
+	var seen Set[BitSet]
 	seen.Add(grid)
 
 	for {
@@ -28,7 +30,7 @@ func main() {
 	fmt.Println(grid)
 }
 
-func Next(grid lib.BitSet) lib.BitSet {
+func Next(grid BitSet) BitSet {
 	get := func(x, y int) int {
 		if 0 <= x && x < N && 0 <= y && y < N && grid.Contains(y*N+x) {
 			return 1
@@ -36,7 +38,7 @@ func Next(grid lib.BitSet) lib.BitSet {
 		return 0
 	}
 
-	var next lib.BitSet
+	var next BitSet
 	for y := 0; y < N; y++ {
 		for x := 0; x < N; x++ {
 			count := get(x-1, y) + get(x+1, y) + get(x, y-1) + get(x, y+1)
@@ -51,15 +53,14 @@ func Next(grid lib.BitSet) lib.BitSet {
 	return next
 }
 
-func InputToGrid() lib.BitSet {
-	var grid lib.BitSet
-	for y, line := range lib.InputToLines() {
-		for x, c := range line {
-			if c == '#' {
-				grid = grid.Add(y*N + x)
-			}
+func InputToGrid() BitSet {
+	var grid BitSet
+	in.ToGrid2D(func(x, y int, s string) string {
+		if s == "#" {
+			grid = grid.Add(y*N + x)
 		}
-	}
+		return s
+	})
 
 	return grid
 }
