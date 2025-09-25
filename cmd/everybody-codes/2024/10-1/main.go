@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	grid := InputToGrid2D(func(_ int, _ int, s string) string {
+	grid := in.ToGrid2D(func(_, _ int, s string) string {
 		return s
 	})
 

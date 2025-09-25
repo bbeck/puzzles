@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	ns := InputToInts()
+	ns := in.Ints()
 	goal := Min(ns...)
 
 	var hits int

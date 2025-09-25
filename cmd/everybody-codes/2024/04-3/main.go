@@ -5,10 +5,11 @@ import (
 	"sort"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	ns := InputToInts()
+	ns := in.Ints()
 	sort.Ints(ns)
 
 	goal := ns[len(ns)/2]

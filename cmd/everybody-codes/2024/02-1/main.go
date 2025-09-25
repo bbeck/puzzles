@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
 	"strings"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 }
 
 func InputToMessage() ([]string, string) {
-	lines := InputToLines()
-	_, words, _ := strings.Cut(lines[0], ":")
-	return strings.Split(words, ","), lines[len(lines)-1]
+	_, words := in.Cut(":")
+	in.Line()
+	return strings.Split(words, ","), in.Line()
 }

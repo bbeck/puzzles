@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	. "github.com/bbeck/puzzles/lib"
-	"strings"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 var Segments = map[string]int{"A": 1, "B": 2, "C": 3}
@@ -99,10 +100,8 @@ func main() {
 
 func InputToMeteors() []Point2D {
 	var ps []Point2D
-	for _, line := range InputToLines() {
-		fields := strings.Fields(line)
-		dx, dy := ParseInt(fields[0]), ParseInt(fields[1])
-		ps = append(ps, Point2D{X: dx, Y: dy})
+	for in.HasNext() {
+		ps = append(ps, Point2D{X: in.Int(), Y: in.Int()})
 	}
 	return ps
 }

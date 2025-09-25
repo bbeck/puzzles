@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -28,8 +28,8 @@ func main() {
 
 func InputToRules() map[string][]string {
 	rules := make(map[string][]string)
-	for _, line := range InputToLines() {
-		lhs, rhs, _ := strings.Cut(line, ":")
+	for in.HasNext() {
+		lhs, rhs := in.Cut(":")
 		rules[lhs] = strings.Split(rhs, ",")
 	}
 	return rules

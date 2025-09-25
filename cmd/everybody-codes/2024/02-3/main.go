@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -79,7 +81,7 @@ func Indices(word, line string, L int) []int {
 }
 
 func InputToMessage() (Set[string], []string) {
-	lines := InputToLines()
-	_, words, _ := strings.Cut(lines[0], ":")
-	return SetFrom(strings.Split(words, ",")...), lines[2:]
+	_, words := in.Cut(":")
+	in.Line() // blank line
+	return SetFrom(strings.Split(words, ",")...), in.Lines()
 }

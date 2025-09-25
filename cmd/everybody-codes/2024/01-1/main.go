@@ -2,18 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
+
+	"github.com/bbeck/puzzles/lib/in"
 )
 
-var Potions = map[byte]int{
-	'B': 1,
-	'C': 3,
-}
+var Potions = map[byte]int{'A': 0, 'B': 1, 'C': 3}
 
 func main() {
 	var count int
-	for _, enemy := range lib.InputToBytes() {
-		count += Potions[enemy]
+	for in.HasNext() {
+		count += Potions[in.Byte()]
 	}
 
 	fmt.Println(count)

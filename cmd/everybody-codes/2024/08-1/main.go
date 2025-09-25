@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	blocks := InputToInt()
+	blocks := in.Int()
 	blocks-- // Initially placed block
 
 	var width int

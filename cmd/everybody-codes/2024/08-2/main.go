@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	numPriests := InputToInt()
+	numPriests := in.Int()
 	numAcolytes := 1111
 	blocks := 20240000
 	blocks-- // Initially placed block

@@ -3,8 +3,10 @@ package main
 import (
 	"container/list"
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
 	"strings"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -58,10 +60,9 @@ func main() {
 
 func InputToColumns() []list.List {
 	cols := make([]list.List, 4)
-
-	for _, line := range InputToLines() {
-		for i, s := range strings.Fields(line) {
-			cols[i].PushBack(ParseInt(s))
+	for in.HasNext() {
+		for i := range 4 {
+			cols[i].PushBack(in.Int())
 		}
 	}
 
@@ -75,32 +76,4 @@ func Value(columns []list.List) int {
 	}
 
 	return ParseInt(sb.String())
-}
-
-func PrintCols(header string, columns []list.List) {
-	fmt.Println(header)
-
-	var elems []*list.Element
-	for _, column := range columns {
-		elems = append(elems, column.Front())
-	}
-
-	for {
-		var ok bool
-		for i := range elems {
-			if elems[i] == nil {
-				fmt.Print("  ")
-				continue
-			}
-
-			fmt.Print(elems[i].Value.(int), " ")
-			elems[i] = elems[i].Next()
-			ok = true
-		}
-		fmt.Println()
-
-		if !ok {
-			break
-		}
-	}
 }

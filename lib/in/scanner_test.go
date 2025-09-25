@@ -678,6 +678,28 @@ func TestScannerLineError(t *testing.T) {
 	}
 }
 
+func TestScannerLines(t *testing.T) {
+	type test struct {
+		input []byte
+		want  []string
+	}
+
+	tests := []test{
+		{input: []byte("a"), want: []string{"a"}},
+		{input: []byte("\na"), want: []string{"", "a"}},
+		{input: []byte("a "), want: []string{"a "}},
+		{input: []byte("a b c"), want: []string{"a b c"}},
+		{input: []byte("a\nb\nc"), want: []string{"a", "b", "c"}},
+		{input: []byte("\n"), want: nil},
+	}
+	for _, test := range tests {
+		t.Run(string(test.input), func(t *testing.T) {
+			scanner := Scanner[any](test.input)
+			assert.Equal(t, test.want, scanner.Lines())
+		})
+	}
+}
+
 func TestScannerLinesTo(t *testing.T) {
 	type test struct {
 		input []byte

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -45,12 +46,9 @@ func Run(instructions []string) int {
 
 func InputToInstructions() map[string][]string {
 	instructions := make(map[string][]string)
-	for _, line := range InputToLines() {
-		line = strings.ReplaceAll(line, ":", " ")
-		line = strings.ReplaceAll(line, ",", " ")
-		fields := strings.Fields(line)
-
-		instructions[fields[0]] = fields[1:]
+	for in.HasNext() {
+		lhs, rhs := in.Cut(":")
+		instructions[lhs] = strings.Split(rhs, ",")
 	}
 
 	return instructions

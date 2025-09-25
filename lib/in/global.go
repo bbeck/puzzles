@@ -2,8 +2,9 @@ package in
 
 import (
 	"bytes"
-	. "github.com/bbeck/puzzles/lib"
 	"os"
+
+	. "github.com/bbeck/puzzles/lib"
 )
 
 var scanner Scanner[any]
@@ -98,6 +99,11 @@ func Ints() []int {
 func Line() string {
 	initialize()
 	return scanner.Line()
+}
+
+func Lines() []string {
+	initialize()
+	return scanner.Lines()
 }
 
 func LinesTo[T any](fn func(string) T) []T {

@@ -5,6 +5,7 @@ import (
 	"math"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -13,8 +14,8 @@ func main() {
 	seen := map[int]int{0: 0}
 
 	var sum int
-	for _, beetle := range InputToInts() {
-		best := math.MaxInt
+	for in.HasNext() {
+		beetle, best := in.Int(), math.MaxInt
 		for b1 := beetle/2 - 100; b1 < beetle/2+100; b1++ {
 			b2 := beetle - b1
 			if Abs(b2-b1) > 100 {

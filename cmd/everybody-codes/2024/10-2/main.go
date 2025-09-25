@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	. "github.com/bbeck/puzzles/lib"
-	"strings"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -30,21 +31,10 @@ func main() {
 }
 
 func InputToGrid() Grid2D[string] {
-	var lines []string
-	for _, line := range InputToLines() {
-		if line == "" {
-			continue
-		}
-		lines = append(lines, strings.ReplaceAll(line, " ", ""))
-	}
-
-	grid := NewGrid2D[string](len(lines[0]), len(lines))
-	for y, line := range lines {
-		for x, ch := range line {
-			grid.Set(x, y, string(ch))
-		}
-	}
-	return grid
+	in.Remove(" ")
+	return in.ToGrid2D(func(_, _ int, s string) string {
+		return s
+	})
 }
 
 func Row(grid Grid2D[string], x, y int) []string {

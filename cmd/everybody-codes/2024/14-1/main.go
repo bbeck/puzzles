@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var maxY int
 	var p Point2D
-	for _, instruction := range strings.Split(InputToString(), ",") {
+	for _, instruction := range strings.Split(in.String(), ",") {
 		n := ParseInt(instruction[1:])
 		switch instruction[0] {
 		case 'U':

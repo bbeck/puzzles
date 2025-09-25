@@ -130,7 +130,10 @@ func (bs *Scanner[T]) FieldsS() []Scanner[T] {
 func (bs *Scanner[T]) Grid2D(fn func(int, int, string) T) Grid2D[T] {
 	var lines []string
 	for bs.HasNext() {
-		lines = append(lines, bs.Line())
+		line := bs.Line()
+		if len(line) > 0 {
+			lines = append(lines, line)
+		}
 	}
 
 	var grid = NewGrid2D[T](len(lines[0]), len(lines))
@@ -234,6 +237,15 @@ func (bs *Scanner[T]) Line() string {
 	}
 
 	return sb.String()
+}
+
+// Lines returns the remaining lines from the scanner as strings.
+func (bs *Scanner[T]) Lines() []string {
+	var lines []string
+	for bs.HasNext() {
+		lines = append(lines, bs.Line())
+	}
+	return lines
 }
 
 // LinesTo transforms each line in the scanner to an arbitrary type.  The

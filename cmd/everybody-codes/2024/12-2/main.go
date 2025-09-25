@@ -5,6 +5,7 @@ import (
 	"math"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 var Segments = map[string]int{"A": 1, "B": 2, "C": 3}
@@ -60,7 +61,9 @@ func main() {
 }
 
 func InputToGrid() Grid2D[string] {
-	grid := InputToStringGrid2D()
+	grid := in.ToGrid2D(func(_, _ int, s string) string {
+		return s
+	})
 
 	minCatapultY := math.MaxInt
 	grid.ForEachPoint(func(p Point2D, s string) {

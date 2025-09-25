@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-	numPriests, numAcolytes, blocks := InputToInt(), 10, 202400000
+	numPriests, numAcolytes, blocks := in.Int(), 10, 202400000
 	pyramid := []int{1}
 
 	for thickness, width := 1, 3; ; width += 2 {

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
@@ -37,10 +38,9 @@ func main() {
 
 func InputToTree() map[string]Set[string] {
 	tree := make(map[string]Set[string])
-	for _, line := range InputToLines() {
-		parent, rhs, _ := strings.Cut(line, ":")
-		children := strings.Split(rhs, ",")
-		tree[parent] = SetFrom(children...)
+	for in.HasNext() {
+		parent, rhs := in.Cut(":")
+		tree[parent] = SetFrom(strings.Split(rhs, ",")...)
 	}
 	return tree
 }

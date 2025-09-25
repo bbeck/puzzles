@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 const WALL = 1e10
@@ -51,7 +52,9 @@ func main() {
 }
 
 func InputToGrid() (Grid2D[int], Set[Point2D], Point2D) {
-	temp := InputToStringGrid2D()
+	temp := in.ToGrid2D(func(_, _ int, s string) string {
+		return s
+	})
 
 	var starts Set[Point2D]
 	var end Point2D

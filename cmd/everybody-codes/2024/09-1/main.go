@@ -5,14 +5,15 @@ import (
 	"math"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	dots := []int{1, 3, 5, 10}
 
 	var sum int
-	for _, beetle := range InputToInts() {
-		sum += FindMin(beetle, dots, map[int]int{0: 0})
+	for in.HasNext() {
+		sum += FindMin(in.Int(), dots, map[int]int{0: 0})
 	}
 	fmt.Println(sum)
 }

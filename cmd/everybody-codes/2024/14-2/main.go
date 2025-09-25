@@ -5,13 +5,14 @@ import (
 	"strings"
 
 	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
 	var seen Set[Point3D]
-	for _, line := range InputToLines() {
+	for in.HasNext() {
 		var p Point3D
-		for _, instruction := range strings.Split(line, ",") {
+		for _, instruction := range strings.Split(in.Line(), ",") {
 			var dx, dy, dz int
 			switch instruction[0] {
 			case 'U':
@@ -35,6 +36,6 @@ func main() {
 			}
 		}
 	}
-
+	
 	fmt.Println(len(seen))
 }
