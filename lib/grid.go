@@ -194,6 +194,19 @@ func (g *Grid2D[T]) RotateRight() Grid2D[T] {
 	return r
 }
 
+// SubGrid returns the portion of the grid starting at (x0, y0) and having
+// the provided width and height as a new grid.
+func (g *Grid2D[T]) SubGrid(x0, y0 int, width, height int) Grid2D[T] {
+	r := NewGrid2D[T](width, height)
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			r.Set(x, y, g.Get(x0+x, y0+y))
+		}
+	}
+
+	return r
+}
+
 // String returns the human-readable representation of the grid.
 func (g *Grid2D[T]) String() string {
 	var sb strings.Builder
