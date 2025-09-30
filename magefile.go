@@ -9,9 +9,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
-	"github.com/bitfield/script"
-	"github.com/magefile/mage/mg"
 	"io"
 	"net/http"
 	"os"
@@ -20,6 +17,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bbeck/puzzles/lib"
+	"github.com/bitfield/script"
+	"github.com/magefile/mage/mg"
 )
 
 type Problem struct {
@@ -574,8 +575,6 @@ func DecryptAES(s string, key string) (string, error) {
 	}
 
 	ks := []byte(key)
-	ks[20] = '~'
-
 	iv := ks[:16]
 
 	block, err := aes.NewCipher(ks)
