@@ -1,5 +1,48 @@
 package lib
 
+import "sort"
+
+type WeightedEdge[T any] struct {
+	From   T
+	To     T
+	Weight int
+}
+
+// MinimumSpanningTree computes the minimum spanning tree of a graph using
+// Kruskal's algorithm.  It returns the total cost of the tree and the edges
+// that comprise the tree.
+func MinimumSpanningTree[T comparable](vertices []T, children ChildrenFunc[T], cost CostFunc[T]) (int, []WeightedEdge[T]) {
+	var ds DisjointSet[T]
+	for i := range vertices {
+		ds.Add(vertices[i])
+	}
+
+	// Determine the edges and order them by weight (ascending).
+	var edges []WeightedEdge[T]
+	for _, from := range vertices {
+		for _, to := range children(from) {
+			edges = append(edges, WeightedEdge[T]{From: from, To: to, Weight: cost(from, to)})
+		}
+	}
+	sort.Slice(edges, func(i, j int) bool {
+		return edges[i].Weight < edges[j].Weight
+	})
+
+	var total int
+	var tree []WeightedEdge[T]
+	for _, e := range edges {
+		u, _ := ds.Find(e.From)
+		v, _ := ds.Find(e.To)
+		if u != v {
+			ds.Union(e.From, e.To)
+			total += e.Weight
+			tree = append(tree, e)
+		}
+	}
+
+	return total, tree
+}
+
 // EnumerateMaximalCliques calls the fn callback for each maximal clique in a
 // graph.
 //
