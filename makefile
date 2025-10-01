@@ -2,6 +2,11 @@
 
 mage := go run mage.go
 
+## run the test cases
+.PHONY: test
+test:
+	@go test "./lib/..."
+
 ## run the solution for the specified SITE/YEAR/DAY/PART
 .PHONY: run
 run:
