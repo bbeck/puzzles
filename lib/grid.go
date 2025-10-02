@@ -208,7 +208,7 @@ func (g *Grid2D[T]) SubGrid(x0, y0 int, width, height int) Grid2D[T] {
 }
 
 // String returns the human-readable representation of the grid.
-func (g *Grid2D[T]) String() string {
+func (g Grid2D[T]) String() string {
 	var sb strings.Builder
 	for y := 0; y < g.Height; y++ {
 		for x := 0; x < g.Width; x++ {
