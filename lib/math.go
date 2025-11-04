@@ -42,6 +42,9 @@ func Product[T Number](elems ...T) T {
 
 // Min returns the smallest element of the provided elements.
 func Min[T Ordered](elems ...T) T {
+	if len(elems) == 0 {
+		panic("must specify at least one element")
+	}
 	min := elems[0]
 	for _, elem := range elems[1:] {
 		if elem < min {
@@ -53,6 +56,9 @@ func Min[T Ordered](elems ...T) T {
 
 // Max returns the largest element of the provided elements.
 func Max[T Ordered](elems ...T) T {
+	if len(elems) == 0 {
+		panic("must specify at least one element")
+	}
 	max := elems[0]
 	for _, elem := range elems[1:] {
 		if elem > max {
@@ -60,6 +66,28 @@ func Max[T Ordered](elems ...T) T {
 		}
 	}
 	return max
+}
+
+// Clamp ensures that value is between a minimum and maximum.
+func Clamp[T Ordered](value, minimum, maximum T) T {
+	if value < minimum {
+		return minimum
+	}
+	if value > maximum {
+		return maximum
+	}
+	return value
+}
+
+// Modulo computes the modulus (remainder after division) of value and mod.
+func Modulo[T Integer](value, mod T) T {
+	if mod <= 0 {
+		panic("cannot have zero or negative mod")
+	}
+	for value < 0 {
+		value += mod
+	}
+	return value % mod
 }
 
 func Pow[T Number, U Unsigned](base T, exp U) T {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/bbeck/puzzles/lib"
 )
 
@@ -72,7 +73,7 @@ func FindHorizontalReflection(p lib.Grid2D[string], skip int) (int, bool) {
 }
 
 func InputToPatterns() []lib.Grid2D[string] {
-	chunks := lib.Split(lib.InputToLines(), func(s string) bool {
+	chunks := lib.Partition(lib.InputToLines(), func(s string) bool {
 		return s != ""
 	})
 

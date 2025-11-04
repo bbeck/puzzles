@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbeck/puzzles/lib"
 	"sort"
+
+	"github.com/bbeck/puzzles/lib"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 	})
 
 	var groups []int
-	for _, group := range lib.Split(calories, func(n int) bool { return n != 0 }) {
+	for _, group := range lib.Partition(calories, func(n int) bool { return n != 0 }) {
 		groups = append(groups, lib.Sum(group...))
 	}
 

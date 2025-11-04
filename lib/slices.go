@@ -65,10 +65,10 @@ func Repeat[T any](s []T, n int) []T {
 	return t
 }
 
-// Split partitions a slice into chunks using a partition function.  Elements of
+// Partition splits a slice into chunks using a partition function.  Elements of
 // the slice are passed into the partition function and runs of true return
 // values are grouped together into a chunk.
-func Split[T any](ts []T, fn func(T) bool) [][]T {
+func Partition[T any](ts []T, fn func(T) bool) [][]T {
 	var partitions [][]T
 
 	var current []T

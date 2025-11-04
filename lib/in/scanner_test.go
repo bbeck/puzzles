@@ -302,6 +302,118 @@ func TestScannerCutError(t *testing.T) {
 	}
 }
 
+func TestScannerSplit(t *testing.T) {
+	type test struct {
+		input     []byte
+		separator string
+		want      []string
+		remaining []byte
+	}
+
+	tests := []test{
+		{
+			input:     []byte("a=b"),
+			separator: "=",
+			want:      []string{"a", "b"},
+			remaining: []byte{},
+		},
+		{
+			input:     []byte("a,b"),
+			separator: ",",
+			want:      []string{"a", "b"},
+			remaining: []byte{},
+		},
+		{
+			input:     []byte("a -> b"),
+			separator: " -> ",
+			want:      []string{"a", "b"},
+			remaining: []byte{},
+		},
+		{
+			input:     []byte("a -> b -> c"),
+			separator: " -> ",
+			want:      []string{"a", "b", "c"},
+			remaining: []byte{},
+		},
+		{
+			input:     []byte("a -> b -> c\nc -> d"),
+			separator: " -> ",
+			want:      []string{"a", "b", "c"},
+			remaining: []byte("c -> d"),
+		},
+		{
+			input:     []byte("abc"),
+			separator: ",",
+			want:      []string{"abc"},
+			remaining: []byte{},
+		},
+	}
+	for _, test := range tests {
+		t.Run("Split", func(t *testing.T) {
+			t.Run(string(test.input), func(t *testing.T) {
+				scanner := Scanner[any](test.input)
+				parts := scanner.Split(test.separator)
+				assert.Equal(t, len(test.want), len(parts))
+				for i := 0; i < len(parts); i++ {
+					assert.Equal(t, test.want[i], parts[i])
+				}
+				assert.Equal(t, test.remaining, scanner)
+			})
+		})
+
+		t.Run("SplitS", func(t *testing.T) {
+			t.Run(string(test.input), func(t *testing.T) {
+				scanner := Scanner[any](test.input)
+				parts := scanner.SplitS(test.separator)
+				assert.Equal(t, len(test.want), len(parts))
+				for i := 0; i < len(parts); i++ {
+					assert.Equal(t, []byte(test.want[i]), parts[i])
+				}
+				assert.Equal(t, test.remaining, scanner)
+			})
+		})
+	}
+}
+
+func TestScannerSplitError(t *testing.T) {
+	type test struct {
+		input     []byte
+		separator string
+	}
+
+	tests := []test{
+		{
+			input: nil,
+		},
+		{
+			input:     nil,
+			separator: ",",
+		},
+		{
+			input: []byte(""),
+		},
+		{
+			input:     []byte(""),
+			separator: ",",
+		},
+	}
+	for _, test := range tests {
+		t.Run("Cut", func(t *testing.T) {
+			t.Run(string(test.input), func(t *testing.T) {
+				scanner := Scanner[any](test.input)
+				assert.Panics(t, func() { scanner.Split(test.separator) })
+			})
+		})
+
+		t.Run("CutS", func(t *testing.T) {
+			t.Run(string(test.input), func(t *testing.T) {
+				scanner := Scanner[any](test.input)
+				assert.Panics(t, func() { scanner.SplitS(test.separator) })
+			})
+		})
+	}
+}
+
 func TestScannerExpect(t *testing.T) {
 	type test struct {
 		input     []byte

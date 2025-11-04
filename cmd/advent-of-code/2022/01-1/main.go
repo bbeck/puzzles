@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/bbeck/puzzles/lib"
 )
 
@@ -14,7 +15,7 @@ func main() {
 	})
 
 	var best int
-	for _, group := range lib.Split(calories, func(n int) bool { return n != 0 }) {
+	for _, group := range lib.Partition(calories, func(n int) bool { return n != 0 }) {
 		best = lib.Max(best, lib.Sum(group...))
 	}
 	fmt.Println(best)

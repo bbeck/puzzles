@@ -76,7 +76,7 @@ func InputToSeedsAndMaps() ([]Interval, []Map) {
 		seeds = append(seeds, Interval{start, start + length - 1})
 	}
 
-	groups := lib.Split(lines[1:], func(line string) bool {
+	groups := lib.Partition(lines[1:], func(line string) bool {
 		return line != "" && !strings.Contains(line, "-to-")
 	})
 

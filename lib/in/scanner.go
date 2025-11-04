@@ -100,6 +100,25 @@ func (bs *Scanner[T]) CutS(sep string) (Scanner[T], Scanner[T]) {
 	return Scanner[T](lhs), Scanner[T](rhs)
 }
 
+// Split splits the current line into many parts separated by sep.  If sep is
+// not found, a slice of length 1 is returned containing the line.
+func (bs *Scanner[T]) Split(sep string) []string {
+	if sep == "" {
+		panic("empty separator")
+	}
+	return strings.Split(bs.Line(), sep)
+}
+
+// SplitS splits the current line into many parts separated by sep.  If sep is
+// not found, a slide of length 1 is returned containing the line.
+func (bs *Scanner[T]) SplitS(sep string) []Scanner[T] {
+	var scanners []Scanner[T]
+	for _, part := range bs.Split(sep) {
+		scanners = append(scanners, Scanner[T](part))
+	}
+	return scanners
+}
+
 // Expect ensures that the next string from the scanner is equal to s.
 func (bs *Scanner[T]) Expect(s string) {
 	if !bytes.HasPrefix(*bs, []byte(s)) {

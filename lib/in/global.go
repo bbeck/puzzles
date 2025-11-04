@@ -131,6 +131,16 @@ func Scanf(format string, a ...interface{}) {
 	scanner.Scanf(format, a...)
 }
 
+func Split(sep string) []string {
+	initialize()
+	return scanner.Split(sep)
+}
+
+func SplitS[T any](sep string) []Scanner[T] {
+	initialize()
+	return as[T]().SplitS(sep)
+}
+
 func String() string {
 	initialize()
 	return scanner.String()

@@ -46,7 +46,7 @@ func InputToSeedsAndMaps() ([]int, []Map) {
 		seeds = append(seeds, lib.ParseInt(field))
 	}
 
-	groups := lib.Split(lines[1:], func(line string) bool {
+	groups := lib.Partition(lines[1:], func(line string) bool {
 		return line != "" && !strings.Contains(line, "-to-")
 	})
 
