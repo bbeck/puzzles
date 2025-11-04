@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
-
 	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
-  var s Set[string]
-  for in.HasNext() {
-    fmt.Println(in.Line())
-  }
 }
+
+// Unused, to keep imports present
+var _ Set[int]
+var _ in.Scanner[string]
