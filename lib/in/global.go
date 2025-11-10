@@ -53,7 +53,7 @@ func Cut(sep string) (string, string) {
 
 func CutS[T any](sep string) (Scanner[T], Scanner[T]) {
 	initialize()
-	return as[T]().CutS(sep)
+	return as[any, T](&scanner).CutS(sep)
 }
 
 func Expect(s string) {
@@ -68,7 +68,7 @@ func Fields() []string {
 
 func FieldsS[T any]() []Scanner[T] {
 	initialize()
-	return as[T]().FieldsS()
+	return as[any, T](&scanner).FieldsS()
 }
 
 func HasNext() bool {
@@ -108,12 +108,12 @@ func Lines() []string {
 
 func LinesTo[T any](fn func(string) T) []T {
 	initialize()
-	return as[T]().LinesTo(fn)
+	return as[any, T](&scanner).LinesTo(fn)
 }
 
 func LinesToS[T any](fn func(Scanner[T]) T) []T {
 	initialize()
-	return as[T]().LinesToS(fn)
+	return as[any, T](&scanner).LinesToS(fn)
 }
 
 func OneOf(options ...string) string {
@@ -138,7 +138,7 @@ func Split(sep string) []string {
 
 func SplitS[T any](sep string) []Scanner[T] {
 	initialize()
-	return as[T]().SplitS(sep)
+	return as[any, T](&scanner).SplitS(sep)
 }
 
 func String() string {
@@ -148,13 +148,9 @@ func String() string {
 
 func ToGrid2D[T any](fn func(x, y int, s string) T) Grid2D[T] {
 	initialize()
-	return as[T]().Grid2D(fn)
+	return as[any, T](&scanner).Grid2D(fn)
 }
 
-// As will reinterpret the Scanner with the type T so that we can parse the data
-// as a new type.  The underlying byte slices are shared between the scanners
-// so data will only be read a single time.
-func as[T any]() *Scanner[T] {
-	var s = Scanner[T](scanner)
-	return &s
+func as[T, U any](s *Scanner[T]) *Scanner[U] {
+	return (*Scanner[U])(s)
 }
