@@ -1,6 +1,8 @@
 package main
 
 import (
+	 "fmt"
+
 	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/in"
 )
@@ -9,5 +11,6 @@ func main() {
 }
 
 // Unused, to keep imports present
+var _ fmt.Formatter
 var _ Set[int]
 var _ in.Scanner[string]
