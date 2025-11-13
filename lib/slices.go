@@ -1,5 +1,7 @@
 package lib
 
+import "iter"
+
 // GetMapKeys returns the keys from the provided map.
 func GetMapKeys[K comparable, V any](m map[K]V) []K {
 	keys := make([]K, 0, len(m))
@@ -124,4 +126,16 @@ func Any[T any](elems []T, fn func(T) bool) bool {
 		}
 	}
 	return false
+}
+
+// Zip is an iterator over the pairs obtained by joining two slices together
+// in an element-wise fashion.
+func Zip[A, B any](a []A, b []B) iter.Seq2[A, B] {
+	return func(yield func(x A, y B) bool) {
+		for i := 0; i < len(a) && i < len(b); i++ {
+			if !yield(a[i], b[i]) {
+				break
+			}
+		}
+	}
 }
