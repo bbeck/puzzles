@@ -27,6 +27,11 @@ verify:
 next:
 	@$(mage) next
 
+## wait until the start time for puzzles to be released for the specified SITE
+.PHONY: wait-until-start-time
+wait-until-start-time:
+	@$(mage) WaitUntilStartTime
+
 ## run all solutions for the specified SITE/YEAR
 .PHONY: run-year
 run-year:

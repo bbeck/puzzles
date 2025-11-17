@@ -29,26 +29,33 @@ type Problem struct {
 	Part int
 }
 
+type TimeOfDay struct {
+	Hour, Minute, Second int
+}
+
 type Site struct {
 	ID        string
 	Session   []byte
 	Directory string
 	NumDays   int
 	NumParts  int
+	StartTime TimeOfDay
 }
 
 var Sites = map[string]Site{
 	"advent-of-code": {
 		ID:        "advent-of-code",
 		Directory: "cmd/advent-of-code",
-		NumDays:   25,
+		NumDays:   12,
 		NumParts:  2,
+		StartTime: TimeOfDay{Hour: 23, Minute: 0, Second: 0},
 	},
 	"everybody-codes": {
 		ID:        "everybody-codes",
 		Directory: "cmd/everybody-codes",
 		NumDays:   20,
 		NumParts:  3,
+		StartTime: TimeOfDay{Hour: 17, Minute: 0, Second: 0},
 	},
 }
 
@@ -243,6 +250,34 @@ func Verify() error {
 		fmt.Println("EXPECT:", strings.TrimRight(expected, "\n"))
 		fmt.Println("ACTUAL:", strings.TrimRight(actual, "\n"))
 		fmt.Println()
+	}
+
+	return nil
+}
+
+// WaitUntilStartTime will block until it is the start time for puzzles to be
+// released today.  If it is already after the start time then this method will
+// return immediately.
+//
+//goland:noinspection GoUnusedExportedFunction
+func WaitUntilStartTime() error {
+	mg.Deps(ParseEnv)
+
+	startTOD := Sites[site.ID].StartTime
+
+	for {
+		now := time.Now()
+		start := time.Date(
+			now.Year(), now.Month(), now.Day(),
+			startTOD.Hour, startTOD.Minute, startTOD.Second, 0,
+			now.Location(),
+		)
+
+		if now.After(start) {
+			break
+		}
+
+		time.Sleep(max(start.Sub(now)/2, time.Second))
 	}
 
 	return nil
