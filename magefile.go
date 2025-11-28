@@ -444,7 +444,7 @@ func DownloadEverybodyCodesInput() error {
 		Part3 string `json:"3"`
 	}
 
-	url = fmt.Sprintf("https://everybody-codes.b-cdn.net/assets/%d/%d/input/%d.json", problem.Year, problem.Day, sr.Seed)
+	url = fmt.Sprintf("https://everybody.codes/assets/%d/%d/input/%d.json", problem.Year, problem.Day, sr.Seed)
 	inr, err := FetchJSON[InputNotesResponse](url)
 	if err != nil {
 		return err
