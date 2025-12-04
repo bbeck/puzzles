@@ -151,6 +151,18 @@ func ToGrid2D[T any](fn func(x, y int, s string) T) Grid2D[T] {
 	return as[any, T](&scanner).Grid2D(fn)
 }
 
+func ToStringGrid2D() Grid2D[string] {
+	return ToGrid2D(func(_, _ int, s string) string {
+		return s
+	})
+}
+
+func ToIntGrid2D() Grid2D[int] {
+	return ToGrid2D(func(_, _ int, s string) int {
+		return ParseInt(s)
+	})
+}
+
 func as[T, U any](s *Scanner[T]) *Scanner[U] {
 	return (*Scanner[U])(s)
 }
