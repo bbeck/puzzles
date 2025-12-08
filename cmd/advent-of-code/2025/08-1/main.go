@@ -15,22 +15,17 @@ func main() {
 		ps = append(ps, Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()})
 	}
 
-	var distances = make(map[int][][2]Point3D)
+	var distances PriorityQueue[[2]Point3D]
 	for i := 0; i < len(ps); i++ {
 		for j := i + 1; j < len(ps); j++ {
-			d := Distance2(ps[i], ps[j])
-			distances[d] = append(distances[d], [2]Point3D{ps[i], ps[j]})
+			distances.Push([2]Point3D{ps[i], ps[j]}, Distance2(ps[i], ps[j]))
 		}
 	}
 
-	var pairs [][2]Point3D
-	for _, dist := range slices.Sorted(maps.Keys(distances)) {
-		pairs = append(pairs, distances[dist]...)
-	}
-
 	var ds DisjointSet[Point3D]
-	for i := range 1000 {
-		ds.UnionWithAdd(pairs[i][0], pairs[i][1])
+	for range 1000 {
+		pair := distances.Pop()
+		ds.UnionWithAdd(pair[0], pair[1])
 	}
 
 	var sizes = make(map[Point3D]int)
