@@ -36,8 +36,8 @@ type Site struct {
 	ID        string
 	Session   []byte
 	Directory string
-	NumDays   func(year int) int
-	NumParts  int
+	NumDays   func(Problem) int
+	NumParts  func(Problem) int
 	StartTime TimeOfDay
 }
 
@@ -45,20 +45,20 @@ var Sites = map[string]Site{
 	"advent-of-code": {
 		ID:        "advent-of-code",
 		Directory: "cmd/advent-of-code",
-		NumDays: func(year int) int {
-			if year < 2025 {
+		NumDays: func(problem Problem) int {
+			if problem.Year < 2025 {
 				return 25
 			}
 			return 12
 		},
-		NumParts:  2,
+		NumParts:  func(Problem) int { return 2 },
 		StartTime: TimeOfDay{Hour: 23, Minute: 0, Second: 0},
 	},
 	"everybody-codes": {
 		ID:        "everybody-codes",
 		Directory: "cmd/everybody-codes",
-		NumDays:   func(year int) int { return 20 },
-		NumParts:  3,
+		NumDays:   func(problem Problem) int { return 20 },
+		NumParts:  func(problem Problem) int { return 3 },
 		StartTime: TimeOfDay{Hour: 17, Minute: 0, Second: 0},
 	},
 }
@@ -153,16 +153,16 @@ func Watch() error {
 func Next() error {
 	mg.Deps(ParseEnv)
 
-	if site.ID == "advent-of-code" && problem.Day == site.NumDays(problem.Year) && problem.Part == 1 {
+	if site.ID == "advent-of-code" && problem.Day == site.NumDays(problem) && problem.Part == 1 {
 		// Special case for Advent of Code where there is no 2nd part on Christmas.
 		problem.Year++
 		problem.Day = 1
 		problem.Part = 1
-	} else if problem.Day == site.NumDays(problem.Year) && problem.Part == site.NumParts {
+	} else if problem.Day == site.NumDays(problem) && problem.Part == site.NumParts(problem) {
 		problem.Year++
 		problem.Day = 1
 		problem.Part = 1
-	} else if problem.Part == site.NumParts {
+	} else if problem.Part == site.NumParts(problem) {
 		problem.Day++
 		problem.Part = 1
 	} else {
@@ -302,7 +302,7 @@ func WaitUntilStartTime() error {
 func ListDay() {
 	mg.Deps(ParseEnv)
 
-	for part := 1; part <= site.NumParts; part++ {
+	for part := 1; part <= site.NumParts(problem); part++ {
 		// Check if a main.go file exists
 		path := fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, problem.Day, part)
 		if script.IfExists(path).Error() == nil {
@@ -317,8 +317,8 @@ func ListDay() {
 func ListYear() {
 	mg.Deps(ParseEnv)
 
-	for day := 1; day <= site.NumDays(problem.Year); day++ {
-		for part := 1; part <= site.NumParts; part++ {
+	for day := 1; day <= site.NumDays(problem); day++ {
+		for part := 1; part <= site.NumParts(problem); part++ {
 			// Check if a main.go file exists
 			path := fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, day, part)
 			if script.IfExists(path).Error() == nil {
@@ -358,7 +358,7 @@ func ParseEnv() {
 	day, err := LookupInt("DAY")
 	if err != nil {
 		// The day wasn't in the environment, infer it from the filesystem.
-		for day = site.NumDays(problem.Year); day > 0; day-- {
+		for day = site.NumDays(problem); day > 0; day-- {
 			dir := fmt.Sprintf("%s/%d/%02d-1", site.Directory, year, day)
 			if script.IfExists(dir).Error() == nil {
 				break
@@ -374,7 +374,7 @@ func ParseEnv() {
 	part, err := LookupInt("PART")
 	if err != nil {
 		// The part wasn't in the environment, infer it from the filesystem.
-		for part = site.NumParts; part > 0; part-- {
+		for part = site.NumParts(problem); part > 0; part-- {
 			dir := fmt.Sprintf("%s/%d/%02d-%d", site.Directory, year, day, part)
 			if script.IfExists(dir).Error() == nil {
 				break
