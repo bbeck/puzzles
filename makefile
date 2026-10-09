@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-mage := go run mage.go
+mage := go tool mage
 
 ## run the test cases
 .PHONY: test

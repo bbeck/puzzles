@@ -136,7 +136,7 @@ func Watch() error {
 			fmt.Sprintf("DAY=%d", problem.Day),
 			fmt.Sprintf("PART=%d", problem.Part),
 		}...)).
-		Exec("entr -c sh -c 'go run mage.go run'").
+		Exec("entr -c sh -c 'go tool mage run'").
 		Stdout()
 
 	return err
