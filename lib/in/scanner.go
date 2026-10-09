@@ -164,6 +164,10 @@ func (bs *Scanner[T]) Grid2D(fn func(int, int, string) T) Grid2D[T] {
 	return grid
 }
 
+func (bs *Scanner[T]) StringGrid2D() Grid2D[string] {
+	return as[T, string](bs).Grid2D(func(_, _ int, s string) string { return s })
+}
+
 // HasNext returns true if there are more non-whitespace bytes to read.
 func (bs *Scanner[T]) HasNext() bool {
 	for _, b := range *bs {
