@@ -22,56 +22,6 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-type Problem struct {
-	Year int
-	Day  int
-	Part int
-}
-
-type TimeOfDay struct {
-	Hour, Minute, Second int
-}
-
-type Site struct {
-	ID        string
-	Session   []byte
-	Directory string
-	NumDays   func(Problem) int
-	NumParts  func(Problem) int
-	StartTime TimeOfDay
-}
-
-var Sites = map[string]Site{
-	"advent-of-code": {
-		ID:        "advent-of-code",
-		Directory: "cmd/advent-of-code",
-		NumDays: func(problem Problem) int {
-			if problem.Year < 2025 {
-				return 25
-			}
-			return 12
-		},
-		NumParts:  func(Problem) int { return 2 },
-		StartTime: TimeOfDay{Hour: 23, Minute: 0, Second: 0},
-	},
-	"everybody-codes": {
-		ID:        "everybody-codes",
-		Directory: "cmd/everybody-codes",
-		NumDays:   func(problem Problem) int { return 20 },
-		NumParts:  func(problem Problem) int { return 3 },
-		StartTime: TimeOfDay{Hour: 17, Minute: 0, Second: 0},
-	},
-}
-
-var SiteAliases = map[string]string{
-	"adventofcode":    "advent-of-code",
-	"advent-of-code":  "advent-of-code",
-	"aoc":             "advent-of-code",
-	"everybodycodes":  "everybody-codes",
-	"everybody-codes": "everybody-codes",
-	"ec":              "everybody-codes",
-}
-
 var problem Problem
 var site Site
 
@@ -112,30 +62,12 @@ func Watch() error {
 
 	// Always watch the shared library directory, the directory of the part that's
 	// being solved, and the input file.
-	var files string
-	switch site.ID {
-	case "advent-of-code":
-		// For Advent of Code each day shares a single input file that's located in
-		// the part 1 directory.
-		files = Files(
-			"lib",
-			fmt.Sprintf("%s/%d/%02d-%d", site.Directory, problem.Year, problem.Day, problem.Part),
-			fmt.Sprintf("%s/%d/%02d-1/input.txt", site.Directory, problem.Year, problem.Day),
-		)
-
-	case "everybody-codes":
-		// For Everybody Codes each part has a separate input file that's located in
-		// the part's directory.
-		files = Files(
-			"lib",
-			fmt.Sprintf("%s/%d/%02d-%d", site.Directory, problem.Year, problem.Day, problem.Part),
-		)
-	}
+	files := Files("lib", site.Directory(problem), site.InputFilename(problem))
 
 	_, err := script.
 		Echo(files).
 		WithEnv(append(os.Environ(), []string{
-			fmt.Sprintf("SITE=%s", site.ID),
+			fmt.Sprintf("SITE=%s", site.ID()),
 			fmt.Sprintf("YEAR=%d", problem.Year),
 			fmt.Sprintf("DAY=%d", problem.Day),
 			fmt.Sprintf("PART=%d", problem.Part),
@@ -153,39 +85,40 @@ func Watch() error {
 func Next() error {
 	mg.Deps(ParseEnv)
 
-	if site.ID == "advent-of-code" && problem.Day == site.NumDays(problem) && problem.Part == 1 {
-		// Special case for Advent of Code where there is no 2nd part on Christmas.
-		problem.Year++
-		problem.Day = 1
-		problem.Part = 1
-	} else if problem.Day == site.NumDays(problem) && problem.Part == site.NumParts(problem) {
-		problem.Year++
-		problem.Day = 1
-		problem.Part = 1
-	} else if problem.Part == site.NumParts(problem) {
-		problem.Day++
-		problem.Part = 1
-	} else {
-		problem.Part++
+	next := problem
+	switch {
+	case problem.Day == site.NumDays(problem.Year) && problem.Part == site.NumParts(problem.Year, problem.Day):
+		next.Year++
+		next.Day = 1
+		next.Part = 1
+	case problem.Part == site.NumParts(problem.Year, problem.Day):
+		next.Day++
+		next.Part = 1
+	default:
+		next.Part++
 	}
 
 	// The new directory we're going to work in.
-	dir := fmt.Sprintf("%s/%d/%02d-%d", site.Directory, problem.Year, problem.Day, problem.Part)
+	dir := site.Directory(next)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
 	// The source of what we're going to copy as our main.go.
 	var source string
-	if problem.Part == 1 {
-		source = fmt.Sprintf("%s/.template", site.Directory)
+	if next.Part == 1 {
+		source = site.TemplateFilename()
 	} else {
-		source = fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, problem.Day, problem.Part-1)
+		previous := next
+		previous.Part--
+		source = fmt.Sprintf("%s/main.go", site.Directory(previous))
 	}
 
 	filename := fmt.Sprintf("%s/main.go", dir)
-	_, err := script.File(source).WriteFile(filename)
-	if err != nil {
+	if script.IfExists(filename).Error() == nil {
+		return fmt.Errorf("filename %s already exists", filename)
+	}
+	if _, err := script.File(source).WriteFile(filename); err != nil {
 		return err
 	}
 
@@ -201,22 +134,26 @@ func Next() error {
 func Verify() error {
 	mg.Deps(ParseEnv, DownloadInput)
 
-	path := fmt.Sprintf("%s/.solutions", site.Directory)
-	expected, err := script.File(path).
+	expected, err := script.File(site.SolutionsFilename()).
 		FilterScan(func(line string, w io.Writer) {
+			// Skip over blank lines
+			if strings.TrimSpace(line) == "" {
+				return
+			}
+
 			var buf bytes.Buffer
 
 			// Parse the year/day/part prefix on each line
 			fields := strings.Split(line, " ")
-			year, err := ParseInt(fields[0])
+			year, err := strconv.Atoi(fields[0])
 			if err != nil {
 				panic(fmt.Sprintf("unable to parse year: %s", fields[0]))
 			}
-			day, err := ParseInt(fields[1])
+			day, err := strconv.Atoi(fields[1])
 			if err != nil {
 				panic(fmt.Sprintf("unable to parse day: %s", fields[1]))
 			}
-			part, err := ParseInt(fields[2])
+			part, err := strconv.Atoi(fields[2])
 			if err != nil {
 				panic(fmt.Sprintf("unable to parse part: %s", fields[2]))
 			}
@@ -256,10 +193,10 @@ func Verify() error {
 	eLines := convert(expected)
 	aLines := convert(actual)
 
-	if reflect.DeepEqual(aLines, eLines) {
-		fmt.Printf("✅ SITE=%s YEAR=%d DAY=%02d PART=%d %s [%dms]\n", site.ID, problem.Year, problem.Day, problem.Part, aLines[0], duration.Milliseconds())
+	if len(aLines) > 0 && reflect.DeepEqual(aLines, eLines) {
+		fmt.Printf("✅ SITE=%s YEAR=%d DAY=%02d PART=%d %s [%dms]\n", site.ID(), problem.Year, problem.Day, problem.Part, aLines[0], duration.Milliseconds())
 	} else {
-		fmt.Printf("❌ SITE=%s YEAR=%d DAY=%02d PART=%d [%dms]\n", site.ID, problem.Year, problem.Day, problem.Part, duration.Milliseconds())
+		fmt.Printf("❌ SITE=%s YEAR=%d DAY=%02d PART=%d [%dms]\n", site.ID(), problem.Year, problem.Day, problem.Part, duration.Milliseconds())
 		fmt.Println("EXPECT:", strings.TrimRight(expected, "\n"))
 		fmt.Println("ACTUAL:", strings.TrimRight(actual, "\n"))
 		fmt.Println()
@@ -276,13 +213,13 @@ func Verify() error {
 func WaitUntilStartTime() error {
 	mg.Deps(ParseEnv)
 
-	startTOD := Sites[site.ID].StartTime
+	startHour, startMinute, startSecond := site.StartTime()
 
 	for {
 		now := time.Now()
 		start := time.Date(
 			now.Year(), now.Month(), now.Day(),
-			startTOD.Hour, startTOD.Minute, startTOD.Second, 0,
+			startHour, startMinute, startSecond, 0,
 			now.Location(),
 		)
 
@@ -302,11 +239,11 @@ func WaitUntilStartTime() error {
 func ListDay() {
 	mg.Deps(ParseEnv)
 
-	for part := 1; part <= site.NumParts(problem); part++ {
+	p := problem
+	for p.Part = 1; p.Part <= site.NumParts(p.Year, p.Day); p.Part++ {
 		// Check if a main.go file exists
-		path := fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, problem.Day, part)
-		if script.IfExists(path).Error() == nil {
-			fmt.Printf("%d %d %d\n", problem.Year, problem.Day, part)
+		if script.IfExists(site.Directory(p)+"/main.go").Error() == nil {
+			fmt.Printf("%d %d %d\n", p.Year, p.Day, p.Part)
 		}
 	}
 }
@@ -317,12 +254,12 @@ func ListDay() {
 func ListYear() {
 	mg.Deps(ParseEnv)
 
-	for day := 1; day <= site.NumDays(problem); day++ {
-		for part := 1; part <= site.NumParts(problem); part++ {
+	p := problem
+	for p.Day = 1; p.Day <= site.NumDays(p.Year); p.Day++ {
+		for p.Part = 1; p.Part <= site.NumParts(p.Year, p.Day); p.Part++ {
 			// Check if a main.go file exists
-			path := fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, day, part)
-			if script.IfExists(path).Error() == nil {
-				fmt.Printf("%d %d %d\n", problem.Year, day, part)
+			if script.IfExists(site.Directory(p)+"/main.go").Error() == nil {
+				fmt.Printf("%d %d %d\n", p.Year, p.Day, p.Part)
 			}
 		}
 	}
@@ -337,13 +274,21 @@ func ParseEnv() {
 	if err != nil {
 		panic("unable to infer site")
 	}
-	site = Sites[SiteAliases[strings.ToLower(name)]]
+
+	switch name {
+	case "advent-of-code", "adventofcode", "aoc":
+		site = AdventOfCode{}
+	case "everybody-codes", "everybodycodes", "ec":
+		site = EverybodyCodes{}
+	default:
+		panic(fmt.Sprintf("unrecognized site: %s", name))
+	}
 
 	year, err := LookupInt("YEAR")
 	if err != nil {
 		// The year wasn't in the environment, infer it from the filesystem.
 		for year = time.Now().Year(); year > 0; year-- {
-			dir := fmt.Sprintf("%s/%d", site.Directory, year)
+			dir := site.Directory(Problem{Year: year, Day: 1, Part: 1})
 			if script.IfExists(dir).Error() == nil {
 				break
 			}
@@ -353,14 +298,12 @@ func ParseEnv() {
 			panic("unable to infer year")
 		}
 	}
-	problem.Year = year
 
 	day, err := LookupInt("DAY")
 	if err != nil {
 		// The day wasn't in the environment, infer it from the filesystem.
-		for day = site.NumDays(problem); day > 0; day-- {
-			dir := fmt.Sprintf("%s/%d/%02d-1", site.Directory, year, day)
-			if script.IfExists(dir).Error() == nil {
+		for day = site.NumDays(year); day > 0; day-- {
+			if script.IfExists(site.Directory(Problem{Year: year, Day: day, Part: 1})).Error() == nil {
 				break
 			}
 		}
@@ -369,14 +312,12 @@ func ParseEnv() {
 			panic("unable to infer day")
 		}
 	}
-	problem.Day = day
 
 	part, err := LookupInt("PART")
 	if err != nil {
 		// The part wasn't in the environment, infer it from the filesystem.
-		for part = site.NumParts(problem); part > 0; part-- {
-			dir := fmt.Sprintf("%s/%d/%02d-%d", site.Directory, year, day, part)
-			if script.IfExists(dir).Error() == nil {
+		for part = site.NumParts(year, day); part > 0; part-- {
+			if script.IfExists(site.Directory(Problem{Year: year, Day: day, Part: part})).Error() == nil {
 				break
 			}
 		}
@@ -385,14 +326,7 @@ func ParseEnv() {
 			panic("unable to infer part")
 		}
 	}
-	problem.Part = part
-
-	path := fmt.Sprintf("%s/.session", site.Directory)
-	session, err := script.File(path).Bytes()
-	if err != nil {
-		panic(fmt.Errorf("unable to read session file: %w", err))
-	}
-	site.Session = session
+	problem = Problem{Year: year, Day: day, Part: part}
 }
 
 // DownloadInput will ensure that the input file for the year, day and part
@@ -400,19 +334,74 @@ func ParseEnv() {
 // present then an attempt will be made to download it from the site.
 func DownloadInput() error {
 	mg.Deps(ParseEnv)
-
-	switch site.ID {
-	case "advent-of-code":
-		return DownloadAdventOfCodeInput()
-	case "everybody-codes":
-		return DownloadEverybodyCodesInput()
-	default:
-		return nil
-	}
+	return site.DownloadInput(problem)
 }
 
-func DownloadAdventOfCodeInput() error {
-	filename := fmt.Sprintf("%s/%d/%02d-1/input.txt", site.Directory, problem.Year, problem.Day)
+//
+// Sites
+//
+
+type Problem struct {
+	Year int
+	Day  int
+	Part int
+}
+
+// Site is a place that publishes puzzles.  Everything that differs from site
+// to site lives in an implementation of this interface.
+type Site interface {
+	ID() string
+	StartTime() (int, int, int)
+	TemplateFilename() string
+	SolutionsFilename() string
+	NumDays(year int) int
+	NumParts(year, day int) int
+	Directory(Problem) string
+	InputFilename(Problem) string
+	DownloadInput(Problem) error
+	Authenticate(*http.Request) error
+}
+
+//
+// Advent of Code
+//
+
+type AdventOfCode struct{}
+
+func (site AdventOfCode) ID() string {
+	return "advent-of-code"
+}
+func (site AdventOfCode) StartTime() (int, int, int) { return 23, 0, 0 }
+func (site AdventOfCode) TemplateFilename() string {
+	return "cmd/advent-of-code/.template"
+}
+func (site AdventOfCode) SolutionsFilename() string {
+	return "cmd/advent-of-code/.solutions"
+}
+func (site AdventOfCode) NumDays(year int) int {
+	// Starting in 2025 Advent of Code moved to 12 days.
+	if year >= 2025 {
+		return 12
+	}
+	return 25
+}
+func (site AdventOfCode) NumParts(year, day int) int {
+	// There is no 2nd part on the last day.
+	if day == site.NumDays(year) {
+		return 1
+	}
+	return 2
+}
+func (site AdventOfCode) Directory(p Problem) string {
+	return fmt.Sprintf("cmd/advent-of-code/%d/%02d-%d", p.Year, p.Day, p.Part)
+}
+func (site AdventOfCode) InputFilename(p Problem) string {
+	// Input is stored in the part 1 directory.
+	dir := site.Directory(Problem{Year: p.Year, Day: p.Day, Part: 1})
+	return fmt.Sprintf("%s/input.txt", dir)
+}
+func (site AdventOfCode) DownloadInput(p Problem) error {
+	filename := site.InputFilename(p)
 
 	// First check if the file is already present.
 	if script.IfExists(filename).Error() == nil {
@@ -420,8 +409,8 @@ func DownloadAdventOfCodeInput() error {
 	}
 
 	// The file wasn't present, download it.
-	url := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", problem.Year, problem.Day)
-	bs, err := Fetch(url)
+	url := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", p.Year, p.Day)
+	bs, err := Fetch(site, url)
 	if err != nil {
 		return err
 	}
@@ -430,9 +419,40 @@ func DownloadAdventOfCodeInput() error {
 	_, err = script.Echo(string(bs)).WriteFile(filename)
 	return err
 }
+func (site AdventOfCode) Authenticate(request *http.Request) error {
+	session, err := script.File("cmd/advent-of-code/.session").String()
+	if err != nil {
+		return fmt.Errorf("unable to read session file: %w", err)
+	}
+	session = strings.TrimSpace(session)
+	request.AddCookie(&http.Cookie{Name: "session", Value: session})
+	return nil
+}
 
-func DownloadEverybodyCodesInput() error {
-	filename := fmt.Sprintf("%s/%d/%02d-%d/input.txt", site.Directory, problem.Year, problem.Day, problem.Part)
+//
+// Everybody Codes
+//
+
+type EverybodyCodes struct{}
+
+func (site EverybodyCodes) ID() string                 { return "everybody-codes" }
+func (site EverybodyCodes) StartTime() (int, int, int) { return 17, 0, 0 }
+func (site EverybodyCodes) TemplateFilename() string {
+	return "cmd/everybody-codes/.template"
+}
+func (site EverybodyCodes) SolutionsFilename() string {
+	return "cmd/everybody-codes/.solutions"
+}
+func (site EverybodyCodes) NumDays(year int) int       { return 20 }
+func (site EverybodyCodes) NumParts(year, day int) int { return 3 }
+func (site EverybodyCodes) Directory(p Problem) string {
+	return fmt.Sprintf("cmd/everybody-codes/%d/%02d-%d", p.Year, p.Day, p.Part)
+}
+func (site EverybodyCodes) InputFilename(p Problem) string {
+	return fmt.Sprintf("%s/input.txt", site.Directory(p))
+}
+func (site EverybodyCodes) DownloadInput(p Problem) error {
+	filename := site.InputFilename(p)
 
 	// First check if the file is already present.
 	if script.IfExists(filename).Error() == nil {
@@ -444,8 +464,8 @@ func DownloadEverybodyCodesInput() error {
 		Seed int `json:"seed"`
 	}
 
-	url := "https://everybody.codes/api/user/me"
-	sr, err := FetchJSON[SeedResponse](url)
+	url := "https://api.everybody.codes/user/me"
+	sr, err := FetchJSON[SeedResponse](site, url)
 	if err != nil {
 		return err
 	}
@@ -457,8 +477,8 @@ func DownloadEverybodyCodesInput() error {
 		Part3 string `json:"3"`
 	}
 
-	url = fmt.Sprintf("https://everybody.codes/assets/%d/%d/input/%d.json", problem.Year, problem.Day, sr.Seed)
-	inr, err := FetchJSON[InputNotesResponse](url)
+	url = fmt.Sprintf("https://everybody.codes/assets/%d/%d/input/%d.json", p.Year, p.Day, sr.Seed)
+	inr, err := FetchJSON[InputNotesResponse](site, url)
 	if err != nil {
 		return err
 	}
@@ -470,15 +490,15 @@ func DownloadEverybodyCodesInput() error {
 		Key3 string `json:"key3"`
 	}
 
-	url = fmt.Sprintf("https://everybody.codes/api/event/%d/quest/%d", problem.Year, problem.Day)
-	kr, err := FetchJSON[AESKeysResponse](url)
+	url = fmt.Sprintf("https://api.everybody.codes/event/%d/quest/%d", p.Year, p.Day)
+	kr, err := FetchJSON[AESKeysResponse](site, url)
 	if err != nil {
 		return err
 	}
 
 	// Decrypt the input
 	var input string
-	switch problem.Part {
+	switch p.Part {
 	case 1:
 		input, err = DecryptAES(inr.Part1, kr.Key1)
 	case 2:
@@ -494,13 +514,22 @@ func DownloadEverybodyCodesInput() error {
 	_, err = script.Echo(input).WriteFile(filename)
 	return err
 }
+func (site EverybodyCodes) Authenticate(request *http.Request) error {
+	session, err := script.File("cmd/everybody-codes/.session").String()
+	if err != nil {
+		return fmt.Errorf("unable to read session file: %w", err)
+	}
+	session = strings.TrimSpace(session)
+	request.AddCookie(&http.Cookie{Name: "everybody-codes", Value: session})
+	return nil
+}
 
 //
 // Helpers
 //
 
 func RunHelper() (string, time.Duration, error) {
-	dir := fmt.Sprintf("%s/%d/%02d-%d", site.Directory, problem.Year, problem.Day, problem.Part)
+	dir := site.Directory(problem)
 	err := script.IfExists(dir).Error()
 	if err != nil {
 		return "", 0, fmt.Errorf("%s does not exist", dir)
@@ -550,20 +579,22 @@ func LookupInt(key string) (int, error) {
 		return -1, err
 	}
 
-	return ParseInt(value)
-}
-
-func ParseInt(s string) (int, error) {
-	n, err := strconv.ParseInt(s, 10, 0)
-	if err != nil {
-		return -1, err
-	}
-	return int(n), nil
+	return strconv.Atoi(value)
 }
 
 func Files(paths ...string) string {
 	var files []string
 	for _, path := range paths {
+		info, err := os.Stat(path)
+		if err != nil {
+			continue
+		}
+
+		if !info.IsDir() {
+			files = append(files, path)
+			continue
+		}
+
 		fs, err := script.FindFiles(path).Slice()
 		if err != nil {
 			continue
@@ -573,47 +604,6 @@ func Files(paths ...string) string {
 	}
 
 	return strings.Join(files, "\n")
-}
-
-func Fetch(url string) ([]byte, error) {
-	request, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	request.Header.Set("User-Agent", "automation by bmbeck@gmail.com")
-
-	switch site.ID {
-	case "advent-of-code":
-		request.AddCookie(&http.Cookie{
-			Name:  "session",
-			Value: string(site.Session),
-		})
-
-	case "everybody-codes":
-		request.AddCookie(&http.Cookie{
-			Name:  "everybody-codes",
-			Value: string(site.Session),
-		})
-	}
-
-	return script.Do(request).Bytes()
-}
-
-func FetchJSON[T any](url string) (T, error) {
-	var t T
-
-	bs, err := Fetch(url)
-	if err != nil {
-		return t, err
-	}
-
-	err = json.Unmarshal(bs, &t)
-	if err != nil {
-		return t, err
-	}
-
-	return t, nil
 }
 
 func DecryptAES(s string, key string) (string, error) {
@@ -639,4 +629,35 @@ func DecryptAES(s string, key string) (string, error) {
 	bs = bs[:len(bs)-n]
 
 	return string(bs), nil
+}
+
+func Fetch(site Site, url string) ([]byte, error) {
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header.Set("User-Agent", "automation by bmbeck@gmail.com")
+
+	if err := site.Authenticate(request); err != nil {
+		return nil, err
+	}
+
+	return script.Do(request).Bytes()
+}
+
+func FetchJSON[T any](site Site, url string) (T, error) {
+	var t T
+
+	bs, err := Fetch(site, url)
+	if err != nil {
+		return t, err
+	}
+
+	err = json.Unmarshal(bs, &t)
+	if err != nil {
+		return t, err
+	}
+
+	return t, nil
 }
