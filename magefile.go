@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bbeck/puzzles/lib"
 	"github.com/bitfield/script"
 	"github.com/magefile/mage/mg"
 )
@@ -209,9 +208,18 @@ func Verify() error {
 
 			// Parse the year/day/part prefix on each line
 			fields := strings.Split(line, " ")
-			year := lib.ParseInt(fields[0])
-			day := lib.ParseInt(fields[1])
-			part := lib.ParseInt(fields[2])
+			year, err := ParseInt(fields[0])
+			if err != nil {
+				panic(fmt.Sprintf("unable to parse year: %s", fields[0]))
+			}
+			day, err := ParseInt(fields[1])
+			if err != nil {
+				panic(fmt.Sprintf("unable to parse day: %s", fields[1]))
+			}
+			part, err := ParseInt(fields[2])
+			if err != nil {
+				panic(fmt.Sprintf("unable to parse part: %s", fields[2]))
+			}
 
 			if year == problem.Year && day == problem.Day && part == problem.Part {
 				_, _ = buf.WriteString(strings.Join(fields[3:], " "))
