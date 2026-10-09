@@ -81,7 +81,7 @@ func Watch() error {
 // Next will create and populate the working directory for the next program to
 // work on.
 //
-//goland:noinspection GoUnusedExportedFunction
+//goland:noinspection GoUnusedExportedFunction,GoResourceLeak
 func Next() error {
 	mg.Deps(ParseEnv)
 
@@ -130,7 +130,7 @@ func Next() error {
 // Verify will run the program being worked on and report whether the output
 // matches the expected solution.
 //
-//goland:noinspection GoUnusedExportedFunction
+//goland:noinspection GoUnusedExportedFunction,GoResourceLeak
 func Verify() error {
 	mg.Deps(ParseEnv, DownloadInput)
 
@@ -235,7 +235,7 @@ func WaitUntilStartTime() error {
 
 // ListDay enumerates all parts that exist for a day.
 //
-//goland:noinspection GoUnusedExportedFunction
+//goland:noinspection GoUnusedExportedFunction,GoResourceLeak
 func ListDay() {
 	mg.Deps(ParseEnv)
 
@@ -269,6 +269,8 @@ func ListYear() {
 // and part is being worked on.  If a variable is not present in the environment
 // then an attempt will be made to infer the most recent problem is being worked
 // on.
+//
+//goland:noinspection GoResourceLeak
 func ParseEnv() {
 	name, err := Lookup("SITE")
 	if err != nil {
@@ -351,7 +353,7 @@ type Problem struct {
 // to site lives in an implementation of this interface.
 type Site interface {
 	ID() string
-	StartTime() (int, int, int)
+	StartTime() (hour int, minute int, second int)
 	TemplateFilename() string
 	SolutionsFilename() string
 	NumDays(year int) int
@@ -400,6 +402,8 @@ func (site AdventOfCode) InputFilename(p Problem) string {
 	dir := site.Directory(Problem{Year: p.Year, Day: p.Day, Part: 1})
 	return fmt.Sprintf("%s/input.txt", dir)
 }
+
+//goland:noinspection GoResourceLeak
 func (site AdventOfCode) DownloadInput(p Problem) error {
 	filename := site.InputFilename(p)
 
@@ -419,6 +423,8 @@ func (site AdventOfCode) DownloadInput(p Problem) error {
 	_, err = script.Echo(string(bs)).WriteFile(filename)
 	return err
 }
+
+//goland:noinspection GoResourceLeak
 func (site AdventOfCode) Authenticate(request *http.Request) error {
 	session, err := script.File("cmd/advent-of-code/.session").String()
 	if err != nil {
@@ -443,14 +449,16 @@ func (site EverybodyCodes) TemplateFilename() string {
 func (site EverybodyCodes) SolutionsFilename() string {
 	return "cmd/everybody-codes/.solutions"
 }
-func (site EverybodyCodes) NumDays(year int) int       { return 20 }
-func (site EverybodyCodes) NumParts(year, day int) int { return 3 }
+func (site EverybodyCodes) NumDays(int) int       { return 20 }
+func (site EverybodyCodes) NumParts(int, int) int { return 3 }
 func (site EverybodyCodes) Directory(p Problem) string {
 	return fmt.Sprintf("cmd/everybody-codes/%d/%02d-%d", p.Year, p.Day, p.Part)
 }
 func (site EverybodyCodes) InputFilename(p Problem) string {
 	return fmt.Sprintf("%s/input.txt", site.Directory(p))
 }
+
+//goland:noinspection GoResourceLeak
 func (site EverybodyCodes) DownloadInput(p Problem) error {
 	filename := site.InputFilename(p)
 
@@ -514,6 +522,8 @@ func (site EverybodyCodes) DownloadInput(p Problem) error {
 	_, err = script.Echo(input).WriteFile(filename)
 	return err
 }
+
+//goland:noinspection GoResourceLeak
 func (site EverybodyCodes) Authenticate(request *http.Request) error {
 	session, err := script.File("cmd/everybody-codes/.session").String()
 	if err != nil {
@@ -528,6 +538,7 @@ func (site EverybodyCodes) Authenticate(request *http.Request) error {
 // Helpers
 //
 
+//goland:noinspection GoResourceLeak
 func RunHelper() (string, time.Duration, error) {
 	dir := site.Directory(problem)
 	err := script.IfExists(dir).Error()
@@ -582,6 +593,7 @@ func LookupInt(key string) (int, error) {
 	return strconv.Atoi(value)
 }
 
+//goland:noinspection GoResourceLeak
 func Files(paths ...string) string {
 	var files []string
 	for _, path := range paths {
@@ -631,6 +643,7 @@ func DecryptAES(s string, key string) (string, error) {
 	return string(bs), nil
 }
 
+//goland:noinspection GoResourceLeak
 func Fetch(site Site, url string) ([]byte, error) {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
