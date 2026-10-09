@@ -37,7 +37,7 @@ type Site struct {
 	ID        string
 	Session   []byte
 	Directory string
-	NumDays   int
+	NumDays   func(year int) int
 	NumParts  int
 	StartTime TimeOfDay
 }
@@ -46,14 +46,19 @@ var Sites = map[string]Site{
 	"advent-of-code": {
 		ID:        "advent-of-code",
 		Directory: "cmd/advent-of-code",
-		NumDays:   12,
+		NumDays: func(year int) int {
+			if year < 2025 {
+				return 25
+			}
+			return 12
+		},
 		NumParts:  2,
 		StartTime: TimeOfDay{Hour: 23, Minute: 0, Second: 0},
 	},
 	"everybody-codes": {
 		ID:        "everybody-codes",
 		Directory: "cmd/everybody-codes",
-		NumDays:   20,
+		NumDays:   func(year int) int { return 20 },
 		NumParts:  3,
 		StartTime: TimeOfDay{Hour: 17, Minute: 0, Second: 0},
 	},
@@ -149,12 +154,12 @@ func Watch() error {
 func Next() error {
 	mg.Deps(ParseEnv)
 
-	if site.ID == "advent-of-code" && problem.Day == site.NumDays && problem.Part == 1 {
+	if site.ID == "advent-of-code" && problem.Day == site.NumDays(problem.Year) && problem.Part == 1 {
 		// Special case for Advent of Code where there is no 2nd part on Christmas.
 		problem.Year++
 		problem.Day = 1
 		problem.Part = 1
-	} else if problem.Day == site.NumDays && problem.Part == site.NumParts {
+	} else if problem.Day == site.NumDays(problem.Year) && problem.Part == site.NumParts {
 		problem.Year++
 		problem.Day = 1
 		problem.Part = 1
@@ -304,7 +309,7 @@ func ListDay() {
 func ListYear() {
 	mg.Deps(ParseEnv)
 
-	for day := 1; day <= site.NumDays; day++ {
+	for day := 1; day <= site.NumDays(problem.Year); day++ {
 		for part := 1; part <= site.NumParts; part++ {
 			// Check if a main.go file exists
 			path := fmt.Sprintf("%s/%d/%02d-%d/main.go", site.Directory, problem.Year, day, part)
@@ -345,7 +350,7 @@ func ParseEnv() {
 	day, err := LookupInt("DAY")
 	if err != nil {
 		// The day wasn't in the environment, infer it from the filesystem.
-		for day = site.NumDays; day > 0; day-- {
+		for day = site.NumDays(problem.Year); day > 0; day-- {
 			dir := fmt.Sprintf("%s/%d/%02d-1", site.Directory, year, day)
 			if script.IfExists(dir).Error() == nil {
 				break
