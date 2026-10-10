@@ -1,86 +1,96 @@
 .DEFAULT_GOAL := help
-
 mage := go tool mage
 
-## run the test cases
-.PHONY: test
-test:
-	@go test "./lib/..."
+## Solving
 
-## run the solution for the specified SITE/YEAR/DAY/PART
 .PHONY: run
-run:
+run:  ## run SITE/YEAR/DAY/PART
 	@$(mage) run
 
-## run the solution for the specified SITE/YEAR/DAY/PART whenever a file changes
-.PHONY: watch
-watch:
-	@$(mage) watch
-
-## verify the solution output for the specified SITE/YEAR/DAY/PART
 .PHONY: verify
-verify:
+verify:  ## run SITE/YEAR/DAY/PART and verify the output
 	@$(mage) verify
 
-## run the solution for the specified SITE/YEAR/DAY/PART whenever a file changes
+.PHONY: watch
+watch:  ## run SITE/YEAR/DAY/PART whenever files change
+	@$(mage) watch
+
 .PHONY: next
-next:
+next:  ## setup the source for the next puzzle
 	@$(mage) next
 
-## wait until the start time for puzzles to be released for the specified SITE
 .PHONY: wait-until-start-time
-wait-until-start-time:
+wait-until-start-time:  ## wait until the start time for SITE
 	@$(mage) WaitUntilStartTime
 
-## run all solutions for the specified SITE/YEAR
+## Verifying
+
+.PHONY: run-day
+run-day:  ## run the entire SITE/YEAR/DAY
+	@$(mage) ListDay                                               | \
+	while read year day part; do                                     \
+	  printf "YEAR=%d DAY=%02d PART=%d " $${year} $${day} $${part};  \
+	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) run;           \
+	done
+
 .PHONY: run-year
-run-year:
+run-year:  ## run the entire SITE/YEAR
 	@$(mage) ListYear                                              | \
 	while read year day part; do                                     \
 	  printf "YEAR=%d DAY=%02d PART=%d " $${year} $${day} $${part};  \
 	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) run;           \
 	done
 
-## verify the solution output of the specified SITE/YEAR/DAY
 .PHONY: verify-day
-verify-day:
+verify-day:  ## run the entire SITE/YEAR/DAY and verify the output
 	@$(mage) ListDay                                               | \
 	while read year day part; do                                     \
 	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) verify;        \
 	done
 
-## verify the solution output of the specified SITE/YEAR
 .PHONY: verify-year
-verify-year:
+verify-year:  ## run the entire SITE/YEAR and verify the output
 	@$(mage) ListYear                                              | \
 	while read year day part; do                                     \
 	  YEAR=$${year} DAY=$${day} PART=$${part} $(mage) verify;        \
 	done
 
-## display this help message
+## Library
+
+.PHONY: test
+test:  ## run the unit tests
+	@go test "./lib/..."
+
 .PHONY: help
 help:
 	@awk '                                                           \
 	  BEGIN {                                                        \
-	    printf "Usage:\n"                                            \
+	    reset = "\033[0m";                                           \
+	    header_color = "\033[1;35m";                                 \
+	    target_color = "\033[1;1m";                                  \
+	    comment_color = "\033[90m";                                  \
+	    indent = "  ";                                               \
 	  }                                                              \
 	                                                                 \
-	  /^##@/ {                                                       \
-	    printf "\n\033[1m%s:\033[0m\n", substr($$0, 5)               \
-	  }                                                              \
-	                                                                 \
-	  /^##([^@]|$$)/ && $$2 != "" {                                  \
-	    $$1 = "";                                                    \
-	    if (message == null) {                                       \
-	      message = $$0;                                             \
-	    } else {                                                     \
-	      message = message "\n           " $$0;                     \
+	  NR == FNR {                                                    \
+	    if (/^[a-zA-Z_-]+:.*## /) {                                  \
+	      t = $$0; sub(/:.*/, "", t);                                \
+	      if (length(t) > width) width = length(t);                  \
 	    }                                                            \
+	    next;                                                        \
 	  }                                                              \
 	                                                                 \
-	  /^[a-zA-Z_-]+:/ && message != null {                           \
-	    target = substr($$1, 0, length($$1)-1);                      \
-	    printf "  \033[36m%-11s\033[0m %s\n", target, message;        \
-	    message = null;                                              \
+	  /^## / {                                                       \
+	    sub(/^## /, "");                                             \
+	    printf "\n%s%s%s\n", header_color, $$0, reset;               \
+	    next;                                                        \
 	  }                                                              \
-	' $(MAKEFILE_LIST)
+	                                                                 \
+	  /^[a-zA-Z_-]+:.*## / {                                         \
+	    t = $$0; sub(/:.*/, "", t);                                  \
+	    c = $$0; sub(/^[^#]*## */, "", c);                           \
+	    printf "%s%s%-*s%s %s- %s%s\n",                              \
+	      indent, target_color, width, t, reset,                     \
+	      comment_color, c, reset;                                   \
+	  }                                                              \
+	' $(MAKEFILE_LIST) $(MAKEFILE_LIST)
