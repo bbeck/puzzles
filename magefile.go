@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -36,7 +37,7 @@ var site Site
 func Run() error {
 	mg.Deps(ParseEnv, DownloadInput)
 
-	output, duration, err := RunHelper()
+	output, duration, err := RunProblem(problem)
 	if err == nil {
 		// Show the output plus the duration.  Put the duration on a line of its
 		// own if the output has multiple lines in it.
@@ -134,6 +135,8 @@ func Next() error {
 func Verify() error {
 	mg.Deps(ParseEnv, DownloadInput)
 
+	targetYear := filepath.Base(filepath.Dir(site.Directory(problem)))
+
 	expected, err := script.File(site.SolutionsFilename()).
 		FilterScan(func(line string, w io.Writer) {
 			// Skip over blank lines
@@ -141,14 +144,9 @@ func Verify() error {
 				return
 			}
 
-			var buf bytes.Buffer
-
 			// Parse the year/day/part prefix on each line
 			fields := strings.Split(line, " ")
-			year, err := strconv.Atoi(fields[0])
-			if err != nil {
-				panic(fmt.Sprintf("unable to parse year: %s", fields[0]))
-			}
+			year := fields[0]
 			day, err := strconv.Atoi(fields[1])
 			if err != nil {
 				panic(fmt.Sprintf("unable to parse day: %s", fields[1]))
@@ -158,7 +156,8 @@ func Verify() error {
 				panic(fmt.Sprintf("unable to parse part: %s", fields[2]))
 			}
 
-			if year == problem.Year && day == problem.Day && part == problem.Part {
+			var buf bytes.Buffer
+			if year == targetYear && day == problem.Day && part == problem.Part {
 				_, _ = buf.WriteString(strings.Join(fields[3:], " "))
 				buf.WriteRune('\n')
 			}
@@ -170,7 +169,7 @@ func Verify() error {
 		return err
 	}
 
-	actual, duration, err := RunHelper()
+	actual, duration, err := RunProblem(problem)
 	if err != nil {
 		return err
 	}
@@ -193,10 +192,21 @@ func Verify() error {
 	eLines := convert(expected)
 	aLines := convert(actual)
 
+	// Determine the key to write for the puzzle, one of:
+	//   YEAR= DAY= PART=
+	//   STORY= DAY= PART=
+	var key = fmt.Sprintf("SITE=%s YEAR=%d DAY=%02d PART=%d", site.ID(), problem.Year, problem.Day, problem.Part)
+	type StoryChecker interface {
+		IsStory(int) bool
+	}
+	if s, ok := site.(StoryChecker); ok && s.IsStory(problem.Year) {
+		key = fmt.Sprintf("SITE=%s STORY=%d DAY=%02d PART=%d", site.ID(), problem.Year, problem.Day, problem.Part)
+	}
+
 	if len(aLines) > 0 && reflect.DeepEqual(aLines, eLines) {
-		fmt.Printf("✅ SITE=%s YEAR=%d DAY=%02d PART=%d %s [%dms]\n", site.ID(), problem.Year, problem.Day, problem.Part, aLines[0], duration.Milliseconds())
+		fmt.Printf("✅ %s %s [%dms]\n", key, aLines[0], duration.Milliseconds())
 	} else {
-		fmt.Printf("❌ SITE=%s YEAR=%d DAY=%02d PART=%d [%dms]\n", site.ID(), problem.Year, problem.Day, problem.Part, duration.Milliseconds())
+		fmt.Printf("❌ %s [%dms]\n", key, duration.Milliseconds())
 		fmt.Println("EXPECT:", strings.TrimRight(expected, "\n"))
 		fmt.Println("ACTUAL:", strings.TrimRight(actual, "\n"))
 		fmt.Println()
@@ -288,7 +298,11 @@ func ParseEnv() {
 
 	year, err := LookupInt("YEAR")
 	if err != nil {
-		// The year wasn't in the environment, infer it from the filesystem.
+		year, err = LookupInt("STORY")
+	}
+
+	if err != nil {
+		// Try to infer the year from the filesystem.
 		for year = time.Now().Year(); year > 0; year-- {
 			dir := site.Directory(Problem{Year: year, Day: 1, Part: 1})
 			if script.IfExists(dir).Error() == nil {
@@ -449,13 +463,24 @@ func (site EverybodyCodes) TemplateFilename() string {
 func (site EverybodyCodes) SolutionsFilename() string {
 	return "cmd/everybody-codes/.solutions"
 }
-func (site EverybodyCodes) NumDays(int) int       { return 20 }
+func (site EverybodyCodes) NumDays(year int) int {
+	if site.IsStory(year) {
+		return 3
+	}
+	return 20
+}
 func (site EverybodyCodes) NumParts(int, int) int { return 3 }
 func (site EverybodyCodes) Directory(p Problem) string {
+	if site.IsStory(p.Year) {
+		return fmt.Sprintf("cmd/everybody-codes/story-%02d/%02d-%d", p.Year, p.Day, p.Part)
+	}
 	return fmt.Sprintf("cmd/everybody-codes/%d/%02d-%d", p.Year, p.Day, p.Part)
 }
 func (site EverybodyCodes) InputFilename(p Problem) string {
 	return fmt.Sprintf("%s/input.txt", site.Directory(p))
+}
+func (site EverybodyCodes) IsStory(year int) bool {
+	return year < 2000
 }
 
 //goland:noinspection GoResourceLeak
@@ -506,13 +531,15 @@ func (site EverybodyCodes) DownloadInput(p Problem) error {
 
 	// Decrypt the input
 	var input string
-	switch p.Part {
-	case 1:
+	switch {
+	case p.Part == 1 && kr.Key1 != "":
 		input, err = DecryptAES(inr.Part1, kr.Key1)
-	case 2:
+	case p.Part == 2 && kr.Key2 != "":
 		input, err = DecryptAES(inr.Part2, kr.Key2)
-	case 3:
+	case p.Part == 3 && kr.Key3 != "":
 		input, err = DecryptAES(inr.Part3, kr.Key3)
+	default:
+		return fmt.Errorf("key for part %d not available, did you solve the previous puzzle", p.Part)
 	}
 	if err != nil {
 		return err
@@ -539,7 +566,7 @@ func (site EverybodyCodes) Authenticate(request *http.Request) error {
 //
 
 //goland:noinspection GoResourceLeak
-func RunHelper() (string, time.Duration, error) {
+func RunProblem(problem Problem) (string, time.Duration, error) {
 	dir := site.Directory(problem)
 	err := script.IfExists(dir).Error()
 	if err != nil {
