@@ -14,8 +14,15 @@ import (
 
 // Filename determines the input file for a specific day's part.
 func Filename() string {
+	// Matches a caller path such as:
+	//   .../cmd/advent-of-code/2024/05-2/main.go
+	//   .../cmd/everybody-codes/story-01/03-1/main.go
 	var regex = regexp.MustCompile(
-		`.*/([^/]+)/([0-9]{4})/([0-9]{2})[-]([0-9])/main.go$`,
+		`.*/` + // everything leading up to the site directory
+			`(?P<site>[^/]+)/` + // advent-of-code, everybody-codes, ...
+			`(?P<year>[0-9]{4}|story-[0-9]{2})/` + // 2024, or story-01
+			`(?P<day>[0-9]{2})-(?P<part>[0-9])/` + // 05-2
+			`main\.go$`,
 	)
 
 	// Determine the site, year, day and part from the caller.  In all cases I've
@@ -35,7 +42,10 @@ func Filename() string {
 		panic("unable to find site, year, day and part from caller")
 	}
 
-	site, year, day, part := m[1], m[2], m[3], m[4]
+	site := m[regex.SubexpIndex("site")]
+	year := m[regex.SubexpIndex("year")]
+	day := m[regex.SubexpIndex("day")]
+	part := m[regex.SubexpIndex("part")]
 
 	// Determine the path to the input.txt relative to the working directory.
 	wd, _ := os.Getwd()
