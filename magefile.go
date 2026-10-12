@@ -59,7 +59,7 @@ func Run() error {
 //
 //goland:noinspection GoUnusedExportedFunction
 func Watch() error {
-	mg.Deps(ParseEnv)
+	mg.Deps(ParseEnv, DownloadInput)
 
 	// Always watch the shared library directory, the directory of the part that's
 	// being solved, and the input file.
