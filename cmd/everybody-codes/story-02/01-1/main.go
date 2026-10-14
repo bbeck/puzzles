@@ -52,6 +52,6 @@ func Drop(grid Grid2D[string], instructions string, toss int) int {
 }
 
 func InputToGridAndInstructions() (Grid2D[string], []string) {
-	chunk := in.ChunkS()
+	chunk := in.ChunkS[string]()
 	return chunk.StringGrid2D(), in.Lines()
 }

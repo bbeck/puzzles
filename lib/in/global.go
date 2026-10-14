@@ -41,9 +41,9 @@ func Chunk() []string {
 	return scanner.Chunk()
 }
 
-func ChunkS() Scanner[any] {
+func ChunkS[T any]() Scanner[T] {
 	initialize()
-	return scanner.ChunkS()
+	return as[any, T](&scanner).ChunkS()
 }
 
 func Cut(sep string) (string, string) {

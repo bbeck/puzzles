@@ -39,7 +39,7 @@ func InputToPlants() (map[int]Plant, int) {
 
 	var lastID int
 	for in.HasNext() {
-		chunk := in.ChunkS()
+		chunk := in.ChunkS[string]()
 
 		var plant = Plant{Children: make(map[int]int)}
 		plant.ID, plant.Thickness = chunk.Int(), chunk.Int()

@@ -73,12 +73,12 @@ func main() {
 }
 
 func InputToTurnsAndWheels() ([]int, [][]string) {
-	c1 := in.ChunkS()
+	c1 := in.ChunkS[string]()
 	turns := c1.Ints()
 
 	var wheels = make([][]string, len(turns))
 
-	c2 := in.ChunkS()
+	c2 := in.ChunkS[string]()
 	for _, line := range c2.Lines() {
 		for i := range wheels {
 			if len(line) >= 4*i+3 {

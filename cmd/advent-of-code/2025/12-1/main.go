@@ -46,7 +46,7 @@ func InputToShapesAndRegions() ([]Shape, []Region) {
 	for isShape() {
 		in.Line() // id
 
-		chunk := in.ChunkS()
+		chunk := in.ChunkS[string]()
 		grid := chunk.StringGrid2D()
 		shapes = append(shapes, Shape{
 			Area: grid.Width * grid.Height,

@@ -38,7 +38,7 @@ func main() {
 }
 
 func InputToIntervals() []Interval {
-	s := in.ChunkS()
+	s := in.ChunkS[string]()
 
 	var intervals []Interval
 	for s.HasNext() {

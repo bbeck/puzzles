@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/bbeck/puzzles/lib/in"
 )
 
@@ -49,7 +50,7 @@ func InputToMachine() (string, int, map[string]map[int]Action) {
 
 	var program = make(map[string]map[int]Action)
 	for in.HasNext() {
-		var chunk = in.ChunkS()
+		var chunk = in.ChunkS[string]()
 
 		var state string
 		chunk.Scanf("In state %s:", &state)

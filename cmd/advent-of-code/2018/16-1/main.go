@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"reflect"
+
 	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/in"
-	"reflect"
 )
 
 func main() {
@@ -79,7 +80,7 @@ func InputToSamples() []Sample {
 			break
 		}
 
-		chunk := in.ChunkS()
+		chunk := in.ChunkS[string]()
 		samples = append(samples, Sample{
 			Before: [4]int{chunk.Int(), chunk.Int(), chunk.Int(), chunk.Int()},
 			OpCode: chunk.Int(),
