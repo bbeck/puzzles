@@ -3,6 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
+
 	. "github.com/bbeck/puzzles/lib"
 	"github.com/bbeck/puzzles/lib/in"
 )
@@ -140,10 +141,10 @@ type Nanobot struct {
 }
 
 func InputToNanobots() []Nanobot {
-	return in.LinesToS[Nanobot](func(s in.Scanner[Nanobot]) Nanobot {
+	return in.LinesToS[Nanobot](func(in in.Scanner[Nanobot]) Nanobot {
 		return Nanobot{
-			Point3D: Point3D{X: in.Int(), Y: in.Int(), Z: in.Int()},
-			R:       in.Int(),
+			X: in.Int(), Y: in.Int(), Z: in.Int(),
+			R: in.Int(),
 		}
 	})
 }

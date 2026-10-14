@@ -40,7 +40,7 @@ func (p Point4D) ManhattanDistance(q Point4D) int {
 }
 
 func InputToPoints() []Point4D {
-	return in.LinesToS(func(in.Scanner[Point4D]) Point4D {
+	return in.LinesToS(func(in in.Scanner[Point4D]) Point4D {
 		return Point4D{W: in.Int(), X: in.Int(), Y: in.Int(), Z: in.Int()}
 	})
 }

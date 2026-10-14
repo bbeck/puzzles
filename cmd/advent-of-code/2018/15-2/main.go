@@ -2,13 +2,16 @@ package main
 
 import (
 	"fmt"
-	. "github.com/bbeck/puzzles/lib"
-	"github.com/bbeck/puzzles/lib/in"
 	"math"
 	"sort"
+
+	. "github.com/bbeck/puzzles/lib"
+	"github.com/bbeck/puzzles/lib/in"
 )
 
 func main() {
+	cavern, initUnits := InputToCavernAndUnits()
+
 	// A binary search on AP doesn't work here because it's not always true that
 	// a success at one AP means success at all higher APs.  Consider the case
 	// where a higher AP elf finishes off a gnome more quickly and gets into a
@@ -27,17 +30,23 @@ func main() {
 		// Compute the AP that's needed to finish a 200HP gnome
 		ap := int(math.Ceil(200 / float64(n)))
 
+		var units []Unit
+		for _, unit := range initUnits {
+			if unit.Kind == "E" {
+				unit.AP = ap
+			}
+			units = append(units, unit)
+		}
+
 		var success bool
-		outcomes[n], success = Simulate(ap)
+		outcomes[n], success = Simulate(cavern, units)
 		return !success
 	})
 
 	fmt.Println(outcomes[attacks])
 }
 
-func Simulate(ap int) (int, bool) {
-	cavern, units := InputToCavernAndUnits(ap)
-
+func Simulate(cavern Grid2D[bool], units []Unit) (int, bool) {
 	var round int
 	for round = 1; ; round++ {
 		sort.Slice(units, TurnOrder(units))
@@ -214,7 +223,7 @@ type Unit struct {
 	AP   int
 }
 
-func InputToCavernAndUnits(elfAP int) (Grid2D[bool], []Unit) {
+func InputToCavernAndUnits() (Grid2D[bool], []Unit) {
 	var grid = in.ToGrid2D(func(_, _ int, s string) string { return s })
 
 	var cavern = NewGrid2D[bool](grid.Width, grid.Height)
@@ -225,7 +234,7 @@ func InputToCavernAndUnits(elfAP int) (Grid2D[bool], []Unit) {
 
 		switch s {
 		case "E":
-			units = append(units, Unit{Kind: s, Point2D: p, HP: 200, AP: elfAP})
+			units = append(units, Unit{Kind: s, Point2D: p, HP: 200, AP: 3})
 
 		case "G":
 			units = append(units, Unit{Kind: s, Point2D: p, HP: 200, AP: 3})
