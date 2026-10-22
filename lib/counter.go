@@ -1,7 +1,9 @@
 package lib
 
 import (
+	"cmp"
 	"container/heap"
+	"slices"
 )
 
 type FrequencyCounter[T comparable] struct {
@@ -69,11 +71,16 @@ func (fc *FrequencyCounter[T]) Entries() []FrequencyCount[T] {
 		return nil
 	}
 
+	// Copy the entries out and sort them rather than popping from a copy of the
+	// heap.  The heap holds pointers, so popping from a copy would rewrite the
+	// indices of the entries still referenced by the original heap.
 	entries := make([]FrequencyCount[T], 0, fc.heap.Len())
-	for dup := fc.heap.Copy(); dup.Len() > 0; {
-		entry := heap.Pop(&dup).(*FrequencyCount[T])
+	for _, entry := range *fc.heap {
 		entries = append(entries, *entry)
 	}
+	slices.SortFunc(entries, func(a, b FrequencyCount[T]) int {
+		return cmp.Compare(b.Count, a.Count)
+	})
 
 	return entries
 }
@@ -119,10 +126,4 @@ func (h *fcHeap[T]) Pop() any {
 	*h = (*h)[0 : n-1]
 
 	return entry
-}
-
-func (h fcHeap[T]) Copy() fcHeap[T] {
-	dst := make(fcHeap[T], h.Len())
-	copy(dst, h)
-	return dst
 }
