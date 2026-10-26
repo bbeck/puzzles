@@ -456,7 +456,7 @@ func (site AdventOfCode) Authenticate(request *http.Request) error {
 type EverybodyCodes struct{}
 
 func (site EverybodyCodes) ID() string                 { return "everybody-codes" }
-func (site EverybodyCodes) StartTime() (int, int, int) { return 17, 0, 0 }
+func (site EverybodyCodes) StartTime() (int, int, int) { return 18, 0, 0 }
 func (site EverybodyCodes) TemplateFilename() string {
 	return "cmd/everybody-codes/.template"
 }
