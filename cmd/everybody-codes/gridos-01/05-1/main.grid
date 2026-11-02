@@ -1,0 +1,20 @@
+HEADS AAAA
+
+START  **** SETUP  **** SRUD
+SETUP  **** RIGHTD +*** RRRR
+
+RIGHTD .**@ RIGHTD +*** RRRR
+RIGHTD .**. DOWN   +*** DDDD
+
+RIGHTU .*@* RIGHTU +*** RRRR
+RIGHTU .*.* UP     +*** UUUU
+
+DOWN   .@** DOWN   +*** DDDD
+DOWN   ._** DOWN   +*** DDDD
+DOWN   ..** RIGHTU +*** RRRR
+DOWN   _*** STOP   **** SSSS
+
+UP     .@** UP     +*** UUUU
+UP     ._** UP     +*** UUUU
+UP     ..** RIGHTD +*** RRRR
+UP     _*** STOP   **** SSSS

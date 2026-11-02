@@ -1,0 +1,29 @@
+HEADS AAA/BC
+
+START ***/** INIT ***/** SRD/RR
+INIT  ***/** MAIN ***/** SSS/RR
+
+MAIN  AAA/** MAIN _**/@@ RRR/RR
+MAIN  AAB/** MAIN _**/@* RRR/RS
+MAIN  AA_/** MAIN _**/@* RRR/RS
+MAIN  ABA/** MAIN _**/@* RRR/RS
+MAIN  ABB/** MAIN _**/** RRR/SS
+MAIN  AB_/** MAIN _**/** RRR/SS
+MAIN  A_A/** NEXT _**/@* SSS/RS
+MAIN  A_B/** NEXT _**/** SSS/SS
+MAIN  A__/** NEXT _**/** SSS/SS
+
+MAIN  BAA/** MAIN _**/** RRR/SS
+MAIN  BAB/** MAIN _**/@* RRR/RS
+MAIN  BA_/** MAIN _**/** RRR/SS
+MAIN  BBA/** MAIN _**/@* RRR/RS
+MAIN  BBB/** MAIN _**/@@ RRR/RR
+MAIN  BB_/** MAIN _**/@* RRR/RS
+MAIN  B_A/** NEXT _**/** SSS/SS
+MAIN  B_B/** NEXT _**/@* SSS/RS
+MAIN  B__/** NEXT _**/** SSS/SS
+
+NEXT  ***/** LEFT ***/** DDD/SS
+LEFT  !**/** LEFT ***/** LLL/SS
+LEFT  _!*/** MAIN ***/** RRR/SS
+LEFT  __*/** STOP ***/** SSS/SS

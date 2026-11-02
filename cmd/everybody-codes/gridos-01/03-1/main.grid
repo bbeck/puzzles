@@ -1,0 +1,9 @@
+HEADS AAAA
+
+START **** MAIN **** LSRD
+
+MAIN *#** MAIN **** RRRR
+MAIN #=** MAIN *~** RRRR
+MAIN ~==* MAIN *~*~ RRRR
+MAIN ~=#* MAIN *~** RRRR
+MAIN *_** STOP **** SSSS

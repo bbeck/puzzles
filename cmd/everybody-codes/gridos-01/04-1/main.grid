@@ -1,0 +1,15 @@
+HEADS AA
+
+START ** PASS ** SR
+
+PASS #= PASS ** RR
+PASS #| PASS ** RR
+PASS == PASS ** RR
+PASS =| PASS |_ SS
+PASS |_ LEFT ** SS
+
+LEFT |_ LEFT ** LL
+LEFT =* LEFT ** LL
+LEFT #* CHK1 ** DD
+CHK1 _* STOP ** SS
+CHK1 #* PASS ** SS

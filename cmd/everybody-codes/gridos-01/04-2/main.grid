@@ -1,0 +1,27 @@
+HEADS AA
+START ** CHECK_COL ** SR
+
+CHECK_COL #= CHECK_COL ** DD
+CHECK_COL #_ CHECK_COL ** DD
+CHECK_COL #| FOUND     ** SS
+CHECK_COL _* CHECK_NXT ** UU
+
+// Move back to the top
+CHECK_NXT #* CHECK_NXT ** UU
+CHECK_NXT _* CHECK_RT  ** DD
+CHECK_RT  ** CHECK_COL ** SR
+
+// FOUND
+//   - Move back to the top
+//   - While moving back down, place a | in every row then clear to the right
+//   - Stop
+FOUND          ** FOUND_MOVE_TOP ** SS
+FOUND_MOVE_TOP #* FOUND_MOVE_TOP ** UU
+FOUND_MOVE_TOP _* FOUND_DO_WORK  ** DD
+
+FOUND_DO_WORK  #* FOUND_CLEAR_RT *| SR
+FOUND_DO_WORK  _* STOP           ** SS
+FOUND_CLEAR_RT #! FOUND_CLEAR_RT *_ SR
+FOUND_CLEAR_RT #_ FOUND_GO_BACK  ** SL
+FOUND_GO_BACK  #_ FOUND_GO_BACK  ** SL
+FOUND_GO_BACK  #! FOUND_DO_WORK  ** DD

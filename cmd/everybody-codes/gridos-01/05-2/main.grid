@@ -1,0 +1,26 @@
+HEADS AAA
+
+START     *** SETUP0    *** SSS
+SETUP0    *** SETUP1    *** SDD
+SETUP1    *** SETUP2    *** SSD
+SETUP2    *** TOP_HI    +** RRR
+
+TOP_HI    *.* TOP_LO    +++ RRR
+TOP_HI    *@* TOP_HI    +** RRR
+TOP_HI    ___ TURN1     *** SSS
+TOP_LO    *.* TOP_HI    +++ RRR
+TOP_LO    *@* TOP_LO    **+ RRR
+TOP_LO    ___ TURN1     *** SSS
+
+TURN1     *** TURN2     *** LLS
+TURN2     *** TURN3     *** DDS
+TURN3     *** TURN4     *** LLL
+TURN4     *** TURN5     *** LSS
+TURN5     *** RIGHT_OUT *** DSS
+
+RIGHT_IN  *.* RIGHT_OUT +++ DDD
+RIGHT_IN  *@* RIGHT_IN  +** DDD
+RIGHT_IN  ___ STOP      *** SSS
+RIGHT_OUT *.* RIGHT_IN  +++ DDD
+RIGHT_OUT *@* RIGHT_OUT **+ DDD
+RIGHT_OUT ___ STOP      *** SSS

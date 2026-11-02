@@ -1,0 +1,44 @@
+HEADS AAAAB
+
+START ***** INIT1 ***** SSSSR
+
+// First, replace all of the = with ~ to fill in the water
+INIT1 ####* INIT1 ####* RRRRS
+INIT1 ====* INIT1 ~~~~* RRRRS
+INIT1 ____* INIT2 ***** LLLLS
+INIT2 !!!!* INIT2 ***** LLLLS
+INIT2 ____* INIT3 ***** RRRRS
+INIT3 ***** FIRST ***** LSRDU
+
+// FIRST: Make the first pass on a row
+FIRST *#*** FIRST ***#* RRRRS
+FIRST #~*** FIRST ***#* RRRRS
+FIRST ~~~** FIRST ***~D RRRRS
+FIRST ~~#** FIRST ***#* RRRRS
+FIRST #_*** RETN0 ***** LLLLS
+
+// RETN: Return the the left not deleting rocks
+RETN0 *!*** RETN0 ***** LLLLS
+RETN0 *_*** RETN1 ***** RRRRS
+RETN1 ***** PASS0 ***** DDDDS
+
+// RETY: Return the the left deleting rocks
+RETY0 *#*** RETY0 *_*** LLLLS
+RETY0 *~*** RETY0 *~*** LLLLS
+RETY0 *_*** RETY1 ***** RRRRS
+RETY1 ***** PASS0 ***** DDDDS
+
+// Next, make a pass propagating the rocks and water down
+PASS0 ****D PASS1 ****_ SSSSS  // Check if we should process another row
+PASS0 ****_ CLEAN ***** SSSSS
+PASS1 *#*** PASS1 ***#* RRRRS
+PASS1 #~*** PASS1 ***#* RRRRS
+PASS1 ~~~** PASS1 ***~D RRRRS
+PASS1 ~~#** PASS1 ***#* RRRRS
+PASS1 #_*** PASS2 ***** LLLLS
+PASS2 ***** RETY0 ***** SSSSS
+
+// CLEAN: Move across the row cleaning up rocks
+CLEAN *#*** CLEAN *_*** RRRRS
+CLEAN *~*** CLEAN ***** RRRRS
+CLEAN *_*** STOP  ***** SSSSS

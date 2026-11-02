@@ -1,0 +1,108 @@
+HEADS AAAAAAAAAA
+
+START  ********** SETUP1 ********** SDUDUDUDUD
+SETUP1 ********** SETUP2 ********** SSSDUDUDUD
+SETUP2 ********** SETUP3 ********** SSSSSDUDUD
+SETUP3 ********** SETUP4 ********** SSSSSSSDUD
+SETUP4 ********** MAIN   ********** SSSSSSSSSD
+
+// A=0, B=1, C=3, D=5
+MAIN A_******** MAIN __________ RRRRRRRRRR
+MAIN AA******** MAIN PP________ RRRRRRRRRR
+MAIN AB******** MAIN PPP_______ RRRRRRRRRR
+MAIN AC******** MAIN PPPPP_____ RRRRRRRRRR
+MAIN AD******** MAIN PPPPPPP___ RRRRRRRRRR
+
+MAIN B_******** MAIN P_________ RRRRRRRRRR
+MAIN BA******** MAIN PPP_______ RRRRRRRRRR
+MAIN BB******** MAIN PPPP______ RRRRRRRRRR
+MAIN BC******** MAIN PPPPPP____ RRRRRRRRRR
+MAIN BD******** MAIN PPPPPPPP__ RRRRRRRRRR
+
+MAIN C_******** MAIN PPP_______ RRRRRRRRRR
+MAIN CA******** MAIN PPPPP_____ RRRRRRRRRR
+MAIN CB******** MAIN PPPPPP____ RRRRRRRRRR
+MAIN CC******** MAIN PPPPPPPP__ RRRRRRRRRR
+MAIN CD******** MAIN PPPPPPPPPP RRRRRRRRRR
+
+MAIN D_******** MAIN PPPPP_____ RRRRRRRRRR
+MAIN DA******** MAIN PPPPPPP___ RRRRRRRRRR
+MAIN DB******** MAIN PPPPPPPP__ RRRRRRRRRR
+MAIN DC******** MAIN PPPPPPPPPP RRRRRRRRRR
+MAIN DD******** MO_1 PPPPPPPPPP RRRRRRRRSS
+MO_1 ********** MO_2 ********** SSSSSSSSUD
+MO_2 ********** MO_3 ********PP SSSSSSSSDU
+MO_3 ********** MAIN ********** SSSSSSSSRR
+
+MAIN __******** STOP ********** SSSSSSSSSS
+
+
+
+
+HEADS A
+
+START A AX _ D
+START B BX _ D
+START C CX _ D
+START D DX _ D
+START _ STOP * S
+
+AX A AA _ U
+AX B AB _ U
+AX C AC _ U
+AX D AD _ U
+AX _ AS _ U
+BX A BA _ U
+BX B BB _ U
+BX C BC _ U
+BX D BD _ U
+BX _ BS _ U
+CX A CA _ U
+CX B CB _ U
+CX C CC _ U
+CX D CD _ U
+CX _ CS _ U
+DX A DA _ U
+DX B DB _ U
+DX C DC _ U
+DX D DD _ U
+DX _ DS _ U
+
+// A=0, B=1, C=3, D=5
+AA * UP2 * U
+AB * UP3 * U
+AC * UP5 * U
+AD * UP7 * U
+AS * UP0 * U
+BA * UP3 * U
+BB * UP4 * U
+BC * UP6 * U
+BD * UP8 * U
+BS * UP1 * U
+CA * UP5 * U
+CB * UP6 * U
+CC * UP8 * U
+CD * UP10 * U
+CS * UP3 * U
+DA * UP7 * U
+DB * UP8 * U
+DC * UP10 * U
+DD * UP12 * U
+DS * UP5 * U
+
+UP12 * UP11 P U
+UP11 * UP10 P U
+UP10 * UP9 P U
+UP9 * UP8 P U
+UP8 * UP7 P U
+UP7 * UP6 P U
+UP6 * UP5 P U
+UP5 * UP4 P U
+UP4 * UP3 P U
+UP3 * UP2 P U
+UP2 * UP1 P U
+UP1 * UP0 P U
+UP0 * RET * D
+
+RET P RET * D
+RET _ START * R

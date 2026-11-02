@@ -1,0 +1,54 @@
+HEADS AAA
+
+START     *** SETUP0    *** SSS
+SETUP0    *** SETUP1    *** SDD
+SETUP1    *** SETUP2    *** SSD
+SETUP2    *** TOP_HI    +** RRR
+
+TOP_HI    *.* TOP_LO    +++ RRR
+TOP_HI    *@* TOP_HI    +** RRR
+TOP_HI    ___ TURN1     *** SSS
+TOP_LO    *.* TOP_HI    +++ RRR
+TOP_LO    *@* TOP_LO    **+ RRR
+TOP_LO    ___ TURN1     *** SSS
+
+TURN1     *** TURN1a    *** SSS
+TURN1a    *** TURN1b    *** LLS
+TURN1b    *** TURN1c    *** DDS
+TURN1c    *** TURN1d    *** LLL
+TURN1d    *** TURN1e    *** LSS
+TURN1e    *** RIGHT_OUT *** DSS
+
+RIGHT_IN  *.* RIGHT_OUT +++ DDD
+RIGHT_IN  *@* RIGHT_IN  +** DDD
+RIGHT_IN  ___ TURN2     *** SSS
+RIGHT_OUT *.* RIGHT_IN  +++ DDD
+RIGHT_OUT *@* RIGHT_OUT **+ DDD
+RIGHT_OUT ___ TURN2     *** SSS
+
+TURN2     *** TURN2a    *** SSS
+TURN2a    *** TURN2b    *** UUU
+TURN2b    *** TURN2c    *** UUL
+TURN2c    *** TURN2d    *** ULL
+TURN2d    *** BOT_LO    *** SSS
+
+BOT_HI    *.* BOT_LO    +++ LLL
+BOT_HI    *@* BOT_HI    +** LLL
+BOT_HI    ___ TURN3     *** SSS
+BOT_LO    *.* BOT_HI    +++ LLL
+BOT_LO    *@* BOT_LO    **+ LLL
+BOT_LO    ___ TURN3     *** SSS
+
+TURN3     *** TURN3a    *** SSS
+TURN3a    *** TURN3b    *** RRR
+TURN3b    *** TURN3c    *** RRU
+TURN3c    *** TURN3d    *** RUU
+TURN3d    *** LEFT_IN   *** SSS
+
+LEFT_IN   *.* LEFT_OUT  +++ UUU
+LEFT_IN   *@* LEFT_IN   **+ UUU
+LEFT_IN   +++ STOP      *** SSS
+
+LEFT_OUT  *.* LEFT_IN   +++ UUU
+LEFT_OUT  *@* LEFT_OUT  +** UUU
+LEFT_OUT  +++ STOP      *** SSS

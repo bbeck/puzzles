@@ -1,0 +1,31 @@
+HEADS AAAAA
+
+START ***** INIT1 ***** SSSSS
+
+// First, replace all of the = with ~ to fill in the water
+INIT1 ##### INIT1 ##### RRRRR
+INIT1 ===== INIT1 ~~~~~ RRRRR
+INIT1 _____ INIT2 ***** LLLLL
+INIT2 !!!!! INIT2 ***** LLLLL
+INIT2 _____ INIT3 ***** RRRRR
+INIT3 ***** PASS1 ***** LSRDS
+
+// Next, make the first pass filling in water
+PASS1 *#*** PASS1 ***** RRRRR
+PASS1 #~*** PASS1 ***** RRRRR
+PASS1 ~~~** PASS1 ***~~ RRRRR
+PASS1 ~~#** PASS1 ***** RRRRR
+PASS1 *_*** LEFT1 ***** LLLLL
+
+// Next, go back to the beginning
+LEFT1 *!*** LEFT1 ***** LLLLL
+LEFT1 *_*** LEFT2 ***** RRRRR
+LEFT2 ***** PASS2 ***** DDDDS
+
+// Finally, make another pass filling in the next layer of water
+PASS2 *_**! PASS2 ***** RRRRR
+PASS2 _~~*! PASS2 ***** RRRRR
+PASS2 ~~_*! PASS2 ***** RRRRR
+PASS2 _~_*! PASS2 ***** RRRRR
+PASS2 ~~~*! PASS2 ***~* RRRRR
+PASS2 ****_ STOP  ***** SSSSS
