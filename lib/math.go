@@ -84,10 +84,11 @@ func Modulo[T Integer](value, mod T) T {
 	if mod <= 0 {
 		panic("cannot have zero or negative mod")
 	}
-	for value < 0 {
-		value += mod
+	r := value % mod
+	if r < 0 {
+		r += mod
 	}
-	return value % mod
+	return r
 }
 
 func Pow[T Number, U Unsigned](base T, exp U) T {

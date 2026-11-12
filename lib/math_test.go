@@ -154,6 +154,16 @@ func TestModulo(t *testing.T) {
 		{value: 4, mod: 2, want: 0},
 		{value: 4, mod: 3, want: 1},
 		{value: 99, mod: 12, want: 3},
+		{value: 0, mod: 12, want: 0},
+		{value: -1, mod: 12, want: 11},
+		{value: -11, mod: 12, want: 1},
+		{value: -12, mod: 12, want: 0},
+		{value: -13, mod: 12, want: 11},
+		{value: -24, mod: 12, want: 0},
+		{value: -25, mod: 12, want: 11},
+		{value: -5, mod: 24, want: 19},
+		{value: -7, mod: 1, want: 0},
+		{value: -1_000_000_007, mod: 12, want: 1},
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%d %% %d", test.value, test.mod), func(t *testing.T) {
