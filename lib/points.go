@@ -6,6 +6,10 @@ import (
 	"math/big"
 )
 
+//
+// Point2D
+//
+
 // Point2D is a rectangular representation of a point in 2D space.
 type Point2D struct {
 	X, Y int
@@ -109,18 +113,9 @@ func (p Point2D) String() string {
 	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
 }
 
-// GetBounds determines the corners of the bounding box that contains all
-// specified points.  The bounding box corners returned are the top left and
-// bottom right corners.
-func GetBounds(ps []Point2D) (Point2D, Point2D) {
-	minX, minY, maxX, maxY := math.MaxInt, math.MaxInt, math.MinInt, math.MinInt
-	for _, p := range ps {
-		minX, maxX = Min(minX, p.X), Max(maxX, p.X)
-		minY, maxY = Min(minY, p.Y), Max(maxY, p.Y)
-	}
-
-	return Point2D{X: minX, Y: minY}, Point2D{X: maxX, Y: maxY}
-}
+//
+// Point3D
+//
 
 // Point3D is a rectangular representation of a point in 3D space.
 type Point3D struct {
@@ -184,4 +179,109 @@ func GetBounds3D(ps []Point3D) (Point3D, Point3D) {
 	}
 
 	return Point3D{X: minX, Y: minY, Z: minZ}, Point3D{X: maxX, Y: maxY, Z: maxZ}
+}
+
+//
+// Pose2D
+//
+
+// Pose2D is a representation of a point in 2D space along with the heading
+// that is being faced while at that point.
+type Pose2D struct {
+	Point   Point2D
+	Heading Heading
+}
+
+// TurnLeft returns the pose at the same point with the heading rotated 90
+// degrees counterclockwise.
+func (p Pose2D) TurnLeft() Pose2D {
+	return Pose2D{Point: p.Point, Heading: HeadingTurnLeft[p.Heading]}
+}
+
+// TurnRight returns the pose at the same point with the heading rotated 90
+// degrees clockwise.
+func (p Pose2D) TurnRight() Pose2D {
+	return Pose2D{Point: p.Point, Heading: HeadingTurnRight[p.Heading]}
+}
+
+// TurnAround returns the pose at the same point with the heading reversed.
+func (p Pose2D) TurnAround() Pose2D {
+	return Pose2D{Point: p.Point, Heading: HeadingTurnAround[p.Heading]}
+}
+
+// Forward returns the pose after moving one step along the current heading
+// when the points are from a screen based coordinate system with the origin
+// in the top left.  The heading is unchanged.
+func (p Pose2D) Forward() Pose2D {
+	return Pose2D{
+		Point:   Point2D{X: p.Point.X + HeadingMoveForwardDX[p.Heading], Y: p.Point.Y + HeadingMoveForwardDY[p.Heading]},
+		Heading: p.Heading,
+	}
+}
+
+func (p Pose2D) String() string {
+	switch p.Heading {
+	case Up:
+		return fmt.Sprintf("(%d, %d, ↑)", p.Point.X, p.Point.Y)
+	case Right:
+		return fmt.Sprintf("(%d, %d, →)", p.Point.X, p.Point.Y)
+	case Down:
+		return fmt.Sprintf("(%d, %d, ↓)", p.Point.X, p.Point.Y)
+	case Left:
+		return fmt.Sprintf("(%d, %d, ←)", p.Point.X, p.Point.Y)
+	default:
+		panic(fmt.Sprintf("Invalid Heading: %d", p.Heading))
+	}
+}
+
+//
+// Heading
+//
+
+type Heading int
+
+const (
+	Up Heading = iota
+	Right
+	Down
+	Left
+)
+
+var (
+	HeadingTurnLeft      = []Heading{Left, Up, Right, Down}
+	HeadingTurnRight     = []Heading{Right, Down, Left, Up}
+	HeadingTurnAround    = []Heading{Down, Left, Up, Right}
+	HeadingMoveForwardDX = []int{0, 1, 0, -1}
+	HeadingMoveForwardDY = []int{-1, 0, 1, 0}
+)
+
+func (h Heading) String() string {
+	switch h {
+	case Up:
+		return "U"
+	case Right:
+		return "R"
+	case Down:
+		return "D"
+	case Left:
+		return "L"
+	}
+	return "?"
+}
+
+//
+// Helpers
+//
+
+// GetBounds determines the corners of the bounding box that contains all
+// specified points.  The bounding box corners returned are the top left and
+// bottom right corners.
+func GetBounds(ps []Point2D) (Point2D, Point2D) {
+	minX, minY, maxX, maxY := math.MaxInt, math.MaxInt, math.MinInt, math.MinInt
+	for _, p := range ps {
+		minX, maxX = Min(minX, p.X), Max(maxX, p.X)
+		minY, maxY = Min(minY, p.Y), Max(maxY, p.Y)
+	}
+
+	return Point2D{X: minX, Y: minY}, Point2D{X: maxX, Y: maxY}
 }

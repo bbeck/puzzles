@@ -1,28 +1,5 @@
 package lib
 
-type Heading int
-
-const (
-	Up Heading = iota
-	Right
-	Down
-	Left
-)
-
-func (h Heading) String() string {
-	switch h {
-	case Up:
-		return "U"
-	case Right:
-		return "R"
-	case Down:
-		return "D"
-	case Left:
-		return "L"
-	}
-	return "?"
-}
-
 type Turtle struct {
 	Location Point2D
 	Heading  Heading
